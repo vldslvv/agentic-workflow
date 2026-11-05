@@ -1,0 +1,49 @@
+suite_version: "0.2-draft"
+project_id: todo-cli
+project_brief: brief.md
+specifications:
+  - ../.agents/tasks/002-todo-cli/acceptance.md
+shared_contracts: []
+required_assets: []
+task_records:
+  - ../.agents/tasks/002-todo-cli
+generated_roots:
+  - ../app
+protected_paths:
+  - ../.agents/tasks/002-todo-cli
+  - ../specs
+  - ../spec-source-suite
+  - ../AGENTS.md
+targets:
+  linux-python-uv: targets/linux-python-uv.yaml
+default_target: linux-python-uv
+
+# C01-C12 are mandatory but not executable yet. Empty/null entries block readiness.
+verification:
+  plan: null
+  checks: []
+  frozen_inventory: null
+  verifier_reference: null
+  verifier_revision: null
+  visibility: public
+  manual_criteria: []
+  project_checks: [] # Register executable C12 during future preparation.
+
+approval:
+  authority: user
+  records:
+    - ../.agents/tasks/002-todo-cli/approval.json
+
+run_policy:
+  parallelism: 1
+  max_repair_attempts: 2
+  time_budget_seconds: null
+  cost_budget: null
+  evidence_root: ../.suite/runs
+  feedback_policy: public-failures
+  isolation_requested: procedural
+
+generation:
+  generator_inputs: []
+  forbidden_inputs: []
+  retained_dependencies: []

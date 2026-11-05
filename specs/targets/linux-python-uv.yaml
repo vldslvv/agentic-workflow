@@ -1,0 +1,40 @@
+id: linux-python-uv
+version: "0.1"
+delivery_type: cli
+language: Python
+runtime: "CPython >=3.14,<3.15"
+platform: Linux
+required_technologies:
+  - uv
+  - pyproject.toml with declared dependencies and todo console entry point
+  - committed uv.lock
+  - Python standard library application code
+forbidden_technologies:
+  - third-party application runtime dependencies
+allowed_implementation_choices:
+  - internal module layout
+  - build backend and its declared build dependencies
+
+build_environment:
+  toolchain_constraints:
+    - project lives at app/ relative to repository root
+    - use the locked project for future verification
+  dependency_sources:
+    - PyPI for declared build dependencies
+  network_policy: Preparation may fetch declared dependencies; prepared task operations work offline.
+
+# Commands and executable adapter identity will be frozen in a later phase.
+# Empty vectors mean unprepared, not successful or inapplicable.
+adapter:
+  reference: null
+  revision: null
+  build: []
+  prepare: []
+  invoke: []
+  cleanup: []
+  unit_checks: []
+  nonapplicable_operations: []
+
+acceptance_boundary: Real todo console entry point via uv, observable process output and task-file effects.
+required_assets: []
+operational_environment: Linux local filesystem, one writer at a time; task-file paths resolve against caller cwd.
