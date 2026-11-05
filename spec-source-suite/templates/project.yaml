@@ -1,0 +1,47 @@
+# Copy into your project and fill it. This is not an executable or approved project.
+# Paths are relative to the manifest directory unless the adapter explicitly uses
+# a separately controlled verifier reference. Missing required values block use.
+suite_version: "0.1-draft"
+project_id: null
+project_brief: null
+
+# Registered capability document paths; dependencies live in each spec's metadata.
+specifications: []
+shared_contracts: []
+required_assets: []
+
+# Paths owned by generated implementation, and immutable/protected inputs.
+generated_roots: []
+protected_paths: []
+
+# Map target IDs to filled target profile paths. No target is selected by default.
+targets: {}
+default_target: null
+
+verification:
+  plan: null
+  verifier_reference: null  # Controlled path/service/adapter reference; not a secret.
+  verifier_revision: null
+  visibility: public       # public or mixed; secrecy is optional.
+  mandatory_independent_review: true
+  manual_criteria: []       # Explicit requirement IDs with authorized manual gates.
+
+approval:
+  authority: null
+  records: null             # Approval records must bind authority to content digests.
+
+run_policy:
+  parallelism: 1
+  max_repair_attempts: 2
+  max_items: null           # Set per run or leave unlimited if authorized.
+  time_budget_seconds: null
+  cost_budget: null
+  evidence_root: .suite/runs
+  feedback_policy: public-failures
+
+# Explicit export lists, not a glob over the repository or its entire history.
+generation:
+  generator_inputs: []
+  forbidden_inputs: []
+  retained_dependencies: []
+  isolation_requested: procedural  # procedural or enforced; actual result is recorded.
