@@ -1,0 +1,25 @@
+{
+  "task": "implement-todo-cli",
+  "storage_id": "003-implement-todo-cli",
+  "baseline_commit": "3650ded7aaadf073631a091eadf37cfefc3e81c0",
+  "recorded_at": "2026-11-05T22:08:55.920446+00:00",
+  "authority": "user",
+  "approval_reference": "Current conversation: user instructed: Implement the specifications for this app here: specs",
+  "scope": "Initial implementation of the referenced TODO-CLI specification, TODO-R001\u2013TODO-R012, on its supplied Linux/Python 3.14/uv target; necessary executable-check preparation, execution registration, and fresh independent review.",
+  "interpretation": "The direct request to implement the identified specifications authorizes that existing behavioral/technology baseline and necessary handoff preparation. The operational plan records implementation choices within that scope; no claim of a separate verbatim plan-text approval is made.",
+  "selected_spec": ".agents/tasks/002-todo-cli/acceptance.md",
+  "documents": {
+    ".agents/tasks/002-todo-cli/acceptance.md": "08872144574284d2a299cdcc54e73c9f074c3d5383e5405b4047f57a78566fd9",
+    ".agents/tasks/003-implement-todo-cli/acceptance.md": "e704e21e8ff6bb43561b67f1aad9414649b879cbc2bc5e53df97b66d95051d77",
+    ".agents/tasks/003-implement-todo-cli/plan.md": "99ab82f4acb98ff23d31504b3444ac9a8bc91aa90a7af3fa40f04c63a5e45eef",
+    "specs/project.yaml": "775c9af0f1e49fbcd7ace18184e0ae4ec062622e1cbc0a56b5712321c61b9c1b",
+    "specs/targets/linux-python-uv.yaml": "5670191f6032375ce9ed959a571bef37db7a4ad298292fb301ea3ac3b7ad9724"
+  },
+  "supersedes_readiness_only": ".agents/tasks/002-todo-cli/approval.json",
+  "original_documents": "Task 002 is preserved verbatim, including historical pending annotations; this record supplies current implementation authority.",
+  "isolation": "procedural",
+  "candidate_ownership": [
+    "app/"
+  ],
+  "attempt_limit": 3
+}

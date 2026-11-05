@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    ".suite/runs/003-implement-todo-cli/checks/acceptance.py",
+    "--app",
+    "app",
+    "--evidence",
+    ".suite/runs/003-implement-todo-cli/reviewer-0/acceptance"
+  ],
+  "exit_code": 0,
+  "stdout": "C01 PASS\nC02 PASS\nC03 PASS\nC04 PASS\nC05 PASS\nC06 PASS\nC07 PASS\nC08 PASS\nC09 PASS\nC10 PASS\nC11 PASS\nC12 PASS\n",
+  "stderr": ""
+}

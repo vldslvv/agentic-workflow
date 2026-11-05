@@ -1,0 +1,143 @@
+[
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C11-3tkvcd4l/tasks.txt",
+      "list"
+    ],
+    "cwd": "/tmp/todo-C11-3tkvcd4l",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: /tmp/todo-C11-3tkvcd4l/tasks.txt: [Errno 13] Permission denied: '/tmp/todo-C11-3tkvcd4l/tasks.txt'\n",
+    "stdout_base64": "",
+    "stderr_base64": "dG9kbzogL3RtcC90b2RvLUMxMS0zdGt2Y2Q0bC90YXNrcy50eHQ6IFtFcnJubyAxM10gUGVybWlzc2lvbiBkZW5pZWQ6ICcvdG1wL3RvZG8tQzExLTN0a3ZjZDRsL3Rhc2tzLnR4dCcK",
+    "before": {
+      "exists": true,
+      "unreadable": "[Errno 13] Permission denied: '/tmp/todo-C11-3tkvcd4l/tasks.txt'"
+    },
+    "after": {
+      "exists": true,
+      "unreadable": "[Errno 13] Permission denied: '/tmp/todo-C11-3tkvcd4l/tasks.txt'"
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C11-3tkvcd4l/tasks.txt",
+      "add",
+      "new"
+    ],
+    "cwd": "/tmp/todo-C11-3tkvcd4l",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: /tmp/todo-C11-3tkvcd4l/tasks.txt: [Errno 13] Permission denied: '/tmp/todo-C11-3tkvcd4l/tasks.txt'\n",
+    "stdout_base64": "",
+    "stderr_base64": "dG9kbzogL3RtcC90b2RvLUMxMS0zdGt2Y2Q0bC90YXNrcy50eHQ6IFtFcnJubyAxM10gUGVybWlzc2lvbiBkZW5pZWQ6ICcvdG1wL3RvZG8tQzExLTN0a3ZjZDRsL3Rhc2tzLnR4dCcK",
+    "before": {
+      "exists": true,
+      "unreadable": "[Errno 13] Permission denied: '/tmp/todo-C11-3tkvcd4l/tasks.txt'"
+    },
+    "after": {
+      "exists": true,
+      "unreadable": "[Errno 13] Permission denied: '/tmp/todo-C11-3tkvcd4l/tasks.txt'"
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C11-3tkvcd4l/directory",
+      "list"
+    ],
+    "cwd": "/tmp/todo-C11-3tkvcd4l",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: /tmp/todo-C11-3tkvcd4l/directory: [Errno 21] Is a directory: '/tmp/todo-C11-3tkvcd4l/directory'\n",
+    "stdout_base64": "",
+    "stderr_base64": "dG9kbzogL3RtcC90b2RvLUMxMS0zdGt2Y2Q0bC9kaXJlY3Rvcnk6IFtFcnJubyAyMV0gSXMgYSBkaXJlY3Rvcnk6ICcvdG1wL3RvZG8tQzExLTN0a3ZjZDRsL2RpcmVjdG9yeScK",
+    "before": {
+      "exists": true,
+      "directory": true
+    },
+    "after": {
+      "exists": true,
+      "directory": true
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C11-3tkvcd4l/tasks.txt",
+      "add",
+      "new"
+    ],
+    "cwd": "/tmp/todo-C11-3tkvcd4l",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: /tmp/todo-C11-3tkvcd4l/tasks.txt: [Errno 13] Permission denied: '/tmp/todo-C11-3tkvcd4l/.todo-3zrv5mgy'\n",
+    "stdout_base64": "",
+    "stderr_base64": "dG9kbzogL3RtcC90b2RvLUMxMS0zdGt2Y2Q0bC90YXNrcy50eHQ6IFtFcnJubyAxM10gUGVybWlzc2lvbiBkZW5pZWQ6ICcvdG1wL3RvZG8tQzExLTN0a3ZjZDRsLy50b2RvLTN6cnY1bWd5Jwo=",
+    "before": {
+      "exists": true,
+      "base64": "MSBbIF0gcHJlc2VydmVkCg=="
+    },
+    "after": {
+      "exists": true,
+      "base64": "MSBbIF0gcHJlc2VydmVkCg=="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C11-3tkvcd4l/new.txt",
+      "add",
+      "new"
+    ],
+    "cwd": "/tmp/todo-C11-3tkvcd4l",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: /tmp/todo-C11-3tkvcd4l/new.txt: [Errno 13] Permission denied: '/tmp/todo-C11-3tkvcd4l/.todo-f4_13a5v'\n",
+    "stdout_base64": "",
+    "stderr_base64": "dG9kbzogL3RtcC90b2RvLUMxMS0zdGt2Y2Q0bC9uZXcudHh0OiBbRXJybm8gMTNdIFBlcm1pc3Npb24gZGVuaWVkOiAnL3RtcC90b2RvLUMxMS0zdGt2Y2Q0bC8udG9kby1mNF8xM2E1dicK",
+    "before": {
+      "exists": false
+    },
+    "after": {
+      "exists": false
+    }
+  }
+]

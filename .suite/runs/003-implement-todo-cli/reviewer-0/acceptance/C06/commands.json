@@ -1,0 +1,302 @@
+[
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C06-7ycspb6a/tasks.txt",
+      "edit",
+      "9",
+      "  caf\u00e9   \u4e16\u754c  "
+    ],
+    "cwd": "/tmp/todo-C06-7ycspb6a",
+    "exit_code": 0,
+    "stdout": "9 [ ] caf\u00e9   \u4e16\u754c\n",
+    "stderr": "",
+    "stdout_base64": "OSBbIF0gY2Fmw6kgICDkuJbnlYwK",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "OSBbIF0gZmlyc3QNCjIgW3hdIHNlY29uZA0KNCBbIF0gbGFzdA=="
+    },
+    "after": {
+      "exists": true,
+      "base64": "OSBbIF0gY2Fmw6kgICDkuJbnlYwKMiBbeF0gc2Vjb25kCjQgWyBdIGxhc3QK"
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C06-7ycspb6a/tasks.txt",
+      "edit",
+      "2",
+      "changed"
+    ],
+    "cwd": "/tmp/todo-C06-7ycspb6a",
+    "exit_code": 0,
+    "stdout": "2 [x] changed\n",
+    "stderr": "",
+    "stdout_base64": "MiBbeF0gY2hhbmdlZAo=",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "OSBbIF0gY2Fmw6kgICDkuJbnlYwKMiBbeF0gc2Vjb25kCjQgWyBdIGxhc3QK"
+    },
+    "after": {
+      "exists": true,
+      "base64": "OSBbIF0gY2Fmw6kgICDkuJbnlYwKMiBbeF0gY2hhbmdlZAo0IFsgXSBsYXN0Cg=="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C06-7ycspb6a/tasks.txt",
+      "edit",
+      "2",
+      " same "
+    ],
+    "cwd": "/tmp/todo-C06-7ycspb6a",
+    "exit_code": 0,
+    "stdout": "2 [x] same\n",
+    "stderr": "",
+    "stdout_base64": "MiBbeF0gc2FtZQo=",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    },
+    "after": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C06-7ycspb6a/tasks.txt",
+      "edit",
+      "2",
+      ""
+    ],
+    "cwd": "/tmp/todo-C06-7ycspb6a",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo edit [-h] ID TEXT\ntodo edit: error: argument TEXT: text must not be empty or whitespace-only\n",
+    "stdout_base64": "",
+    "stderr_base64": "dXNhZ2U6IHRvZG8gZWRpdCBbLWhdIElEIFRFWFQKdG9kbyBlZGl0OiBlcnJvcjogYXJndW1lbnQgVEVYVDogdGV4dCBtdXN0IG5vdCBiZSBlbXB0eSBvciB3aGl0ZXNwYWNlLW9ubHkK",
+    "before": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    },
+    "after": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C06-7ycspb6a/tasks.txt",
+      "edit",
+      "2",
+      "   "
+    ],
+    "cwd": "/tmp/todo-C06-7ycspb6a",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo edit [-h] ID TEXT\ntodo edit: error: argument TEXT: text must not be empty or whitespace-only\n",
+    "stdout_base64": "",
+    "stderr_base64": "dXNhZ2U6IHRvZG8gZWRpdCBbLWhdIElEIFRFWFQKdG9kbyBlZGl0OiBlcnJvcjogYXJndW1lbnQgVEVYVDogdGV4dCBtdXN0IG5vdCBiZSBlbXB0eSBvciB3aGl0ZXNwYWNlLW9ubHkK",
+    "before": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    },
+    "after": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C06-7ycspb6a/tasks.txt",
+      "edit",
+      "2",
+      "a\nb"
+    ],
+    "cwd": "/tmp/todo-C06-7ycspb6a",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo edit [-h] ID TEXT\ntodo edit: error: argument TEXT: text contains forbidden character U+000A\n",
+    "stdout_base64": "",
+    "stderr_base64": "dXNhZ2U6IHRvZG8gZWRpdCBbLWhdIElEIFRFWFQKdG9kbyBlZGl0OiBlcnJvcjogYXJndW1lbnQgVEVYVDogdGV4dCBjb250YWlucyBmb3JiaWRkZW4gY2hhcmFjdGVyIFUrMDAwQQo=",
+    "before": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    },
+    "after": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C06-7ycspb6a/tasks.txt",
+      "edit",
+      "2",
+      "a\tb"
+    ],
+    "cwd": "/tmp/todo-C06-7ycspb6a",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo edit [-h] ID TEXT\ntodo edit: error: argument TEXT: text contains forbidden character U+0009\n",
+    "stdout_base64": "",
+    "stderr_base64": "dXNhZ2U6IHRvZG8gZWRpdCBbLWhdIElEIFRFWFQKdG9kbyBlZGl0OiBlcnJvcjogYXJndW1lbnQgVEVYVDogdGV4dCBjb250YWlucyBmb3JiaWRkZW4gY2hhcmFjdGVyIFUrMDAwOQo=",
+    "before": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    },
+    "after": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C06-7ycspb6a/tasks.txt",
+      "edit",
+      "2",
+      "a\u2028b"
+    ],
+    "cwd": "/tmp/todo-C06-7ycspb6a",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo edit [-h] ID TEXT\ntodo edit: error: argument TEXT: text contains forbidden character U+2028\n",
+    "stdout_base64": "",
+    "stderr_base64": "dXNhZ2U6IHRvZG8gZWRpdCBbLWhdIElEIFRFWFQKdG9kbyBlZGl0OiBlcnJvcjogYXJndW1lbnQgVEVYVDogdGV4dCBjb250YWlucyBmb3JiaWRkZW4gY2hhcmFjdGVyIFUrMjAyOAo=",
+    "before": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    },
+    "after": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C06-7ycspb6a/tasks.txt",
+      "edit",
+      "2",
+      "a\u2029b"
+    ],
+    "cwd": "/tmp/todo-C06-7ycspb6a",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo edit [-h] ID TEXT\ntodo edit: error: argument TEXT: text contains forbidden character U+2029\n",
+    "stdout_base64": "",
+    "stderr_base64": "dXNhZ2U6IHRvZG8gZWRpdCBbLWhdIElEIFRFWFQKdG9kbyBlZGl0OiBlcnJvcjogYXJndW1lbnQgVEVYVDogdGV4dCBjb250YWlucyBmb3JiaWRkZW4gY2hhcmFjdGVyIFUrMjAyOQo=",
+    "before": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    },
+    "after": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C06-7ycspb6a/tasks.txt",
+      "edit",
+      "2",
+      "a\u0085b"
+    ],
+    "cwd": "/tmp/todo-C06-7ycspb6a",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo edit [-h] ID TEXT\ntodo edit: error: argument TEXT: text contains forbidden character U+0085\n",
+    "stdout_base64": "",
+    "stderr_base64": "dXNhZ2U6IHRvZG8gZWRpdCBbLWhdIElEIFRFWFQKdG9kbyBlZGl0OiBlcnJvcjogYXJndW1lbnQgVEVYVDogdGV4dCBjb250YWlucyBmb3JiaWRkZW4gY2hhcmFjdGVyIFUrMDA4NQo=",
+    "before": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    },
+    "after": {
+      "exists": true,
+      "base64": "DQoyIFt4XSAgc2FtZSAgDQo="
+    }
+  }
+]

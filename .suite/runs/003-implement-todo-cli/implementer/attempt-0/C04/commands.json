@@ -1,0 +1,178 @@
+[
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C04-foy0hhnw/tasks.txt",
+      "list"
+    ],
+    "cwd": "/tmp/todo-C04-foy0hhnw",
+    "exit_code": 0,
+    "stdout": "8 [x] done\n3 [ ] open\n2 [x] later\n",
+    "stderr": "",
+    "stdout_base64": "OCBbeF0gZG9uZQozIFsgXSBvcGVuCjIgW3hdIGxhdGVyCg==",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "OCBbeF0gZG9uZQ0KDQozIFsgXSBvcGVuDQoyIFt4XSBsYXRlcg=="
+    },
+    "after": {
+      "exists": true,
+      "base64": "OCBbeF0gZG9uZQ0KDQozIFsgXSBvcGVuDQoyIFt4XSBsYXRlcg=="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C04-foy0hhnw/tasks.txt",
+      "list",
+      "--status",
+      "all"
+    ],
+    "cwd": "/tmp/todo-C04-foy0hhnw",
+    "exit_code": 0,
+    "stdout": "8 [x] done\n3 [ ] open\n2 [x] later\n",
+    "stderr": "",
+    "stdout_base64": "OCBbeF0gZG9uZQozIFsgXSBvcGVuCjIgW3hdIGxhdGVyCg==",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "OCBbeF0gZG9uZQ0KDQozIFsgXSBvcGVuDQoyIFt4XSBsYXRlcg=="
+    },
+    "after": {
+      "exists": true,
+      "base64": "OCBbeF0gZG9uZQ0KDQozIFsgXSBvcGVuDQoyIFt4XSBsYXRlcg=="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C04-foy0hhnw/tasks.txt",
+      "list",
+      "--status",
+      "open"
+    ],
+    "cwd": "/tmp/todo-C04-foy0hhnw",
+    "exit_code": 0,
+    "stdout": "3 [ ] open\n",
+    "stderr": "",
+    "stdout_base64": "MyBbIF0gb3Blbgo=",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "OCBbeF0gZG9uZQ0KDQozIFsgXSBvcGVuDQoyIFt4XSBsYXRlcg=="
+    },
+    "after": {
+      "exists": true,
+      "base64": "OCBbeF0gZG9uZQ0KDQozIFsgXSBvcGVuDQoyIFt4XSBsYXRlcg=="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C04-foy0hhnw/tasks.txt",
+      "list",
+      "--status",
+      "done"
+    ],
+    "cwd": "/tmp/todo-C04-foy0hhnw",
+    "exit_code": 0,
+    "stdout": "8 [x] done\n2 [x] later\n",
+    "stderr": "",
+    "stdout_base64": "OCBbeF0gZG9uZQoyIFt4XSBsYXRlcgo=",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "OCBbeF0gZG9uZQ0KDQozIFsgXSBvcGVuDQoyIFt4XSBsYXRlcg=="
+    },
+    "after": {
+      "exists": true,
+      "base64": "OCBbeF0gZG9uZQ0KDQozIFsgXSBvcGVuDQoyIFt4XSBsYXRlcg=="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C04-foy0hhnw/tasks.txt",
+      "list",
+      "--status",
+      "open"
+    ],
+    "cwd": "/tmp/todo-C04-foy0hhnw",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "stdout_base64": "",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "MSBbeF0gZG9uZQ0K"
+    },
+    "after": {
+      "exists": true,
+      "base64": "MSBbeF0gZG9uZQ0K"
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C04-foy0hhnw/tasks.txt",
+      "list"
+    ],
+    "cwd": "/tmp/todo-C04-foy0hhnw",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "",
+    "stdout_base64": "",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": ""
+    },
+    "after": {
+      "exists": true,
+      "base64": ""
+    }
+  }
+]

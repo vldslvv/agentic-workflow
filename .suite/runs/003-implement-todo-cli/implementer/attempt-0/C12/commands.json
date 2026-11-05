@@ -1,0 +1,293 @@
+[
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C12-pr6h8tn3/tasks.txt",
+      "add",
+      "first"
+    ],
+    "cwd": "/tmp/todo-C12-pr6h8tn3",
+    "exit_code": 0,
+    "stdout": "1 [ ] first\n",
+    "stderr": "",
+    "stdout_base64": "MSBbIF0gZmlyc3QK",
+    "stderr_base64": "",
+    "before": {
+      "exists": false
+    },
+    "after": {
+      "exists": true,
+      "base64": "MSBbIF0gZmlyc3QK"
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C12-pr6h8tn3/tasks.txt",
+      "add",
+      "second"
+    ],
+    "cwd": "/tmp/todo-C12-pr6h8tn3",
+    "exit_code": 0,
+    "stdout": "2 [ ] second\n",
+    "stderr": "",
+    "stdout_base64": "MiBbIF0gc2Vjb25kCg==",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "MSBbIF0gZmlyc3QK"
+    },
+    "after": {
+      "exists": true,
+      "base64": "MSBbIF0gZmlyc3QKMiBbIF0gc2Vjb25kCg=="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C12-pr6h8tn3/tasks.txt",
+      "edit",
+      "1",
+      "edited"
+    ],
+    "cwd": "/tmp/todo-C12-pr6h8tn3",
+    "exit_code": 0,
+    "stdout": "1 [ ] edited\n",
+    "stderr": "",
+    "stdout_base64": "MSBbIF0gZWRpdGVkCg==",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "MSBbIF0gZmlyc3QKMiBbIF0gc2Vjb25kCg=="
+    },
+    "after": {
+      "exists": true,
+      "base64": "MSBbIF0gZWRpdGVkCjIgWyBdIHNlY29uZAo="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C12-pr6h8tn3/tasks.txt",
+      "complete",
+      "1"
+    ],
+    "cwd": "/tmp/todo-C12-pr6h8tn3",
+    "exit_code": 0,
+    "stdout": "1 [x] edited\n",
+    "stderr": "",
+    "stdout_base64": "MSBbeF0gZWRpdGVkCg==",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "MSBbIF0gZWRpdGVkCjIgWyBdIHNlY29uZAo="
+    },
+    "after": {
+      "exists": true,
+      "base64": "MSBbeF0gZWRpdGVkCjIgWyBdIHNlY29uZAo="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C12-pr6h8tn3/tasks.txt",
+      "list",
+      "--status",
+      "done"
+    ],
+    "cwd": "/tmp/todo-C12-pr6h8tn3",
+    "exit_code": 0,
+    "stdout": "1 [x] edited\n",
+    "stderr": "",
+    "stdout_base64": "MSBbeF0gZWRpdGVkCg==",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "MSBbeF0gZWRpdGVkCjIgWyBdIHNlY29uZAo="
+    },
+    "after": {
+      "exists": true,
+      "base64": "MSBbeF0gZWRpdGVkCjIgWyBdIHNlY29uZAo="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C12-pr6h8tn3/tasks.txt",
+      "reopen",
+      "1"
+    ],
+    "cwd": "/tmp/todo-C12-pr6h8tn3",
+    "exit_code": 0,
+    "stdout": "1 [ ] edited\n",
+    "stderr": "",
+    "stdout_base64": "MSBbIF0gZWRpdGVkCg==",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "OCBbeF0gbWFudWFsDQoNCjEgW3hdIGVkaXRlZA0KMiBbIF0gc2Vjb25k"
+    },
+    "after": {
+      "exists": true,
+      "base64": "OCBbeF0gbWFudWFsCjEgWyBdIGVkaXRlZAoyIFsgXSBzZWNvbmQK"
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C12-pr6h8tn3/tasks.txt",
+      "delete",
+      "2"
+    ],
+    "cwd": "/tmp/todo-C12-pr6h8tn3",
+    "exit_code": 0,
+    "stdout": "2 [ ] second\n",
+    "stderr": "",
+    "stdout_base64": "MiBbIF0gc2Vjb25kCg==",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "OCBbeF0gbWFudWFsCjEgWyBdIGVkaXRlZAoyIFsgXSBzZWNvbmQK"
+    },
+    "after": {
+      "exists": true,
+      "base64": "OCBbeF0gbWFudWFsCjEgWyBdIGVkaXRlZAo="
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C12-pr6h8tn3/tasks.txt",
+      "add",
+      "after manual"
+    ],
+    "cwd": "/tmp/todo-C12-pr6h8tn3",
+    "exit_code": 0,
+    "stdout": "9 [ ] after manual\n",
+    "stderr": "",
+    "stdout_base64": "OSBbIF0gYWZ0ZXIgbWFudWFsCg==",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "OCBbeF0gbWFudWFsCjEgWyBdIGVkaXRlZAo="
+    },
+    "after": {
+      "exists": true,
+      "base64": "OCBbeF0gbWFudWFsCjEgWyBdIGVkaXRlZAo5IFsgXSBhZnRlciBtYW51YWwK"
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C12-pr6h8tn3/tasks.txt",
+      "list"
+    ],
+    "cwd": "/tmp/todo-C12-pr6h8tn3",
+    "exit_code": 0,
+    "stdout": "8 [x] manual\n1 [ ] edited\n9 [ ] after manual\n",
+    "stderr": "",
+    "stdout_base64": "OCBbeF0gbWFudWFsCjEgWyBdIGVkaXRlZAo5IFsgXSBhZnRlciBtYW51YWwK",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "OCBbeF0gbWFudWFsCjEgWyBdIGVkaXRlZAo5IFsgXSBhZnRlciBtYW51YWwK"
+    },
+    "after": {
+      "exists": true,
+      "base64": "OCBbeF0gbWFudWFsCjEgWyBdIGVkaXRlZAo5IFsgXSBhZnRlciBtYW51YWwK"
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C12-pr6h8tn3/tasks.txt",
+      "edit",
+      "1",
+      "cannot persist"
+    ],
+    "cwd": "/tmp/todo-C12-pr6h8tn3",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: /tmp/todo-C12-pr6h8tn3/tasks.txt: [Errno 13] Permission denied: '/tmp/todo-C12-pr6h8tn3/.todo-_2toyxte'\n",
+    "stdout_base64": "",
+    "stderr_base64": "dG9kbzogL3RtcC90b2RvLUMxMi1wcjZoOHRuMy90YXNrcy50eHQ6IFtFcnJubyAxM10gUGVybWlzc2lvbiBkZW5pZWQ6ICcvdG1wL3RvZG8tQzEyLXByNmg4dG4zLy50b2RvLV8ydG95eHRlJwo=",
+    "before": {
+      "exists": true,
+      "base64": "OCBbeF0gbWFudWFsCjEgWyBdIGVkaXRlZAo5IFsgXSBhZnRlciBtYW51YWwK"
+    },
+    "after": {
+      "exists": true,
+      "base64": "OCBbeF0gbWFudWFsCjEgWyBdIGVkaXRlZAo5IFsgXSBhZnRlciBtYW51YWwK"
+    }
+  }
+]

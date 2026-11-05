@@ -1,0 +1,30 @@
+[
+  {
+    "command": [
+      "uv",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "uv 0.13.6 (x86_64-unknown-linux-gnu)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "--version"
+    ],
+    "exit_code": 0,
+    "stdout": "Python 3.14.10\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "status",
+      "--short"
+    ],
+    "exit_code": 0,
+    "stdout": " M specs/project.yaml\n M specs/targets/linux-python-uv.yaml\n?? .agents/tasks/003-implement-todo-cli/\n?? .suite/runs/003-implement-todo-cli/\n?? app/\n",
+    "stderr": ""
+  }
+]

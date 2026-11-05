@@ -1,0 +1,17 @@
+[build-system]
+requires = ["hatchling==1.29.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "local-todo-cli"
+version = "0.1.0"
+description = "An offline CLI for editable text checklists"
+readme = "README.md"
+requires-python = ">=3.14,<3.15"
+dependencies = []
+
+[project.scripts]
+todo = "todo_cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/todo_cli"]

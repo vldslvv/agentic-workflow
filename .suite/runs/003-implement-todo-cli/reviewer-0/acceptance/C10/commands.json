@@ -1,0 +1,56 @@
+[
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "todo",
+      "--file",
+      "/tmp/todo-C10-l0unn73r/tasks.txt",
+      "add",
+      "plain"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/app",
+    "exit_code": 0,
+    "stdout": "1 [ ] plain\n",
+    "stderr": "",
+    "stdout_base64": "MSBbIF0gcGxhaW4K",
+    "stderr_base64": "",
+    "before": {
+      "exists": false
+    },
+    "after": {
+      "exists": true,
+      "base64": "MSBbIF0gcGxhaW4K"
+    }
+  },
+  {
+    "command": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/home/vv/ccode/generate-prototype/app",
+      "todo",
+      "--file",
+      "/tmp/todo-C10-l0unn73r/tasks.txt",
+      "list"
+    ],
+    "cwd": "/tmp/todo-C10-l0unn73r",
+    "exit_code": 0,
+    "stdout": "1 [ ] plain\n",
+    "stderr": "",
+    "stdout_base64": "MSBbIF0gcGxhaW4K",
+    "stderr_base64": "",
+    "before": {
+      "exists": true,
+      "base64": "MSBbIF0gcGxhaW4K"
+    },
+    "after": {
+      "exists": true,
+      "base64": "MSBbIF0gcGxhaW4K"
+    }
+  }
+]

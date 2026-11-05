@@ -1,0 +1,36 @@
+[
+  {
+    "command": [
+      "uv",
+      "lock",
+      "--project",
+      "app"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "Using CPython 3.14.10 interpreter at: /usr/lib/python-exec/python3.14/python3\nResolved 1 package in 18ms\n"
+  },
+  {
+    "command": [
+      "uv",
+      "sync",
+      "--locked",
+      "--project",
+      "app"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "Using CPython 3.14.10 interpreter at: /usr/lib/python-exec/python3.14/python3\nCreating virtual environment at: app/.venv\nResolved 1 package in 3ms\n   Building local-todo-cli @ file:///home/vv/ccode/generate-prototype/app\n      Built local-todo-cli @ file:///home/vv/ccode/generate-prototype/app\nPrepared 1 package in 794ms\nInstalled 1 package in 0.68ms\n + local-todo-cli==0.1.0 (from file:///home/vv/ccode/generate-prototype/app)\n"
+  },
+  {
+    "command": [
+      "uv",
+      "build",
+      "--project",
+      "app"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "Building source distribution...\nBuilding wheel from source distribution...\nSuccessfully built app/dist/local_todo_cli-0.1.0.tar.gz\nSuccessfully built app/dist/local_todo_cli-0.1.0-py3-none-any.whl\n"
+  }
+]

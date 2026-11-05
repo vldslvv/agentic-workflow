@@ -1,0 +1,17 @@
+{
+  "offline_namespace": {
+    "command": [
+      "unshare",
+      "-Urn",
+      "--",
+      "python3",
+      "-c",
+      "import socket,errno; s=socket.socket(); s.settimeout(2); result=s.connect_ex(('198.51.100.1',9)); print(result); assert result==errno.ENETUNREACH"
+    ],
+    "exit_code": 0,
+    "stdout": "101\n",
+    "stderr": ""
+  },
+  "uid": 1000,
+  "filesystem_restrictions": "PASS"
+}

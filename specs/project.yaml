@@ -7,6 +7,7 @@ shared_contracts: []
 required_assets: []
 task_records:
   - ../.agents/tasks/002-todo-cli
+  - ../.agents/tasks/003-implement-todo-cli
 generated_roots:
   - ../app
 protected_paths:
@@ -18,21 +19,26 @@ targets:
   linux-python-uv: targets/linux-python-uv.yaml
 default_target: linux-python-uv
 
-# C01-C12 are mandatory but not executable yet. Empty/null entries block readiness.
+# Execution registration for the authorized initial implementation, task 003.
 verification:
-  plan: null
-  checks: []
-  frozen_inventory: null
-  verifier_reference: null
-  verifier_revision: null
+  plan: ../.agents/tasks/003-implement-todo-cli/plan.md
+  checks:
+    - ../.suite/runs/003-implement-todo-cli/checks/acceptance.py
+  frozen_inventory: ../.suite/runs/003-implement-todo-cli/frozen-inventory.json
+  verifier_reference: ../.suite/runs/003-implement-todo-cli/checks/adapter.py
+  verifier_revision: task-003-v1
   visibility: public
   manual_criteria: []
-  project_checks: [] # Register executable C12 during future preparation.
+  project_checks:
+    - id: C12
+      check: ../.suite/runs/003-implement-todo-cli/checks/acceptance.py
+      arguments: [--only, C12]
 
 approval:
   authority: user
   records:
     - ../.agents/tasks/002-todo-cli/approval.json
+    - ../.agents/tasks/003-implement-todo-cli/approval.json
 
 run_policy:
   parallelism: 1
