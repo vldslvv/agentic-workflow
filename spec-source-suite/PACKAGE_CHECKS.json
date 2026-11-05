@@ -20,17 +20,30 @@
       "count": 3
     },
     "blank_manifest_and_policy_metadata": "PASS",
-    "requirement_tables_and_template_mapping": {
+    "edited_skill_validation": {
       "result": "PASS",
-      "note": "Structural presence/uniqueness; semantic coverage is independently reviewed."
+      "skills": [
+        "spec-define",
+        "acceptance-spec"
+      ],
+      "method": "skill-creator/scripts/quick_validate.py"
     },
-    "approved_artifacts_and_staged_index_integrity": "PASS"
+    "existing_task_documents_and_staged_index_integrity": "PASS",
+    "routing_walkthrough": {
+      "result": "PASS",
+      "method": "Procedural inspection, not agent execution",
+      "scenarios": [
+        "Implement a documentation-only plan: Define document gate; no app execution",
+        "Prepare an implementation handoff: executable checks and frozen inventory required",
+        "Implement approved app behavior: full implementation-handoff and candidate review gates required"
+      ]
+    }
   },
-  "scope": "Instruction-only guidance. Structural checks include repository routing and task artifact integrity; walkthroughs are procedural validation, not app generation.",
-  "evidence": "../.suite/runs/001-simplify-spec-workflow/",
+  "scope": "Instruction guidance and structural validation only. Documentation completion and app-generation readiness are separate.",
+  "evidence": "Current conversation: explicit request to persist Define separation; structural validation and skill-validator tool output.",
   "not_tested": [
     "Installed skill invocation",
-    "Automated supervisor or CLI",
+    "Independent agent behavioral execution",
     "Actual app generation or regeneration",
     "Sandbox enforcement",
     "Future app acceptance checks"

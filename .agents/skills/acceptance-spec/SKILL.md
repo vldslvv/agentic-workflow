@@ -11,6 +11,12 @@ contracts, edge cases, failure scenarios, non-goals, and verification criteria;
 resolve material ambiguities with the user rather than inventing requirements.
 Keep implementation choices open unless the user explicitly requires them.
 
+For a documentation-only task, follow Define's document-completion gate. The
+future app's acceptance outcomes describe what a later app must do; they are not
+checks to execute while authoring its specification. Executing a documentation
+plan stays in Define, including when requested as “implement the plan.” Report
+document approval/completion separately from deferred app-generation readiness.
+
 Choose a short task ID, reusing the user's ID when provided. Allocate the next
 unused three-digit directory prefix across `.agents/tasks/` and `.suite/runs/`
 under shared contract §2; use the same prefix for a task and its run directory. Record the full baseline Git commit before implementation, normally

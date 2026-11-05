@@ -18,12 +18,12 @@ Ask the user only after these available sources are exhausted or conflicting rec
 
 Before defining, implementing, or generating an app, read [the suite instructions](spec-source-suite/AGENTS.md) and [the shared contract](spec-source-suite/docs/SUITE_CONTRACT.md). Their workflow boundaries and acceptance gates apply to app work throughout this repository. Resolve relative paths in suite documents from the containing document, not from this project root.
 
-Select the procedure that matches the requested work and read both its skill file and workflow document directly; the nested skills need not be installed or automatically discovered:
+Select the procedure by the requested deliverable, not by verbs such as “implement the plan.” Creating specification, acceptance, manifest, target, or implementation-order documents is Define work, including execution of an approved documentation plan. Read both its skill file and workflow document directly; the nested skills need not be installed or automatically discovered:
 
 | Requested work | Skill instructions | Workflow |
 |---|---|---|
-| Define or revise app behavior and acceptance criteria | [spec-define](spec-source-suite/.agents/skills/spec-define/SKILL.md) | [Define](spec-source-suite/docs/DEFINE.md) |
-| Implement an approved capability or assess alignment | [spec-implement](spec-source-suite/.agents/skills/spec-implement/SKILL.md) | [Implement](spec-source-suite/docs/IMPLEMENT.md) |
+| Author app documents or define/revise behavior and acceptance criteria | [spec-define](spec-source-suite/.agents/skills/spec-define/SKILL.md) | [Define](spec-source-suite/docs/DEFINE.md) |
+| Implement an approved app capability or assess an app candidate | [spec-implement](spec-source-suite/.agents/skills/spec-implement/SKILL.md) | [Implement](spec-source-suite/docs/IMPLEMENT.md) |
 | Generate an app, update it incrementally, regenerate it, or change its target technology | [spec-generate](spec-source-suite/.agents/skills/spec-generate/SKILL.md) | [Generate](spec-source-suite/docs/GENERATE.md) |
 
 For generation, also read the Implement skill and workflow: Generate orchestrates that procedure for each selected capability. Read `spec-source-suite/CODEX_START.md` and `spec-source-suite/docs/BUILD_THE_SUITE.md` only when explicitly asked to build the suite's tooling; they are not the app specification.
@@ -37,7 +37,9 @@ For generation, also read the Implement skill and workflow: Generate orchestrate
 
 ## Execute and finish
 
-Before implementation, establish the approved specification baseline, selected requirement IDs and scope, dependency graph, target profile, verification arrangement, retained inputs, and authorized output paths required by the shared contract. Use existing approvals and delegated choices where applicable. Resolve missing decisions with the user instead of inventing a domain, stack, or deployment model. Missing required execution inputs yield `BLOCKED`.
+For documentation-only work, use Define's document-completion gate: approved, saved, internally consistent documents with verification descriptions. Report deferred app execution prerequisites separately as generation readiness. Writing an implementation-order document does not trigger its steps. The execution gates below apply to app implementation and generation, not document authoring.
+
+Before app implementation, establish the approved specification baseline, selected requirement IDs and scope, dependency graph, target profile, verification arrangement, retained inputs, and authorized output paths required by the shared contract. Use existing approvals and delegated choices where applicable. Resolve missing decisions with the user instead of inventing a domain, stack, or deployment model. Missing required execution inputs yield `BLOCKED`.
 
 Follow Generate's mode-specific workspace rules and Implement's review and verification loop. Keep the app bundle and acceptance baseline protected from implementation changes. Persist run state and requirement-linked evidence in the app manifest's configured evidence directory, outside `spec-source-suite/`. Use the suite’s concise run-report and review templates when those steps are reached; a separate verification-design document is optional when acceptance contains the mapping. Follow the shared contract for planner-authored frozen checks, the implementer-spawned fresh reviewer, and the bounded correction loop. Initial and incremental work use procedural separation unless stronger isolation is explicitly required.
 

@@ -6,11 +6,11 @@ Start at [AGENTS.md](AGENTS.md) and the [shared contract](docs/SUITE_CONTRACT.md
 
 | Workflow | Responsibility | Completion |
 |---|---|---|
-| [Define](docs/DEFINE.md) | Planner prepares subsystem acceptance, plan, and requirement-linked checks | Approved documents saved; checks frozen; handoff ready |
+| [Define](docs/DEFINE.md) | Author app documents and verification descriptions; prepare executable checks only within authorized handoff scope | Documents: approved, saved, validated. Implementation handoff: executable checks available and inputs frozen |
 | [Generate](docs/GENERATE.md) | Supervisor derives the DAG and dispatches ready tasks | Subsystems accepted and assembled-app checks pass |
 | [Implement](docs/IMPLEMENT.md) | Implementer builds, spawns fresh review, and repairs | Candidate passes checks, independent review, and applicable integration |
 
-Each task uses planner, implementer, and reviewer agents. Supervisor is the parent's coordination responsibility; verifier means the check set/execution arrangement. The ordinary workflow is serial and procedurally separated. The shared contract defines authority, ownership, evidence, and the initial candidate plus two repair rounds.
+Each app implementation task uses planner, implementer, and reviewer agents. Documentation-only tasks stay in Define and use its document-completion gate, even when requested as “implement the plan.” Supervisor is the parent's coordination responsibility; verifier means the check set/execution arrangement. The ordinary app workflow is serial and procedurally separated. The shared contract defines authority, ownership, evidence, and the initial candidate plus two repair rounds.
 
 ## Add a project
 

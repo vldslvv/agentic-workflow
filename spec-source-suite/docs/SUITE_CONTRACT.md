@@ -2,6 +2,14 @@
 
 Version: 0.2-draft. Normative for Define, Generate, and Implement. MUST marks a gate. This is an instruction-driven procedure; it requires no automated scheduler.
 
+## Applicability: documents and app execution
+
+Choose the procedure from the authorized deliverable. Authoring specifications, acceptance criteria, manifests, target profiles, or implementation-order documents is Define work, even when the user says “implement the plan.” Describing future implementation or verification does not authorize executing it.
+
+A documentation-only task completes when its requested documents are approved, saved with approval/baseline identities, and validated for consistency, coverage, references, and dependency structure. It does not require executable app checks, a candidate, an implementer/reviewer cycle, repair rounds, or generation-run evidence. Report deferred execution prerequisites as generation readiness, separately from document completion. Honor existing explicit approvals; request approval only for content not already approved.
+
+Executable-check preparation and freezing require authorized implementation-handoff scope. App implementation/generation requires authorization for that scope; an existing instruction may already provide it. Candidate-oriented roles and gates in §§3–7 apply to app execution. Document approval, reference/DAG validation, and integrity rules continue to apply during Define. A documentation inventory records document identities but does not substitute for the future frozen verifier inventory.
+
 ## 1. Authority and project inputs
 
 The suite supplies reusable guidance. A project supplies behavior and constraints. Keep project artifacts outside the suite: project metadata and targets in `specs/` by default, task documents in `.agents/tasks/<NNN>-<task-id>/`, and run evidence at the manifest's `run_policy.evidence_root`.
@@ -22,7 +30,7 @@ Approved documents are immutable. Changes require explicit user authorization (o
 
 ## 3. Three agents and their handoffs
 
-Each task uses three agents:
+Each app implementation task uses three agents. Documentation-only Define work uses document review and does not dispatch this implementation cycle:
 
 | Agent | Responsibility | Handoff |
 |---|---|---|
