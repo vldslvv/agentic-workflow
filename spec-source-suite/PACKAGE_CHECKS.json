@@ -3,44 +3,93 @@
   "version": "0.2-draft",
   "checked_date": "2026-11-05",
   "status": "STRUCTURAL_CHECKS_PASSED",
-  "source_document_count": 28,
+  "source_document_count": 29,
   "checks": {
     "utf8_and_final_newlines": "PASS",
     "local_markdown_links": {
       "result": "PASS",
-      "count": 91
+      "count": 103
     },
-    "yaml_and_frontmatter": {
+    "yaml_and_skill_frontmatter": {
       "result": "PASS",
-      "count": 10
+      "count": 7
     },
     "code_fences": "PASS",
-    "explicit_skill_metadata": {
+    "removed_spec_formats_and_references": {
+      "result": "PASS",
+      "removed_templates": [
+        "project.yaml",
+        "target.yaml",
+        "SPEC.md",
+        "PROJECT.md",
+        "VERIFICATION.md"
+      ],
+      "scope": "Active suite guidance, repository router, and acceptance skill; historical evidence preserved."
+    },
+    "skill_invocation_metadata": {
       "result": "PASS",
       "count": 3
     },
-    "blank_manifest_and_policy_metadata": "PASS",
+    "protected_source_specs_task_records_and_historical_evidence": {
+      "result": "PASS",
+      "files": 92
+    },
+    "staged_index_integrity": "PASS",
+    "standard_bundle_layout": {
+      "result": "PASS",
+      "bundles": [
+        {
+          "bundle": "spec-source-suite/templates/bundle",
+          "task_order": [
+            "tasks/task.md"
+          ],
+          "format_result": "PASS",
+          "execution_readiness": "Not assessed; no application execution authorized by this workflow change."
+        },
+        {
+          "bundle": "specs/todolist",
+          "task_order": [
+            "tasks/01_business_logic.md",
+            "tasks/02_cli.md"
+          ],
+          "format_result": "PASS",
+          "execution_readiness": "Not assessed; no application execution authorized by this workflow change."
+        }
+      ]
+    },
     "edited_skill_validation": {
       "result": "PASS",
-      "skills": [
-        "spec-define",
-        "acceptance-spec"
-      ],
-      "method": "skill-creator/scripts/quick_validate.py"
+      "method": "skill-creator/scripts/quick_validate.py",
+      "results": [
+        {
+          "skill": "spec-source-suite/.agents/skills/spec-define",
+          "exit_code": 0,
+          "output": "Skill is valid!"
+        },
+        {
+          "skill": "spec-source-suite/.agents/skills/spec-generate",
+          "exit_code": 0,
+          "output": "Skill is valid!"
+        },
+        {
+          "skill": ".agents/skills/acceptance-spec",
+          "exit_code": 0,
+          "output": "Skill is valid!"
+        }
+      ]
     },
-    "existing_task_documents_and_staged_index_integrity": "PASS",
+    "git_diff_check": {
+      "result": "PASS",
+      "exit_code": 0
+    },
     "routing_walkthrough": {
       "result": "PASS",
-      "method": "Procedural inspection, not agent execution",
-      "scenarios": [
-        "Implement a documentation-only plan: Define document gate; no app execution",
-        "Prepare an implementation handoff: executable checks and frozen inventory required",
-        "Implement approved app behavior: full implementation-handoff and candidate review gates required"
-      ]
+      "method": "Procedural inspection",
+      "evidence": "../.suite/runs/005-markdown-specification-standard/walkthroughs.json"
     }
   },
-  "scope": "Instruction guidance and structural validation only. Documentation completion and app-generation readiness are separate.",
-  "evidence": "Current conversation: explicit request to persist Define separation; structural validation and skill-validator tool output.",
+  "scope": "Standard Markdown specification layout only. Structural and procedural validation; not app-generation evidence.",
+  "evidence": "../.suite/runs/005-markdown-specification-standard/",
   "not_tested": [
     "Installed skill invocation",
     "Independent agent behavioral execution",

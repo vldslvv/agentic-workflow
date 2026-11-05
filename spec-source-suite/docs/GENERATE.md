@@ -2,7 +2,9 @@
 
 Read the [shared contract](SUITE_CONTRACT.md), [Implement skill](../.agents/skills/spec-implement/SKILL.md), and [Implement workflow](IMPLEMENT.md). Generate coordinates those task cycles; it does not define another worker loop.
 
-**Inputs:** registered approved specifications, project manifest, target, scope/mode, retained inputs, authorized outputs, and verification arrangement. **Outputs:** subsystem candidates and evidence plus assembled-app acceptance in one run directory. No specs yields NO_PROJECT.
+**Inputs:** approved standard Markdown bundle, execution input inventory, target constraints, scope/mode, retained inputs, authorized outputs, and verification arrangement. **Outputs:** subsystem candidates and evidence plus assembled-app acceptance in one run directory. No specs yields NO_PROJECT.
+
+Read the [standard bundle format](MARKDOWN_BUNDLES.md) before validating execution readiness. Resolve `project.md`, `task_order.md`, `tasks/*.md`, and `verification.md`; incomplete inputs require authorized Define preparation before dispatch.
 
 ## G1. Select mode and validate inputs
 
@@ -14,7 +16,7 @@ For initial generation, use a new authorized output directory, possibly within t
 
 Derive and validate the DAG under contract §5. Select prerequisite closure or identify already accepted dependencies. Identify downstream impact separately. For each selected task, obtain the persisted planner handoff from [Define](DEFINE.md), target constraints, and integrity inventory. Record the project-level assembled-app checks before execution.
 
-**Readiness gate:** no unresolved graph/input/approval/check requirements; ready nodes have current accepted prerequisites. A project manifest is an index, not a second manually maintained DAG.
+**Readiness gate:** no unresolved graph/input/approval/check requirements; ready nodes have current accepted prerequisites. The input inventory points to source-linked acceptance records; their prerequisite mapping must match the bundle's order and declarations.
 
 ## G3. Execute ready tasks
 

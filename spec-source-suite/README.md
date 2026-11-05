@@ -14,9 +14,14 @@ Each app implementation task uses planner, implementer, and reviewer agents. Doc
 
 ## Add a project
 
-Keep project files outside this suite. Use `specs/` for a small [project brief](templates/PROJECT.md), [manifest](templates/project.yaml), and selected [target profile](templates/target.yaml). Save each task's complete approved [plan](templates/PLAN.md) and [acceptance](templates/SPEC.md) under `.agents/tasks/<NNN>-<task-id>/` with baseline commit and approval references. Register a subsystem's acceptance file directly in the manifest. Its `depends_on` defines prerequisites; no second graph is needed.
+The sole app specification format is the [Markdown task bundle](docs/MARKDOWN_BUNDLES.md). Keep it outside the suite, under `specs/` by default, and preserve an existing bundle's location. The blank [bundle templates](templates/bundle/project.md) mirror its layout:
 
-Keep checks alongside project inputs, frozen before implementation. Acceptance can contain the verification mapping; a separate [verification plan](templates/VERIFICATION.md) is optional. Keep raw results and review findings in one configured run directory outside the suite. See [RUN_REPORT.md](templates/RUN_REPORT.md).
+- [project.md](templates/bundle/project.md): shared rules, target constraints, and output location.
+- [task_order.md](templates/bundle/task_order.md): ordered task filenames.
+- [tasks/task.md](templates/bundle/tasks/task.md): one file per task's required behavior.
+- [verification.md](templates/bundle/verification.md): shared verification and assembled-app scenarios.
+
+Before execution, save each task's complete approved [plan](templates/PLAN.md) and source-linked [acceptance record](templates/ACCEPTANCE.md) under `.agents/tasks/<NNN>-<task-id>/`, with baseline commit and digest-bound approval references. The bundle defines behavior and order; these records hold the derived requirement/check mapping and prerequisites. Prepare `inputs.md` as the execution inventory and freeze checks before implementation. Keep raw results and review findings in the configured run directory outside the suite. See [RUN_REPORT.md](templates/RUN_REPORT.md).
 
 The nested skills can be read directly or invoked when installed as `$spec-define`, `$spec-generate`, and `$spec-implement`. They are instructions, not shell commands. Runtime invocation conventions are sourced in [SOURCES.md](docs/SOURCES.md); no particular worker CLI is required. Missing fresh-review or execution capability blocks the corresponding gate.
 

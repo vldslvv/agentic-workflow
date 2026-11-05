@@ -8,7 +8,7 @@ This document is an optional automation specification, active only when the user
 
 Provide a lightweight, project-agnostic interface to Define, Implement, and Generate. The initial implementation may combine deterministic helper scripts with agent skills and manual handoff. It must report honestly which parts are automated.
 
-Support file-based manifests and evidence, a serial DAG scheduler, pluggable workers and project verification adapters, fresh-session review, resume, and isolated-generation preparation. Do not build a hosted platform or prepopulate application requirements.
+Support the [standard Markdown bundles](MARKDOWN_BUNDLES.md) and file-based execution evidence, a serial DAG scheduler, pluggable workers and project verification adapters, fresh-session review, resume, and isolated-generation preparation. Do not build a hosted platform or prepopulate application requirements.
 
 ## Logical interface
 
@@ -16,8 +16,8 @@ Expose these operations through a documented CLI or library. Names below are log
 
 | Operation | Minimum behavior |
 |---|---|
-| `define` | Prepare/import/revise specs through the authoring skill; retain provenance and unresolved questions |
-| `validate` | Validate manifest, spec metadata, references, acceptance mappings, and dependency structure |
+| `define` | Author/revise standard bundles from supplied intent or source material through the authoring skill; retain provenance and unresolved questions |
+| `validate` | Validate standard bundle files, task order, references, acceptance mappings, and derived prerequisites |
 | `prepare` | Resolve selected work and export a job/bundle with content digests, without executing it |
 | `implement` | Execute the selected spec workflow, including independent review and acceptance |
 | `generate` | Schedule the selected graph using initial, incremental, regenerate, or cross-target mode |
@@ -31,8 +31,8 @@ Support `resume`, `only`, `start-after`, `skip-completed`, and `max-items` seman
 | ID | Requirement | Acceptance evidence |
 |---|---|---|
 | SUITE-001 | Separate suite behavior from project content | An empty installation contains no product spec, chosen app stack, or generated application. Generate returns NO_PROJECT. |
-| SUITE-002 | Import and validate generic specs | A well-formed synthetic spec is accepted structurally; duplicate IDs, unknown references, unresolved required fields, and missing acceptance mappings yield precise errors. Structural validity alone does not grant owner approval. |
-| SUITE-003 | Derive the DAG from canonical spec dependencies | A chain and a fork produce valid ready-node sets. A cycle and an unknown prerequisite block execution. No duplicate hand-maintained graph is required. |
+| SUITE-002 | Load and validate standard Markdown bundles | A synthetic bundle with project.md, task_order.md, tasks/*.md, and verification.md is accepted structurally; missing files, duplicate task IDs, unknown references, unresolved required fields, and missing acceptance mappings yield precise errors. Structural validity alone does not grant owner approval. |
+| SUITE-003 | Derive the DAG from task order and declared prerequisites | An ordered task list and explicit prerequisites produce valid ready-node sets. A cycle and an unknown prerequisite block execution. No duplicate hand-maintained graph is required. |
 | SUITE-004 | Honor authority and frozen inputs | Workers cannot grant their own approvals. An approval is bound to a content digest; changing the approved content invalidates it. |
 | SUITE-005 | Dispatch bounded, scoped worker jobs | Each job contains selected spec/requirement IDs, owned output paths, relevant dependencies, target, and budget. Worker identity, context, and result are recorded. |
 | SUITE-006 | Request genuine fresh review | A review job has a distinct session and neutral contract-based context. A missing fresh session is reported; same-session self-review never counts as the independent gate. |
@@ -51,7 +51,7 @@ Support `resume`, `only`, `start-after`, `skip-completed`, and `max-items` seman
 
 ## Minimal architecture
 
-Use a manifest/spec reader, validator, DAG scheduler, context packager, worker adapter, review adapter, verifier adapter, workspace/isolation adapter, and file-backed run store. They can be small modules in one process. Keep the state machine deterministic outside the agent wherever possible.
+Use a Markdown-bundle reader, validator, DAG scheduler, context packager, worker adapter, review adapter, verifier adapter, workspace/isolation adapter, and file-backed run store. They can be small modules in one process. Keep the state machine deterministic outside the agent wherever possible.
 
 The supervisor accepts worker artifacts as untrusted candidates. Only trusted verification and the completion policy determine acceptance. Under the enforced-isolation branch, external workers must not be able to overwrite trusted run conclusions or the protected verifier through shared writable mounts. The procedural branch uses scoped ownership and integrity checks as defined in the shared contract.
 
@@ -71,6 +71,6 @@ Map every SUITE requirement to actual executed evidence. Report unimplemented or
 
 ## Definition of done for the initial generic suite
 
-The three workflows are usable; the manifest, templates, and skills agree; structural fixtures cover the required gates; missing inputs and unavailable capabilities are honest; and a new project can be inserted without changing core workflow code.
+The three workflows are usable; the standard bundle layout, templates, and skills agree; structural fixtures cover the required gates; missing inputs and unavailable capabilities are honest; and a new project can be inserted without changing core workflow code.
 
 The final report must distinguish instruction-only capability, implemented automation, executed mechanical tests, and any real agent/project experiments. Do not claim real regeneration until the user supplies an actual project and such an experiment runs.

@@ -2,7 +2,7 @@
 
 This directory is reusable guidance, not an app specification. Keep project inputs, implementation, and run evidence outside it.
 
-Read [the shared contract](docs/SUITE_CONTRACT.md) first. It is the single authority for approvals, task persistence, roles, frozen checks, DAG readiness, repair limits, isolation, and completion.
+Read [the shared contract](docs/SUITE_CONTRACT.md) and [standard bundle format](docs/MARKDOWN_BUNDLES.md) first. It is the single authority for approvals, task persistence, roles, frozen checks, DAG readiness, repair limits, isolation, and completion.
 
 - Author app documents or define/revise behavior: read [spec-define](.agents/skills/spec-define/SKILL.md) and [Define](docs/DEFINE.md).
 - Implement an approved app capability or assess an app candidate: read [spec-implement](.agents/skills/spec-implement/SKILL.md) and [Implement](docs/IMPLEMENT.md).

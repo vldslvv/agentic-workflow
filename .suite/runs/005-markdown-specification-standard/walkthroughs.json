@@ -1,0 +1,37 @@
+{
+  "method": "Procedural inspection only; no independent agent or app execution.",
+  "cases": [
+    {
+      "case": "TODO bundle with prose and ordered filenames",
+      "result": "Standard input format; task order resolves business logic before CLI."
+    },
+    {
+      "case": "New app definition",
+      "result": "Define creates the four-part Markdown layout from bundle templates; technology constraints live in project.md."
+    },
+    {
+      "case": "Missing verification.md or listed task",
+      "result": "Incomplete standard bundle blocks generation; authorized Define prepares missing content."
+    },
+    {
+      "case": "Older input format or historical acceptance records only",
+      "result": "No fallback execution loader; source material may inform authorized Define work."
+    },
+    {
+      "case": "Duplicate task IDs, unknown prerequisite, or contradictory task order",
+      "result": "Validation blocks dispatch under shared contract section 5."
+    },
+    {
+      "case": "Acceptance record and source behavior conflict",
+      "result": "Resolve before approval; source behavior remains in task files and both identities are frozen."
+    },
+    {
+      "case": "Reviewer handoff",
+      "result": "Bundle sources, acceptance mappings, and inventory are allowed; plan/conversation excluded."
+    },
+    {
+      "case": "Automated runner assignment",
+      "result": "CODEX_START and BUILD_THE_SUITE require the same standard bundle loader."
+    }
+  ]
+}

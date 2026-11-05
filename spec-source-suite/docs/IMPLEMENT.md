@@ -6,7 +6,7 @@ Read the [shared contract](SUITE_CONTRACT.md); its authority, roles, integrity, 
 
 ## I1. Validate the planner handoff
 
-Confirm [Define](DEFINE.md)'s implementation-handoff gate completed and contract §§1–5 readiness holds. Its document-completion gate alone does not satisfy this precondition. The planner has already prepared the implementation plan and checks; the implementer reads them rather than replacing them. Record the input inventory and ownership in the run directory. Missing inputs yield BLOCKED before implementation. Significant plan deviations follow contract §6.
+Confirm [Define](DEFINE.md)'s implementation-handoff gate completed and contract §§1–5 readiness holds. Its document-completion gate alone does not satisfy this precondition. The planner has already prepared the implementation plan and checks; the implementer reads them rather than replacing them. Include the standard bundle sources and execution input inventory in the frozen inventory; their absence cannot be replaced by an older task with a similar name. Record the input inventory and ownership in the run directory. Missing inputs yield BLOCKED before implementation. Significant plan deviations follow contract §6.
 
 ## I2. Implement and check the candidate
 

@@ -37,8 +37,9 @@ When the task uses this repository's specification workflow, also preserve the
 complete approved plan as `plan.md` in the same directory and record both document
 digests, the full baseline commit, approving authority, and approval reference.
 Follow [the shared contract](../../../spec-source-suite/docs/SUITE_CONTRACT.md)
-§2 for task persistence. Register a subsystem's acceptance.md directly as its
-specification; do not duplicate it in a second requirements document.
+§2 for task persistence. For app work, use the [standard Markdown bundle](../../../spec-source-suite/docs/MARKDOWN_BUNDLES.md) as the specification source.
+The acceptance record references source paths and digests and maps their clauses
+to checks; preserve source behavior in the bundle rather than duplicating it.
 
 If Plan mode prevents writing, present the complete drafts and state that saving
 is deferred. Save the exact approved text once editing is available, before

@@ -4,7 +4,7 @@ Version: 0.2-draft. Normative for Define, Generate, and Implement. MUST marks a 
 
 ## Applicability: documents and app execution
 
-Choose the procedure from the authorized deliverable. Authoring specifications, acceptance criteria, manifests, target profiles, or implementation-order documents is Define work, even when the user says “implement the plan.” Describing future implementation or verification does not authorize executing it.
+Choose the procedure from the authorized deliverable. Authoring specification bundles, acceptance criteria, target constraints, or task-order documents is Define work, even when the user says “implement the plan.” Describing future implementation or verification does not authorize executing it.
 
 A documentation-only task completes when its requested documents are approved, saved with approval/baseline identities, and validated for consistency, coverage, references, and dependency structure. It does not require executable app checks, a candidate, an implementer/reviewer cycle, repair rounds, or generation-run evidence. Report deferred execution prerequisites as generation readiness, separately from document completion. Honor existing explicit approvals; request approval only for content not already approved.
 
@@ -12,17 +12,17 @@ Executable-check preparation and freezing require authorized implementation-hand
 
 ## 1. Authority and project inputs
 
-The suite supplies reusable guidance. A project supplies behavior and constraints. Keep project artifacts outside the suite: project metadata and targets in `specs/` by default, task documents in `.agents/tasks/<NNN>-<task-id>/`, and run evidence at the manifest's `run_policy.evidence_root`.
+The suite supplies reusable guidance. A project supplies behavior and constraints in the [standard Markdown bundle](MARKDOWN_BUNDLES.md): `project.md`, `task_order.md`, `tasks/*.md`, and `verification.md`. Keep bundles outside the suite, under `specs/` by default. Keep task handoffs in `.agents/tasks/<NNN>-<task-id>/` and run evidence at the evidence root recorded in `inputs.md`.
 
-Approved subsystem specifications and their explicitly normative references define behavior. A subsystem's `acceptance.md` is its specification: register that file directly in `project.yaml`, rather than copying requirements into another spec. Each registered spec has a stable ID, `depends_on`, observable contracts, and requirement-linked acceptance clauses. Additional tasks may select requirements from that spec without creating a competing authority. Plans explain implementation; they cannot override acceptance. Target profiles constrain technology without changing behavior.
+Approved task files and their explicitly normative references define behavior. Shared constraints and target choices live in `project.md`; `task_order.md` selects and orders tasks; `verification.md` describes shared checks and assembled-app scenarios. Each task's `acceptance.md` maps source clauses to stable requirement IDs and approved observable checks, referencing source paths and digests. It is a handoff record, not a replacement specification. Freeze the sources and mapping together. Plans explain implementation; they cannot override behavior or acceptance.
 
-Before implementation, require registered approved specs, selected requirement IDs, accepted dependencies, an approved target, required assets/retained inputs, frozen checks, authorized output paths, and approval references. The manifest indexes their paths (relative to its directory, except explicitly controlled external verifier references). No specs yields NO_PROJECT; missing required execution inputs yields BLOCKED. Blank templates are not approved inputs. Resolve missing choices with the user rather than inventing a domain, stack, or deployment model.
+Before implementation, require the approved bundle, selected requirement IDs, accepted dependencies, approved target constraints, required assets/retained inputs, frozen checks, authorized output paths, and approval references. Record their identities in the execution input inventory described by the bundle standard. Missing required execution inputs yield BLOCKED; no project intent or specifications yields NO_PROJECT. Blank templates are not approved inputs. Resolve missing choices with the user rather than inventing a domain, stack, or deployment model.
 
 ## 2. Task records and approval
 
 Prefix task and run directories with a shared three-digit sequence (`001-`, `002-`, …), allocated from the next unused number across both roots. Keep the logical task ID separate from this storage prefix. Resolve an unprefixed task ID by its directory suffix; use explicit paths to resolve any ambiguity. A relocation preserves approved document bytes and historical evidence, records old-to-new paths, and updates active references.
 
-The planner preserves the complete agreed `plan.md` and authoritative `acceptance.md` under `.agents/tasks/<NNN>-<task-id>/`, plus an approval record identifying the full baseline Git commit, the digests of both documents, approving authority, and the conversation/decision reference. Store the actual approved text, not a handoff summary. A subsystem acceptance document includes its spec metadata; a follow-up task instead references the registered spec and exact selected requirements.
+The planner preserves the complete agreed `plan.md` and authoritative `acceptance.md` under `.agents/tasks/<NNN>-<task-id>/`, plus an approval record identifying the full baseline Git commit, the digests of both documents, approving authority, and the conversation/decision reference. Store the actual approved text, not a handoff summary. Bind referenced normative source digests in the approval record too. Each acceptance record identifies its source task, requirement mapping, and derived prerequisites; a follow-up task references the same source baseline and exact selected requirements.
 
 In Plan mode, present both complete drafts for approval. If writing is unavailable, state that saving is deferred. On entering editing mode, save the approved text exactly and record its approval before implementation or context handoff. If a draft is lost, recover it or ask for it; never recreate it from a summary and label it approved. Approval alone does not start implementation: a separate instruction is required. Existing explicit approvals and implementation instructions remain valid across handoffs.
 
@@ -44,7 +44,7 @@ The implementer MUST spawn the reviewer with no inherited conversation (for exam
 
 ## 4. Checks and procedural isolation
 
-The planner derives checks from approved requirements and prepares executable checks wherever execution is required. Acceptance must specify setup, inputs, observable assertions, cleanup, pass rule, and evidence; sampling/thresholds must be fixed for nondeterministic behavior. A separate [VERIFICATION.md](../templates/VERIFICATION.md) is optional when acceptance already contains this mapping. Each manual criterion names its authorized authority and inspected artifact. Missing mandatory checks block readiness; an opinion cannot replace required execution.
+The planner derives checks from approved requirements and prepares executable checks wherever execution is required. Acceptance must specify setup, inputs, observable assertions, cleanup, pass rule, and evidence; sampling/thresholds must be fixed for nondeterministic behavior. Use the bundle's `verification.md` for shared and assembled-app checks, and task acceptance records for task-specific mappings; reference each mapping rather than duplicating it. Each manual criterion names its authorized authority and inspected artifact. Missing mandatory checks block readiness; an opinion cannot replace required execution.
 
 Freeze a content-digest inventory of documents, checks, fixtures, adapters, and other normative inputs before handing off. Checks may be visible; hidden cases are optional and must test disclosed requirements. Declare any held-out feedback policy. Implementers may add local tests, but cannot edit frozen checks, fixtures, thresholds, approved documents, or reviewer-owned results to obtain a pass. Submit suspected check defects to the supervisor.
 
@@ -54,7 +54,7 @@ Only when enforced isolation is requested, read [STRONG_ISOLATION.md](STRONG_ISO
 
 ## 5. DAG and readiness
 
-Derive the subsystem DAG solely from registered specs and their `depends_on` IDs. Validate unique IDs, references, required mappings, missing prerequisites, and cycles before dispatch. Unknown dependencies or cycles yield BLOCKED; resolve cycles by approved boundary changes, never by silently removing edges. A semantic cross-reference is not automatically a prerequisite.
+Derive the subsystem DAG from `task_order.md` and prerequisites explicitly declared in task prose, following the bundle standard. Persist the derived prerequisites in acceptance records and verify agreement with their source digests. Validate unique IDs, references, required mappings, missing prerequisites, and cycles before dispatch. Unknown dependencies or cycles yield BLOCKED; resolve cycles by approved boundary changes, never by silently removing edges. A semantic cross-reference is not automatically a prerequisite.
 
 Use one subsystem per task and serial execution by default. A node is ready only when every prerequisite is accepted at the required revision and its evidence still applies. FAIL, BLOCKED, NOT_RUN, a stub, or an unreviewed candidate cannot unlock consumers. Scope controls (`only`, `skip`, `start-after`, limits, resume) cannot bypass prerequisites. An empty selection is NO_WORK, not project acceptance.
 

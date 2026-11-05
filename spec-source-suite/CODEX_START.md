@@ -22,11 +22,11 @@ First inventory the existing repository and available worker execution tools. Re
 
 ### Milestone 1 — Usable file-based workflows
 
-Make Define, Implement, and Generate usable through the existing instruction-only skills and templates. Validate template metadata, required fields, references, and dependencies. Provide documented manual handoff when an external worker cannot be launched. Record manual operations as manual.
+Make Define, Implement, and Generate usable through the existing instruction-only skills and templates. Validate the standard bundle layout, required content, references, and derived prerequisites. Provide documented manual handoff when an external worker cannot be launched. Record manual operations as manual.
 
 ### Milestone 2 — Thin supervisor
 
-Implement manifest loading, spec validation, ready-node calculation, job preparation, worker adapters, fresh review, verification dispatch, and evidence records. Start with serial execution. Make state and resume decisions independent of agent conversations. Every selected task must reference an approved specification and acceptance IDs.
+Implement standard Markdown-bundle loading, spec validation, ready-node calculation, job preparation, worker adapters, fresh review, verification dispatch, and evidence records. Start with serial execution. Make state and resume decisions independent of agent conversations. Every selected task must reference an approved specification and acceptance IDs.
 
 ### Milestone 3 — Generation and isolation boundary
 
@@ -38,7 +38,7 @@ Execute the BUILD_THE_SUITE acceptance cases using synthetic structural fixtures
 
 ## Keep the initial scope small
 
-Do not add a web dashboard, hosted service, database-backed control plane, distributed queue, plugin marketplace, or multi-agent debate system. Do not require a particular specification DSL. Markdown plus a small manifest is the baseline. Use an adapter interface where project-specific build/run/check behavior belongs.
+Do not add a web dashboard, hosted service, database-backed control plane, distributed queue, plugin marketplace, or multi-agent debate system. Use only the [standard Markdown bundle](docs/MARKDOWN_BUNDLES.md) for app specifications. Use an adapter interface where project-specific build/run/check behavior belongs.
 
 Do not assume an external paid API is available. Provide a worker adapter interface and an explicit manual fallback. A stub worker can test the supervisor, but cannot count as an actual agent reconstruction experiment.
 
