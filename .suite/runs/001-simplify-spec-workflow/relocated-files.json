@@ -1,0 +1,105 @@
+{
+  "result": "PASS",
+  "files": [
+    {
+      "old_path": ".agents/tasks/simplify-spec-workflow/acceptance.md",
+      "new_path": ".agents/tasks/001-simplify-spec-workflow/acceptance.md",
+      "prior_index_entry": "100644 4994189bc423fdc28285aa566a73a277a157eb34 0"
+    },
+    {
+      "old_path": ".agents/tasks/simplify-spec-workflow/approval.json",
+      "new_path": ".agents/tasks/001-simplify-spec-workflow/approval.json",
+      "prior_index_entry": "100644 01f9ac6355edc5de4c44443f43b255ba11035f08 0"
+    },
+    {
+      "old_path": ".agents/tasks/simplify-spec-workflow/plan.md",
+      "new_path": ".agents/tasks/001-simplify-spec-workflow/plan.md",
+      "prior_index_entry": "100644 bc7dc4eeb202fff978aff10f3119ce5d9f00cccf 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/RUN_REPORT.md",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/RUN_REPORT.md",
+      "prior_index_entry": "100644 471aa23289ddb763026299c51ccae49a3dec7254 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/candidate-0.json",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/candidate-0.json",
+      "prior_index_entry": "100644 9733278f0f1fcf2dc965df358e1f9bceba2942a2 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/candidate-task-lookup.json",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/candidate-task-lookup.json",
+      "prior_index_entry": "100644 84361f503f837b77e0bca2685802832271104f18 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/execution.json",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/execution.json",
+      "prior_index_entry": "100644 6d6634e7142f55f93078f4f7d763840e57a127dd 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/original-text-comparison.json",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/original-text-comparison.json",
+      "prior_index_entry": "100644 caaf4ca7319f769638ad3ce98a9b9080ef14ac82 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/reviewer-0/candidate-diff.txt",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/reviewer-0/candidate-diff.txt",
+      "prior_index_entry": "100644 9e27532c1ba34995c807418e0402f9a738da7ce7 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/reviewer-0/checksums.txt",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/reviewer-0/checksums.txt",
+      "prior_index_entry": "100644 1b584cba1d72f5cad4568ded731c20ea5b45ac5e 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/reviewer-0/diff-check.txt",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/reviewer-0/diff-check.txt",
+      "prior_index_entry": "100644 fa2bd5ecec6d688808e35a9c0875feee5df17491 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/reviewer-0/identity-after.json",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/reviewer-0/identity-after.json",
+      "prior_index_entry": "100644 062fe5ada520efd7f1828ab7de1f062a4ba6f1de 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/reviewer-0/identity-before.json",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/reviewer-0/identity-before.json",
+      "prior_index_entry": "100644 7d25a273a9706576f3cf976c832bf7d4fbafaa4c 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/reviewer-0/manual-observations.md",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/reviewer-0/manual-observations.md",
+      "prior_index_entry": "100644 650544a166b4f24315f36ab4ccff17f819148c0f 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/reviewer-0/review.md",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/reviewer-0/review.md",
+      "prior_index_entry": "100644 aea1a3a146035df648c1fff60480bf65b0799a0a 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/reviewer-0/structural.txt",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/reviewer-0/structural.txt",
+      "prior_index_entry": "100644 0c82758e649132ee12dfcc2e087963c1efbfc498 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/structural-0.json",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/structural-0.json",
+      "prior_index_entry": "100644 5a220b3e430bd45064ce98b1686beeb60d526d94 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/task-lookup-review.md",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/task-lookup-review.md",
+      "prior_index_entry": "100644 b63d1c95a4f866319d66e588b696ccd757ede8a6 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/validate.py",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/validate.py",
+      "prior_index_entry": "100644 da3630b692bdbbc06867059663423e1557c43fa9 0"
+    },
+    {
+      "old_path": ".suite/runs/simplify-spec-workflow/walkthroughs.md",
+      "new_path": ".suite/runs/001-simplify-spec-workflow/walkthroughs.md",
+      "prior_index_entry": "100644 dc611088ed4edc0202ef8cf30892aec16cba7926 0"
+    }
+  ]
+}

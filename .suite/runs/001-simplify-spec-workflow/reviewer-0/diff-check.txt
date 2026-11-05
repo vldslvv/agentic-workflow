@@ -1,0 +1,6 @@
+COMMAND: ['git', 'diff', '--check']
+CWD: /home/vv/ccode/generate-prototype
+EXIT: 0
+STDOUT:
+
+STDERR:

@@ -1,5 +1,7 @@
 # Codex assignment: implement a generic spec-source suite
 
+This is a conditional assignment: load it only when the user requests automated suite tooling. Ordinary file-based app work follows [the shared contract](docs/SUITE_CONTRACT.md) and needs no runner implementation.
+
 ## Objective
 
 Build a reusable suite with three capabilities:

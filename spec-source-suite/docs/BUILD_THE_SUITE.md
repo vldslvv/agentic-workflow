@@ -2,7 +2,7 @@
 
 ID: SUITE · Version: 0.1-draft
 
-This document specifies the workflow tooling Codex is being asked to implement. It does not specify the user's future application. `SUITE-*` IDs refer to the tooling, not project capabilities. The assignment authorizes implementation of this brief; material behavior changes must be proposed explicitly.
+This document is an optional automation specification, active only when the user explicitly requests that tooling. The instruction-driven ordinary workflow is defined by [SUITE_CONTRACT.md](SUITE_CONTRACT.md). This document specifies the workflow tooling for that separate assignment. It does not specify the user's future application. `SUITE-*` IDs refer to the tooling, not project capabilities. Reading this document does not authorize implementation; material behavior changes must be proposed explicitly.
 
 ## Goal and scope
 
@@ -38,7 +38,7 @@ Support `resume`, `only`, `start-after`, `skip-completed`, and `max-items` seman
 | SUITE-006 | Request genuine fresh review | A review job has a distinct session and neutral contract-based context. A missing fresh session is reported; same-session self-review never counts as the independent gate. |
 | SUITE-007 | Use verifier evidence, not worker self-report | A worker success response paired with a failing verifier yields FAIL. Missing checks or zero required checks executed cannot yield acceptance. Manual criteria are distinctly recorded. |
 | SUITE-008 | Preserve baseline integrity | A worker attempt to modify protected specs/verifier assets is prevented by configured controls, or detected and invalidates the run. No unprotected deployment may be labeled enforced. |
-| SUITE-009 | Persist evidence outside worker memory | Restarting the supervisor preserves request IDs, attempts, requirement dispositions, prompts, per-item logs, and artifact references. No conversation reconstruction is required for status. |
+| SUITE-009 | Persist evidence outside worker memory | Restarting the supervisor preserves request IDs, attempts, requirement dispositions, handoff input references, raw results, review findings, and artifact references. Full prompt transcripts are optional. No conversation reconstruction is required for status. |
 | SUITE-010 | Resume only when evidence still applies | Identical input and artifact digests allow reuse. Changed spec, dependency, target, verifier, suite/prompt, retained input, or missing/changed candidate artifacts invalidates relevant reuse. |
 | SUITE-011 | Export only allowed regeneration inputs | Export contains approved inputs and excludes sentinel prior-source/history/transcript/build files. Traversal and symlink escapes are rejected. The final export has a file digest inventory. |
 | SUITE-012 | Declare actual isolation limits | A procedural/manual environment is labeled procedural. Only tested controls for the declared boundary can produce enforced isolation. Known leakage yields CLEAN_ROOM_INVALID. |
@@ -53,13 +53,13 @@ Support `resume`, `only`, `start-after`, `skip-completed`, and `max-items` seman
 
 Use a manifest/spec reader, validator, DAG scheduler, context packager, worker adapter, review adapter, verifier adapter, workspace/isolation adapter, and file-backed run store. They can be small modules in one process. Keep the state machine deterministic outside the agent wherever possible.
 
-The supervisor accepts worker artifacts as untrusted candidates. Only trusted verification and the completion policy determine acceptance. External workers must not be able to overwrite trusted run conclusions or the protected verifier through shared writable mounts.
+The supervisor accepts worker artifacts as untrusted candidates. Only trusted verification and the completion policy determine acceptance. Under the enforced-isolation branch, external workers must not be able to overwrite trusted run conclusions or the protected verifier through shared writable mounts. The procedural branch uses scoped ownership and integrity checks as defined in the shared contract.
 
 A worker adapter consumes a scoped job and returns execution status, session identity when available, artifact locations, logs, and failure information. A manual adapter emits the job and waits for an explicitly imported result. Imported manual evidence retains its origin and does not prove automation or strong isolation.
 
 A project adapter defines applicable build/prepare/invoke/check/cleanup operations. A library, CLI, service, UI, data pipeline, or other artifact can implement different subsets. No universal HTTP service, container deployment, or database is assumed.
 
-An isolation adapter reports controls it actually applied: mounted paths, allowed network sources, permitted credentials, session/memory policy, and verifier boundary. If enforcement is unavailable, keep ordinary workflows usable and downgrade the isolation claim.
+An isolation adapter reports controls it actually applied: mounted paths, allowed network sources, permitted credentials, session/memory policy, and verifier boundary. If enforcement is unavailable, ordinary procedural workflows remain usable; a run that requires enforced isolation is BLOCKED pending an authorized policy change.
 
 ## Test design without inventing a product
 

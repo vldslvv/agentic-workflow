@@ -1,26 +1,12 @@
 ---
 name: spec-define
-description: Define, import, review, or revise project specifications that also serve as acceptance documents. Use for explicit specification work; do not invent an application or implement project code.
+description: Define and approve subsystem specifications, task plans, and frozen acceptance checks. Use for new intent, imported specs, or behavior changes.
 ---
 
-# Define project specifications
+# Define
 
-Read the repository `AGENTS.md`, [shared contract](../../../docs/SUITE_CONTRACT.md), and [Define workflow](../../../docs/DEFINE.md).
+Read the repository AGENTS.md, [shared contract](../../../docs/SUITE_CONTRACT.md), and [Define](../../../docs/DEFINE.md). Follow D1–D4 as the planner.
 
-## Inputs
+Use supplied intent or existing authoritative material. Prepare complete plan and acceptance documents using [PLAN.md](../../../templates/PLAN.md) and [SPEC.md](../../../templates/SPEC.md), register subsystem acceptance files directly, and prepare requirement-linked checks. Resolve normative gaps before approval.
 
-Use the user's project intent, supplied specs, or explicitly authorized existing-system observations. With no project material, prepare the blank templates or explain what input is needed. Do not choose a demonstration application.
-
-## Procedure
-
-1. Establish scope, observation boundary, authority, and preservation target. Distinguish user requirements from proposals and observations.
-2. Select acceptance-sized capabilities. Assign stable IDs and canonical dependency declarations; derive a DAG rather than inventing an arbitrary serial order.
-3. Write each spec as its acceptance document using [SPEC.md](../../../templates/SPEC.md). Use prose, scenarios, schemas, models, or properties only as needed.
-4. Map mandatory requirements to concrete verification rules with [VERIFICATION.md](../../../templates/VERIFICATION.md). Define tolerances and nondeterminism before evaluating outputs.
-5. Review ambiguity, contradictions, failure/interaction behavior, references, and required retained inputs. Preserve unresolved normative questions.
-6. Obtain approval from the designated authority for exact content, or leave the result proposed. An agent-written approved status is not authority.
-7. Register the documents in a project manifest. For changes, produce a change proposal and affected-evidence analysis.
-
-## Outputs
-
-Produce reviewed specs, acceptance mapping, manifest/DAG, approval references or open issues, and readiness status. Do not generate implementation code in this skill. State NO_PROJECT or BLOCKED rather than filling missing requirements yourself.
+Complete the persistence and freeze gates before handoff. Return approved paths, baseline/approval references, frozen input inventory, target and ownership, or explicit unresolved decisions. Approval does not itself authorize implementation.

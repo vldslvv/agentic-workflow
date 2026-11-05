@@ -1,0 +1,8 @@
+{
+  "result": "PASS",
+  "method": "Exact text comparison with original planner transcript document spans, plus trailing newline.",
+  "documents": [
+    "plan.md",
+    "acceptance.md"
+  ]
+}

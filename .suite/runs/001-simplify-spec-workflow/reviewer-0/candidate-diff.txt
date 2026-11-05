@@ -1,0 +1,1256 @@
+COMMAND: ['git', 'diff', '0da44c5e4533f42abcc3f405a7c9a6c3c3413cef', '--', 'AGENTS.md', '.agents/skills/acceptance-spec/SKILL.md', 'spec-source-suite']
+CWD: /home/vv/ccode/generate-prototype
+EXIT: 0
+STDOUT:
+diff --git a/.agents/skills/acceptance-spec/SKILL.md b/.agents/skills/acceptance-spec/SKILL.md
+new file mode 100644
+index 0000000..2304b42
+--- /dev/null
++++ b/.agents/skills/acceptance-spec/SKILL.md
+@@ -0,0 +1,45 @@
++---
++name: acceptance-spec
++description: Turn an interactive planning discussion into an acceptance specification for approval at the end of planning, before implementation.
++---
++
++# Acceptance specification
++
++Use the planning discussion as the source of agreed scope. Read relevant repository
++contracts when needed to make criteria precise. Extract agreed requirements,
++contracts, edge cases, failure scenarios, non-goals, and verification criteria;
++resolve material ambiguities with the user rather than inventing requirements.
++Keep implementation choices open unless the user explicitly requires them.
++
++Choose a short task ID suitable for a directory name, reusing the user's ID when
++provided. Record the full baseline Git commit before implementation, normally
++`git rev-parse HEAD`; if work has already started, establish the actual baseline
++with the user. Present a concise draft containing the task ID, baseline commit,
++goal, scope and non-goals, and numbered acceptance criteria. Give each criterion
++a stable ID such as AC-1, one independently verifiable outcome, and a concrete
++verification method with the relevant inputs, conditions, and expected result.
++Include agreed boundary and failure behavior in the criteria. Keep unresolved
++questions visibly separate from agreed requirements.
++
++Present the complete draft in the conversation and explicitly ask the user to
++approve it. Wait for explicit approval of the current draft; revisions require
++presenting the revised draft for approval. Save only after approval, using
++`.agents/tasks/<task-id>/acceptance.md`, and preserve the approved text exactly.
++Do not overwrite an existing approved specification without explicit authorization.
++When the task uses this repository's specification workflow, also preserve the
++complete approved plan as `plan.md` in the same directory and record both document
++digests, the full baseline commit, approving authority, and approval reference.
++Follow [the shared contract](../../../spec-source-suite/docs/SUITE_CONTRACT.md)
++§2 for task persistence. Register a subsystem's acceptance.md directly as its
++specification; do not duplicate it in a second requirements document.
++
++If Plan mode prevents writing, present the complete drafts and state that saving
++is deferred. Save the exact approved text once editing is available, before
++implementation or context handoff. Recover missing originals instead of rebuilding
++them from a summary. Report the saved paths. Approval alone never starts
++implementation; a separate instruction is required. If that instruction already
++exists, continue within its authorized scope rather than asking again.
++
++Treat the approved document as immutable. If later discoveries require a change,
++present the proposed revision and obtain explicit authorization before editing;
++never weaken or silently reinterpret criteria to fit an implementation.
+diff --git a/AGENTS.md b/AGENTS.md
+new file mode 100644
+index 0000000..c966fa4
+--- /dev/null
++++ b/AGENTS.md
+@@ -0,0 +1,32 @@
++# App generation
++
++This repository uses `spec-source-suite/` as reusable guidance for generating an app. The app's specification bundle lives outside that directory and defines what to build. Keep app specifications, target profiles, retained assets, generated code, and run evidence outside the suite. Modify the suite itself only when the user requests changes to the workflow tooling or guidance.
++
++## Load the workflow
++
++Before defining, implementing, or generating an app, read [the suite instructions](spec-source-suite/AGENTS.md) and [the shared contract](spec-source-suite/docs/SUITE_CONTRACT.md). Their workflow boundaries and acceptance gates apply to app work throughout this repository. Resolve relative paths in suite documents from the containing document, not from this project root.
++
++Select the procedure that matches the requested work and read both its skill file and workflow document directly; the nested skills need not be installed or automatically discovered:
++
++| Requested work | Skill instructions | Workflow |
++|---|---|---|
++| Define or revise app behavior and acceptance criteria | [spec-define](spec-source-suite/.agents/skills/spec-define/SKILL.md) | [Define](spec-source-suite/docs/DEFINE.md) |
++| Implement an approved capability or assess alignment | [spec-implement](spec-source-suite/.agents/skills/spec-implement/SKILL.md) | [Implement](spec-source-suite/docs/IMPLEMENT.md) |
++| Generate an app, update it incrementally, regenerate it, or change its target technology | [spec-generate](spec-source-suite/.agents/skills/spec-generate/SKILL.md) | [Generate](spec-source-suite/docs/GENERATE.md) |
++
++For generation, also read the Implement skill and workflow: Generate orchestrates that procedure for each selected capability. Read `spec-source-suite/CODEX_START.md` and `spec-source-suite/docs/BUILD_THE_SUITE.md` only when explicitly asked to build the suite's tooling; they are not the app specification.
++
++## Locate the app inputs
++
++1. Use the specification location or project manifest identified by the user. Otherwise inspect the repository outside `spec-source-suite/` for the intended app brief, specifications, and manifest. If multiple bundles are plausible, ask which one is authoritative before implementing.
++2. Read the app brief and all specs selected for the requested scope, including their prerequisite specs and normative references. Follow the manifest's registered paths; manifest paths are relative to its directory unless it explicitly declares a controlled external verifier reference.
++3. If the user supplies a brief or draft specs, follow Define to prepare the missing acceptance criteria and manifest before generation. When creating a new bundle without an established location, use `specs/` at the project root. Copy only the needed [templates](spec-source-suite/templates/) there and fill them from the user's requirements. Preserve an existing bundle's location and structure.
++4. Treat suite templates as blank scaffolding and `BUILD_THE_SUITE.md` as a tooling specification. Neither supplies app requirements. Register each subsystem’s authoritative `.agents/tasks/<task-id>/acceptance.md` directly as its spec; keep the approved `plan.md`, baseline commit, and digest-bound approval references alongside it. Historical task notes are not automatically selected specifications. If no app specifications are available, report `NO_PROJECT` and identify the missing input; use Define if the user has requested specification authoring.
++
++## Execute and finish
++
++Before implementation, establish the approved specification baseline, selected requirement IDs and scope, dependency graph, target profile, verification arrangement, retained inputs, and authorized output paths required by the shared contract. Use existing approvals and delegated choices where applicable. Resolve missing decisions with the user instead of inventing a domain, stack, or deployment model. Missing required execution inputs yield `BLOCKED`.
++
++Follow Generate's mode-specific workspace rules and Implement's review and verification loop. Keep the app bundle and acceptance baseline protected from implementation changes. Persist run state and requirement-linked evidence in the app manifest's configured evidence directory, outside `spec-source-suite/`. Use the suite’s concise run-report and review templates when those steps are reached; a separate verification-design document is optional when acceptance contains the mapping. Follow the shared contract for planner-authored frozen checks, the implementer-spawned fresh reviewer, and the bounded correction loop. Initial and incremental work use procedural separation unless stronger isolation is explicitly required.
++
++Completion requires every mandatory gate for the selected scope to pass, including independent review, applicable manual acceptance, and assembled-app checks for project acceptance. Report actual checks, unmet requirements, evidence paths, and any isolation or execution limitations. When a required capability is unavailable, preserve partial evidence and report the blocked gate rather than claiming success.
+diff --git a/spec-source-suite/.agents/skills/spec-define/SKILL.md b/spec-source-suite/.agents/skills/spec-define/SKILL.md
+index 863ecb4..4d98362 100644
+--- a/spec-source-suite/.agents/skills/spec-define/SKILL.md
++++ b/spec-source-suite/.agents/skills/spec-define/SKILL.md
+@@ -1,26 +1,12 @@
+ ---
+ name: spec-define
+-description: Define, import, review, or revise project specifications that also serve as acceptance documents. Use for explicit specification work; do not invent an application or implement project code.
++description: Define and approve subsystem specifications, task plans, and frozen acceptance checks. Use for new intent, imported specs, or behavior changes.
+ ---
+ 
+-# Define project specifications
++# Define
+ 
+-Read the repository `AGENTS.md`, [shared contract](../../../docs/SUITE_CONTRACT.md), and [Define workflow](../../../docs/DEFINE.md).
++Read the repository AGENTS.md, [shared contract](../../../docs/SUITE_CONTRACT.md), and [Define](../../../docs/DEFINE.md). Follow D1–D4 as the planner.
+ 
+-## Inputs
++Use supplied intent or existing authoritative material. Prepare complete plan and acceptance documents using [PLAN.md](../../../templates/PLAN.md) and [SPEC.md](../../../templates/SPEC.md), register subsystem acceptance files directly, and prepare requirement-linked checks. Resolve normative gaps before approval.
+ 
+-Use the user's project intent, supplied specs, or explicitly authorized existing-system observations. With no project material, prepare the blank templates or explain what input is needed. Do not choose a demonstration application.
+-
+-## Procedure
+-
+-1. Establish scope, observation boundary, authority, and preservation target. Distinguish user requirements from proposals and observations.
+-2. Select acceptance-sized capabilities. Assign stable IDs and canonical dependency declarations; derive a DAG rather than inventing an arbitrary serial order.
+-3. Write each spec as its acceptance document using [SPEC.md](../../../templates/SPEC.md). Use prose, scenarios, schemas, models, or properties only as needed.
+-4. Map mandatory requirements to concrete verification rules with [VERIFICATION.md](../../../templates/VERIFICATION.md). Define tolerances and nondeterminism before evaluating outputs.
+-5. Review ambiguity, contradictions, failure/interaction behavior, references, and required retained inputs. Preserve unresolved normative questions.
+-6. Obtain approval from the designated authority for exact content, or leave the result proposed. An agent-written approved status is not authority.
+-7. Register the documents in a project manifest. For changes, produce a change proposal and affected-evidence analysis.
+-
+-## Outputs
+-
+-Produce reviewed specs, acceptance mapping, manifest/DAG, approval references or open issues, and readiness status. Do not generate implementation code in this skill. State NO_PROJECT or BLOCKED rather than filling missing requirements yourself.
++Complete the persistence and freeze gates before handoff. Return approved paths, baseline/approval references, frozen input inventory, target and ownership, or explicit unresolved decisions. Approval does not itself authorize implementation.
+diff --git a/spec-source-suite/.agents/skills/spec-generate/SKILL.md b/spec-source-suite/.agents/skills/spec-generate/SKILL.md
+index 07622c2..e4c2538 100644
+--- a/spec-source-suite/.agents/skills/spec-generate/SKILL.md
++++ b/spec-source-suite/.agents/skills/spec-generate/SKILL.md
+@@ -1,26 +1,12 @@
+ ---
+ name: spec-generate
+-description: Generate a project from approved specifications, update it incrementally, or run same-target or cross-target regeneration. Use only for an explicitly requested generation scope; never delete working source or invent project specs.
++description: Generate initial or incremental app work from an approved subsystem DAG; use explicit branches for regeneration and cross-target reconstruction.
+ ---
+ 
+-# Generate from specifications
++# Generate
+ 
+-Read the repository `AGENTS.md`, [shared contract](../../../docs/SUITE_CONTRACT.md), and [Generate workflow](../../../docs/GENERATE.md). Use `spec-implement` for the scoped worker loop rather than creating a second implementation procedure.
++Read the repository AGENTS.md, [shared contract](../../../docs/SUITE_CONTRACT.md), [Generate](../../../docs/GENERATE.md), [Implement skill](../spec-implement/SKILL.md), and [Implement workflow](../../../docs/IMPLEMENT.md). Follow G1–G5 as supervisor.
+ 
+-## Inputs
++Use the manifest's registered acceptance documents and canonical depends_on declarations. Validate ready tasks, obtain planner handoffs, and dispatch Implement serially. Maintain evidence outside worker memory and require assembled-app checks before project acceptance.
+ 
+-Require a filled project manifest, approved spec bundle, target profile, verification baseline, selected scope/mode, retained input policy, and authorized workspace. No project specs means NO_PROJECT.
+-
+-## Procedure
+-
+-1. Resolve the requested mode: initial, incremental, regenerate, or cross-target. Distinguish ordinary porting with old-code access from clean-room generation.
+-2. Freeze behavior/acceptance and input identities. Resolve prerequisite closure, retained boundaries, and downstream integration checks.
+-3. Prepare a new workspace where the mode requires it. Export only allowlisted inputs and record actual content digests. Do not delete or copy the old implementation into a clean-room scope.
+-4. Apply available filesystem, history, session/memory, network, and verifier controls. If controls cannot be enforced, label the run procedural or blocked according to its required policy.
+-5. Schedule ready spec nodes, serially by default. Use fresh implementation/review sessions and external run state. Respect prerequisites even when applying resume or scope controls.
+-6. Run project-level acceptance through the protected verifier. Keep the behavior baseline fixed on a technology switch; separately approve and validate any adapter change.
+-7. Preserve first-attempt results and any repairs. Report actual conformance, scope, retained dependencies, and isolation separately.
+-
+-## Outputs
+-
+-Produce a generated workspace, input manifest, node-level evidence, combined acceptance results, and [run report](../../../templates/RUN_REPORT.md). Do not claim enforced clean-room regeneration from prompts alone or real regeneration from stub-worker tests.
++Load [Regeneration](../../../docs/REGENERATION.md) only for regeneration/cross-target scope and [Strong isolation](../../../docs/STRONG_ISOLATION.md) when enforcement is required. Return the generated candidate and scoped run evidence with actual isolation and unresolved gates.
+diff --git a/spec-source-suite/.agents/skills/spec-implement/SKILL.md b/spec-source-suite/.agents/skills/spec-implement/SKILL.md
+index 6e4a795..4d9a765 100644
+--- a/spec-source-suite/.agents/skills/spec-implement/SKILL.md
++++ b/spec-source-suite/.agents/skills/spec-implement/SKILL.md
+@@ -1,27 +1,12 @@
+ ---
+ name: spec-implement
+-description: Implement selected approved project specifications and demonstrate acceptance alignment through fresh review and independent checks. Use for scoped implementation, not for inventing requirements or claiming clean-room generation.
++description: Implement an approved task, spawn fresh independent acceptance review, and repair within the shared attempt limit.
+ ---
+ 
+-# Implement and align
++# Implement
+ 
+-Read the repository `AGENTS.md`, [shared contract](../../../docs/SUITE_CONTRACT.md), and [Implement workflow](../../../docs/IMPLEMENT.md).
++Read the repository AGENTS.md, [shared contract](../../../docs/SUITE_CONTRACT.md), and [Implement](../../../docs/IMPLEMENT.md). Follow I1–I5 with the persisted planner handoff.
+ 
+-## Inputs
++Implement within owned paths; preserve protected inputs and actual check results. Spawn the reviewer with no inherited conversation using [REVIEWER.md](../../../prompts/REVIEWER.md), supplying acceptance and checks but excluding the plan and conversation. The reviewer assesses coverage and executes acceptance independently.
+ 
+-Require selected approved specs/requirement IDs, accepted prerequisites, target constraints, writable workspace boundaries, verification baseline, and a run budget. Missing inputs block the corresponding gate.
+-
+-## Procedure
+-
+-1. Validate readiness and freeze the relevant input identities. Keep scheduling and resume state in the supervisor or an explicit external run record.
+-2. Prepare a transient plan covering requirement IDs, integration points, and useful implementation-level tests.
+-3. Implement the selected behavior within owned paths. Do not modify approved specs, reference fixtures, or protected acceptance checks to fit the candidate.
+-4. Execute local checks and preserve actual outputs. Report missing execution honestly.
+-5. Request a fresh reviewer session using [REVIEWER.md](../../../prompts/REVIEWER.md). When unavailable, report the independent gate not run; do not role-play its completion in the same session.
+-6. Invoke the independent verifier against the actual candidate. Review opinions and unit tests do not substitute for mandatory behavioral checks.
+-7. Repair implementation defects within budget. Return ambiguities and verifier conflicts to their approval process. Preserve failed attempts.
+-8. Integrate and rerun the required combined-scope checks. Record evidence against the final candidate digest, not a previous version.
+-
+-## Outputs
+-
+-Produce the implementation artifacts, local check results, [review report](../../../templates/REVIEW.md), acceptance evidence, and [run report](../../../templates/RUN_REPORT.md). Acceptance requires every mandatory scoped gate; otherwise return explicit partial or failed status.
++Apply contract §6 for repairs and immediate escalations. Return the candidate, raw results, review findings, and [run report](../../../templates/RUN_REPORT.md). The supervisor applies the acceptance gates; missing checks or independent review cannot pass.
+diff --git a/spec-source-suite/AGENTS.md b/spec-source-suite/AGENTS.md
+index 28b18d3..416bb58 100644
+--- a/spec-source-suite/AGENTS.md
++++ b/spec-source-suite/AGENTS.md
+@@ -1,29 +1,14 @@
+ # Agent instructions — Spec Source Suite
+ 
+-This repository defines a reusable development workflow. It is not a preselected application.
++This directory is reusable guidance, not an app specification. Keep project inputs, implementation, and run evidence outside it.
+ 
+-## Route the work
++Read [the shared contract](docs/SUITE_CONTRACT.md) first. It is the single authority for approvals, task persistence, roles, frozen checks, DAG readiness, repair limits, isolation, and completion.
+ 
+-- To define or revise project behavior, use `spec-define` and `docs/DEFINE.md`.
+-- To implement an approved capability and assess alignment, use `spec-implement` and `docs/IMPLEMENT.md`.
+-- To generate a project, regenerate a scope, or switch technologies, use `spec-generate` and `docs/GENERATE.md`.
+-- To implement the suite itself, follow `CODEX_START.md` and `docs/BUILD_THE_SUITE.md`. Do not invent a demonstration product.
++- Define or revise behavior: read [spec-define](.agents/skills/spec-define/SKILL.md) and [Define](docs/DEFINE.md).
++- Implement an approved task or assess alignment: read [spec-implement](.agents/skills/spec-implement/SKILL.md) and [Implement](docs/IMPLEMENT.md).
++- Generate initial/incremental work: read [spec-generate](.agents/skills/spec-generate/SKILL.md), [Generate](docs/GENERATE.md), and Implement.
++- Regenerate or change targets through reconstruction: additionally read [Regeneration](docs/REGENERATION.md).
++- Apply required enforced isolation: read [Strong isolation](docs/STRONG_ISOLATION.md).
++- Build automated suite tooling only when explicitly requested: read [CODEX_START](CODEX_START.md) and [BUILD_THE_SUITE](docs/BUILD_THE_SUITE.md).
+ 
+-Read `docs/SUITE_CONTRACT.md` before a workflow. It defines common terms, authority, evidence, and failure handling.
+-
+-## Non-negotiable boundaries
+-
+-1. Project specs and their explicit acceptance clauses are authoritative. Tasks and implementation plans are not requirements.
+-2. Do not choose a project domain, technology stack, or deployment model when the user has not supplied or delegated it.
+-3. Missing project specifications yield NO_PROJECT. Missing execution inputs yield BLOCKED. Neither is a pass.
+-4. Do not change frozen requirements, fixtures, verifier assertions, or thresholds to make an implementation pass. Propose a change and obtain the designated approval first.
+-5. Keep acceptance evidence traceable to requirement IDs and actual executed checks. Never fabricate execution, another agent, review independence, isolation, or approval.
+-6. Use a fresh session for independent review. A role change inside the implementation conversation is self-review, not independent review.
+-7. Preserve a neutral boundary between workflow tooling and project adapters. Keep run state, scheduling, budget, retries, and resume decisions outside worker memory.
+-8. Default to serial execution. Parallelize only DAG-ready work with isolated writes and explicit integration gates.
+-9. Do not delete the working implementation to test regeneration. Use a new workspace and explicit input allowlist. Instructions alone do not enforce a sandbox.
+-10. Add tests that establish requirements or catch meaningful regressions; do not produce large numbers of overlapping tests without a verification purpose.
+-11. Do not treat this repository's templates as completed specs. Unresolved required values block approval or execution at the corresponding gate.
+-12. Retain required data, assets, schemas, and external contracts separately from disposable code. Regenerating code does not recreate lost production state or unavailable third-party services.
+-
+-When merging these instructions into an existing project, preserve applicable existing guidance. Changes to the suite's own policy must be explicit; they must not be incidental side effects of implementing a project feature.
++For suite guidance changes, follow the user's approved task acceptance, preserve existing repository instructions, and validate references, metadata, and package checksums. Report procedural walkthroughs separately from actual app-generation experiments.
+diff --git a/spec-source-suite/CODEX_START.md b/spec-source-suite/CODEX_START.md
+index 47f67da..ab13a01 100644
+--- a/spec-source-suite/CODEX_START.md
++++ b/spec-source-suite/CODEX_START.md
+@@ -1,5 +1,7 @@
+ # Codex assignment: implement a generic spec-source suite
+ 
++This is a conditional assignment: load it only when the user requests automated suite tooling. Ordinary file-based app work follows [the shared contract](docs/SUITE_CONTRACT.md) and needs no runner implementation.
++
+ ## Objective
+ 
+ Build a reusable suite with three capabilities:
+diff --git a/spec-source-suite/PACKAGE_CHECKS.json b/spec-source-suite/PACKAGE_CHECKS.json
+index 56a0b95..e45d5c0 100644
+--- a/spec-source-suite/PACKAGE_CHECKS.json
++++ b/spec-source-suite/PACKAGE_CHECKS.json
+@@ -1,36 +1,38 @@
+ {
+   "package": "Spec Source Suite",
+-  "version": "0.1-draft",
++  "version": "0.2-draft",
+   "checked_date": "2026-11-05",
+   "status": "STRUCTURAL_CHECKS_PASSED",
+-  "source_document_count": 25,
++  "source_document_count": 28,
+   "checks": {
+-    "utf8_readability_and_trailing_newlines": "PASS",
+-    "yaml_documents_and_front_matter": {
+-      "result": "PASS",
+-      "count": 9
+-    },
++    "utf8_and_final_newlines": "PASS",
+     "local_markdown_links": {
+       "result": "PASS",
+-      "count": 37
++      "count": 91
+     },
+-    "unique_suite_requirement_ids": {
++    "yaml_and_frontmatter": {
+       "result": "PASS",
+-      "count": 18
++      "count": 10
+     },
+-    "explicit_only_skill_metadata": {
++    "code_fences": "PASS",
++    "explicit_skill_metadata": {
+       "result": "PASS",
+       "count": 3
+     },
+-    "project_template_contains_no_project_specs_or_selected_targets": "PASS",
+-    "markdown_code_fence_balance": "PASS"
++    "blank_manifest_and_policy_metadata": "PASS",
++    "requirement_tables_and_template_mapping": {
++      "result": "PASS",
++      "note": "Structural presence/uniqueness; semantic coverage is independently reviewed."
++    },
++    "approved_artifacts_and_staged_index_integrity": "PASS"
+   },
++  "scope": "Instruction-only guidance. Structural checks include repository routing and task artifact integrity; walkthroughs are procedural validation, not app generation.",
++  "evidence": "../.suite/runs/simplify-spec-workflow/",
+   "not_tested": [
+-    "Loading or invocation in an installed Codex runtime",
+-    "Supervisor or CLI implementation",
+-    "Actual agent execution, independent review, or acceptance execution",
+-    "Real project generation or cross-target regeneration",
+-    "Sandbox enforcement or clean-room isolation"
+-  ],
+-  "scope": "Instruction-only workflows, reusable skills, blank templates, and a tooling implementation specification. No generated application."
++    "Installed skill invocation",
++    "Automated supervisor or CLI",
++    "Actual app generation or regeneration",
++    "Sandbox enforcement",
++    "Future app acceptance checks"
++  ]
+ }
+diff --git a/spec-source-suite/README.md b/spec-source-suite/README.md
+index 71c0c69..b167938 100644
+--- a/spec-source-suite/README.md
++++ b/spec-source-suite/README.md
+@@ -1,63 +1,31 @@
+ # Spec Source Suite
+ 
+-**Reusable workflows for defining specifications, implementing against acceptance criteria, and generating a project from those specifications.**
++Reusable, instruction-driven workflows for building an app from approved subsystem specifications. Version: 0.2-draft.
+ 
+-Version: 0.1-draft · Prepared: 2026-11-05
++Start at [AGENTS.md](AGENTS.md) and the [shared contract](docs/SUITE_CONTRACT.md). This package supplies guidance, skills, and blank templates. It contains no selected app, target stack, or automated runner.
+ 
+-This package is a generic workflow suite, not a sample application. It contains instruction-only agent skills, operating documents, blank project templates, and an acceptance specification for optional automation. It contains no application implementation, selected business domain, language, framework, database, or deployment stack.
++| Workflow | Responsibility | Completion |
++|---|---|---|
++| [Define](docs/DEFINE.md) | Planner prepares subsystem acceptance, plan, and requirement-linked checks | Approved documents saved; checks frozen; handoff ready |
++| [Generate](docs/GENERATE.md) | Supervisor derives the DAG and dispatches ready tasks | Subsystems accepted and assembled-app checks pass |
++| [Implement](docs/IMPLEMENT.md) | Implementer builds, spawns fresh review, and repairs | Candidate passes checks, independent review, and applicable integration |
+ 
+-## The three capabilities
++Each task uses planner, implementer, and reviewer agents. Supervisor is the parent's coordination responsibility; verifier means the check set/execution arrangement. The ordinary workflow is serial and procedurally separated. The shared contract defines authority, ownership, evidence, and the initial candidate plus two repair rounds.
+ 
+-| Capability | Input | Output | Workflow |
+-|---|---|---|---|
+-| **Define** | Your intent, existing specifications, or explicitly authorized behavior observations | Reviewed specification/acceptance documents, requirement IDs, verification design, and a dependency DAG | [DEFINE](docs/DEFINE.md) |
+-| **Implement and align** | Approved specs, a target profile, and an implementation workspace | An implementation with requirement-linked review and acceptance evidence | [IMPLEMENT](docs/IMPLEMENT.md) |
+-| **Generate** | An approved project specification bundle, target profile, and scope | A new implementation plus evidence of conformance; optionally a clean-room or cross-technology regeneration result | [GENERATE](docs/GENERATE.md) |
++## Add a project
+ 
+-**Define decides what must be built. Implement handles one accepted unit of work. Generate orchestrates Implement across a project or selected subgraph.** Regeneration is a controlled mode of Generate, not a second implementation methodology.
++Keep project files outside this suite. Use `specs/` for a small [project brief](templates/PROJECT.md), [manifest](templates/project.yaml), and selected [target profile](templates/target.yaml). Save each task's complete approved [plan](templates/PLAN.md) and [acceptance](templates/SPEC.md) under `.agents/tasks/<task-id>/` with baseline commit and approval references. Register a subsystem's acceptance file directly in the manifest. Its `depends_on` defines prerequisites; no second graph is needed.
+ 
+-Each capability specification is also its acceptance document. Acceptance tests operationalize that document; they do not become an undocumented alternative source of requirements.
++Keep checks alongside project inputs, frozen before implementation. Acceptance can contain the verification mapping; a separate [verification plan](templates/VERIFICATION.md) is optional. Keep raw results and review findings in one configured run directory outside the suite. See [RUN_REPORT.md](templates/RUN_REPORT.md).
+ 
+-## Two ways to use this package
++The nested skills can be read directly or invoked when installed as `$spec-define`, `$spec-generate`, and `$spec-implement`. They are instructions, not shell commands. Runtime invocation conventions are sourced in [SOURCES.md](docs/SOURCES.md); no particular worker CLI is required. Missing fresh-review or execution capability blocks the corresponding gate.
+ 
+-### Use the workflows with agents now
++## Conditional branches
+ 
+-Keep this package intact in a repository. Start with [AGENTS.md](AGENTS.md), the shared [suite contract](docs/SUITE_CONTRACT.md), and the workflow you need. The three instruction-only skills are under `.agents/skills/`.
++- For regeneration or cross-target reconstruction, read [REGENERATION.md](docs/REGENERATION.md). It preserves input export, retained-state, isolation, and comparison safeguards.
++- When enforced isolation is required, read [STRONG_ISOLATION.md](docs/STRONG_ISOLATION.md). Missing required enforcement blocks that run.
++- Only when asked to build an automated runner, use [CODEX_START.md](CODEX_START.md) and [BUILD_THE_SUITE.md](docs/BUILD_THE_SUITE.md). Their tooling requirements are not app requirements.
+ 
+-In Codex, invoke them explicitly:
++Approved plans and acceptance are durable task records, even though plans do not define behavior. Source/build output may be replaced within authorized scope. Audit records and old plans stay outside regeneration exports.
+ 
+-```text
+-$spec-define Help me turn the project description I provide into specifications.
+-$spec-implement Implement the approved specification I select and verify alignment.
+-$spec-generate Generate the project from the approved specification bundle and target I select.
+-```
+-
+-These are skill invocations, not installed shell commands. The skills coordinate work through available tools; they do not themselves provide a supervisor, sandbox, or verifier. Missing execution capabilities must be reported rather than simulated.
+-
+-The folder and invocation conventions follow the official Codex documentation; see [sources](docs/SOURCES.md). When merging into an existing repository, preserve existing instructions and merge deliberately; do not overwrite an existing `AGENTS.md` or same-named skill.
+-
+-### Have Codex implement the reusable tooling first
+-
+-Give Codex [CODEX_START.md](CODEX_START.md). The implementation assignment is to build the generic suite, using [BUILD_THE_SUITE.md](docs/BUILD_THE_SUITE.md) as its acceptance specification. It is explicitly not an assignment to invent an application.
+-
+-Start with file-based artifacts, a serial scheduler, fresh worker sessions, and manual execution fallback. Add automation only where repeatable execution or enforcement is needed. A workflow usable through files and agents is a valid first milestone.
+-
+-## Insert your project later
+-
+-Copy and complete [PROJECT.md](templates/PROJECT.md), [project.yaml](templates/project.yaml), and one or more [SPEC.md](templates/SPEC.md) files. Register their paths in the project manifest. Select a [target profile](templates/target.yaml) only when preparing implementation or generation. Define the independent verification arrangement with [VERIFICATION.md](templates/VERIFICATION.md).
+-
+-A minimal project can have one capability specification. Add shared contracts, state models, schemas, data, or other artifacts only when its behavior requires them. Do not manufacture a DAG with unnecessary nodes merely to use the suite.
+-
+-Templates deliberately contain unresolved values. They are scaffolding, not an approved project. No specifications means **NO_PROJECT**, not a successful empty generation run.
+-
+-## What is durable, and what is replaceable?
+-
+-Durable inputs are approved specifications, referenced contracts and required data/assets, acceptance definitions and verifier revisions, generation policy, and approved target constraints. Plans, source code, local unit tests, and build products are replaceable. Evidence and logs are retained for audit but are not automatically inputs to later clean-room generation.
+-
+-Changing technologies may replace an implementation-specific test adapter, but must not silently change externally required behavior or acceptance thresholds.
+-
+-## Reading order
+-
+-Read the [shared contract](docs/SUITE_CONTRACT.md), then the selected workflow. Use the templates when creating project artifacts. Read the automation implementation brief only when building the suite's tooling.
+-
+-No generation, application test, or clean-room experiment has been executed by this package. Its own structural validation is reported in `PACKAGE_CHECKS.json`.
++Package structural results are recorded in `PACKAGE_CHECKS.json`. Documentation walkthroughs do not demonstrate successful app generation or enforced isolation.
+diff --git a/spec-source-suite/SHA256SUMS b/spec-source-suite/SHA256SUMS
+index bca3ecc..2c98563 100644
+--- a/spec-source-suite/SHA256SUMS
++++ b/spec-source-suite/SHA256SUMS
+@@ -1,26 +1,29 @@
+-3a61513d06905047004431f0c7aaf574ec05fe896e3c09804e82e94b70fe7296  .agents/skills/spec-define/SKILL.md
++9f1566b6a6cc1afa4f923adf0f801937ea5ce9bd8ad0f173129e6ffc8b6f4a8a  .agents/skills/spec-define/SKILL.md
+ f65710abc3d8f47616691ec70a5800d73ccf7b4bf48fd99131d54a7043af59f2  .agents/skills/spec-define/agents/openai.yaml
+-90c7caad9b598b7ab3cfbb49166c0e3dfb21e00f3cbe722089c99419eded1327  .agents/skills/spec-generate/SKILL.md
++e354d9b8b837c2a400fb0e2596297c1fb0cb20c05d32f5948d948ff7b9441ab6  .agents/skills/spec-generate/SKILL.md
+ 85e667aff16503af0b85d0d56daed9c61c41ac95314b0c3f1a71f630320187fe  .agents/skills/spec-generate/agents/openai.yaml
+-4f85968f5a01d0dc7b31f5a5982196a59c5c8655b008d471187353d398f57cdc  .agents/skills/spec-implement/SKILL.md
++4b671fc0ff127a082c9f182917de402c9fb3672dad288f58c1dcdaf601af8134  .agents/skills/spec-implement/SKILL.md
+ acf4136c24c65e4449633bff457e7ba3fc20da426097b49ced1a4945e84a82db  .agents/skills/spec-implement/agents/openai.yaml
+-6102b9a1af62479fe772b076bd11843961e85bfd69e56270fa8df5f17190f1cd  AGENTS.md
+-04bbdbb792132fdbea7feb82cf82a6ed9cac717787fdecec88b7a1b2653e2e6b  CODEX_START.md
+-d9ea07ee0486d38affa254fe66b6d08f07af528813bd6d921a38d08495a85568  PACKAGE_CHECKS.json
+-8068410572192f5b280276611645ee0fa898acbcb4b82ff61bea0203de2c3b53  README.md
+-8f7c9b704c189d91fb57a2653bc2ef5a2e869cdc25e825628ae56e5cb87cb4f0  docs/BUILD_THE_SUITE.md
+-62d17fa246429810eb7b905baa0421a193eeae4149b78286982e3a41a9e69ba7  docs/DEFINE.md
+-eee0b88df39c2d5881a46ac2fdd524d06f810fdd7798de9561384ec5d0d60f07  docs/GENERATE.md
+-2a3f6f07b4a5329d20758f381946a6f6cf79bbf7a90aa225d9062c1163ef4c40  docs/IMPLEMENT.md
++537161e7f32cab995a60dbec9946e7ee77105c87a6543fc86ffcbdeb6fa6169a  AGENTS.md
++a543cce7b8908754f5bf3584d205f0ba2e6b4ca8e785a8cbf2e16bd72dd35058  CODEX_START.md
++c96d760452bcccecb9f8c48fb506debee3ee12759d617cace61c4f3476b98e16  PACKAGE_CHECKS.json
++7034dfe2d378b66636d2e4d330ddbd146fc69ec5ca0323b95775cadb53457561  README.md
++cbb4a6bfac935164a0744058da0b215fb824802833e421270799efa108c2b369  docs/BUILD_THE_SUITE.md
++1243456b556c902661564bd50b7b90e2bcc6c5a01de885b16921ef459f6d24a7  docs/DEFINE.md
++c3f6a2373efda345ae8ea4566e8e195c3520ccbda8e4105bcb46e4efc05be3de  docs/GENERATE.md
++ca2f5c122c5aa6c55e5b53087b47184c12517b16a58ca3554db4fc4b926fabe4  docs/IMPLEMENT.md
++74a2548f0e26ba25c33009ab3a3f5c2bcf3b261666ae769a89e2ad126439a94a  docs/REGENERATION.md
+ f112e7fb66619b2487383c507095263848422a4322109be0fd9b7a4d0fce464e  docs/SOURCES.md
+-d8e306faf31fb48b658edea100314ab1def1b48279a05fdaa1838e7cebb8bc43  docs/SUITE_CONTRACT.md
+-0422ebc3fadc79dedf0508865affa4f243ea1a0af237837dd3ec84934a70b37f  prompts/REVIEWER.md
+-e5e4c6645378b0625b40ae2565d3a0bb3cbf0b8043b04b9d15bd31b7ab317606  prompts/VERIFIER.md
++ecb9974c56c56f5fd0e3a92f3456019453fe85f5fbb95ef1a3de2aeec0cad51f  docs/STRONG_ISOLATION.md
++edf8e9b5cd2c25f0a9339d0e000f6c1f4c60bcdc9e5067ae69b2056dfd19b788  docs/SUITE_CONTRACT.md
++cd0b522a2e60d216910d4737ef7ef199b1cb0c09f8b60d0c5edb9c5a5d717516  prompts/REVIEWER.md
++2682e5d08b1ae7e7f00ccc15c9048449438d1102660f31191c40ae93256f9776  prompts/VERIFIER.md
+ 83c63301ce363b252232426a1404300ca60c3e63fb8d3cc2e0bdceba3d02f83d  templates/CHANGE.md
++a8deefc763bac9ac6f12cd94d5959b665f9a7e512601e3d1d60d0decd4686a1f  templates/PLAN.md
+ 0981dd4e5c9f4deaf076562652b8e5e72ebe3dfb5caa718ae5515228ec417f10  templates/PROJECT.md
+-7e3bb63a5cf8fae6fa3095d27e1e093266ab3f4fec1c5a296839b6cd8e8fa563  templates/REVIEW.md
+-595ab79a79a64450fcccf10b764c5bcea6957d5f7e08e12285ed3896dcd067c1  templates/RUN_REPORT.md
+-f72c0a8055ac5d7aeb7c6f1a80c1c17c7e71e73041d6b88992b862bc49d1be96  templates/SPEC.md
+-efa9ebc37dc0adbd59659ebc4e8c2c9dfb122b4ec559c7f9d54c023da2e95d3b  templates/VERIFICATION.md
+-88e8292b35a9823b03beb69c978679487cc217ba357dd4d40c4b2f61c671f429  templates/project.yaml
++b2d486ef01749f1d43a001d7031828d0ac7d028aa6f19f3498d341fde77ffae8  templates/REVIEW.md
++c5cce89261d116c65fd9298d72e74b4185c254c562d23f535ade77d624096583  templates/RUN_REPORT.md
++d6200fb1246f7308e560335902a90c54e016268f7c040fa414f8df64a99d2183  templates/SPEC.md
++6a42df8f94fc57a1757da6d6cc54cb86c6062b992ea958f74c29d926d7f0016c  templates/VERIFICATION.md
++cb30ab2ad5c8622b0d657ebf51d3668b570ae740c4dd76f896a0eb39a9c2f1db  templates/project.yaml
+ 569e38ed3a8c3fdddd1aa98188caeb41fb63b297593cde9ad2f1ed9beb03f555  templates/target.yaml
+diff --git a/spec-source-suite/docs/BUILD_THE_SUITE.md b/spec-source-suite/docs/BUILD_THE_SUITE.md
+index 5ec30ef..c60ae33 100644
+--- a/spec-source-suite/docs/BUILD_THE_SUITE.md
++++ b/spec-source-suite/docs/BUILD_THE_SUITE.md
+@@ -2,7 +2,7 @@
+ 
+ ID: SUITE · Version: 0.1-draft
+ 
+-This document specifies the workflow tooling Codex is being asked to implement. It does not specify the user's future application. `SUITE-*` IDs refer to the tooling, not project capabilities. The assignment authorizes implementation of this brief; material behavior changes must be proposed explicitly.
++This document is an optional automation specification, active only when the user explicitly requests that tooling. The instruction-driven ordinary workflow is defined by [SUITE_CONTRACT.md](SUITE_CONTRACT.md). This document specifies the workflow tooling for that separate assignment. It does not specify the user's future application. `SUITE-*` IDs refer to the tooling, not project capabilities. Reading this document does not authorize implementation; material behavior changes must be proposed explicitly.
+ 
+ ## Goal and scope
+ 
+@@ -38,7 +38,7 @@ Support `resume`, `only`, `start-after`, `skip-completed`, and `max-items` seman
+ | SUITE-006 | Request genuine fresh review | A review job has a distinct session and neutral contract-based context. A missing fresh session is reported; same-session self-review never counts as the independent gate. |
+ | SUITE-007 | Use verifier evidence, not worker self-report | A worker success response paired with a failing verifier yields FAIL. Missing checks or zero required checks executed cannot yield acceptance. Manual criteria are distinctly recorded. |
+ | SUITE-008 | Preserve baseline integrity | A worker attempt to modify protected specs/verifier assets is prevented by configured controls, or detected and invalidates the run. No unprotected deployment may be labeled enforced. |
+-| SUITE-009 | Persist evidence outside worker memory | Restarting the supervisor preserves request IDs, attempts, requirement dispositions, prompts, per-item logs, and artifact references. No conversation reconstruction is required for status. |
++| SUITE-009 | Persist evidence outside worker memory | Restarting the supervisor preserves request IDs, attempts, requirement dispositions, handoff input references, raw results, review findings, and artifact references. Full prompt transcripts are optional. No conversation reconstruction is required for status. |
+ | SUITE-010 | Resume only when evidence still applies | Identical input and artifact digests allow reuse. Changed spec, dependency, target, verifier, suite/prompt, retained input, or missing/changed candidate artifacts invalidates relevant reuse. |
+ | SUITE-011 | Export only allowed regeneration inputs | Export contains approved inputs and excludes sentinel prior-source/history/transcript/build files. Traversal and symlink escapes are rejected. The final export has a file digest inventory. |
+ | SUITE-012 | Declare actual isolation limits | A procedural/manual environment is labeled procedural. Only tested controls for the declared boundary can produce enforced isolation. Known leakage yields CLEAN_ROOM_INVALID. |
+@@ -53,13 +53,13 @@ Support `resume`, `only`, `start-after`, `skip-completed`, and `max-items` seman
+ 
+ Use a manifest/spec reader, validator, DAG scheduler, context packager, worker adapter, review adapter, verifier adapter, workspace/isolation adapter, and file-backed run store. They can be small modules in one process. Keep the state machine deterministic outside the agent wherever possible.
+ 
+-The supervisor accepts worker artifacts as untrusted candidates. Only trusted verification and the completion policy determine acceptance. External workers must not be able to overwrite trusted run conclusions or the protected verifier through shared writable mounts.
++The supervisor accepts worker artifacts as untrusted candidates. Only trusted verification and the completion policy determine acceptance. Under the enforced-isolation branch, external workers must not be able to overwrite trusted run conclusions or the protected verifier through shared writable mounts. The procedural branch uses scoped ownership and integrity checks as defined in the shared contract.
+ 
+ A worker adapter consumes a scoped job and returns execution status, session identity when available, artifact locations, logs, and failure information. A manual adapter emits the job and waits for an explicitly imported result. Imported manual evidence retains its origin and does not prove automation or strong isolation.
+ 
+ A project adapter defines applicable build/prepare/invoke/check/cleanup operations. A library, CLI, service, UI, data pipeline, or other artifact can implement different subsets. No universal HTTP service, container deployment, or database is assumed.
+ 
+-An isolation adapter reports controls it actually applied: mounted paths, allowed network sources, permitted credentials, session/memory policy, and verifier boundary. If enforcement is unavailable, keep ordinary workflows usable and downgrade the isolation claim.
++An isolation adapter reports controls it actually applied: mounted paths, allowed network sources, permitted credentials, session/memory policy, and verifier boundary. If enforcement is unavailable, ordinary procedural workflows remain usable; a run that requires enforced isolation is BLOCKED pending an authorized policy change.
+ 
+ ## Test design without inventing a product
+ 
+diff --git a/spec-source-suite/docs/DEFINE.md b/spec-source-suite/docs/DEFINE.md
+index 9c15827..de21a1a 100644
+--- a/spec-source-suite/docs/DEFINE.md
++++ b/spec-source-suite/docs/DEFINE.md
+@@ -1,82 +1,25 @@
+-# Define — author specifications and acceptance together
++# Define — prepare approved task inputs
+ 
+-Read [SUITE_CONTRACT](SUITE_CONTRACT.md) first. Use [SPEC.md](../templates/SPEC.md) as a starting point, not as a requirement to produce unnecessary prose.
++Read the [shared contract](SUITE_CONTRACT.md). Define is the planner's procedure for new intent, imported specs, explicitly authorized observations of existing behavior, or changes to approved behavior.
+ 
+-## Purpose and entry paths
++**Inputs:** user intent or an existing bundle, approval authority, repository baseline, and known constraints. **Output:** approved task documents, registered subsystem specs, manifest/target references, and frozen requirement-linked checks. Missing intent yields NO_PROJECT; unresolved normative choices remain proposed.
+ 
+-Define produces the durable description of the user's project. It does not select an application, architecture, or stack on the user's behalf.
++## D1. Establish scope and boundaries
+ 
+-| Entry path | Method | Additional safeguard |
+-|---|---|---|
+-| New intent | Turn the user's goal into capability boundaries, observable contracts, and acceptance clauses | Mark proposals and unresolved decisions; do not present invented details as user requirements |
+-| Existing specifications | Import and normalize documents, preserve their meaning, add IDs and acceptance mappings | Maintain provenance and surface conflicting source documents |
+-| Existing implementation | With explicit authorization, characterize public behavior and extract candidate specifications | Label observations separately from approved requirements; decide whether quirks are intentional |
+-| Change to an approved project | Write a scoped change proposal, impact analysis, and revised acceptance mapping | Preserve the prior approved snapshot; invalidate affected downstream evidence |
++Identify observable operations, outputs, errors, side effects, persisted state, allowed variation, and exclusions. Preserve source provenance. Observed behavior is a proposal until approved. Use concise prose and tables; add schemas or models only where needed. Resolve material gaps with the user and leave delegated internal choices open.
+ 
+-## Ways to express behavior
++## D2. Define subsystems and acceptance
+ 
+-Use the smallest representation that removes the relevant ambiguity. Several forms can coexist in one spec or be referenced from it.
++Choose independently assessable subsystems, defaulting to one per task. Use [SPEC.md](../templates/SPEC.md) for each task's `acceptance.md`; retain existing authoritative formats when possible. Register its path in [project.yaml](../templates/project.yaml). Put shared semantics in normative references. Validate the derived DAG under contract §5.
+ 
+-| Form | Useful for | Must make explicit |
+-|---|---|---|
+-| Structured prose with stable requirement IDs | General capabilities and rules | Preconditions, required outcomes, failure cases, and allowed variation |
+-| Given/When/Then scenarios or decision tables | Boundary cases and branching rules | Inputs, initial state, observable result, and side effects |
+-| Schemas and interface contracts | APIs, files, events, CLIs, or callable interfaces | Semantics and error behavior in addition to data shape |
+-| State-transition model | Stateful or asynchronous behavior | Legal transitions, terminal states, conflicts, retries, and recovery |
+-| Properties and invariants | General behavior across many inputs or histories | Domain, quantification, limits, and how counterexamples are assessed |
+-| Operational measurements or evaluation rubrics | Latency, resource limits, generated content, or other nonexact outputs | Environment, sample design, metrics, tolerances, aggregation, and pass thresholds |
++Each mandatory requirement needs observable normal, boundary, failure, and interaction outcomes as applicable, with concrete checks. Define project-level assembled-app checks too. Keep project metadata and [target constraints](../templates/target.yaml) outside the suite. Select technology only from supplied or delegated choices.
+ 
+-No form is mandatory for every project. A small deterministic tool may need only precise prose, input/output examples, and a few properties. A nondeterministic system needs an explicit evaluation protocol; exact string matching is not the default.
++## D3. Prepare plan and checks
+ 
+-## Procedure
++Write the complete implementation approach using [PLAN.md](../templates/PLAN.md), including requirement scope, dependency inputs, owned paths, integration points, and check commands. Prepare requirement-linked executable checks and authorized manual criteria under contract §4. Use [VERIFICATION.md](../templates/VERIFICATION.md) only if acceptance needs a separate mapping. Missing required check execution mechanisms block the implementation handoff.
+ 
+-### D1. Establish the observation boundary
++## D4. Review, approve, persist, and freeze
+ 
+-Read the project brief or supplied material. Identify consumers, supported operations, outputs, externally visible effects, state that survives restarts, and environment assumptions. Define what is outside the preservation target. Distinguish behavior preservation from byte-identical output, identical internals, or preservation of existing data.
++Check contradictions, coverage, references, prerequisite cycles, and retained inputs. Present both complete documents for approval. Follow contract §2 for exact persistence, Plan-mode deferral, baseline commit, approval digests, and later changes. Freeze the approved checks and normative input inventory before implementation. If checks reveal a contract gap, resolve and approve it before freezing.
+ 
+-Capture unresolved behavior in an open-questions section. It is permissible to draft alternatives, but not to approve an arbitrary answer as if supplied by the user. Ask for decisions only where the missing answer changes the contract; leave unrelated drafting work unblocked.
+-
+-### D2. Choose acceptance-sized capabilities
+-
+-Split by independently assessable behavior, not by source files or framework layers. A single spec may be sufficient. Put genuinely shared terms and invariants into referenced shared contracts rather than copying them into every document.
+-
+-Assign stable spec IDs and stable requirement IDs. Define dependencies in each spec's `depends_on`. Derive and validate the DAG. Record the effects of changing a shared contract on all consumers.
+-
+-### D3. Write the specification as its acceptance document
+-
+-For each mandatory requirement, include its observable rule and an acceptance clause that an independent reviewer can assess. Specify relevant normal, boundary, failure, and interaction behavior. Explicitly distinguish REQUIRED, ALLOWED_VARIATION, and OUT_OF_SCOPE.
+-
+-Address time, randomness, ordering, persistence, retries, concurrency, authorization, and external dependencies only as applicable. For each relevant topic, define the semantics rather than writing “handle correctly.” Record “not applicable” with a reason where omission could otherwise be mistaken for an unanswered question.
+-
+-Internal design decisions belong in a target profile or transient implementation plan unless they are truly mandated. A technology-independent spec may still require a stable external protocol, format, or performance bound.
+-
+-### D4. Design verification before implementation
+-
+-Map requirement IDs to check definitions in [VERIFICATION.md](../templates/VERIFICATION.md). One scenario may cover several requirements; avoid duplicating tests merely to achieve a one-to-one mapping.
+-
+-For each check define setup, stimulus, observable assertions, reset/cleanup, evaluation method, pass rule, and evidence. Identify whether it is automated, manually inspected, or not yet executable. A missing required check blocks the corresponding acceptance gate even when the prose is clear.
+-
+-Public examples teach the contract. Protected checks assess it. Additional held-out cases may exercise composed behavior, but may not invent requirements. When behavior is stochastic, predeclare sample size, seeds if applicable, aggregation, uncertainty treatment, and allowed retry policy.
+-
+-### D5. Review the spec before approval
+-
+-Perform a contradiction and completeness review against the following questions:
+-
+-- Can an independent worker tell what is mandatory, allowed, and out of scope?
+-- Is each mandatory requirement observable and linked to a meaningful acceptance method?
+-- Are IDs, references, and dependencies valid, with no unresolved prerequisite cycles?
+-- Are conflicts, failure behavior, and cross-capability interactions addressed where relevant?
+-- Have essential assets, external contracts, and state requirements been retained explicitly?
+-- Are target choices separated from behavior, and are unresolved normative questions visible?
+-
+-A reviewer can find gaps; approval belongs to the designated authority. Record approval of exact content digests, not just an editable status label.
+-
+-### D6. Freeze the implementation input
+-
+-Export or identify the approved specification bundle, acceptance baseline, dependency revisions, and required retained inputs. It is acceptable for a spec to be approved while its automated verifier is still being built, but record acceptance readiness separately; implementation acceptance cannot pass until all mandatory checks are available.
+-
+-## Outputs and stop conditions
+-
+-Output capability specs, the project manifest, a derived DAG, a requirement-to-check mapping, an approval record, and any unresolved change proposals. Use [CHANGE.md](../templates/CHANGE.md) for behavior changes.
+-
+-No project intent or specs: report NO_PROJECT. Unresolved mandatory behavior: leave the affected specs DRAFT or PROPOSED. Invalid dependencies or contradictions: report BLOCKED with exact references. Never generate an application merely to fill those gaps.
++**Completion gate:** documents are saved and approved, all selected requirements have available prescribed checks, graph and references are valid, and the handoff inventory is frozen. Planning approval does not start implementation. On a separate implementation instruction, hand off both documents and the contract §3 inputs. Behavior changes follow [CHANGE.md](../templates/CHANGE.md) and invalidate affected evidence.
+diff --git a/spec-source-suite/docs/GENERATE.md b/spec-source-suite/docs/GENERATE.md
+index db163bc..2cbcf83 100644
+--- a/spec-source-suite/docs/GENERATE.md
++++ b/spec-source-suite/docs/GENERATE.md
+@@ -1,82 +1,29 @@
+-# Generate — construct a project from its specification bundle
++# Generate — supervise the subsystem DAG
+ 
+-Read [SUITE_CONTRACT](SUITE_CONTRACT.md) first. Generate prepares the inputs and environment, schedules the dependency graph, invokes [IMPLEMENT](IMPLEMENT.md), and collects project-level evidence.
++Read the [shared contract](SUITE_CONTRACT.md), [Implement skill](../.agents/skills/spec-implement/SKILL.md), and [Implement workflow](IMPLEMENT.md). Generate coordinates those task cycles; it does not define another worker loop.
+ 
+-## Modes
++**Inputs:** registered approved specifications, project manifest, target, scope/mode, retained inputs, authorized outputs, and verification arrangement. **Outputs:** subsystem candidates and evidence plus assembled-app acceptance in one run directory. No specs yields NO_PROJECT.
+ 
+-| Mode | Existing project implementation visible? | Claim available after successful acceptance |
+-|---|---|---|
+-| `initial` | None exists for the selected project scope | A first implementation was generated from the supplied bundle |
+-| `incremental` | Yes, within the declared workspace | An existing implementation was updated and accepted |
+-| `regenerate` | Prior implementation of the selected scope is excluded | A new scoped implementation passed the same behavior baseline under the reported isolation conditions |
+-| `cross-target` | Prior implementation of the selected scope is excluded; target changes | A new target implementation passed the same behavior baseline under the reported isolation conditions |
++## G1. Select mode and validate inputs
+ 
+-Changing the target in place while letting the worker read the old implementation is a porting experiment, not a clean-room cross-target regeneration experiment. Keep that distinction in reporting.
++Use `initial` for new implementation or `incremental` for authorized changes with existing-code access. For `regenerate` or `cross-target`, read [REGENERATION.md](REGENERATION.md) before preparing work. If enforced isolation is required, also read [STRONG_ISOLATION.md](STRONG_ISOLATION.md). These are explicit branches, not prerequisites for ordinary generation.
+ 
+-## G1. Select scope and freeze the baseline
++For initial generation, use a new authorized output directory, possibly within the existing repository; leave other project files intact. Incremental work uses declared existing paths. Record retained assets/state and external boundaries; code generation does not recreate unavailable data or services.
+ 
+-Select one capability, an explicit subgraph, or the full project. Resolve prerequisites before starting. For partial scope, either include prerequisite capabilities in the generation closure or provide declared boundary dependencies. Record which path is used.
++## G2. Resolve the graph and handoffs
+ 
+-Do not confuse prerequisite closure with impact analysis: upstream prerequisites support generation; downstream consumers determine what integration/regression checks may be affected. A full-system claim requires the full-system boundary and acceptance gate.
++Derive and validate the DAG under contract §5. Select prerequisite closure or identify already accepted dependencies. Identify downstream impact separately. For each selected task, obtain the persisted planner handoff from [Define](DEFINE.md), target constraints, and integrity inventory. Record the project-level assembled-app checks before execution.
+ 
+-Freeze approved spec and requirement IDs, dependency revisions, verifier revision, target profile, suite/prompt revision, required inputs, budgets, and feedback policy. The project must supply nonempty specs. A target incompatible with immutable behavior must be rejected or explicitly renegotiated, not accommodated by quietly relaxing requirements.
++**Readiness gate:** no unresolved graph/input/approval/check requirements; ready nodes have current accepted prerequisites. A project manifest is an index, not a second manually maintained DAG.
+ 
+-## G2. Prepare a new workspace when required
++## G3. Execute ready tasks
+ 
+-For `initial`, `regenerate`, and `cross-target`, create a new output workspace. For regeneration, export only approved inputs from an allowlist. Never test the idea by deleting the user's working repository.
++Run serially by default. Dispatch each ready task to [Implement](IMPLEMENT.md), with a fresh implementer context and only its approved inputs. The supervisor records node outcomes and identities in the run directory; it does not rely on worker memory. Apply contract §§5–7 to readiness, repair limits, failures, and reuse. Failed or blocked prerequisites keep consumers blocked.
+ 
+-An export may contain approved behavior documents, schemas, public acceptance examples, retained assets/data, relevant suite instructions, and target/environment constraints. It must not contain prior scoped source code, copied build outputs, repository history, old implementation plans, old prompts/transcripts, implementation-derived caches, or leaked acceptance answers.
++## G4. Assess the assembled app
+ 
+-The environment must account for persistent agent memories, parent directory instructions, home directories, filesystem mounts, repository remotes, and network access. A clean directory with unrestricted access to the old repository is not an enforced clean room. Restrict those channels through the available runner/sandbox, or downgrade the isolation claim.
++After selected nodes pass, execute the frozen project-level checks against the actual assembled candidate, including cross-subsystem interactions and required manual criteria. Preserve outputs, candidate identity, and environment. Individual node passes cannot satisfy this gate. Assembly failures follow contract §6; do not invent a separate unlimited repair loop. Changes to accepted nodes invalidate affected downstream and assembled evidence.
+ 
+-Export checks MUST resolve paths safely and reject traversal and symlink escapes. Hash the final exported files, not just the requested path names. Scan for prohibited paths and sentinel artifacts where applicable. Do not embed secrets in export manifests.
++## G5. Record the scope result
+ 
+-## G3. Declare retained boundaries
+-
+-Some projects need external services, binaries, datasets, model weights, schemas, UI assets, or existing state. Declare which survive and why. A retained component is part of the experiment boundary, not evidence that it can be regenerated.
+-
+-For partial regeneration, record whether dependencies are real services/binaries, approved contracts, or test doubles. Tests against a double must be labeled; test integration with the real boundary before claiming compatibility.
+-
+-Code reconstruction is distinct from state restoration or data migration. Require those checks only when the project declares them, and report them separately. Cross-target persistence compatibility must specify the preserved observable data semantics, not assume identical storage internals.
+-
+-## G4. Dispatch the DAG
+-
+-Default to topological serial execution. For each ready node, prepare a fresh task context and invoke Implement. Scheduling, retry limits, run state, and dependency completion belong to the supervisor.
+-
+-Parallelize only ready nodes with isolated writes or explicit resource coordination. After combining results, run integration acceptance on the combined candidate. A generation run cannot pass merely because every node emitted a “done” message.
+-
+-An incremental mode may reuse matching accepted outputs. A clean-room mode cannot seed the selected scope from outputs of the previous implementation. It may resume outputs produced **inside the same recorded experiment** if their provenance and input identities remain valid; label the run resumed rather than a fresh independent trial.
+-
+-## G5. Keep the verifier outside the implementation's authority
+-
+-Run acceptance from a separately controlled process/environment. Protect its assertions, reference data, and results. A directory name or agent instruction is not sufficient protection if the worker can still write those files.
+-
+-Tests may all be public; secrecy is optional. For held-out tests, disclose the behavioral contract but not the cases, and define what failure feedback can be returned during repair. Preserve a one-shot first-attempt result even when repair is allowed.
+-
+-The acceptance oracle should remain technology-independent. A target-specific invocation/build adapter may change, but it must not normalize away contractual differences or change expected outcomes. Record and independently validate adapter revisions before comparative acceptance. If an entire new verifier is necessary, mark the run as a changed-baseline comparison rather than claiming an unchanged verifier.
+-
+-## G6. Evaluate at project scope
+-
+-Run the same frozen behavioral baseline against the generated system, including cross-capability behavior and declared operational limits. Measure only within the specified environment and sampling design.
+-
+-For nondeterministic outputs, apply the approved rubric, statistical protocol, or semantic comparison. Do not introduce ad hoc tolerances after seeing failures. For a technology switch, check public errors, ordering, data semantics, and relevant concurrency/recovery behavior where the project requires them.
+-
+-A new implementation that passes finite acceptance tests provides evidence of specified conformance, not a proof of all conceivable behavioral equivalence.
+-
+-## G7. Report the experiment precisely
+-
+-Use [RUN_REPORT.md](../templates/RUN_REPORT.md). Report mode, exact scope, baseline, target, retained boundaries, visible inputs, candidate digest, first-attempt result, repaired result, failed requirements, manual interventions, resources, and evidence paths.
+-
+-Report isolation as one of:
+-
+-- `enforced`: required controls were applied and evidenced for the declared threat model.
+-- `procedural`: the workflow requested separation, but the environment did not enforce every required boundary.
+-- `none`: prior implementation access was permitted or untracked.
+-
+-Only the first level supports the suite's enforced clean-room claim. Procedural regeneration can still provide useful weaker evidence. Any discovered leakage invalidates the clean-room claim for that run, even if conformance passes.
+-
+-Run repeated trials only when evaluating reliability; record all attempts and their varying factors. One successful run is a successful run, not an established probability of future reconstruction success.
+-
+-## Failure behavior
+-
+-Missing specs: NO_PROJECT. Missing approvals or required assets: BLOCKED. Invalid DAG: BLOCKED. Incompatible target: BLOCKED. Acceptance mismatch: FAIL. Infrastructure failure: INFRA_ERROR. Suspected or detected input leakage: CLEAN_ROOM_INVALID. Preserve partial results and never replace these outcomes with a pass because a worker exited successfully.
++Use [RUN_REPORT.md](../templates/RUN_REPORT.md) and the contract §7 completion policy. Record PASS only with all mandatory gates satisfied; otherwise retain FAIL, BLOCKED, and NOT_RUN dispositions and the next action. Distinguish partial scope from project acceptance and procedural separation from enforced isolation. Regeneration claims require the selected branch's additional evidence.
+diff --git a/spec-source-suite/docs/IMPLEMENT.md b/spec-source-suite/docs/IMPLEMENT.md
+index 70a8b3c..d522ca0 100644
+--- a/spec-source-suite/docs/IMPLEMENT.md
++++ b/spec-source-suite/docs/IMPLEMENT.md
+@@ -1,71 +1,29 @@
+-# Implement — produce code and demonstrate alignment
++# Implement — one task's planner, implementer, reviewer cycle
+ 
+-Read [SUITE_CONTRACT](SUITE_CONTRACT.md) first. This workflow handles a selected accepted unit of work; [GENERATE](GENERATE.md) schedules it across a project.
++Read the [shared contract](SUITE_CONTRACT.md); its authority, roles, integrity, attempt limits, and acceptance rules apply here. [Generate](GENERATE.md) schedules this procedure across subsystems.
+ 
+-## Inputs
++**Inputs:** a separately authorized implementation task with the planner's complete approved documents, baseline/approval record, frozen checks, accepted dependency evidence, target, and owned paths. **Outputs:** candidate, raw check results, independent review, and run record tied to exact identities.
+ 
+-Require an approved spec snapshot, selected requirement IDs, dependency evidence, a target profile, declared writable output paths, and an acceptance baseline. The supervisor records a run and supplies only relevant context to the worker.
++## I1. Validate the planner handoff
+ 
+-Existing code may be used for normal implementation and incremental work. That permission does not carry into a clean-room generation run.
++Confirm [Define](DEFINE.md) completed and contract §§1–5 readiness holds. The planner has already prepared the plan and checks; the implementer reads them rather than replacing them. Record the input inventory and ownership in the run directory. Missing inputs yield BLOCKED before implementation. Significant plan deviations follow contract §6.
+ 
+-## I1. Check readiness
++## I2. Implement and check the candidate
+ 
+-Validate approval, references, scope, and prerequisites. Record what will be checked locally and what must be checked after integration. An approved dependency contract can support parallel development only under an explicitly chosen contract-first policy; acceptance against a stub is not integration acceptance.
++Build within owned paths, including approved integration work. Add useful local tests where they establish behavior; they supplement the frozen acceptance checks. Run build/local checks, retaining actual commands, output, and exit codes. Compare protected input digests and inspect scope changes before presenting a candidate. Record its revision or content digest, including uncommitted output when relevant.
+ 
+-If a required acceptance mechanism is unavailable, report that before implementation. Useful implementation may proceed when authorized, but it cannot be labeled accepted until the gate exists and passes.
++## I3. Spawn independent review and acceptance execution
+ 
+-## I2. Make a transient plan
++The implementer spawns a fresh reviewer using [REVIEWER.md](../prompts/REVIEWER.md) and contract §3's restricted input handoff. Exclude the plan and conversation. The reviewer assesses check coverage and executes the frozen acceptance checks against that candidate, using [VERIFIER.md](../prompts/VERIFIER.md) for execution guidance. It owns its raw results and [review record](../templates/REVIEW.md). Recheck candidate and baseline identities after execution; results for a moving candidate are invalid.
+ 
+-The worker maps the selected requirements to implementation work and implementation-level tests. It chooses internal architecture within the target constraints. The plan must identify integration points, relevant failure cases, and the verification commands or adapter operations it expects to use.
++**Gate:** every prescribed acceptance check was assessed and a genuine independent review exists. Missing execution or fresh context blocks acceptance; a local pass alone is insufficient.
+ 
+-The plan is not an alternative specification. Any externally visible ambiguity returns to Define. Any permitted implementation choice stays in the plan unless it becomes a necessary operational contract.
++## I4. Repair or escalate
+ 
+-## I3. Implement in an owned workspace
++Apply the exact routing and initial-plus-two-repairs limit in contract §6. Return requirement-linked implementation defects to the implementer; preserve prior attempts. Each repaired candidate returns to I2 and a new fresh review/acceptance run at I3. Specification, verifier, infrastructure, and significant-plan problems go immediately to the supervisor, not through speculative implementation repairs.
+ 
+-Build only the selected scope and unavoidable integration changes. Write useful unit and integration tests. Do not modify approved specifications, golden references, verifier assertions, or acceptance thresholds in the implementation branch.
++## I5. Integrate and request acceptance
+ 
+-Report newly discovered contract gaps using a change proposal. Additional test ideas can be submitted to the verifier owner, but the worker cannot silently promote its own assumptions into acceptance rules.
++Integrate through the authorized repository procedure and run the declared real-dependency/regression checks on the combined candidate. If integration changes reviewed behavior, repeat the affected review and acceptance before requesting acceptance. Preserve evidence against the actual integrated identity.
+ 
+-Prefer a fresh worker session per task. Supply approved context and scoped dependency contracts rather than an unbounded history of earlier agent conversations.
+-
+-## I4. Run local checks
+-
+-Execute build checks and implementation-level tests through the chosen project adapter. Record actual results, commands, exit codes, and artifacts. Missing tooling, skipped execution, and timeouts remain explicit. A worker's statement that the code “should pass” is not evidence.
+-
+-Unit tests are implementation-specific and may be discarded on a technology change. They complement, but do not replace, durable behavioral acceptance checks.
+-
+-## I5. Review in a fresh context
+-
+-Start a new reviewer session using [REVIEWER.md](../prompts/REVIEWER.md). Provide the approved contract, selected IDs, candidate revision, allowed inspection context, and raw execution evidence. Do not supply the implementation agent's persuasive narrative as the basis of review.
+-
+-The reviewer inspects requirement coverage, unintended behavior, errors, integration boundaries, and missing evidence. It must cite requirement IDs and concrete findings. See [REVIEW.md](../templates/REVIEW.md) for the report.
+-
+-If a fresh session cannot be obtained, record INDEPENDENT_REVIEW_NOT_RUN. A useful self-review can still be kept, but cannot be relabeled independent.
+-
+-## I6. Execute independent acceptance
+-
+-The trusted verifier runs the protected acceptance baseline against the candidate. Adapt the execution boundary to the project: a library can use a neutral driver, a CLI can be invoked as a process, a service can be deployed in isolation, and other artifacts can use their declared evaluation protocol. Deployment is not required when the artifact has no deployment lifecycle.
+-
+-Run system-level interaction checks after combining independently developed capabilities. Preserve outputs, required state observations, side effects, and failure evidence. The verifier must observe the actual candidate rather than trust a worker-authored “passed” report.
+-
+-Review and execution provide different evidence. Full acceptance requires both when the project policy makes both mandatory. A code review cannot override a failing mandatory check.
+-
+-## I7. Repair or escalate
+-
+-For implementation defects, return requirement-linked findings to a repair worker and rerun the affected checks plus the declared regression set. Re-review material changes. Hash each candidate so results cannot be reused after the code changes.
+-
+-For a specification or verifier defect, stop the affected acceptance run. Resolve and approve a versioned change, then begin evaluation against the new baseline. Preserve the old failure; do not edit history to make the original run appear successful.
+-
+-Bound attempts and resources. Record first-attempt failure separately from eventual acceptance. Failure to complete within budget yields partial evidence, not a fabricated success.
+-
+-## I8. Integrate and record
+-
+-Integrate the candidate through the repository's approved mechanism. Run the integration gate on the actual combined revision; individual branch passes are not sufficient. Record the accepted revision, complete requirement dispositions, exact verification baseline, and any manual approval evidence.
+-
+-The supervisor, not the worker, marks completion. Future resume/skip decisions must validate input and artifact identity. When a behavior change affects dependents, invalidate their old evidence until relevant checks are rerun.
+-
+-## What successful alignment means
+-
+-Every selected mandatory requirement has evidence from the prescribed method; all required integration checks pass; no blocking review findings remain; protected inputs match their approved versions; and results are tied to the actual candidate.
+-
+-This workflow establishes scoped conformance of an implementation. Only a separate generation experiment can establish that the implementation was regenerated under declared isolation conditions.
++The supervisor applies contract §7 and records the result using [RUN_REPORT.md](../templates/RUN_REPORT.md). A subsystem pass can unlock dependents; only Generate's assembled-app gate can establish project acceptance. A blocked or failed gate remains explicit and preserves partial evidence.
+diff --git a/spec-source-suite/docs/SUITE_CONTRACT.md b/spec-source-suite/docs/SUITE_CONTRACT.md
+index 30dc50e..5b9a92f 100644
+--- a/spec-source-suite/docs/SUITE_CONTRACT.md
++++ b/spec-source-suite/docs/SUITE_CONTRACT.md
+@@ -1,101 +1,82 @@
+ # Shared suite contract
+ 
+-Version: 0.1-draft. This document is normative for all three workflows. MUST denotes a gate; SHOULD denotes a default that can be overridden with a recorded reason.
++Version: 0.2-draft. Normative for Define, Generate, and Implement. MUST marks a gate. This is an instruction-driven procedure; it requires no automated scheduler.
+ 
+-## 1. The suite and the project are separate
++## 1. Authority and project inputs
+ 
+-The suite supplies methods, templates, worker instructions, scheduling, review, verification dispatch, and generation controls. A project supplies behavior, acceptance criteria, dependency relationships, required assets/data, and approved target constraints.
++The suite supplies reusable guidance. A project supplies behavior and constraints. Keep project artifacts outside the suite: project metadata and targets in `specs/` by default, task documents in `.agents/tasks/<task-id>/`, and run evidence at the manifest's `run_policy.evidence_root`.
+ 
+-A capability specification is also its acceptance document. It MUST define observable outcomes and how each mandatory requirement can be assessed. A separate verifier may contain executable code, but its checks MUST trace to approved requirements. A prose spec and an untraceable test suite are not two interchangeable authorities.
++Approved subsystem specifications and their explicitly normative references define behavior. A subsystem's `acceptance.md` is its specification: register that file directly in `project.yaml`, rather than copying requirements into another spec. Each registered spec has a stable ID, `depends_on`, observable contracts, and requirement-linked acceptance clauses. Additional tasks may select requirements from that spec without creating a competing authority. Plans explain implementation; they cannot override acceptance. Target profiles constrain technology without changing behavior.
+ 
+-The durable reconstruction input is therefore a **specification bundle**, not necessarily only prose. It can include approved schemas, public fixtures, formal models, required assets, or other explicitly retained inputs. Record each retained item. Do not claim “all code deleted” when executable verification or intentionally retained runtime components survive; describe the actual boundary.
++Before implementation, require registered approved specs, selected requirement IDs, accepted dependencies, an approved target, required assets/retained inputs, frozen checks, authorized output paths, and approval references. The manifest indexes their paths (relative to its directory, except explicitly controlled external verifier references). No specs yields NO_PROJECT; missing required execution inputs yields BLOCKED. Blank templates are not approved inputs. Resolve missing choices with the user rather than inventing a domain, stack, or deployment model.
+ 
+-## 2. Authority and changes
++## 2. Task records and approval
+ 
+-Approved behavioral specs and explicitly normative referenced contracts define requirements. Target profiles add implementation/environment constraints but cannot override behavior. Plans and task lists are transient proposals. Historical implementation is evidence of behavior, not automatically the desired specification.
++The planner preserves the complete agreed `plan.md` and authoritative `acceptance.md` under `.agents/tasks/<task-id>/`, plus an approval record identifying the full baseline Git commit, the digests of both documents, approving authority, and the conversation/decision reference. Store the actual approved text, not a handoff summary. A subsystem acceptance document includes its spec metadata; a follow-up task instead references the registered spec and exact selected requirements.
+ 
+-If normative artifacts conflict, stop the affected work and record SPEC_CONFLICT. Do not choose whichever interpretation makes implementation easier. A failing protected test is an acceptance blocker; it is not proof that the test is correct. Route spec/verifier disagreements to their designated owner and resume only after a versioned resolution.
++In Plan mode, present both complete drafts for approval. If writing is unavailable, state that saving is deferred. On entering editing mode, save the approved text exactly and record its approval before implementation or context handoff. If a draft is lost, recover it or ask for it; never recreate it from a summary and label it approved. Approval alone does not start implementation: a separate instruction is required. Existing explicit approvals and implementation instructions remain valid across handoffs.
+ 
+-Any externally visible implementation discovery MUST be classified as required behavior, an allowed choice, or a proposed requirement change. Preserve required decisions in the specification. Do not preserve source-code trivia merely because it arose during implementation.
++Approved documents are immutable. Changes require explicit user authorization (or an already explicit delegated approval policy), versioned digests, and invalidation of affected evidence. A worker-written `approved` label is not approval. Significant deviations from the approved plan return to the supervisor before proceeding. Use [CHANGE.md](../templates/CHANGE.md) only when a change is needed.
+ 
+-An approval records the exact artifact digest and approving authority. A literal `status: approved` written by an implementation agent is not approval. The authority may be the user or a previously delegated policy; the worker cannot grant itself that authority.
++## 3. Three agents and their handoffs
+ 
+-## 3. Minimum project input
++Each task uses three agents:
+ 
+-Before implementation, the project MUST provide:
++| Agent | Responsibility | Handoff |
++|---|---|---|
++| Planner | Prepare the plan, acceptance, and requirement-linked checks; resolve gaps and freeze checks after document approval, before implementation | Both approved documents, approval/baseline record, checks and their digest inventory, accepted dependency inputs, target and ownership |
++| Implementer | Build the candidate, run local checks, repair implementation defects, and spawn its reviewer | Acceptance and normative references, baseline/approval identities, selected IDs, dependency evidence, target, candidate location/digest, frozen checks, raw results, reviewer output path |
++| Reviewer | Independently assess coverage and execute acceptance on the actual candidate in fresh context | Requirement-linked results, raw execution evidence, review findings, candidate identity |
+ 
+-| Input | Meaning |
+-|---|---|
+-| Registered specs | Nonempty set of capability documents with stable spec and requirement IDs |
+-| Observable boundary | Public inputs/outputs, side effects, errors, and allowed variation that matter for the project |
+-| Dependencies | Explicit required capabilities or shared contracts, with resolvable references |
+-| Acceptance design | Requirement-linked checks/evals, pass rules, and treatment of nonautomated criteria |
+-| Target profile | Selected execution constraints and delivery type, without assumed application choices |
+-| Verification arrangement | An independent verifier or declared manual authority; automation gaps are visible |
+-| Output ownership | The paths/resources a worker may create or modify |
+-
+-A project manifest indexes these inputs. It does not restate requirement semantics. The supplied templates are not a project until filled and approved.
+-
+-Required data and assets must be supplied or reproducibly obtainable under the declared policy. Keep credentials out of specs and logs. Credentials needed during testing are injected by the trusted environment and recorded by reference, never by secret value.
+-
+-## 4. Dependency and work graphs
+-
+-`depends_on` in each spec is the canonical capability dependency declaration. The supervisor derives the project DAG from these declarations and the registered spec paths. Do not maintain a second hand-edited graph with divergent semantics.
+-
+-Use an edge only for a real prerequisite. A semantic cross-reference need not be an execution dependency. If implementation prerequisites form a cycle, resolve it by extracting a shared contract or treating the mutually dependent behavior as one acceptance unit. Do not arbitrarily remove an edge just to make topological sorting succeed.
++The supervisor is the coordinating responsibility of the parent session, not a required fourth agent. It schedules work and records acceptance from evidence; it cannot waive gates. The verifier is the frozen check set and its execution arrangement, not a required fourth agent either. The reviewer performs or observes independent execution through that arrangement.
+ 
+-The conservative default is that a dependency must be accepted at the required revision before its consumer runs. A project may explicitly permit contract-first parallel work, but integration then has its own mandatory acceptance gate. A stub does not establish acceptance against the real dependency.
++The implementer MUST spawn the reviewer with no inherited conversation (for example, `fork_turns="none"` where supported). Use [REVIEWER.md](../prompts/REVIEWER.md). Exclude the implementation plan, planner/implementer conversation, and persuasive implementation summaries from reviewer inputs. The reviewer may inspect candidate code and raw results. Supply a narrow input allowlist; procedural access does not justify reading excluded files. Missing fresh-context capability yields INDEPENDENT_REVIEW_NOT_RUN and blocks acceptance. Same-session self-review cannot satisfy that gate. A fresh session separates context, not necessarily model reasoning errors.
+ 
+-A work item can reference one or more specs but MUST identify exact requirement IDs and scope. One capability can need multiple transient implementation tasks; the spec does not have to mirror classes or files.
++## 4. Checks and procedural isolation
+ 
+-## 5. Roles and separation
++The planner derives checks from approved requirements and prepares executable checks wherever execution is required. Acceptance must specify setup, inputs, observable assertions, cleanup, pass rule, and evidence; sampling/thresholds must be fixed for nondeterministic behavior. A separate [VERIFICATION.md](../templates/VERIFICATION.md) is optional when acceptance already contains this mapping. Each manual criterion names its authorized authority and inspected artifact. Missing mandatory checks block readiness; an opinion cannot replace required execution.
+ 
+-The **spec author/owner** defines and approves behavior. The **implementation worker** produces code and implementation-level tests. The **reviewer** evaluates the candidate against the approved spec in a fresh session. The **verifier** executes or oversees acceptance checks. The **supervisor** owns orchestration, persisted state, retries, scope, and evidence.
++Freeze a content-digest inventory of documents, checks, fixtures, adapters, and other normative inputs before handing off. Checks may be visible; hidden cases are optional and must test disclosed requirements. Declare any held-out feedback policy. Implementers may add local tests, but cannot edit frozen checks, fixtures, thresholds, approved documents, or reviewer-owned results to obtain a pass. Submit suspected check defects to the supervisor.
+ 
+-Roles need not be different vendors or models. Fresh context is a procedural separation, not proof of statistically independent reasoning. A same-session review MUST be labeled SELF_REVIEW and cannot fulfill a required independent-review gate.
++Default isolation is **procedural**: scoped file ownership, fresh contexts, and integrity checks. The implementer owns declared candidate paths and local logs; the planner owns acceptance/check inputs; the reviewer owns its reports and acceptance results. Record authorized shared integration paths explicitly. Compare the frozen inventory before and after each implementation/repair and review, and inspect the diff for out-of-scope writes. Any unauthorized baseline change invalidates the attempt; preserve the incident and restore/resolve through the supervisor before restarting evaluation. A digest match detects change; it is not a write sandbox.
+ 
+-Implementation workers MUST NOT edit protected acceptance assertions, reference fixtures, or approved spec snapshots. Proposed checks and changes can be submitted separately. The verifying authority reviews and versions those changes before use.
++Only when enforced isolation is requested, read [STRONG_ISOLATION.md](STRONG_ISOLATION.md). Only for regeneration or a target-changing reconstruction, also read [REGENERATION.md](REGENERATION.md). Ordinary initial and incremental work need neither branch.
+ 
+-Held-out test cases are optional. Independent ownership and immutability matter even when all tests are visible. Held-out cases MUST test disclosed requirements; they must not impose secret behavior. Record the visible-versus-held-out policy and the feedback allowed during repair.
++## 5. DAG and readiness
+ 
+-## 6. Evidence and completion
++Derive the subsystem DAG solely from registered specs and their `depends_on` IDs. Validate unique IDs, references, required mappings, missing prerequisites, and cycles before dispatch. Unknown dependencies or cycles yield BLOCKED; resolve cycles by approved boundary changes, never by silently removing edges. A semantic cross-reference is not automatically a prerequisite.
+ 
+-Spec state is `draft`, `proposed`, `approved`, or `superseded`. Implementation and regeneration status belong to **run evidence**, not a mutable `done` flag in the spec.
++Use one subsystem per task and serial execution by default. A node is ready only when every prerequisite is accepted at the required revision and its evidence still applies. FAIL, BLOCKED, NOT_RUN, a stub, or an unreviewed candidate cannot unlock consumers. Scope controls (`only`, `skip`, `start-after`, limits, resume) cannot bypass prerequisites. An empty selection is NO_WORK, not project acceptance.
+ 
+-Each selected mandatory requirement has one of PASS, FAIL, BLOCKED, or NOT_RUN, with evidence and a check type. Manual criteria must name the approving reviewer and inspected artifact. A manual judgment is not an automated test result.
++If explicitly authorized, contract-first parallel work may use approved contracts and coordinated write ownership, but real-dependency integration remains mandatory. Record this exception; do not report stub acceptance as prerequisite acceptance.
+ 
+-A run is accepted only when all required gates for its declared scope pass and none are unaccounted for. Report automated conformance separately from full acceptance whenever manual criteria are present. Exclusions and nonapplicability must be approved before execution, not invented after a failure. Empty selection or zero executed mandatory checks cannot yield an acceptance pass.
++## 6. Attempts and failure routing
+ 
+-Keep distinct evidence for:
++A task permits **the initial candidate plus two repair rounds**: attempts 0, 1, and 2. Smaller time/cost limits can stop work earlier. There is no automatic attempt 3, and relaunching a session does not reset the count. Preserve each candidate digest, failed checks, findings, and outcome. Every modified candidate needs new review and acceptance evidence, including affected checks and the declared regression set; identify any unchanged checks reused and why their scope is unaffected.
+ 
+-- **Implemented and accepted:** this candidate met the scoped requirements under the recorded conditions.
+-- **Regenerated and accepted:** a newly generated candidate met the same baseline after starting without the scoped prior implementation, subject to the recorded isolation limits.
+-- **Cross-target regenerated and accepted:** the same behavior baseline passed on the selected alternative target.
+-
+-These are scope- and revision-specific observations. A test suite demonstrates only what it exercises; no run establishes universal equivalence over unspecified behavior.
+-
+-## 7. Run identity, resume, and accounting
+-
+-Record at least: project/spec bundle digest, selected requirement IDs, dependency revisions, suite/prompt revisions, target digest, verifier revision/digest, retained input manifest, environment/tool versions, worker/reviewer identities and session IDs when available, candidate artifact digest, executed checks, timestamps, budgets, and outcomes.
++| Finding | Action |
++|---|---|
++| Confirmed implementation defect | Repair within the remaining two-round allowance; exhausted allowance stops as FAIL with partial evidence |
++| Ambiguous or conflicting requirements | Immediately hold affected work as SPEC_CONFLICT/BLOCKED and return to Define through the supervisor |
++| Defective or contradictory verifier | Immediately preserve failure and escalate; authorize and freeze a corrected baseline before evaluation resumes |
++| Significant plan deviation | Immediately escalate to the supervisor for user resolution before continuing |
++| Missing tool/service, timeout, or infrastructure problem | Immediately record INFRA_ERROR/BLOCKED and escalate; do not spend behavioral repair rounds or infer a pass |
++| Target incompatible with behavior | BLOCKED pending an explicit decision; no silent downgrade |
++| Budget exhaustion/cancellation | Stop with partial evidence and explicit unexecuted gates |
+ 
+-Use `.suite/runs/<run-id>/` or a project-configured equivalent for `run.log`, append-only `results.jsonl`, rendered prompts, per-item logs, review records, and verification reports. Audit artifacts MUST NOT be automatically exported into a clean-room input bundle.
++A changed baseline starts a versioned evaluation; it does not erase earlier attempts. Extra work beyond the repair allowance needs explicit authorization recorded by the supervisor.
+ 
+-A resume operation can reuse completion only when relevant input identities still match and referenced outputs and evidence still exist and match their digests. Reverify after any candidate modification. Do not skip a node because an old log said “done.” A scope restriction, skip, or start-after option cannot bypass an unmet dependency or acceptance gate.
++## 7. Acceptance and evidence
+ 
+-Distinguish the first-attempt result from eventual acceptance after repair. Record failed attempts, repair counts, timeout/infra errors, cost when available, and human interventions. Do not erase failed attempts from success-rate reporting.
++For each mandatory requirement and gate, record PASS, FAIL, BLOCKED, or NOT_RUN with method and evidence. FAIL means an observed mismatch; BLOCKED means a known unmet precondition; NOT_RUN means no assessment occurred. Manual judgments stay distinct from automated results. Empty coverage or zero executed mandatory checks cannot pass.
+ 
+-## 8. Failure routing
++The supervisor accepts a subsystem only when its prescribed checks, independent review, applicable real-dependency integration, manual gates, and baseline-integrity checks all pass for the actual candidate. No unresolved blocking finding may remain. The project additionally requires acceptance against the assembled app, including cross-subsystem interactions. Passing every node is insufficient if the assembled candidate fails. A partial-scope result names its boundary and retained dependencies.
+ 
+-| Finding | Required action |
+-|---|---|
+-| Missing, ambiguous, or contradictory behavior | Return to Define; hold affected work |
+-| Candidate violates an approved requirement | Repair implementation within the run budget |
+-| Acceptance check contradicts its referenced requirement | Raise verifier/spec issue; do not weaken checks in the implementation branch |
+-| Environment or dependency unavailable | Record infrastructure failure or BLOCKED; do not count as behavioral failure or pass |
+-| Target cannot satisfy a requirement | Report incompatible target; seek an explicit choice, not a silent requirement downgrade |
+-| Prior-code leakage or unverified isolation | Invalidate the clean-room claim; preserve any ordinary conformance evidence separately |
+-| Budget exhausted | Stop with partial evidence and resumable state |
++Keep one run directory outside the suite. A concise [RUN_REPORT.md](../templates/RUN_REPORT.md) with raw outputs and [review findings](../templates/REVIEW.md) is enough; separate logs, JSONL, prompt transcripts, and verification-design reports are optional. Record:
+ 
+-## 9. Minimalism
++- Task, baseline commit, approval references, selected spec/requirement IDs, and document/check/input digests.
++- Dependency revisions, target, suite/prompt revisions, retained inputs, authorized paths, environment/tool versions, actual isolation, and limitations.
++- Planner/implementer/reviewer identities and session IDs when available; handoff inputs; timestamps and attempt/resource limits.
++- Every candidate revision/digest, executed commands and exit codes or manual observations, requirement/gate results, review findings, failed attempts, interventions, and next action. Cost is optional when unavailable.
+ 
+-Begin with Markdown, a manifest, file-based evidence, one worker per task, one fresh reviewer, and a serial scheduler. Add schemas, formal models, parallelism, or heavier isolation when the project's risks and experiment goals require them. Test counts and agent counts are not measures of completeness.
++Resume only after verifying that relevant spec, dependency, target, checks/adapters, suite/prompts, retained inputs, candidate outputs, and evidence still exist and match recorded identities. A change invalidates affected evidence, including downstream consumers and assembled-app acceptance. Reassess those gates before unlocking work; an old “done” message is insufficient. Report first-attempt results separately from eventual acceptance. Never claim app generation, enforced isolation, or regeneration from documentation walkthroughs.
+diff --git a/spec-source-suite/prompts/REVIEWER.md b/spec-source-suite/prompts/REVIEWER.md
+index 69dfbf6..e8209cb 100644
+--- a/spec-source-suite/prompts/REVIEWER.md
++++ b/spec-source-suite/prompts/REVIEWER.md
+@@ -1,11 +1,11 @@
+ # Fresh reviewer job
+ 
+-You are reviewing a candidate implementation against the supplied approved behavioral specification. You are not the implementation author and must not rely on that author's prior conversation or self-assessment.
++You are the independent reviewer spawned by the implementer. Use a fresh context with no inherited conversation. If this condition is unmet, report SELF_REVIEW/INDEPENDENT_REVIEW_NOT_RUN; do not claim the independent gate passed.
+ 
+-Read the shared suite contract, selected spec/requirement IDs, candidate revision, allowed dependency context, and raw verification evidence. Confirm that this is a genuinely new reviewer session; otherwise report SELF_REVIEW or INDEPENDENT_REVIEW_NOT_RUN.
++Read the [shared contract](../docs/SUITE_CONTRACT.md) and only the supplied acceptance documents/normative references, selected requirement IDs, approval and baseline identities, target, dependency evidence, candidate location/digest, frozen checks, and raw results. Do not read the implementation plan or planner/implementer conversation, even if accessible. Record the inputs actually inspected.
+ 
+-For every selected requirement, identify concrete compliance evidence, a discrepancy, or missing evidence. Inspect relevant errors, interactions, state changes, and allowed variation. Separate implementation defects from specification ambiguity and verifier defects. Do not invent requirements.
++Check frozen-input integrity, candidate identity, and coverage before executing. For every selected requirement, assess whether the checks actually establish its acceptance clause, including relevant failures and interactions. Identify missing checks and unjustified assumptions; do not invent requirements or change expectations.
+ 
+-Report unintended externally visible behavior and any unauthorized changes to protected inputs. Distinguish checks you actually execute from checks you only inspect. Avoid generic code-style preferences unless they affect an approved constraint.
++Execute the frozen checks against the actual candidate following [VERIFIER.md](VERIFIER.md). Retain commands, exit codes, raw observations, and requirement-linked dispositions. Independently observe any externally controlled execution; the implementer's “passed” report is insufficient. Distinguish executed checks, inspected code, and authorized manual judgments. Verify candidate and protected input identities after execution.
+ 
+-Do not modify the candidate, requirements, or protected verifier. Output the report described by `templates/REVIEW.md`, citing requirement IDs and evidence. A review pass is only the review gate; it is not permission to ignore failed acceptance checks.
++Inspect candidate behavior and relevant code for discrepancies or unintended behavior. Classify implementation defects, specification ambiguity, verifier defects, and infrastructure failures under contract §6. Write only reviewer-owned results and [review findings](../templates/REVIEW.md). Leave candidate, acceptance, checks, and plan untouched. Return PASS, FAIL, BLOCKED, or NOT_RUN with evidence and identity. Review cannot override a failing mandatory check.
+diff --git a/spec-source-suite/prompts/VERIFIER.md b/spec-source-suite/prompts/VERIFIER.md
+index 01e1972..323ac83 100644
+--- a/spec-source-suite/prompts/VERIFIER.md
++++ b/spec-source-suite/prompts/VERIFIER.md
+@@ -1,11 +1,9 @@
+-# Independent verifier job
++# Frozen-check execution instructions
+ 
+-You own the acceptance check design or execution for the approved behavioral baseline. You do not take the implementation worker's claims as execution evidence.
++These instructions are used by the reviewer or a controlled execution service; they do not require another agent. The planner prepares checks before implementation under the [shared contract](../docs/SUITE_CONTRACT.md) §4.
+ 
+-When authoring checks, derive them from the selected approved requirement IDs and acceptance clauses. Use `templates/VERIFICATION.md`. Cover relevant composed behavior and boundary cases without creating hidden requirements or gratuitously duplicating tests. Record any ambiguity rather than silently choosing semantics.
++Identify the selected requirements, frozen check/fixture/adapter digests, candidate identity, environment, and observed boundary. Execute the prescribed checks and retain commands, exit codes, actual outputs, and side effects. Map outcomes to requirement IDs. Run cleanup as specified, without changing the candidate or acceptance inputs.
+ 
+-When executing checks, identify the actual candidate digest, verifier revision, target adapter, environment, and scope. Run the required checks through the protected verification boundary. Record observed results and raw evidence. A missing executable check, unexecuted command, or unavailable dependency is not a pass.
++For authorized manual criteria record the authority, inspected artifact, and decision. A missing executable check, unavailable service, skipped execution, or timeout remains BLOCKED/NOT_RUN with the infrastructure reason; an agent opinion cannot replace execution. Apply predeclared sampling and thresholds for nondeterministic checks.
+ 
+-Manual criteria must have the explicitly authorized reviewer and evidence; do not replace required executable checks with an agent's opinion. Held-out cases may test disclosed behavior, not secret requirements.
+-
+-Do not change expectations or thresholds during a candidate run. For a suspected verifier defect, preserve the failure and submit a versioned change for approval. Keep first-attempt and repaired results separate. Return requirement-linked PASS/FAIL/BLOCKED/NOT_RUN dispositions to the trusted supervisor.
++Verify the candidate and baseline remain unchanged. Preserve any failure and report suspected verifier defects immediately to the supervisor. Expectations cannot be edited during a run. Return results and raw evidence for the actual attempt, keeping the initial outcome separate from repairs.
+diff --git a/spec-source-suite/templates/REVIEW.md b/spec-source-suite/templates/REVIEW.md
+index 8b84791..ea63127 100644
+--- a/spec-source-suite/templates/REVIEW.md
++++ b/spec-source-suite/templates/REVIEW.md
+@@ -8,7 +8,9 @@
+ 
+ **Review kind:** <INDEPENDENT_REVIEW or SELF_REVIEW.>
+ 
+-**Inputs actually inspected:** <Specs, candidate files, test results, and other allowed material.>
++**Inputs actually inspected:** <Acceptance, candidate files, frozen checks, and allowed evidence; confirm plan and implementation conversation were excluded.>
++
++**Integrity and execution:** <Before/after baseline and candidate digests; commands, exit codes, raw results; manual judgments labeled separately.>
+ 
+ ## Findings
+ 
+diff --git a/spec-source-suite/templates/RUN_REPORT.md b/spec-source-suite/templates/RUN_REPORT.md
+index 8058a06..7388d9c 100644
+--- a/spec-source-suite/templates/RUN_REPORT.md
++++ b/spec-source-suite/templates/RUN_REPORT.md
+@@ -1,67 +1,21 @@
+-# Run report — <RUN ID>
++# Run — <RUN ID>
+ 
+-## Identity and scope
++**Task/scope/mode:** <Selected spec and requirement IDs; baseline commit; approval references.>
++**Input identities:** <Document/check inventory, dependencies, target, suite/prompts, adapters, retained inputs and their digests.>
++**Ownership and isolation:** <Allowed candidate paths, protected inputs, reviewer paths; requested/actual isolation, integrity observations and limitations.>
++**Agents and handoffs:** <Planner, implementer, reviewer identities/session IDs when available; actual input references; fresh reviewer context excludes plan/conversation.>
++**Environment and limits:** <Tools/versions, timestamps, initial candidate plus two repairs, any smaller resource limits; cost if available.>
+ 
+-**Project:** <ID.>
++## Attempts and results
+ 
+-**Workflow/mode:** <implement / initial / incremental / regenerate / cross-target.>
++| Attempt | Candidate revision/digest | Requirement/gate | PASS / FAIL / BLOCKED / NOT_RUN | Method and raw evidence | Review findings / next action |
++|---|---|---|---|---|---|
++| 0 | <Identity> | <ID> | <Result> | <Commands, exit codes, outputs or manual observation> | <Reference> |
+ 
+-**Selected specs and requirement IDs:** <Exact scope.>
++Retain failed attempts and infrastructure incidents. Include independent review, integrity, dependency integration, manual gates, and assembled-app acceptance where applicable. Keep initial and repaired outcomes distinct. Record interventions and stale-evidence invalidation. Review details may be inline or use REVIEW.md; raw evidence remains linked.
+ 
+-**Spec/dependency digests:** <Approved baseline.>
++**Supervisor decision:** <Scoped acceptance or remaining blockers; actual integrated candidate; reuse eligibility and missing checks.>
+ 
+-**Suite and prompt revisions:** <Exact versions/digests.>
++## Only for regeneration / cross-target
+ 
+-**Target:** <Profile and digest.>
+-
+-**Verifier/adapters:** <Exact versions and independent validation references.>
+-
+-**Candidate:** <Revision/artifact digests.>
+-
+-## Execution conditions
+-
+-<Environment/tool versions; worker/reviewer identities and sessions; timestamps; attempt budget; feedback policy; manual interventions; resume provenance.>
+-
+-## Retained inputs and isolation
+-
+-**Export manifest:** <Path and digest.>
+-
+-**Retained boundaries:** <Services, assets, data, binaries, or test doubles that survive.>
+-
+-**Isolation requested / actual:** <enforced, procedural, or none.>
+-
+-**Controls and evidence:** <Filesystem, network, history, memories, credentials, verifier protection.>
+-
+-**Limitations or leakage:** <What could not be enforced or checked.>
+-
+-## Requirement and gate results
+-
+-| Requirement / gate | Result | Method | Evidence |
+-|---|---|---|---|
+-| <ID> | <PASS/FAIL/BLOCKED/NOT_RUN> | <automated/manual> | <actual artifact> |
+-
+-## Attempts and accounting
+-
+-**First-attempt result:** <Outcome.>
+-
+-**Repair attempts and final result:** <All attempts retained.>
+-
+-**Infrastructure errors:** <Separate from behavior failures.>
+-
+-**Duration, cost, and resource use:** <Measured values or unavailable.>
+-
+-**Scope controls:** <Skipped/completed/limited nodes and why prerequisites remain satisfied.>
+-
+-## Conclusions
+-
+-**Ordinary conformance:** <What passed for this exact scope and baseline.>
+-
+-**Independent review:** <Actual result and independence limitations.>
+-
+-**Regeneration evidence:** <Whether generated anew, same-baseline status, actual isolation, and retained boundaries.>
+-
+-**Cross-target evidence:** <Applicable result or not attempted.>
+-
+-**Unverified claims:** <Explicit gaps.>
+-
+-**Next required action:** <Repair, spec change, environment fix, further test, or none.>
++<Export inventory/digest, retained boundaries, new target/adapter identities, enforced controls or procedural limits, leakage, resumed provenance, and precise reconstruction claim. Ordinary runs omit this section.>
+diff --git a/spec-source-suite/templates/SPEC.md b/spec-source-suite/templates/SPEC.md
+index 35fd468..c56eb30 100644
+--- a/spec-source-suite/templates/SPEC.md
++++ b/spec-source-suite/templates/SPEC.md
+@@ -2,69 +2,30 @@
+ id: "<SPEC-ID>"
+ version: "0.1"
+ status: draft
+-title: "<Behavioral capability>"
++title: "<Subsystem>"
+ depends_on: []
+ shared_contracts: []
+ ---
+ 
+-# <Behavioral capability> — specification and acceptance
++# Acceptance — <TASK ID / subsystem>
+ 
+-This is one authoritative behavior/acceptance document. Fill applicable sections; mark genuinely irrelevant sections not applicable with a reason. An unresolved mandatory item blocks approval. Approval is an external record bound to the document's digest.
++Save as `.agents/tasks/<task-id>/acceptance.md` and register this file as the subsystem specification. Fill only relevant behavior; unresolved mandatory items block approval. Approval lives in a separate digest-bound record, not this status field.
+ 
+-## 1. Purpose and boundary
++**Baseline commit:** <Full pre-implementation Git commit.>
++**Goal, boundary, and exclusions:** <Observable operations, interfaces, outputs, side effects, state, normative references, and non-goals.>
+ 
+-<Observable capability; consumers; scope and exclusions.>
++## Requirements and checks
+ 
+-## 2. Terminology and referenced contracts
+-
+-<Domain meanings and normative references. Identify advisory references separately.>
+-
+-## 3. Inputs, outputs, and side effects
+-
+-<Interfaces or interaction boundary, input domain, outputs, errors, external effects, and unsupported operations. Reference schemas where useful.>
+-
+-## 4. Requirements and their acceptance clauses
+-
+-### <SPEC-ID>-R001 — <requirement name>
+-
+-**Rule:** <Precise mandatory observable behavior.>
+-
+-**Preconditions:** <When the requirement applies.>
+-
+-**Accepted outcome:** <Observable postconditions and effects.>
+-
+-**Failure/boundary behavior:** <Required behavior when conditions fail or limits are reached.>
+-
+-**Acceptance:** <Concrete rule for deciding compliance. Identify required automated or manual evidence.>
+-
+-**Allowed variation:** <What a regenerated implementation may choose differently; write “none” where appropriate.>
+-
+-Repeat this block only for distinct requirements. Give related scenarios IDs such as `<SPEC-ID>-S001` and link them to requirement IDs.
+-
+-## 5. State, ordering, and interactions
+-
+-<Relevant transitions, invariants, concurrency conflicts, retries, time/randomness, dependency behavior, persistence, and recovery. Include a state model only when it helps.>
+-
+-## 6. Operational and security behavior
+-
+-<Applicable limits, environment assumptions, access boundaries, measurable budgets, and evaluation methods. Avoid undefined adjectives such as “fast” or “secure.”>
+-
+-## 7. Verification mapping
+-
+-| Requirement ID | Check/evaluation ID | Method and pass rule | Required evidence |
++| Requirement ID | Required observable outcome, boundaries/errors, allowed variation | Check ID and method | Inputs/setup, assertions/pass rule, cleanup, evidence |
+ |---|---|---|---|
+-| <SPEC-ID>-R001 | <CHECK-ID> | <automated scenario/property, inspection, or evaluation> | <observable evidence> |
+-
+-Tests may cover multiple requirements. Every mandatory requirement needs a mapping; a planned but unimplemented check is not a pass.
+-
+-## 8. Dependency and integration acceptance
++| <SPEC-ID>-R001 | <Concrete contract> | <CHECK-ID; executable command or authorized manual criterion> | <Precise assessment> |
+ 
+-<Required capability/contracts and integration checks. `depends_on` above is the canonical prerequisite declaration. Explain any real dependency and contract-first exception.>
++Checks may cover several requirements. Include required dependency integration and assembled-app checks, manual authorities, and any sampling/thresholds. Use a separate verification plan only when this table is insufficient. The planner freezes executable checks and normative inputs before implementation.
+ 
+-## 9. Regeneration boundary
++## Dependencies and retained inputs
+ 
+-<Required retained inputs; external dependencies; behavior that must survive a target change; data/assets/state not recreated solely by generating source code.>
++<Explain depends_on prerequisites, shared contracts, assets/data/services, and integration expectations. No second graph.>
+ 
+-## 10. Open questions and approval
++## Open decisions and approval reference
+ 
+-<Unresolved normative decisions. Link approval evidence; do not self-approve as the implementer.>
++<Unresolved questions or none; approval record identifying this document's digest, plan digest, baseline commit, authority, and decision. Later changes require authorization under shared contract §2.>
+diff --git a/spec-source-suite/templates/VERIFICATION.md b/spec-source-suite/templates/VERIFICATION.md
+index 05dac5f..5221bb3 100644
+--- a/spec-source-suite/templates/VERIFICATION.md
++++ b/spec-source-suite/templates/VERIFICATION.md
+@@ -1,5 +1,7 @@
+ # Verification plan — <PROJECT ID / baseline>
+ 
++Optional: use only when the acceptance document cannot hold the check mapping. The planner prepares this before implementation; the reviewer executes the frozen checks.
++
+ ## Authority and baseline
+ 
+ <Approved spec digests, acceptance owner, verifier revision, visibility policy, and protected storage/execution boundary.>
+diff --git a/spec-source-suite/templates/project.yaml b/spec-source-suite/templates/project.yaml
+index f608c18..2f6d83c 100644
+--- a/spec-source-suite/templates/project.yaml
++++ b/spec-source-suite/templates/project.yaml
+@@ -1,47 +1,44 @@
+-# Copy into your project and fill it. This is not an executable or approved project.
+-# Paths are relative to the manifest directory unless the adapter explicitly uses
+-# a separately controlled verifier reference. Missing required values block use.
+-suite_version: "0.1-draft"
++# Blank index; paths are relative to this file except controlled external references.
++suite_version: "0.2-draft"
+ project_id: null
+ project_brief: null
+ 
+-# Registered capability document paths; dependencies live in each spec's metadata.
++# Register authoritative .agents/tasks/<task-id>/acceptance.md paths directly.
++# Stable IDs and depends_on in those documents are the sole DAG source.
+ specifications: []
+ shared_contracts: []
+ required_assets: []
+-
+-# Paths owned by generated implementation, and immutable/protected inputs.
++task_records: []             # Directories containing plan, acceptance, approval.
+ generated_roots: []
+ protected_paths: []
+-
+-# Map target IDs to filled target profile paths. No target is selected by default.
+ targets: {}
+ default_target: null
+ 
+ verification:
+-  plan: null
+-  verifier_reference: null  # Controlled path/service/adapter reference; not a secret.
++  plan: null                 # Optional when acceptance supplies the complete mapping.
++  checks: []                 # Planner-authored executable check paths/commands.
++  frozen_inventory: null     # Digests of approved inputs, fixtures, checks, adapters.
++  verifier_reference: null   # Reviewer execution or controlled service/adapter reference.
+   verifier_revision: null
+-  visibility: public       # public or mixed; secrecy is optional.
+-  mandatory_independent_review: true
+-  manual_criteria: []       # Explicit requirement IDs with authorized manual gates.
++  visibility: public
++  manual_criteria: []
++  project_checks: []         # Required checks against the assembled app.
+ 
+ approval:
+   authority: null
+-  records: null             # Approval records must bind authority to content digests.
++  records: null
+ 
+ run_policy:
+   parallelism: 1
+-  max_repair_attempts: 2
+-  max_items: null           # Set per run or leave unlimited if authorized.
++  max_repair_attempts: 2      # Repairs after candidate 0; no automatic attempt 3.
+   time_budget_seconds: null
+   cost_budget: null
+   evidence_root: .suite/runs
+   feedback_policy: public-failures
++  isolation_requested: procedural
+ 
+-# Explicit export lists, not a glob over the repository or its entire history.
++# Fill only for regeneration/cross-target; see docs/REGENERATION.md.
+ generation:
+   generator_inputs: []
+   forbidden_inputs: []
+   retained_dependencies: []
+-  isolation_requested: procedural  # procedural or enforced; actual result is recorded.
+
+STDERR:

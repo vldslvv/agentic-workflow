@@ -8,7 +8,9 @@
 
 **Review kind:** <INDEPENDENT_REVIEW or SELF_REVIEW.>
 
-**Inputs actually inspected:** <Specs, candidate files, test results, and other allowed material.>
+**Inputs actually inspected:** <Acceptance, candidate files, frozen checks, and allowed evidence; confirm plan and implementation conversation were excluded.>
+
+**Integrity and execution:** <Before/after baseline and candidate digests; commands, exit codes, raw results; manual judgments labeled separately.>
 
 ## Findings
 

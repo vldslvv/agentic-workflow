@@ -1,0 +1,28 @@
+# Editor temporary files and backups
+*~
+*.swp
+*.swo
+*.bak
+*.tmp
+*.temp
+
+# Operating system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local scratch directories
+/tmp/
+/temp/
+.cache/
+
+# Python environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Keep .agents/ task documents and .suite/ run evidence versioned.
+# Do not ignore logs globally: they may be required execution evidence.

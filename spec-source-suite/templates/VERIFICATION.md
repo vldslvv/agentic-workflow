@@ -1,5 +1,7 @@
 # Verification plan — <PROJECT ID / baseline>
 
+Optional: use only when the acceptance document cannot hold the check mapping. The planner prepares this before implementation; the reviewer executes the frozen checks.
+
 ## Authority and baseline
 
 <Approved spec digests, acceptance owner, verifier revision, visibility policy, and protected storage/execution boundary.>

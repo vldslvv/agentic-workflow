@@ -1,82 +1,29 @@
-# Generate — construct a project from its specification bundle
+# Generate — supervise the subsystem DAG
 
-Read [SUITE_CONTRACT](SUITE_CONTRACT.md) first. Generate prepares the inputs and environment, schedules the dependency graph, invokes [IMPLEMENT](IMPLEMENT.md), and collects project-level evidence.
+Read the [shared contract](SUITE_CONTRACT.md), [Implement skill](../.agents/skills/spec-implement/SKILL.md), and [Implement workflow](IMPLEMENT.md). Generate coordinates those task cycles; it does not define another worker loop.
 
-## Modes
+**Inputs:** registered approved specifications, project manifest, target, scope/mode, retained inputs, authorized outputs, and verification arrangement. **Outputs:** subsystem candidates and evidence plus assembled-app acceptance in one run directory. No specs yields NO_PROJECT.
 
-| Mode | Existing project implementation visible? | Claim available after successful acceptance |
-|---|---|---|
-| `initial` | None exists for the selected project scope | A first implementation was generated from the supplied bundle |
-| `incremental` | Yes, within the declared workspace | An existing implementation was updated and accepted |
-| `regenerate` | Prior implementation of the selected scope is excluded | A new scoped implementation passed the same behavior baseline under the reported isolation conditions |
-| `cross-target` | Prior implementation of the selected scope is excluded; target changes | A new target implementation passed the same behavior baseline under the reported isolation conditions |
+## G1. Select mode and validate inputs
 
-Changing the target in place while letting the worker read the old implementation is a porting experiment, not a clean-room cross-target regeneration experiment. Keep that distinction in reporting.
+Use `initial` for new implementation or `incremental` for authorized changes with existing-code access. For `regenerate` or `cross-target`, read [REGENERATION.md](REGENERATION.md) before preparing work. If enforced isolation is required, also read [STRONG_ISOLATION.md](STRONG_ISOLATION.md). These are explicit branches, not prerequisites for ordinary generation.
 
-## G1. Select scope and freeze the baseline
+For initial generation, use a new authorized output directory, possibly within the existing repository; leave other project files intact. Incremental work uses declared existing paths. Record retained assets/state and external boundaries; code generation does not recreate unavailable data or services.
 
-Select one capability, an explicit subgraph, or the full project. Resolve prerequisites before starting. For partial scope, either include prerequisite capabilities in the generation closure or provide declared boundary dependencies. Record which path is used.
+## G2. Resolve the graph and handoffs
 
-Do not confuse prerequisite closure with impact analysis: upstream prerequisites support generation; downstream consumers determine what integration/regression checks may be affected. A full-system claim requires the full-system boundary and acceptance gate.
+Derive and validate the DAG under contract §5. Select prerequisite closure or identify already accepted dependencies. Identify downstream impact separately. For each selected task, obtain the persisted planner handoff from [Define](DEFINE.md), target constraints, and integrity inventory. Record the project-level assembled-app checks before execution.
 
-Freeze approved spec and requirement IDs, dependency revisions, verifier revision, target profile, suite/prompt revision, required inputs, budgets, and feedback policy. The project must supply nonempty specs. A target incompatible with immutable behavior must be rejected or explicitly renegotiated, not accommodated by quietly relaxing requirements.
+**Readiness gate:** no unresolved graph/input/approval/check requirements; ready nodes have current accepted prerequisites. A project manifest is an index, not a second manually maintained DAG.
 
-## G2. Prepare a new workspace when required
+## G3. Execute ready tasks
 
-For `initial`, `regenerate`, and `cross-target`, create a new output workspace. For regeneration, export only approved inputs from an allowlist. Never test the idea by deleting the user's working repository.
+Run serially by default. Dispatch each ready task to [Implement](IMPLEMENT.md), with a fresh implementer context and only its approved inputs. The supervisor records node outcomes and identities in the run directory; it does not rely on worker memory. Apply contract §§5–7 to readiness, repair limits, failures, and reuse. Failed or blocked prerequisites keep consumers blocked.
 
-An export may contain approved behavior documents, schemas, public acceptance examples, retained assets/data, relevant suite instructions, and target/environment constraints. It must not contain prior scoped source code, copied build outputs, repository history, old implementation plans, old prompts/transcripts, implementation-derived caches, or leaked acceptance answers.
+## G4. Assess the assembled app
 
-The environment must account for persistent agent memories, parent directory instructions, home directories, filesystem mounts, repository remotes, and network access. A clean directory with unrestricted access to the old repository is not an enforced clean room. Restrict those channels through the available runner/sandbox, or downgrade the isolation claim.
+After selected nodes pass, execute the frozen project-level checks against the actual assembled candidate, including cross-subsystem interactions and required manual criteria. Preserve outputs, candidate identity, and environment. Individual node passes cannot satisfy this gate. Assembly failures follow contract §6; do not invent a separate unlimited repair loop. Changes to accepted nodes invalidate affected downstream and assembled evidence.
 
-Export checks MUST resolve paths safely and reject traversal and symlink escapes. Hash the final exported files, not just the requested path names. Scan for prohibited paths and sentinel artifacts where applicable. Do not embed secrets in export manifests.
+## G5. Record the scope result
 
-## G3. Declare retained boundaries
-
-Some projects need external services, binaries, datasets, model weights, schemas, UI assets, or existing state. Declare which survive and why. A retained component is part of the experiment boundary, not evidence that it can be regenerated.
-
-For partial regeneration, record whether dependencies are real services/binaries, approved contracts, or test doubles. Tests against a double must be labeled; test integration with the real boundary before claiming compatibility.
-
-Code reconstruction is distinct from state restoration or data migration. Require those checks only when the project declares them, and report them separately. Cross-target persistence compatibility must specify the preserved observable data semantics, not assume identical storage internals.
-
-## G4. Dispatch the DAG
-
-Default to topological serial execution. For each ready node, prepare a fresh task context and invoke Implement. Scheduling, retry limits, run state, and dependency completion belong to the supervisor.
-
-Parallelize only ready nodes with isolated writes or explicit resource coordination. After combining results, run integration acceptance on the combined candidate. A generation run cannot pass merely because every node emitted a “done” message.
-
-An incremental mode may reuse matching accepted outputs. A clean-room mode cannot seed the selected scope from outputs of the previous implementation. It may resume outputs produced **inside the same recorded experiment** if their provenance and input identities remain valid; label the run resumed rather than a fresh independent trial.
-
-## G5. Keep the verifier outside the implementation's authority
-
-Run acceptance from a separately controlled process/environment. Protect its assertions, reference data, and results. A directory name or agent instruction is not sufficient protection if the worker can still write those files.
-
-Tests may all be public; secrecy is optional. For held-out tests, disclose the behavioral contract but not the cases, and define what failure feedback can be returned during repair. Preserve a one-shot first-attempt result even when repair is allowed.
-
-The acceptance oracle should remain technology-independent. A target-specific invocation/build adapter may change, but it must not normalize away contractual differences or change expected outcomes. Record and independently validate adapter revisions before comparative acceptance. If an entire new verifier is necessary, mark the run as a changed-baseline comparison rather than claiming an unchanged verifier.
-
-## G6. Evaluate at project scope
-
-Run the same frozen behavioral baseline against the generated system, including cross-capability behavior and declared operational limits. Measure only within the specified environment and sampling design.
-
-For nondeterministic outputs, apply the approved rubric, statistical protocol, or semantic comparison. Do not introduce ad hoc tolerances after seeing failures. For a technology switch, check public errors, ordering, data semantics, and relevant concurrency/recovery behavior where the project requires them.
-
-A new implementation that passes finite acceptance tests provides evidence of specified conformance, not a proof of all conceivable behavioral equivalence.
-
-## G7. Report the experiment precisely
-
-Use [RUN_REPORT.md](../templates/RUN_REPORT.md). Report mode, exact scope, baseline, target, retained boundaries, visible inputs, candidate digest, first-attempt result, repaired result, failed requirements, manual interventions, resources, and evidence paths.
-
-Report isolation as one of:
-
-- `enforced`: required controls were applied and evidenced for the declared threat model.
-- `procedural`: the workflow requested separation, but the environment did not enforce every required boundary.
-- `none`: prior implementation access was permitted or untracked.
-
-Only the first level supports the suite's enforced clean-room claim. Procedural regeneration can still provide useful weaker evidence. Any discovered leakage invalidates the clean-room claim for that run, even if conformance passes.
-
-Run repeated trials only when evaluating reliability; record all attempts and their varying factors. One successful run is a successful run, not an established probability of future reconstruction success.
-
-## Failure behavior
-
-Missing specs: NO_PROJECT. Missing approvals or required assets: BLOCKED. Invalid DAG: BLOCKED. Incompatible target: BLOCKED. Acceptance mismatch: FAIL. Infrastructure failure: INFRA_ERROR. Suspected or detected input leakage: CLEAN_ROOM_INVALID. Preserve partial results and never replace these outcomes with a pass because a worker exited successfully.
+Use [RUN_REPORT.md](../templates/RUN_REPORT.md) and the contract §7 completion policy. Record PASS only with all mandatory gates satisfied; otherwise retain FAIL, BLOCKED, and NOT_RUN dispositions and the next action. Distinguish partial scope from project acceptance and procedural separation from enforced isolation. Regeneration claims require the selected branch's additional evidence.

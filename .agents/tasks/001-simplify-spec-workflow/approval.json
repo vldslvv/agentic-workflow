@@ -1,0 +1,17 @@
+{
+  "task": "simplify-spec-workflow",
+  "baseline_commit": "0da44c5e4533f42abcc3f405a7c9a6c3c3413cef",
+  "authority": "user",
+  "approval_reference": "Current implementation request: complete plan.md and acceptance.md drafts are approved; implement the plan in a fresh context.",
+  "source_thread": "01a1ad60-9f0c-7dc1-b36e-2a7c672d97a8",
+  "source_message": "msg_02467086178e4f92016aeceb7d533487d2951f67adadc648a3",
+  "recovery": "Document text extracted verbatim from the prior planner transcript; separating conversation text omitted; final newline added.",
+  "documents": {
+    "plan.md": "769b2575560c1f4d4282fc9cec5574cd0b806e0731f914d265030a3c948ea9b7",
+    "acceptance.md": "d669e16a2ac1d83120936d5bf98b4edba511f547363b938b0c6fabe0b00bdc21"
+  },
+  "preexisting_index": ":000000 100644 0000000 3dcc5ea A\t.agents/skills/acceptance-spec/SKILL.md\n:000000 100644 0000000 a459d91 A\tAGENTS.md\n",
+  "preexisting_index_sha256": "689849a0aa22574f56a0bc09d7ea8097883b9846945b8322dbd55848a6496545",
+  "check_design": "Planner supplied requirement-linked procedural inspections and walkthroughs in acceptance.md. Structural tooling is authored in this implementation; no claim of pre-existing planner executable checks for this migration.",
+  "isolation": "procedural"
+}

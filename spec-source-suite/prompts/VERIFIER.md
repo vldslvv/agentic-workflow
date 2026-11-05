@@ -1,11 +1,9 @@
-# Independent verifier job
+# Frozen-check execution instructions
 
-You own the acceptance check design or execution for the approved behavioral baseline. You do not take the implementation worker's claims as execution evidence.
+These instructions are used by the reviewer or a controlled execution service; they do not require another agent. The planner prepares checks before implementation under the [shared contract](../docs/SUITE_CONTRACT.md) §4.
 
-When authoring checks, derive them from the selected approved requirement IDs and acceptance clauses. Use `templates/VERIFICATION.md`. Cover relevant composed behavior and boundary cases without creating hidden requirements or gratuitously duplicating tests. Record any ambiguity rather than silently choosing semantics.
+Identify the selected requirements, frozen check/fixture/adapter digests, candidate identity, environment, and observed boundary. Execute the prescribed checks and retain commands, exit codes, actual outputs, and side effects. Map outcomes to requirement IDs. Run cleanup as specified, without changing the candidate or acceptance inputs.
 
-When executing checks, identify the actual candidate digest, verifier revision, target adapter, environment, and scope. Run the required checks through the protected verification boundary. Record observed results and raw evidence. A missing executable check, unexecuted command, or unavailable dependency is not a pass.
+For authorized manual criteria record the authority, inspected artifact, and decision. A missing executable check, unavailable service, skipped execution, or timeout remains BLOCKED/NOT_RUN with the infrastructure reason; an agent opinion cannot replace execution. Apply predeclared sampling and thresholds for nondeterministic checks.
 
-Manual criteria must have the explicitly authorized reviewer and evidence; do not replace required executable checks with an agent's opinion. Held-out cases may test disclosed behavior, not secret requirements.
-
-Do not change expectations or thresholds during a candidate run. For a suspected verifier defect, preserve the failure and submit a versioned change for approval. Keep first-attempt and repaired results separate. Return requirement-linked PASS/FAIL/BLOCKED/NOT_RUN dispositions to the trusted supervisor.
+Verify the candidate and baseline remain unchanged. Preserve any failure and report suspected verifier defects immediately to the supervisor. Expectations cannot be edited during a run. Return results and raw evidence for the actual attempt, keeping the initial outcome separate from repairs.

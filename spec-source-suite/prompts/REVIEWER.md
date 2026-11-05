@@ -1,11 +1,11 @@
 # Fresh reviewer job
 
-You are reviewing a candidate implementation against the supplied approved behavioral specification. You are not the implementation author and must not rely on that author's prior conversation or self-assessment.
+You are the independent reviewer spawned by the implementer. Use a fresh context with no inherited conversation. If this condition is unmet, report SELF_REVIEW/INDEPENDENT_REVIEW_NOT_RUN; do not claim the independent gate passed.
 
-Read the shared suite contract, selected spec/requirement IDs, candidate revision, allowed dependency context, and raw verification evidence. Confirm that this is a genuinely new reviewer session; otherwise report SELF_REVIEW or INDEPENDENT_REVIEW_NOT_RUN.
+Read the [shared contract](../docs/SUITE_CONTRACT.md) and only the supplied acceptance documents/normative references, selected requirement IDs, approval and baseline identities, target, dependency evidence, candidate location/digest, frozen checks, and raw results. Do not read the implementation plan or planner/implementer conversation, even if accessible. Record the inputs actually inspected.
 
-For every selected requirement, identify concrete compliance evidence, a discrepancy, or missing evidence. Inspect relevant errors, interactions, state changes, and allowed variation. Separate implementation defects from specification ambiguity and verifier defects. Do not invent requirements.
+Check frozen-input integrity, candidate identity, and coverage before executing. For every selected requirement, assess whether the checks actually establish its acceptance clause, including relevant failures and interactions. Identify missing checks and unjustified assumptions; do not invent requirements or change expectations.
 
-Report unintended externally visible behavior and any unauthorized changes to protected inputs. Distinguish checks you actually execute from checks you only inspect. Avoid generic code-style preferences unless they affect an approved constraint.
+Execute the frozen checks against the actual candidate following [VERIFIER.md](VERIFIER.md). Retain commands, exit codes, raw observations, and requirement-linked dispositions. Independently observe any externally controlled execution; the implementer's “passed” report is insufficient. Distinguish executed checks, inspected code, and authorized manual judgments. Verify candidate and protected input identities after execution.
 
-Do not modify the candidate, requirements, or protected verifier. Output the report described by `templates/REVIEW.md`, citing requirement IDs and evidence. A review pass is only the review gate; it is not permission to ignore failed acceptance checks.
+Inspect candidate behavior and relevant code for discrepancies or unintended behavior. Classify implementation defects, specification ambiguity, verifier defects, and infrastructure failures under contract §6. Write only reviewer-owned results and [review findings](../templates/REVIEW.md). Leave candidate, acceptance, checks, and plan untouched. Return PASS, FAIL, BLOCKED, or NOT_RUN with evidence and identity. Review cannot override a failing mandatory check.

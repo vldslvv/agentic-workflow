@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/home/vv/ccode/generate-prototype/.suite/runs/001-simplify-spec-workflow/validate.py", line 96, in <module>
+    assert hashlib.sha256(subprocess.check_output(['git','diff','--cached','--binary'], cwd=ROOT)).hexdigest() == (args.index_sha256 or approval['preexisting_index_sha256'])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

@@ -1,47 +1,44 @@
-# Copy into your project and fill it. This is not an executable or approved project.
-# Paths are relative to the manifest directory unless the adapter explicitly uses
-# a separately controlled verifier reference. Missing required values block use.
-suite_version: "0.1-draft"
+# Blank index; paths are relative to this file except controlled external references.
+suite_version: "0.2-draft"
 project_id: null
 project_brief: null
 
-# Registered capability document paths; dependencies live in each spec's metadata.
+# Register authoritative .agents/tasks/<NNN>-<task-id>/acceptance.md paths directly.
+# Stable IDs and depends_on in those documents are the sole DAG source.
 specifications: []
 shared_contracts: []
 required_assets: []
-
-# Paths owned by generated implementation, and immutable/protected inputs.
+task_records: []             # Directories containing plan, acceptance, approval.
 generated_roots: []
 protected_paths: []
-
-# Map target IDs to filled target profile paths. No target is selected by default.
 targets: {}
 default_target: null
 
 verification:
-  plan: null
-  verifier_reference: null  # Controlled path/service/adapter reference; not a secret.
+  plan: null                 # Optional when acceptance supplies the complete mapping.
+  checks: []                 # Planner-authored executable check paths/commands.
+  frozen_inventory: null     # Digests of approved inputs, fixtures, checks, adapters.
+  verifier_reference: null   # Reviewer execution or controlled service/adapter reference.
   verifier_revision: null
-  visibility: public       # public or mixed; secrecy is optional.
-  mandatory_independent_review: true
-  manual_criteria: []       # Explicit requirement IDs with authorized manual gates.
+  visibility: public
+  manual_criteria: []
+  project_checks: []         # Required checks against the assembled app.
 
 approval:
   authority: null
-  records: null             # Approval records must bind authority to content digests.
+  records: null
 
 run_policy:
   parallelism: 1
-  max_repair_attempts: 2
-  max_items: null           # Set per run or leave unlimited if authorized.
+  max_repair_attempts: 2      # Repairs after candidate 0; no automatic attempt 3.
   time_budget_seconds: null
   cost_budget: null
   evidence_root: .suite/runs
   feedback_policy: public-failures
+  isolation_requested: procedural
 
-# Explicit export lists, not a glob over the repository or its entire history.
+# Fill only for regeneration/cross-target; see docs/REGENERATION.md.
 generation:
   generator_inputs: []
   forbidden_inputs: []
   retained_dependencies: []
-  isolation_requested: procedural  # procedural or enforced; actual result is recorded.

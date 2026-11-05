@@ -1,67 +1,21 @@
-# Run report — <RUN ID>
+# Run — <RUN ID>
 
-## Identity and scope
+**Task/scope/mode:** <Selected spec and requirement IDs; baseline commit; approval references.>
+**Input identities:** <Document/check inventory, dependencies, target, suite/prompts, adapters, retained inputs and their digests.>
+**Ownership and isolation:** <Allowed candidate paths, protected inputs, reviewer paths; requested/actual isolation, integrity observations and limitations.>
+**Agents and handoffs:** <Planner, implementer, reviewer identities/session IDs when available; actual input references; fresh reviewer context excludes plan/conversation.>
+**Environment and limits:** <Tools/versions, timestamps, initial candidate plus two repairs, any smaller resource limits; cost if available.>
 
-**Project:** <ID.>
+## Attempts and results
 
-**Workflow/mode:** <implement / initial / incremental / regenerate / cross-target.>
+| Attempt | Candidate revision/digest | Requirement/gate | PASS / FAIL / BLOCKED / NOT_RUN | Method and raw evidence | Review findings / next action |
+|---|---|---|---|---|---|
+| 0 | <Identity> | <ID> | <Result> | <Commands, exit codes, outputs or manual observation> | <Reference> |
 
-**Selected specs and requirement IDs:** <Exact scope.>
+Retain failed attempts and infrastructure incidents. Include independent review, integrity, dependency integration, manual gates, and assembled-app acceptance where applicable. Keep initial and repaired outcomes distinct. Record interventions and stale-evidence invalidation. Review details may be inline or use REVIEW.md; raw evidence remains linked.
 
-**Spec/dependency digests:** <Approved baseline.>
+**Supervisor decision:** <Scoped acceptance or remaining blockers; actual integrated candidate; reuse eligibility and missing checks.>
 
-**Suite and prompt revisions:** <Exact versions/digests.>
+## Only for regeneration / cross-target
 
-**Target:** <Profile and digest.>
-
-**Verifier/adapters:** <Exact versions and independent validation references.>
-
-**Candidate:** <Revision/artifact digests.>
-
-## Execution conditions
-
-<Environment/tool versions; worker/reviewer identities and sessions; timestamps; attempt budget; feedback policy; manual interventions; resume provenance.>
-
-## Retained inputs and isolation
-
-**Export manifest:** <Path and digest.>
-
-**Retained boundaries:** <Services, assets, data, binaries, or test doubles that survive.>
-
-**Isolation requested / actual:** <enforced, procedural, or none.>
-
-**Controls and evidence:** <Filesystem, network, history, memories, credentials, verifier protection.>
-
-**Limitations or leakage:** <What could not be enforced or checked.>
-
-## Requirement and gate results
-
-| Requirement / gate | Result | Method | Evidence |
-|---|---|---|---|
-| <ID> | <PASS/FAIL/BLOCKED/NOT_RUN> | <automated/manual> | <actual artifact> |
-
-## Attempts and accounting
-
-**First-attempt result:** <Outcome.>
-
-**Repair attempts and final result:** <All attempts retained.>
-
-**Infrastructure errors:** <Separate from behavior failures.>
-
-**Duration, cost, and resource use:** <Measured values or unavailable.>
-
-**Scope controls:** <Skipped/completed/limited nodes and why prerequisites remain satisfied.>
-
-## Conclusions
-
-**Ordinary conformance:** <What passed for this exact scope and baseline.>
-
-**Independent review:** <Actual result and independence limitations.>
-
-**Regeneration evidence:** <Whether generated anew, same-baseline status, actual isolation, and retained boundaries.>
-
-**Cross-target evidence:** <Applicable result or not attempted.>
-
-**Unverified claims:** <Explicit gaps.>
-
-**Next required action:** <Repair, spec change, environment fix, further test, or none.>
+<Export inventory/digest, retained boundaries, new target/adapter identities, enforced controls or procedural limits, leakage, resumed provenance, and precise reconstruction claim. Ordinary runs omit this section.>
