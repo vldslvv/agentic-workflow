@@ -8,6 +8,8 @@
 
 <Complete agreed approach; dependency inputs/revisions; integration points; implementer-owned paths; planner-owned protected inputs; reviewer-owned result paths.>
 
+<Selected project root; retained memory-input paths/digests, if used; separate live memory_write_paths under the [memory policy](../docs/PROJECT_MEMORY.md).>
+
 ## Checks and handoff
 
 <Requirement-linked check paths/commands, regression and assembled-app checks, manual gates, frozen inventory reference, selected target, and evidence directory.>

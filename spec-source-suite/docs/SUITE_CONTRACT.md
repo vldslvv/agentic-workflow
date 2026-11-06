@@ -16,6 +16,8 @@ The **supervisor also owns planning**: prepare each ready task through Define in
 
 Handoffs list exact read paths/sections, identities, owned paths, excluded inputs, dependencies, and evidence destinations. Read unchanged material once per session. Additional relevant inspection is allowed and recorded. Mandatory source access and execution remain required. The [helper interface](HELPERS.md) validates manifests; it does not dispatch workers.
 
+For selecting, retaining or maintaining curated notes, follow [project memory](PROJECT_MEMORY.md). Independent reviewers and regeneration contexts exclude those notes; ordinary handoffs retain selected copies and declare live memory maintenance separately from candidate/protected paths.
+
 The implementer MUST spawn a fresh reviewer without inherited conversation (`fork_turns="none"` where supported). Reviewer inputs exclude plans and planner/implementer conversations, including historical narratives and persuasive summaries. Supply acceptance, normative sources, candidate/check identities, dependency evidence and raw results. Missing fresh-context capability is INDEPENDENT_REVIEW_NOT_RUN and blocks acceptance. A fresh context does not guarantee independent reasoning.
 
 Return compact [receipts](../templates/RECEIPT.json): status, requirement IDs, candidate/check identities, evidence paths and actionable findings. The supervisor checks readiness and acceptance from evidence, opening raw logs for failures or disputed evidence. Use completion/blocker messages and supported waits instead of repeated status inquiries/report rereads. Maintain required user progress updates.

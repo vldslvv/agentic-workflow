@@ -36,3 +36,5 @@ Approved plans and acceptance are durable task records, even though plans do not
 Package structural results are recorded in `PACKAGE_CHECKS.json`. Documentation walkthroughs do not demonstrate successful app generation or enforced isolation.
 
 Small standard-library [helpers](docs/HELPERS.md) validate role manifests, execute frozen checks, and report scoped usage. They do not launch workers or schedule tasks. The supervisor prepares each ready task in its existing context; implementers retain repair context and spawn fresh reviewers for every changed candidate.
+
+[Project memory](docs/PROJECT_MEMORY.md) keeps short curated notes outside the suite, selected during ordinary planning and maintained by the completing agent. The memory helper validates their format; existing handoffs retain selected copies and exclude notes from review and regeneration.

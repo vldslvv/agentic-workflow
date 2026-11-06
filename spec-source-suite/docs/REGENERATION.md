@@ -12,6 +12,8 @@ Keep behavior, acceptance thresholds, and approved fixtures fixed. A target-spec
 
 Never delete the working implementation. Export only explicitly allowlisted approved behavior, contracts, public examples, retained assets/data, relevant suite guidance, and target constraints. Exclude prior scoped source, build products, repository history, old plans, prompts/transcripts, implementation-derived caches, and leaked acceptance answers. Prepare any new task plan from allowed inputs inside the experiment; the current plan still stays out of reviewer context.
 
+Apply [project-memory exclusions](PROJECT_MEMORY.md#excluded-contexts) to exports and every regeneration handoff, including planning contexts and retained note copies. Declare their paths in each worker's `forbidden_paths`.
+
 Resolve export paths safely and reject traversal or symlink escapes. Hash the actual final exported files and inspect them for forbidden/sentinel artifacts. Keep audit records outside the exported inputs. Credentials must not enter the export.
 
 ## R3. Record actual separation

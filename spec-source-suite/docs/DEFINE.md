@@ -6,6 +6,8 @@ Read [shared contract](SUITE_CONTRACT.md), [planning records](PLANNING.md) and [
 
 Use current user intent/selected sources and accepted dependency contracts. Preserve source provenance and explicit constraints; resolve unspecified implementation choices with simple recorded defaults under contract §1. Material contradictions require a decision. Keep discovery within current scope and stop when authoritative inputs are resolved.
 
+For ordinary planning, select relevant notes through [project memory — starting inputs](PROJECT_MEMORY.md#starting-and-retaining-inputs); regeneration planning follows its exclusion boundary.
+
 ## D2. Define acceptance and boundaries
 
 For new authorized authoring use the [bundle templates](../templates/bundle/project.md); preserve existing approved bundles in place. Map current task clauses/digests to stable requirement IDs and prerequisites using [acceptance](../templates/ACCEPTANCE.md). Cover applicable normal, boundary, error and interaction behavior. Shared constraints belong in project.md, shared/final scenarios in verification.md. Validate references and the derived graph.
@@ -17,6 +19,8 @@ Use [plan](../templates/PLAN.md) for implementation approach, interfaces, depend
 ## D4. Persist and hand off
 
 Apply [planning-record](PLANNING.md) authority/persistence rules. Derived handoffs under a supplied implementation request need no extra approval prompt; exact explicitly approved text stays unchanged. Record a compact [receipt](../templates/RECEIPT.json) with paths/digests, readiness and unresolved decisions; return it when planning was delegated. Supply separate implementer/reviewer manifests, retaining reviewer exclusions.
+
+Retain selected [memory inputs](PROJECT_MEMORY.md#starting-and-retaining-inputs) before freezing handoffs. When this completes the requested task, apply [memory maintenance](PROJECT_MEMORY.md#completing-and-maintaining).
 
 **Document-completion gate:** requested documents saved/authorized with baseline and digests; consistency, coverage, references, graph and verification descriptions validated. No app candidate, execution or implementation review is required. Report generation readiness separately.
 

@@ -3,33 +3,27 @@
   "version": "0.3-draft",
   "checked_date": "2026-11-06",
   "status": "STRUCTURAL_CHECKS_PASSED",
-  "scope": "Supervisor-owned planning with retained context; existing role-context, check-execution and usage helpers preserved. Workflow documentation revision only.",
+  "scope": "Shared project memory guidance and structural validator; retained handoff copies; reviewer memory exclusions and declared forbidden paths for all roles. Procedural checks only.",
   "checks": {
     "helper_tests": {
       "result": "PASS",
-      "count": 20,
-      "evidence": "../.suite/runs/016-supervisor-planning/helper-tests.log"
+      "count": 25,
+      "evidence": "../.suite/runs/001-shared-agent-memory/helper-tests.log"
     },
-    "helper_preservation": {
+    "two_task_memory_walkthrough": {
       "result": "PASS",
-      "evidence": "../.suite/runs/016-supervisor-planning/helper-integrity.json"
-    },
-    "combined_supervisor_manifest": {
-      "result": "PASS",
-      "evidence": "../.suite/runs/016-supervisor-planning/combined-supervisor-reading.json"
+      "evidence": "../.suite/runs/001-shared-agent-memory/walkthrough-result.json"
     },
     "package_structure": {
       "result": "PASS",
-      "links_checked": 94,
-      "skills_checked": 3,
-      "evidence": "../.suite/runs/016-supervisor-planning/package-validation.json"
+      "evidence": "../.suite/runs/001-shared-agent-memory/package-validation.json"
     }
   },
-  "evidence": "../.suite/runs/016-supervisor-planning/",
-  "previous_package_checks": "../.suite/runs/016-supervisor-planning/package-checks-before.json",
+  "evidence": "../.suite/runs/001-shared-agent-memory/",
+  "previous_package_checks": "../.suite/runs/001-shared-agent-memory/package-checks-before.json",
   "not_executed": [
-    "Live app replay under the revised workflow",
-    "Token or elapsed-time improvement measurement for this revision",
-    "Enforced isolation"
+    "Live app generation or regeneration",
+    "Live multi-agent memory reuse experiment",
+    "Enforced filesystem isolation"
   ]
 }

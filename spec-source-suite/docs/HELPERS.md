@@ -6,9 +6,15 @@ These Python standard-library CLIs validate explicit jobs and retain evidence. T
 
 `python spec-source-suite/helpers/role_context.py job.json --root WORKSPACE --output reading.json`
 
-A version 1 JSON job declares `role` (`supervisor`, `planner`, `implementer`, `reviewer`), `reads` entries with `path`, full-file `sha256`, optional exact Markdown `section` heading and `category`, plus `owned_paths` and `forbidden_paths`. Paths resolve against `--root`. Canonical role procedures, shared contract and routers must be listed as complete files. Named sections are permitted only for supplemental normative references; full-file digests still validate their integrity. The result lists paths/sections, identities and suite-controlled byte sizes, not file contents. Missing references/digest mismatches fail explicitly. Reviewer lists exclude plans and conversations; declare sensitive inputs as forbidden as well. Procedural manifests are not access-control sandboxes. Record extra relevant inspection in the role receipt.
+A version 1 JSON job declares `role` (`supervisor`, `planner`, `implementer`, `reviewer`), `reads` entries with `path`, full-file `sha256`, optional exact Markdown `section` heading and `category`, plus `owned_paths` and optional `forbidden_paths` and `memory_write_paths` arrays. Paths resolve against `--root`. Canonical role procedures, shared contract and routers must be listed as complete files. Named sections are permitted only for supplemental normative references; full-file digests still validate their integrity. The result lists paths/sections, identities and suite-controlled byte sizes, not file contents. Missing references/digest mismatches fail explicitly. Reviewer lists exclude plans, conversations and project memory; `forbidden_paths` applies to every role, including references in metadata and symlink aliases. Memory writes must stay under project `.agents/memory/` and be disjoint from candidate ownership, retained reads and forbidden paths. Follow the [memory policy](PROJECT_MEMORY.md) for selection, retention and exclusions. Procedural manifests are not access-control sandboxes. Record extra relevant inspection in the role receipt.
 
 For a supervisor that also plans, use `role: supervisor` and include complete `docs/DEFINE.md` and `docs/PLANNING.md` reads alongside its supervisor inputs (paths relative to `spec-source-suite/`). These additional reads use the existing manifest schema. Use `role: planner` for explicitly delegated planning; a separate manifest does not require a separate agent.
+
+## Project memory
+
+`python spec-source-suite/helpers/project_memory.py PROJECT_ROOT/.agents/memory`
+
+Validates the [memory format](PROJECT_MEMORY.md#store-and-format): entry title/body, required nonempty fields, allowed kinds, calendar dates in `YYYY-MM-DD`, index retrieval hints, unique local entry links, directory containment (including symlinks), and indexed entry coverage. Source references are not opened. A missing directory returns `NO_MEMORY`; valid existing memory returns `PASS`, both with exit 0. Invalid memory prints a specific error and exits 2. The helper reports structure, not truth or approval, and does not select, copy or maintain notes automatically.
 
 ## Check execution
 

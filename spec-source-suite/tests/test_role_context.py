@@ -1,5 +1,6 @@
 """AC-2: role input integrity, selection accounting, and reviewer boundary."""
 import hashlib
+import copy
 import importlib.util
 from pathlib import Path
 import tempfile
@@ -70,6 +71,64 @@ class RoleContextTests(unittest.TestCase):
         self.manifest['forbidden_paths'] = ['specs/task.md']
         with self.assertRaisesRegex(ValueError, 'reviewer'):
             context.build_context(self.manifest, self.root)
+
+    def test_memory_exclusion_and_regeneration_forbidden_paths(self):
+        """AC-3: real files, directory aliases, retained copies and metadata."""
+        memory = self.root / '.agents/memory'
+        memory.mkdir(parents=True)
+        (memory / 'index.md').write_text('Curated advice')
+        (self.root / 'alias.md').symlink_to(memory / 'index.md')
+        (self.root / 'alias\n.md').symlink_to(memory / 'index.md')
+        (self.root / 'alias-dir').symlink_to(memory, target_is_directory=True)
+        retained = self.root / 'records/memory-inputs'
+        retained.mkdir(parents=True)
+        (retained / 'note.md').write_text('Retained advice')
+        (self.root / 'neutral.md').write_text('Categorized advice')
+        for role in ('reviewer', 'implementer', 'planner', 'supervisor'):
+            for path in context.ROLES[role]:
+                dest = self.root / 'spec-source-suite' / path
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                if not dest.exists():
+                    dest.write_text('# Required\n')
+            required = list(context.COMMON) + [
+                'spec-source-suite/' + p for p in context.ROLES[role]]
+            base = {'version': 1, 'role': role, 'owned_paths': [], 'reads': [
+                {'path': p, 'sha256': hashlib.sha256((self.root / p).read_bytes()).hexdigest()}
+                for p in required]}
+            if role != 'reviewer':
+                base['forbidden_paths'] = ['.agents/memory', 'records/memory-inputs', 'neutral.md']
+            context.build_context(base, self.root)  # valid negative control
+            for path in ('.agents/memory/index.md', 'alias.md', 'alias\n.md', 'alias-dir/index.md',
+                         'records/memory-inputs/note.md', 'neutral.md'):
+                for location in ('reads', 'metadata'):
+                    job = copy.deepcopy(base)
+                    item = {'path': path, 'category': 'project-memory' if path == 'neutral.md' else 'reference',
+                            'sha256': hashlib.sha256((self.root / path).read_bytes()).hexdigest()}
+                    if location == 'reads':
+                        job['reads'].append(item)
+                    else:
+                        job['metadata'] = item
+                    with self.subTest(role=role, path=path, location=location):
+                        with self.assertRaisesRegex(ValueError, 'forbidden|excludes'):
+                            context.build_context(job, self.root)
+
+    def test_memory_writes_are_separate_from_candidate_and_retained_inputs(self):
+        memory = self.root / '.agents/memory'
+        memory.mkdir(parents=True)
+        (memory / 'index.md').write_text('Advice')
+        path = 'spec-source-suite/docs/IMPLEMENT.md'
+        (self.root / path).write_text('# Implement\n')
+        job = {'version': 1, 'role': 'implementer', 'owned_paths': ['app'],
+               'memory_write_paths': ['.agents/memory'], 'reads': [
+                   {'path': p, 'sha256': hashlib.sha256((self.root / p).read_bytes()).hexdigest()}
+                   for p in (*context.COMMON, path)]}
+        self.assertEqual(context.build_context(job, self.root)['memory_write_paths'], ['.agents/memory'])
+        for update in ({'owned_paths': ['.agents']},
+                       {'memory_write_paths': ['spec-source-suite/docs']},
+                       {'forbidden_paths': ['.agents/memory']},
+                       {'memory_write_paths': '.agents/memory'}):
+            with self.subTest(update=update), self.assertRaisesRegex(ValueError, 'memory|forbidden'):
+                context.build_context(dict(job, **update), self.root)
 
 
 if __name__ == '__main__':

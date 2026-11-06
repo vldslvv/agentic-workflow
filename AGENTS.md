@@ -4,7 +4,7 @@
 
 Classify the request before discovery:
 
-- Fresh work: current brief or selected bundle; never search prior task records/runs/conversations.
+- Fresh work: current brief or selected bundle; curated [project memory](spec-source-suite/docs/PROJECT_MEMORY.md) is available to ordinary planners without searching prior task records/runs/conversations.
 - Continuing work: identified task paths or execution-inventory references only. Resolve a bare task ID by immediate `.agents/tasks/` directory suffix; ask if absent/ambiguous. If continuation itself is unclear, ask before searching history.
 - Advice/guidance changes: requested files and relevant references; no task-history discovery.
 

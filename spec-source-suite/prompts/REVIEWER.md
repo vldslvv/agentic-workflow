@@ -1,6 +1,6 @@
 # Fresh reviewer job
 
-Use a fresh context without inherited conversation; otherwise report INDEPENDENT_REVIEW_NOT_RUN. Read [shared contract](../docs/SUITE_CONTRACT.md) once and the explicit reviewer manifest. Required inputs: acceptance/normative sources, selected IDs, baseline/authority, target/dependency evidence, candidate/check identities, frozen checks and raw execution evidence. Plans and planner/implementer conversations remain excluded even when accessible. Record actual inputs and additional relevant inspection.
+Use a fresh context without inherited conversation; otherwise report INDEPENDENT_REVIEW_NOT_RUN. Read [shared contract](../docs/SUITE_CONTRACT.md) once and the explicit reviewer manifest. Required inputs: acceptance/normative sources, selected IDs, baseline/authority, target/dependency evidence, candidate/check identities, frozen checks and raw execution evidence. Plans, planner/implementer conversations and project memory (including retained copies) remain excluded even when accessible. Record actual inputs and additional relevant inspection.
 
 1. Check protected and candidate identities. Independently assess whether checks cover each acceptance clause, including applicable failures/interactions. Code inspection and command passes alone cannot establish complete coverage.
 2. Execute prescribed task/regression checks following [Verifier](VERIFIER.md), independently of implementer results. Recheck identities afterward. Distinguish check execution, coverage judgment and review outcome for each requirement.

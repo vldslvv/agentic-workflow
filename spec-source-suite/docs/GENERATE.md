@@ -6,6 +6,8 @@ Read [shared contract](SUITE_CONTRACT.md) once and [bundle format](MARKDOWN_BUND
 
 Resolve selected bundle, scope, target, outputs, retained inputs, verification arrangement and evidence root. Initial work uses a new authorized output directory; incremental work uses declared existing paths. Missing inputs yield BLOCKED; no intent yields NO_PROJECT. Only for regeneration/cross-target read [Regeneration](REGENERATION.md); only for required enforcement read [Strong isolation](STRONG_ISOLATION.md). Record actual controls and limitations.
 
+Record the selected project root for [memory](PROJECT_MEMORY.md); select notes through Define when planning ordinary tasks. Regeneration contexts use its exclusion rules.
+
 ## G2. Validate graph and prepare final verification
 
 Validate ordered tasks plus explicit dependencies, prerequisite closure and already accepted revisions under contract §3. Record project-level assembled-app scenarios before execution. Do not create every task's plan/checks up front.
@@ -25,3 +27,5 @@ After all selected tasks are accepted, independently execute the declared final 
 ## G5. Report
 
 Return concise scope status, accepted identities, attempts and evidence paths using [run report](../templates/RUN_REPORT.md). Distinguish first-attempt and eventual outcomes, partial scope, actual isolation and blocked gates. For measured runs retain explicit root/descendant session references and [usage report](HELPERS.md#usage-reporting), including per-role usage, unavailable counters and outer-driver overhead separately.
+
+Apply [memory maintenance](PROJECT_MEMORY.md#completing-and-maintaining) for supported project-level lessons, including a blocked stop.

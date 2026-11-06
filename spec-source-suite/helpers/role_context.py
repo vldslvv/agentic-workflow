@@ -3,7 +3,8 @@
 
 CLI: role_context.py MANIFEST --root ROOT [--output FILE]
 Manifest v1: role, reads [{path, sha256, section? (exact heading text), category?}],
-owned_paths (existing paths or future outputs), forbidden_paths (reviewer only).
+owned_paths (candidate outputs), optional memory_write_paths (live notes), and
+forbidden_paths (all roles, including regeneration workers).
 Digests identify whole files, including when only a Markdown section is selected.
 Canonical instructions and AGENTS routers must appear as complete files in reads.
 Sections are allowed only for noncanonical references.
@@ -25,6 +26,7 @@ ROLES = {
     'reviewer': ('prompts/REVIEWER.md', 'prompts/VERIFIER.md'),
 }
 EXCLUDED = re.compile(r'(^|[/\\_. -])(plans?|conversations?|transcripts?|implementation[-_ ]summar(?:y|ies))(?=$|[/\\_. -])', re.I)
+MEMORY = re.compile(r'(^|[/\\])\.agents[/\\]memory(?=$|[/\\])|(^|[/\\_. -])(project[-_ ]memory|memory[-_ ]inputs)(?=$|[/\\_. -])', re.I)
 
 
 def section_bytes(data, heading):
@@ -79,16 +81,21 @@ def build_context(manifest, root):
         raise ValueError('nonempty explicit reads are required')
     if not isinstance(manifest.get('owned_paths'), list):
         raise ValueError('owned_paths must be explicit (possibly empty)')
-    forbidden = []
-    for value in manifest.get('forbidden_paths', []):
-        forbidden.append(_resolve(root, value, must_exist=False))
-    if role == 'reviewer':
-        # Metadata cannot smuggle references excluded from the top-level read list.
-        for value in _strings({k: v for k, v in manifest.items() if k != 'forbidden_paths'}):
-            target = (root / value).resolve() if '\n' not in value else root
-            resolved_exclusion = target.is_file() and (EXCLUDED.search(str(target)) or target.suffix.lower() == '.jsonl' or any(target == p or target.is_relative_to(p) for p in forbidden))
-            if EXCLUDED.search(value) or value.lower().endswith('.jsonl') or resolved_exclusion:
-                raise ValueError(f'reviewer excludes plan/conversation references: {value}')
+    for field in ('forbidden_paths', 'memory_write_paths'):
+        if not isinstance(manifest.get(field, []), list):
+            raise ValueError(f'{field} must be a list')
+    forbidden = [_resolve(root, value, must_exist=False)
+                 for value in manifest.get('forbidden_paths', [])]
+    # Inspect metadata too; declaring a forbidden path itself is not a read.
+    for value in _strings({k: v for k, v in manifest.items() if k != 'forbidden_paths'}):
+        target = (root / value).resolve()
+        if any(target == p or target.is_relative_to(p) for p in forbidden):
+            raise ValueError(f'forbidden {role} reference: {value}')
+        if role == 'reviewer':
+            if (EXCLUDED.search(value) or MEMORY.search(value) or value == 'memory'
+                    or value.lower().endswith('.jsonl') or EXCLUDED.search(str(target))
+                    or MEMORY.search(str(target)) or target.suffix.lower() == '.jsonl'):
+                raise ValueError(f'reviewer excludes plan/conversation/project-memory references: {value}')
     required = set(COMMON) | {'spec-source-suite/' + p for p in ROLES[role]}
     result, seen, actual = [], set(), set()
     for item in reads:
@@ -96,8 +103,6 @@ def build_context(manifest, root):
             raise ValueError('each read must identify path and sha256')
         path = _resolve(root, item.get('path'))
         rel = path.relative_to(root).as_posix()
-        if role == 'reviewer' and (EXCLUDED.search(rel) or path.suffix.lower() == '.jsonl' or any(path == p or path.is_relative_to(p) for p in forbidden)):
-            raise ValueError(f'forbidden reviewer input: {item["path"]}')
         raw = path.read_bytes()
         digest = hashlib.sha256(raw).hexdigest()
         if not isinstance(item.get('sha256'), str) or item['sha256'].removeprefix('sha256:') != digest:
@@ -118,10 +123,17 @@ def build_context(manifest, root):
     missing = sorted(required - actual)
     if missing:
         raise ValueError('missing canonical role instructions: ' + ', '.join(missing))
-    for value in manifest['owned_paths']:
-        _resolve(root, value, must_exist=False)
+    owned = [_resolve(root, value, must_exist=False) for value in manifest['owned_paths']]
+    for value in manifest.get('memory_write_paths', []):
+        path = _resolve(root, value, must_exist=False)
+        if not re.search(r'(^|/)\.agents/memory(/|$)', path.as_posix()):
+            raise ValueError(f'memory writes must be inside project .agents/memory: {value}')
+        if any(path == p or path.is_relative_to(p) or p.is_relative_to(path)
+               for p in owned + [root / r['path'] for r in result] + forbidden):
+            raise ValueError(f'memory writes overlap candidate, retained input or forbidden path: {value}')
     return {'version': 1, 'role': role, 'reads': result,
             'owned_paths': manifest['owned_paths'],
+            'memory_write_paths': manifest.get('memory_write_paths', []),
             'suite_controlled_selected_bytes': sum(r['selected_bytes'] for r in result if r['suite_controlled']),
             'suite_controlled_validated_file_bytes': sum(v for _, v in {r['path']: r['file_bytes'] for r in result if r['suite_controlled']}.items()),
             'selected_bytes': sum(r['selected_bytes'] for r in result),
