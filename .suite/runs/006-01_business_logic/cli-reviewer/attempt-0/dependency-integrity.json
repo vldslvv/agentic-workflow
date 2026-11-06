@@ -1,9 +1,0 @@
-{
-  "status": "PASS",
-  "dependency_candidate_sha256": "33106f6fd42bcef808162a0ff0016ba53105797fc1369aa3cb4c3239f125964f",
-  "retained_files": {
-    "todolist/core.py": "33c411c59d0453ff4169c378758531433899458ef888381ec0c67419a82f980c",
-    "todolist/__init__.py": "3a79c47bd1af06e48c77e4243743b801d3968ede17aed1e4d93f56b47cb9c8b8"
-  },
-  "frozen_inventory_sha256": "4117c849c124861f5e9cc1137d90a8816df72f27027b24b5408e66e471c5c7aa"
-}

@@ -1,29 +1,23 @@
-# Implement — one task's planner, implementer, reviewer cycle
+# Implement — one ready task
 
-Read the [shared contract](SUITE_CONTRACT.md); its authority, roles, integrity, attempt limits, and acceptance rules apply here. [Generate](GENERATE.md) schedules this procedure across subsystems.
+Read [shared contract](SUITE_CONTRACT.md) once and this procedure. Input: complete approved plan/acceptance, authority/baseline and source identities, accepted dependencies, target, frozen checks and explicit owned/protected paths. Output: candidate, requirement-linked execution, fresh review and compact receipt.
 
-**Inputs:** a separately authorized implementation task with the planner's complete approved documents, baseline/approval record, frozen checks, accepted dependency evidence, target, and owned paths. **Outputs:** candidate, raw check results, independent review, and run record tied to exact identities.
+## I1. Validate handoff
 
-## I1. Validate the planner handoff
+Resolve every required read path and identity from the role manifest. Confirm readiness under contract §§1–3 without loading the planner's procedure. Read the full approved plan and acceptance and relevant normative sources; record extra relevant inspection. Check protected digests without printing unchanged contents. Missing inputs block implementation.
 
-Confirm [Define](DEFINE.md)'s implementation-handoff gate completed and contract §§1–5 readiness holds. Its document-completion gate alone does not satisfy this precondition. The planner has already prepared the implementation plan and checks; the implementer reads them rather than replacing them. Include the standard bundle sources and execution input inventory in the frozen inventory; their absence cannot be replaced by an older task with a similar name. Record the input inventory and ownership in the run directory. Missing inputs yield BLOCKED before implementation. Significant plan deviations follow contract §6.
+## I2. Implement and check
 
-## I2. Implement and check the candidate
+Build within owned paths, including authorized integration. Run task checks and declared regression set once for this candidate/role; add useful local tests where needed. Keep build executables outside retained source. Preserve commands/logs and source snapshot or revision/digest. Check protected identities and scope diff before review.
 
-Build within owned paths, including approved integration work. Add useful local tests where they establish behavior; they supplement the frozen acceptance checks. Run build/local checks, retaining actual commands, output, and exit codes. Compare protected input digests and inspect scope changes before presenting a candidate. Record its revision or content digest, including uncommitted output when relevant.
+## I3. Spawn independent review
 
-## I3. Spawn independent review and acceptance execution
+Spawn a reviewer with no inherited conversation using [REVIEWER](../prompts/REVIEWER.md). Supply an explicit read manifest with acceptance/normative sources, candidate/check identities, dependency evidence, raw results and reviewer-owned output; exclude plan/conversation. Reviewer performs independent execution and coverage assessment. Recheck candidate and protected identities after execution; moving-candidate results are invalid.
 
-The implementer spawns a fresh reviewer using [REVIEWER.md](../prompts/REVIEWER.md) and contract §3's restricted input handoff. Exclude the plan and conversation. The reviewer assesses check coverage and executes the frozen acceptance checks against that candidate, using [VERIFIER.md](../prompts/VERIFIER.md) for execution guidance. It owns its raw results and [review record](../templates/REVIEW.md). Recheck candidate and baseline identities after execution; results for a moving candidate are invalid.
+## I4. Repair or route
 
-**Gate:** every prescribed acceptance check was assessed and a genuine independent review exists. Missing execution or fresh context blocks acceptance; a local pass alone is insufficient.
+Follow contract §4. Keep this implementer's context for confirmed defects, preserve each attempt and return changed candidates to I2 and a new fresh reviewer at I3 until review reports zero unresolved actionable findings and all task acceptance gates pass, or an explicit stop applies. A stop with unmet gates leaves the task incomplete. Coverage reproductions go through planner validation and supervisor-authorized frozen additive revision. Escalate other verifier/spec/infrastructure/plan issues with preserved evidence; do not edit protected inputs.
 
-## I4. Repair or escalate
+## I5. Integrate and return
 
-Apply the exact routing and initial-plus-two-repairs limit in contract §6. Return requirement-linked implementation defects to the implementer; preserve prior attempts. Each repaired candidate returns to I2 and a new fresh review/acceptance run at I3. Specification, verifier, infrastructure, and significant-plan problems go immediately to the supervisor, not through speculative implementation repairs.
-
-## I5. Integrate and request acceptance
-
-Integrate through the authorized repository procedure and run the declared real-dependency/regression checks on the combined candidate. If integration changes reviewed behavior, repeat the affected review and acceptance before requesting acceptance. Preserve evidence against the actual integrated identity.
-
-The supervisor applies contract §7 and records the result using [RUN_REPORT.md](../templates/RUN_REPORT.md). A subsystem pass can unlock dependents; only Generate's assembled-app gate can establish project acceptance. A blocked or failed gate remains explicit and preserves partial evidence.
+Run declared real-dependency/regression checks for the integrated identity. Reuse this role's unchanged results only with scope/identity justification; integration changes affecting behavior require affected checks and fresh review. Return [receipt](../templates/RECEIPT.json) and [run report](../templates/RUN_REPORT.md) paths. The supervisor applies contract §5; final assembled-app checks remain a separate gate.

@@ -19,7 +19,7 @@ document approval/completion separately from deferred app-generation readiness.
 
 Choose a short task ID, reusing the user's ID when provided. Allocate the next
 unused three-digit directory prefix across `.agents/tasks/` and `.suite/runs/`
-under shared contract §2; use the same prefix for a task and its run directory. Record the full baseline Git commit before implementation, normally
+under planning-record rules; use the same prefix for a task and its run directory. Record the full baseline Git commit before implementation, normally
 `git rev-parse HEAD`; if work has already started, establish the actual baseline
 with the user. Present a concise draft containing the task ID, baseline commit,
 goal, scope and non-goals, and numbered acceptance criteria. Give each criterion
@@ -36,8 +36,8 @@ Do not overwrite an existing approved specification without explicit authorizati
 When the task uses this repository's specification workflow, also preserve the
 complete approved plan as `plan.md` in the same directory and record both document
 digests, the full baseline commit, approving authority, and approval reference.
-Follow [the shared contract](../../../spec-source-suite/docs/SUITE_CONTRACT.md)
-§2 for task persistence. For app work, use the [standard Markdown bundle](../../../spec-source-suite/docs/MARKDOWN_BUNDLES.md) as the specification source.
+Follow [planning records](../../../spec-source-suite/docs/PLANNING.md)
+for task persistence. For app work, use the [standard Markdown bundle](../../../spec-source-suite/docs/MARKDOWN_BUNDLES.md) as the specification source.
 The acceptance record references source paths and digests and maps their clauses
 to checks; preserve source behavior in the bundle rather than duplicating it.
 

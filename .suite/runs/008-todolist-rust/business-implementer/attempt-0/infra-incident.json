@@ -1,8 +1,0 @@
-{
-  "timestamp": "2026-11-06T00:01:32.472516+00:00",
-  "command": "cargo build (via recorded build runner)",
-  "result": "INFRA_ERROR",
-  "reason": "Sandbox blocked index.crates.io dependency retrieval; command tool rejected network access",
-  "resolution": "require_escalated retry succeeded; frozen check uses cached crates with CARGO_NET_OFFLINE=true",
-  "behavioral_repair_consumed": false
-}

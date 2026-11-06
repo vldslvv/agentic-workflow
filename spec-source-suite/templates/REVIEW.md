@@ -14,11 +14,11 @@
 
 ## Findings
 
-| Finding ID | Requirement IDs | Observation and evidence | Severity | Required resolution |
-|---|---|---|---|---|
-| <ID> | <IDs> | <Concrete discrepancy or missing evidence> | <blocking/nonblocking> | <Action> |
+| Finding ID | Requirement IDs | Observation and evidence | Severity | Required resolution | Resolution status and evidence |
+|---|---|---|---|---|---|
+| <ID> | <IDs> | <Concrete discrepancy or missing evidence> | <Repair priority> | <Action> | <Unresolved/resolved; reviewer evidence for current candidate> |
 
-## Coverage and evidence gaps
+## Coverage assessment and evidence gaps
 
 <Requirements inspected; requirements not assessed; checks not executed. Do not infer execution from code inspection.>
 
@@ -28,4 +28,6 @@
 
 ## Outcome
 
-<PASS, FAIL, BLOCKED, or NOT_RUN for this review gate, with rationale. A review pass does not substitute for acceptance execution.>
+<PASS, FAIL, BLOCKED, or NOT_RUN for this review gate, with rationale and unresolved actionable finding count. PASS requires zero unresolved actionable findings, adequate coverage and passing mandatory review checks under shared contract §5. A review pass does not substitute for acceptance execution.>
+
+**Receipt:** <Status, requirement IDs, candidate/check identities, evidence paths and actionable findings; executable reproductions for coverage gaps.>

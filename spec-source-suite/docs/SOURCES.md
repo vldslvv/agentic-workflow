@@ -20,6 +20,6 @@ This documents repository instructions through `AGENTS.md`. The package supplies
 
 ## Integration limitations
 
-No installed Codex runtime, worker launch command, model, or sandbox capability was exercised when preparing these documents. Check the actual installed tool's help and official documentation when implementing an adapter. The suite does not rely on a specific model name or undocumented CLI flag.
+The suite does not rely on a specific model or undocumented worker CLI flag. Check installed help and official documentation when implementing an adapter. Current execution evidence records tested fresh-agent/helper capabilities separately from these externally sourced conventions; it does not establish sandbox enforcement.
 
 Earlier research claims from the conversation are not carried into these files as verified empirical evidence. The documents stand as a proposed, testable engineering design.

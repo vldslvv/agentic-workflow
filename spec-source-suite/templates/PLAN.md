@@ -14,4 +14,4 @@
 
 ## Approval
 
-<Reference the approval record binding this document and acceptance.md digests to the authority and decision, including referenced normative source digests. Save complete approved documents in .agents/tasks/<NNN>-<task-id>/ before implementation or handoff. Follow shared contract §2 for Plan-mode deferral and authorized revisions. Implementation needs a separate instruction.>
+<Reference the approval record binding this document and acceptance.md digests to the authority and decision, including referenced normative source digests. Save complete approved documents in .agents/tasks/<NNN>-<task-id>/ before implementation or handoff. Follow planning-record rules for Plan-mode deferral and authorized revisions. Implementation needs an instruction; an existing direct implementation request already provides it.>

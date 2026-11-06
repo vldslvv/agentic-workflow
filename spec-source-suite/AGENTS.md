@@ -1,16 +1,12 @@
-# Agent instructions — Spec Source Suite
+# Spec Source Suite
 
-This directory is reusable guidance, not an app specification. Keep project inputs, implementation, and run evidence outside it.
+Reusable guidance; app inputs, generated code and run evidence live outside this directory.
 
-Read [the shared contract](docs/SUITE_CONTRACT.md) and [standard bundle format](docs/MARKDOWN_BUNDLES.md) first. It is the single authority for approvals, task persistence, roles, frozen checks, DAG readiness, repair limits, isolation, and completion.
+Read [shared contract](docs/SUITE_CONTRACT.md) once, then your role procedure:
 
-- Author app documents or define/revise behavior: read [spec-define](.agents/skills/spec-define/SKILL.md) and [Define](docs/DEFINE.md).
-- Implement an approved app capability or assess an app candidate: read [spec-implement](.agents/skills/spec-implement/SKILL.md) and [Implement](docs/IMPLEMENT.md).
-- Generate initial/incremental work: read [spec-generate](.agents/skills/spec-generate/SKILL.md), [Generate](docs/GENERATE.md), and Implement.
-- Regenerate or change targets through reconstruction: additionally read [Regeneration](docs/REGENERATION.md).
-- Apply required enforced isolation: read [Strong isolation](docs/STRONG_ISOLATION.md).
-- Build automated suite tooling only when explicitly requested: read [CODEX_START](CODEX_START.md) and [BUILD_THE_SUITE](docs/BUILD_THE_SUITE.md).
+- Planner/document author: [Define](docs/DEFINE.md).
+- Implementer: [Implement](docs/IMPLEMENT.md).
+- Independent reviewer: [Reviewer](prompts/REVIEWER.md).
+- Supervisor/planner: [Generate](docs/GENERATE.md), then [Define](docs/DEFINE.md) when preparing a ready task.
 
-Route by deliverable: executing a documentation plan stays in Define. Use its document-completion gate; app execution and its candidate-review gates require their own authorization.
-
-For suite guidance changes, follow the user's approved task acceptance, preserve existing repository instructions, and validate references, metadata, and package checksums. Report procedural walkthroughs separately from actual app-generation experiments.
+Role handoffs list required inputs and owned paths. Follow referenced branches only when applicable. Suite tooling changes follow user task acceptance; validate package references, metadata and checksums. Fixtures and walkthroughs remain distinct from live app experiments.

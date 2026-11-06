@@ -1,105 +1,35 @@
 {
   "package": "Spec Source Suite",
-  "version": "0.2-draft",
-  "checked_date": "2026-11-05",
+  "version": "0.3-draft",
+  "checked_date": "2026-11-06",
   "status": "STRUCTURAL_CHECKS_PASSED",
-  "source_document_count": 29,
+  "scope": "Supervisor-owned planning with retained context; existing role-context, check-execution and usage helpers preserved. Workflow documentation revision only.",
   "checks": {
-    "utf8_and_final_newlines": "PASS",
-    "local_markdown_links": {
+    "helper_tests": {
       "result": "PASS",
-      "count": 103
+      "count": 20,
+      "evidence": "../.suite/runs/016-supervisor-planning/helper-tests.log"
     },
-    "yaml_and_skill_frontmatter": {
+    "helper_preservation": {
       "result": "PASS",
-      "count": 7
+      "evidence": "../.suite/runs/016-supervisor-planning/helper-integrity.json"
     },
-    "code_fences": "PASS",
-    "removed_spec_formats_and_references": {
+    "combined_supervisor_manifest": {
       "result": "PASS",
-      "removed_templates": [
-        "project.yaml",
-        "target.yaml",
-        "SPEC.md",
-        "PROJECT.md",
-        "VERIFICATION.md"
-      ],
-      "scope": "Active suite guidance, repository router, and acceptance skill; historical evidence preserved."
+      "evidence": "../.suite/runs/016-supervisor-planning/combined-supervisor-reading.json"
     },
-    "skill_invocation_metadata": {
+    "package_structure": {
       "result": "PASS",
-      "count": 3
-    },
-    "protected_source_specs_task_records_and_historical_evidence": {
-      "result": "PASS",
-      "files": 92
-    },
-    "staged_index_integrity": "PASS",
-    "standard_bundle_layout": {
-      "result": "PASS",
-      "bundles": [
-        {
-          "bundle": "spec-source-suite/templates/bundle",
-          "task_order": [
-            "tasks/task.md"
-          ],
-          "format_result": "PASS",
-          "execution_readiness": "Not assessed; no application execution authorized by this workflow change."
-        },
-        {
-          "bundle": "specs/todolist",
-          "task_order": [
-            "tasks/01_business_logic.md",
-            "tasks/02_cli.md"
-          ],
-          "format_result": "PASS",
-          "execution_readiness": "Not assessed; no application execution authorized by this workflow change."
-        }
-      ]
-    },
-    "edited_skill_validation": {
-      "result": "PASS",
-      "method": "skill-creator/scripts/quick_validate.py",
-      "results": [
-        {
-          "skill": "spec-source-suite/.agents/skills/spec-define",
-          "exit_code": 0,
-          "output": "Skill is valid!"
-        },
-        {
-          "skill": "spec-source-suite/.agents/skills/spec-generate",
-          "exit_code": 0,
-          "output": "Skill is valid!"
-        },
-        {
-          "skill": ".agents/skills/acceptance-spec",
-          "exit_code": 0,
-          "output": "Skill is valid!"
-        }
-      ]
-    },
-    "git_diff_check": {
-      "result": "PASS",
-      "exit_code": 0
-    },
-    "routing_walkthrough": {
-      "result": "PASS",
-      "method": "Procedural inspection",
-      "evidence": "../.suite/runs/005-markdown-specification-standard/walkthroughs.json"
+      "links_checked": 94,
+      "skills_checked": 3,
+      "evidence": "../.suite/runs/016-supervisor-planning/package-validation.json"
     }
   },
-  "scope": "Standard Markdown specification layout only. Structural and procedural validation; not app-generation evidence.",
-  "evidence": "../.suite/runs/005-markdown-specification-standard/",
-  "not_tested": [
-    "Installed skill invocation",
-    "Independent agent behavioral execution",
-    "Actual app generation or regeneration",
-    "Sandbox enforcement",
-    "Future app acceptance checks"
-  ],
-  "authorization_policy_update": {
-    "status": "PASS",
-    "scope": "Markdown links, encoding, fences, and procedural inspection; app execution recorded separately.",
-    "evidence": "../.suite/runs/006-01_business_logic/workflow-validation.json"
-  }
+  "evidence": "../.suite/runs/016-supervisor-planning/",
+  "previous_package_checks": "../.suite/runs/016-supervisor-planning/package-checks-before.json",
+  "not_executed": [
+    "Live app replay under the revised workflow",
+    "Token or elapsed-time improvement measurement for this revision",
+    "Enforced isolation"
+  ]
 }

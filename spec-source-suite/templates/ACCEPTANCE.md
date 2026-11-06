@@ -17,4 +17,8 @@ Reference shared scenarios in the bundle's verification.md. Include applicable d
 
 ## Retained inputs and approval
 
-<Required assets/data/services; unresolved decisions or none; approval reference binding this record, plan, and source digests to the baseline, authority, and decision. Follow shared contract §2 for changes.>
+<Required assets/data/services; unresolved decisions or none; approval reference binding this record, plan, and source digests to the baseline, authority, and decision. Follow shared contract §1 and planning-record rules for changes.>
+
+**Check sets:** <Task checks; declared regression set; separate final end-to-end scenarios.>
+**Coverage:** <Check execution, coverage assessment and independent review outcome are separate dispositions.>
+**Verifier revisions:** <Frozen inventory versions and authorized additive coverage, retaining earlier bytes.>

@@ -1,31 +1,27 @@
-# Generate — supervise the subsystem DAG
+# Generate — supervise the selected graph
 
-Read the [shared contract](SUITE_CONTRACT.md), [Implement skill](../.agents/skills/spec-implement/SKILL.md), and [Implement workflow](IMPLEMENT.md). Generate coordinates those task cycles; it does not define another worker loop.
+Read [shared contract](SUITE_CONTRACT.md) once and [bundle format](MARKDOWN_BUNDLES.md). The supervisor owns planning and acceptance as well as coordination. Retain source requirements, graph, shared constraints, plan/acceptance decisions, interfaces, dependency identities and blockers. Load [Define](DEFINE.md) when the first task is ready; implementer/reviewer procedures belong to their worker contexts.
 
-**Inputs:** approved standard Markdown bundle, execution input inventory, target constraints, scope/mode, retained inputs, authorized outputs, and verification arrangement. **Outputs:** subsystem candidates and evidence plus assembled-app acceptance in one run directory. No specs yields NO_PROJECT.
+## G1. Establish inputs and mode
 
-Read the [standard bundle format](MARKDOWN_BUNDLES.md) before validating execution readiness. Resolve `project.md`, `task_order.md`, `tasks/*.md`, and `verification.md`; incomplete inputs require authorized Define preparation before dispatch.
+Resolve selected bundle, scope, target, outputs, retained inputs, verification arrangement and evidence root. Initial work uses a new authorized output directory; incremental work uses declared existing paths. Missing inputs yield BLOCKED; no intent yields NO_PROJECT. Only for regeneration/cross-target read [Regeneration](REGENERATION.md); only for required enforcement read [Strong isolation](STRONG_ISOLATION.md). Record actual controls and limitations.
 
-## G1. Select mode and validate inputs
+## G2. Validate graph and prepare final verification
 
-Use `initial` for new implementation or `incremental` for authorized changes with existing-code access. For `regenerate` or `cross-target`, read [REGENERATION.md](REGENERATION.md) before preparing work. If enforced isolation is required, also read [STRONG_ISOLATION.md](STRONG_ISOLATION.md). These are explicit branches, not prerequisites for ordinary generation.
+Validate ordered tasks plus explicit dependencies, prerequisite closure and already accepted revisions under contract §3. Record project-level assembled-app scenarios before execution. Do not create every task's plan/checks up front.
 
-For initial generation, use a new authorized output directory, possibly within the existing repository; leave other project files intact. Incremental work uses declared existing paths. Record retained assets/state and external boundaries; code generation does not recreate unavailable data or services.
+## G3. Plan and dispatch each ready task
 
-## G2. Resolve the graph and handoffs
+For each ready task, follow Define in this context using its normative sources, shared constraints and accepted dependency contracts. Save the complete plan/acceptance, authority, executable checks and frozen identities before dispatch. Record readiness in the task receipt; the implementation-handoff gate must pass. Keep the decisions available for downstream planning and repairs. Explicitly delegated planning follows contract §2.
 
-Derive and validate the DAG under contract §5. Select prerequisite closure or identify already accepted dependencies. Identify downstream impact separately. For each selected task, obtain the persisted planner handoff from [Define](DEFINE.md), target constraints, and integrity inventory. Record the project-level assembled-app checks before execution.
+Dispatch a fresh implementer with [Implement](IMPLEMENT.md) and explicit role manifest. It receives the complete approved plan/acceptance and owns its repair loop/reviewer spawning. Keep it alive through repairs. Accept from execution, coverage, review, integrity and dependency evidence under contract §5; inspect raw logs for failures/disputes. As planner, validate the requirement mapping of coverage additions before authorizing them under contract §4. Failed prerequisites keep consumers blocked.
 
-**Readiness gate:** no unresolved graph/input/approval/check requirements; ready nodes have current accepted prerequisites. The input inventory points to source-linked acceptance records; their prerequisite mapping must match the bundle's order and declarations.
+Use completion/blocker messages and supported waits, bounded by the platform's progress-update interval. Report new findings, decisions or blockers at meaningful checkpoints; keep required interim updates concise. Reuse known decisions and digest checks rather than repeatedly loading unchanged documents. Helpers validate manifests and retain evidence; they do not schedule agents.
 
-## G3. Execute ready tasks
+## G4. Verify assembled app
 
-Run serially by default. Dispatch each ready task to [Implement](IMPLEMENT.md), with a fresh implementer context and only its approved inputs. The supervisor records node outcomes and identities in the run directory; it does not rely on worker memory. Apply contract §§5–7 to readiness, repair limits, failures, and reuse. Failed or blocked prerequisites keep consumers blocked.
+After all selected tasks are accepted, independently execute the declared final end-to-end scenarios on the actual assembled candidate, including cross-task interactions and applicable manual gates. Preserve identity and execution evidence. Task passes do not replace this execution. Assembly defects route under contract §4 and invalidate affected node/downstream evidence before renewed final execution.
 
-## G4. Assess the assembled app
+## G5. Report
 
-After selected nodes pass, execute the frozen project-level checks against the actual assembled candidate, including cross-subsystem interactions and required manual criteria. Preserve outputs, candidate identity, and environment. Individual node passes cannot satisfy this gate. Assembly failures follow contract §6; do not invent a separate unlimited repair loop. Changes to accepted nodes invalidate affected downstream and assembled evidence.
-
-## G5. Record the scope result
-
-Use [RUN_REPORT.md](../templates/RUN_REPORT.md) and the contract §7 completion policy. Record PASS only with all mandatory gates satisfied; otherwise retain FAIL, BLOCKED, and NOT_RUN dispositions and the next action. Distinguish partial scope from project acceptance and procedural separation from enforced isolation. Regeneration claims require the selected branch's additional evidence.
+Return concise scope status, accepted identities, attempts and evidence paths using [run report](../templates/RUN_REPORT.md). Distinguish first-attempt and eventual outcomes, partial scope, actual isolation and blocked gates. For measured runs retain explicit root/descendant session references and [usage report](HELPERS.md#usage-reporting), including per-role usage, unavailable counters and outer-driver overhead separately.
