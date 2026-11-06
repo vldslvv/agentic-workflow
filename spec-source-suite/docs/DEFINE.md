@@ -14,7 +14,7 @@ For new authorized authoring use the [bundle templates](../templates/bundle/proj
 
 ## D3. Prepare scoped plan/checks
 
-Use [plan](../templates/PLAN.md) for implementation approach, interfaces, dependency identities, ownership and integration. For documentation-only scope describe future checks without creating app environments/executables. For authorized handoff scope author task checks, declared regression set and applicable manual criteria with explicit pass rules. Reference shared scenarios instead of copying them; final scenarios stay separate. Freeze executable checks and all normative inputs before implementation.
+Use [plan](../templates/PLAN.md) for implementation approach, interfaces, dependency identities, ownership and integration. For documentation-only scope describe future checks without creating app environments/executables. For authorized handoff scope identify the public boundary and select existing tests or author coverage for gaps under [contract §4](SUITE_CONTRACT.md#4-checks-and-repairs). Link tests to requirements, record substitutes or testing exceptions, and define task checks, declared regression set and applicable manual criteria with explicit pass rules. Reference shared scenarios instead of copying them; final scenarios stay separate. Freeze executable checks and all normative inputs before implementation.
 
 ## D4. Persist and hand off
 
@@ -24,4 +24,4 @@ Retain selected [memory inputs](PROJECT_MEMORY.md#starting-and-retaining-inputs)
 
 **Document-completion gate:** requested documents saved/authorized with baseline and digests; consistency, coverage, references, graph and verification descriptions validated. No app candidate, execution or implementation review is required. Report generation readiness separately.
 
-**Implementation-handoff gate:** document gate plus all prescribed available executable/manual checks and frozen inventory. Implementation must be authorized; an existing direct implementation request already supplies authority. Changes follow [CHANGE](../templates/CHANGE.md). Later reviewer reproductions follow contract §4's additive revision policy.
+**Implementation-handoff gate:** document gate plus all prescribed available executable/manual checks, recorded testing exceptions and frozen inventory. Implementation must be authorized; an existing direct implementation request already supplies authority. Changes follow [CHANGE](../templates/CHANGE.md). Later reviewer reproductions and testing exceptions follow contract §4's delegated policies.

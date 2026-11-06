@@ -1,4 +1,3 @@
-Add test generation -- public behaviour of each task
 Add spec verification -- consider something like OpenSpec
 Generate make commands for app manipulation
 Loop tasks without having a supervisor -- less context?

@@ -10,7 +10,7 @@ Use selected notes only through retained handoff reads under [project memory](PR
 
 ## I2. Implement and check
 
-Build within owned paths, including authorized integration. Run task checks and declared regression set once for this candidate/role; add useful local tests where needed. Keep build executables outside retained source. Preserve commands/logs and source snapshot or revision/digest. Check protected identities and scope diff before review.
+Build within owned paths, including authorized integration. Run the frozen requirement-linked public-interface tests, task checks and declared regression set once for this candidate/role under [contract §4](SUITE_CONTRACT.md#4-checks-and-repairs); add useful local tests for uncovered observable behavior. Use the recorded real dependencies or safe substitutes and keep production logic free of test-only exports/hooks. Preserve skipped/blocked test dispositions and exception evidence. Keep build executables outside retained source. Preserve commands/logs and source snapshot or revision/digest. Check protected identities and scope diff before review.
 
 ## I3. Spawn independent review
 
@@ -18,7 +18,7 @@ Spawn a reviewer with no inherited conversation using [REVIEWER](../prompts/REVI
 
 ## I4. Repair or route
 
-Follow contract §4. Keep this implementer's context for confirmed defects, preserve each attempt and return changed candidates to I2 and a new fresh reviewer at I3 until review reports zero unresolved actionable findings and all task acceptance gates pass, or an explicit stop applies. A stop with unmet gates leaves the task incomplete. Coverage reproductions go through planner validation and supervisor-authorized frozen additive revision. Escalate other verifier/spec/infrastructure/plan issues with preserved evidence; do not edit protected inputs.
+Follow contract §4. Keep this implementer's context for confirmed defects, preserve each attempt and return changed candidates to I2 and a new fresh reviewer at I3 until review reports zero unresolved actionable findings and all task acceptance gates pass, or an explicit stop applies. A stop with unmet gates leaves the task incomplete. Coverage reproductions go through planner validation and supervisor-authorized frozen additive revision. Route newly impractical tests with obstacle evidence to the supervisor for an autonomous testing-exception revision; resume affected checks against the authorized frozen revision without requesting user approval. Escalate other verifier/spec/infrastructure/plan issues with preserved evidence; do not edit protected inputs.
 
 On a failed or blocked stop, apply [memory maintenance](PROJECT_MEMORY.md#completing-and-maintaining) to supported observations.
 

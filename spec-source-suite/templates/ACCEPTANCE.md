@@ -9,11 +9,17 @@ Save under `.suite/tasks/<NNN>-<task-id>/acceptance.md`. This record maps the st
 
 ## Requirements and checks
 
-| Requirement ID | Source clause and observable acceptance criterion | Check ID and method | Setup, inputs, pass rule, cleanup, evidence |
-|---|---|---|---|
-| <TASK-ID>-R001 | <Exact source reference and approved criterion> | <CHECK-ID; command or authorized manual criterion> | <Concrete assessment> |
+| Requirement ID | Source clause and observable acceptance criterion | Exercised public interface | Check ID and method | Setup, inputs, pass rule, cleanup, evidence |
+|---|---|---|---|---|
+| <TASK-ID>-R001 | <Exact source reference and approved criterion> | <API, endpoint, command, UI interaction, or pipeline input/output> | <CHECK-ID; reused/new test, command or authorized manual criterion> | <Concrete assessment; real dependency or safe substitute and its limits> |
 
 Reference shared scenarios in the bundle's verification.md. Include applicable dependency integration and regression checks. Record approved clarifications without copying source requirements; resolve conflicts before approval. The planner freezes executable checks and normative inputs before implementation.
+
+## Testing exceptions
+
+<None, or each exception under [shared contract §4](../docs/SUITE_CONTRACT.md#4-checks-and-repairs): affected requirement/check IDs, obstacle, alternatives considered, substitute and fidelity limits if used, remaining evidence, coverage gap, and planner/supervisor decision with authority/date. For post-freeze exceptions, reference the supervisor-authorized revision, original expectations/evidence and new frozen identities. Make this record available to the reviewer without plans/conversations.>
+
+<Record skipped tests as NOT_RUN or BLOCKED, preserve observed failures, and link the independent review's assessment of whether remaining evidence supports acceptance. An exception does not waive functional requirements or other acceptance gates.>
 
 ## Retained inputs and approval
 
@@ -21,4 +27,4 @@ Reference shared scenarios in the bundle's verification.md. Include applicable d
 
 **Check sets:** <Task checks; declared regression set; separate final end-to-end scenarios.>
 **Coverage:** <Check execution, coverage assessment and independent review outcome are separate dispositions.>
-**Verifier revisions:** <Frozen inventory versions and authorized additive coverage, retaining earlier bytes.>
+**Verifier revisions:** <Frozen inventory versions, authorized additive coverage and testing-exception revisions, retaining earlier bytes and evidence.>

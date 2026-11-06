@@ -15,7 +15,7 @@
 
 Retain failed attempts and infrastructure incidents. Include independent review, integrity, dependency integration, manual gates, and assembled-app acceptance where applicable. Keep initial and repaired outcomes distinct. Record interventions and stale-evidence invalidation. Review details may be inline or use REVIEW.md; raw evidence remains linked.
 
-**Coverage assessment:** <Per-requirement check execution, coverage judgment, and review outcome separately; inventory versions and additive-check authorizations.>
+**Coverage assessment:** <Per-requirement public-interface check execution, coverage judgment, and review outcome separately; inventory versions and additive-check authorizations. Link testing exceptions with obstacles, affected IDs, remaining evidence, gaps and supervisor-authorized revisions; preserve skipped/blocked results and original failures.>
 
 **Supervisor decision:** <Scoped acceptance or remaining blockers; actual integrated candidate; reuse eligibility and missing checks.>
 

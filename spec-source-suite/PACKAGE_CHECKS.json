@@ -3,27 +3,29 @@
   "version": "0.3-draft",
   "checked_date": "2026-11-06",
   "status": "STRUCTURAL_CHECKS_PASSED",
-  "scope": "Shared project memory guidance and structural validator; retained handoff copies; reviewer memory exclusions and declared forbidden paths for all roles. Procedural checks only.",
+  "scope": "Public-interface testing guidance, autonomous documented testing exceptions, role workflows and evidence templates. Documentation scenarios and package structural validation only.",
   "checks": {
-    "helper_tests": {
+    "instruction_scenarios": {
       "result": "PASS",
-      "count": 25,
-      "evidence": "../.suite/runs/001-shared-agent-memory/helper-tests.log"
-    },
-    "two_task_memory_walkthrough": {
-      "result": "PASS",
-      "evidence": "../.suite/runs/001-shared-agent-memory/walkthrough-result.json"
+      "count": 6,
+      "method": "Manual instruction walkthrough",
+      "evidence": "../.suite/runs/003-public-interface-tests/VALIDATION.md"
     },
     "package_structure": {
       "result": "PASS",
-      "evidence": "../.suite/runs/001-shared-agent-memory/package-validation.json"
+      "evidence": "../.suite/runs/003-public-interface-tests/package-validation.json"
+    },
+    "checksum_inventory": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/003-public-interface-tests/checksum-verification.log"
     }
   },
-  "evidence": "../.suite/runs/001-shared-agent-memory/",
-  "previous_package_checks": "../.suite/runs/001-shared-agent-memory/package-checks-before.json",
+  "evidence": "../.suite/runs/003-public-interface-tests/",
+  "previous_package_checks": "../.suite/runs/003-public-interface-tests/package-checks-before.json",
   "not_executed": [
+    "Helper tests (helpers and tests unchanged)",
     "Live app generation or regeneration",
-    "Live multi-agent memory reuse experiment",
+    "Live multi-agent execution",
     "Enforced filesystem isolation"
   ]
 }

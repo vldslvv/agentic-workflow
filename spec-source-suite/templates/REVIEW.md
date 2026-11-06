@@ -20,7 +20,7 @@
 
 ## Coverage assessment and evidence gaps
 
-<Requirements inspected; requirements not assessed; checks not executed. Do not infer execution from code inspection.>
+<Requirements and public interfaces exercised; reused/new tests and observable assertions; substitute fidelity; requirements not assessed and checks not executed. Assess each testing exception's obstacle, authorization, remaining evidence and coverage gap under shared contract §4, with a rationale for whether acceptance is supported. Do not infer execution from code inspection or count skipped tests as passes.>
 
 ## Scope and unintended behavior
 
