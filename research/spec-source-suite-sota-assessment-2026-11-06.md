@@ -1,5 +1,7 @@
 # Spec Source Suite: alignment with current agentic development practice
 
+Historical assessment: the later suite simplification removed role/check helpers and consolidated the workflow. References to those mechanisms below describe the assessed version, not current instructions.
+
 Research date: 2026-11-06. Scope: the current `spec-source-suite/` working tree, primary-source research, and official implementation documentation. This is an assessment and proposed direction, not a workflow change or approval of a new execution policy.
 
 The repository HEAD was `e63405b4205b0f965879f37e739e3a161ab7f47a`. Several suite documents already had uncommitted changes; this assessment uses their working-tree contents. No historical app task records, run evidence, or conversations were searched. No app benchmark was executed, so this report makes no measured claim about this suite's quality, token savings, or runtime.
@@ -21,13 +23,13 @@ There is no single demonstrated best architecture across repository repairs, gre
 
 | Area | Current evidence | Assessment |
 |---|---|---|
-| Specification authority | [Contract §1](../spec-source-suite/docs/SUITE_CONTRACT.md#1-authority-and-readiness) separates approved requirements from derived plans | Preserve. Implementation plans must not silently redefine success. |
-| Feedback through execution | [Contract §4](../spec-source-suite/docs/SUITE_CONTRACT.md#4-checks-and-repairs) requires public-interface tests and repairs | Strong foundation for agent feedback. |
-| Whole-application validation | [Generate G4](../spec-source-suite/docs/GENERATE.md#g4-verify-assembled-app) requires independently executed final scenarios | Already present; the proposal changes when other evaluation happens, not whether final E2E exists. |
+| Specification authority | [Contract §1](../spec-source-suite/docs/SUITE_CONTRACT.md) separates approved requirements from derived plans | Preserve. Implementation plans must not silently redefine success. |
+| Feedback through execution | [Contract §4](../spec-source-suite/docs/SUITE_CONTRACT.md) requires public-interface tests and repairs | Strong foundation for agent feedback. |
+| Whole-application validation | [Generate G4](../spec-source-suite/docs/GENERATE.md) requires independently executed final scenarios | Already present; the proposal changes when other evaluation happens, not whether final E2E exists. |
 | Independent evaluation | [Reviewer](../spec-source-suite/prompts/REVIEWER.md) excludes implementation narratives and checks coverage | Valuable defense against self-assessment bias; frequency should be evaluated. |
-| Durable state | [Contract §5](../spec-source-suite/docs/SUITE_CONTRACT.md#5-acceptance-and-durable-evidence) binds evidence to actual inputs/candidates and preserves failed attempts | Well suited to an automated runner. |
-| Context control | [Role manifests](../spec-source-suite/docs/HELPERS.md#role-context) and [curated memory](../spec-source-suite/docs/PROJECT_MEMORY.md) scope reads and retain selected inputs | Good design intent; measure actual context cost and completeness. |
-| Basic deterministic machinery | [check_execution.py](../spec-source-suite/helpers/check_execution.py), [role_context.py](../spec-source-suite/helpers/role_context.py), and [usage_report.py](../spec-source-suite/helpers/usage_report.py) | Reuse these rather than rebuilding the whole system. |
+| Durable state | [Contract §5](../spec-source-suite/docs/SUITE_CONTRACT.md) binds evidence to actual inputs/candidates and preserves failed attempts | Well suited to an automated runner. |
+| Context control | Role manifests (subsequently removed) and [curated memory](../spec-source-suite/docs/PROJECT_MEMORY.md) scope reads and retain selected inputs | Good design intent; measure actual context cost and completeness. |
+| Basic deterministic machinery | `check_execution.py` and `role_context.py` (subsequently removed), and [usage_report.py](../spec-source-suite/helpers/usage_report.py) | Reuse these rather than rebuilding the whole system. |
 
 Anthropic's November 2025 long-running-agent report emphasizes incremental progress, durable handoffs, and testing through actual application interactions. These correspond closely to existing suite policies. It is an engineering case study, not proof that every suite rule improves performance. [Source](https://www.anthropic.com/research/effective-harnesses-for-long-running-agents).
 
@@ -76,7 +78,7 @@ Avoid two editable sources of truth. If OpenSpec becomes authoritative, generate
 
 ### What is unnecessarily agent-mediated today
 
-[Generate G2–G3](../spec-source-suite/docs/GENERATE.md) assigns graph validation, ready-task planning, dispatch, and acceptance to the supervisor. [Contract §2](../spec-source-suite/docs/SUITE_CONTRACT.md#2-roles-and-context) requires that supervisor to retain planning context. The [helpers explicitly exclude scheduling and acceptance](../spec-source-suite/docs/HELPERS.md).
+[Generate G2–G3](../spec-source-suite/docs/GENERATE.md) assigns graph validation, ready-task planning, dispatch, and acceptance to the supervisor. [Contract §2](../spec-source-suite/docs/SUITE_CONTRACT.md) requires that supervisor to retain planning context. The [helpers explicitly exclude scheduling and acceptance](../spec-source-suite/docs/HELPERS.md).
 
 Task ordering, checking prerequisites, constructing manifests, dispatch, collecting receipts, checking hashes, rerunning declared checks, and recording state transitions can be ordinary code once their policy and inputs are explicit. Coverage judgments, ambiguous requirements, novel interfaces, and disputed verifier results still need reasoning.
 
@@ -124,9 +126,9 @@ Keep a planner available on demand. Existing planning is just-in-time because do
 
 **Measure required instruction overhead.** Every role manifest requires the shared contract; it is approximately 1,476 whitespace-separated words in this snapshot, before role instructions and app inputs. This is not a token count or cost estimate. Move mechanically enforced policies into code and retain concise, role-relevant instructions. The September 2026 revision of *Evaluating AGENTS.md* reports no general success improvement and increased inference cost in its studied settings; this motivates ablation, not deleting necessary project conventions. [Paper, v3](https://arxiv.org/abs/2602.11988v3).
 
-**Enforce the boundaries that automation relies on.** The suite correctly distinguishes digest checks from a sandbox. For unattended execution, protect frozen checks and reviewer results through actual write permissions or isolated execution, not only role instructions. Use stronger separation where the threat model requires it; a separate Git worktree alone does not stop writes elsewhere. This follows the suite's own [strong-isolation design](../spec-source-suite/docs/STRONG_ISOLATION.md).
+**Enforce the boundaries that automation relies on.** The suite correctly distinguishes digest checks from a sandbox. For unattended execution, protect frozen checks and reviewer results through actual write permissions or isolated execution, not only role instructions. Use stronger separation where the threat model requires it; a separate Git worktree alone does not stop writes elsewhere. This follows the suite's own [reconstruction and isolation guidance](../spec-source-suite/docs/REGENERATION.md).
 
-**Calibrate evaluators.** A fresh context does not remove correlated model errors. Assess whether evaluators catch known defects and whether their findings are reproducible. Keep deterministic final scenarios alongside exploratory E2E assessment, including non-UI requirements that browser testing alone cannot establish. Existing [coverage/review distinctions](../spec-source-suite/docs/SUITE_CONTRACT.md#5-acceptance-and-durable-evidence) are worth preserving.
+**Calibrate evaluators.** A fresh context does not remove correlated model errors. Assess whether evaluators catch known defects and whether their findings are reproducible. Keep deterministic final scenarios alongside exploratory E2E assessment, including non-UI requirements that browser testing alone cannot establish. Existing [coverage/review distinctions](../spec-source-suite/docs/SUITE_CONTRACT.md) are worth preserving.
 
 **Do not infer savings from agent count alone.** Removing coordination calls should reduce that category of model work, but later repair loops may offset it. Measure total cost per successfully completed app, including checks, retries, evaluator calls, and planning.
 

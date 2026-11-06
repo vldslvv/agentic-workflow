@@ -1,19 +1,13 @@
 # App generation
 
-`spec-source-suite/` is reusable guidance, changed only for requested workflow/tooling work. Keep app specifications, constraints, assets, generated code and evidence outside it.
+`spec-source-suite/` is reusable guidance; change it only for requested workflow/tooling work. Keep app inputs, code and evidence outside it.
 
-Classify the request before discovery:
+- Fresh work uses the current brief or selected bundle. Ordinary planners may consult [project memory](spec-source-suite/docs/PROJECT_MEMORY.md), without searching earlier tasks or conversations.
+- Continuing work uses identified task paths or execution references. Resolve a bare task ID by immediate `.suite/tasks/` directory suffix; ask if absent, ambiguous, or continuation itself is unclear. Stop discovery when authority is resolved.
+- Advice/tooling work uses requested files and relevant references, without task-history discovery.
 
-- Fresh work: current brief or selected bundle; curated [project memory](spec-source-suite/docs/PROJECT_MEMORY.md) is available to ordinary planners without searching prior task records/runs/conversations.
-- Continuing work: identified task paths or execution-inventory references only. Resolve a bare task ID by immediate `.suite/tasks/` directory suffix; ask if absent/ambiguous. If continuation itself is unclear, ask before searching history.
-- Advice/guidance changes: requested files and relevant references; no task-history discovery.
+For app work read the [suite router](spec-source-suite/AGENTS.md), shared rules, and your role routine. Use the selected [Markdown bundle](spec-source-suite/docs/MARKDOWN_BUNDLES.md); otherwise look outside the suite for its four file types and ask if multiple bundles are plausible. New authorized authoring uses `specs/` and the bundle templates. Missing required inputs block generation; no project intent yields NO_PROJECT.
 
-Before app work read [suite router](spec-source-suite/AGENTS.md) and [shared contract](spec-source-suite/docs/SUITE_CONTRACT.md) once. Load your role procedure through that router. Skills are short entry points: [Define](spec-source-suite/.agents/skills/spec-define/SKILL.md), [Implement](spec-source-suite/.agents/skills/spec-implement/SKILL.md), [Generate](spec-source-suite/.agents/skills/spec-generate/SKILL.md). Reviewers use their restricted handoff instead of loading plans or other role procedures.
+Route document authoring to Define, one capability to Implement, and app generation to Generate. A direct implementation request authorizes derived plans and acceptance without routine reapproval. Preserve explicit requirements, approved text and historical records. [Define](spec-source-suite/docs/DEFINE.md#records) describes task storage and recovery.
 
-For app inputs use the user-selected [standard bundle](spec-source-suite/docs/MARKDOWN_BUNDLES.md). Otherwise inspect outside the suite for `project.md`, `task_order.md`, `tasks/*.md`, `verification.md`; ask if multiple bundles are plausible. New authorized authoring uses `specs/` and suite bundle templates; templates and BUILD_THE_SUITE are not app requirements. Missing required bundle inputs block generation; no intent yields NO_PROJECT. A supplied implementation request authorizes derived handoffs under the contract; choose reasonable defaults without routine reapproval.
-
-Route by deliverable: authoring specification/acceptance/constraint/order documents is Define work and uses its document-completion gate. Generating an app uses Generate; one capability uses Implement. The supervisor plans each ready task through Define, retaining shared constraints, acceptance decisions and dependency contracts; it hands paths/identities to fresh implementers and independent reviewers through role manifests. Allocate shared task/run numbers by listing immediate directory names across both roots only; preserve approved text and historical evidence.
-
-Continuing work loads complete approved records and relevant state. Missing originals follow [planning-record recovery](spec-source-suite/docs/PLANNING.md#task-records); reviewers retain their exclusion boundary. Stop discovery when authority is resolved.
-
-App execution requires every contract gate: frozen inputs, prerequisite acceptance, independent review, applicable manual checks and final assembled-app execution. Persist requirement-linked evidence outside the suite; report actual checks and blocked gates. Load [CODEX_START](spec-source-suite/CODEX_START.md) and [BUILD_THE_SUITE](spec-source-suite/docs/BUILD_THE_SUITE.md) only for explicitly requested suite tooling, not app requirements.
+Only for requested suite tooling read [CODEX_START](spec-source-suite/CODEX_START.md) and [BUILD_THE_SUITE](spec-source-suite/docs/BUILD_THE_SUITE.md); their future-runner requirements are not app requirements.

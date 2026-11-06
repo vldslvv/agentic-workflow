@@ -1,6 +1,6 @@
 ---
 name: spec-define
-description: Author app documents or prepare a ready task plan, source-linked acceptance and frozen checks within authorized scope.
+description: Author app documents or prepare a ready task plan, source-linked acceptance and check methods within authorized scope.
 ---
 
 # Define

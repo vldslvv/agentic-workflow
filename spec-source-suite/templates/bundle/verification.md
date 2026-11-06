@@ -1,14 +1,14 @@
 # Verification
 
-<Shared verification intent and scenarios against the assembled app, including task interactions and persisted effects. Broad scenarios are starting inputs; concrete pass rules are required before execution.>
+<Shared checks and assembled-app scenarios, including task interactions and persisted effects. Clarify concrete pass rules before executing broad scenarios.>
 
 ## Scenario — <name>
 
-**Task/source clauses:** <Task filenames and required outcomes; link task acceptance records once prepared.>
-**Setup and inputs:** <Initial state and environment.>
+**Task/source clauses:** <Task filenames and required outcomes.>
+**Setup and inputs:** <Initial state/environment.>
 **Actions:** <Observable operations or input sequence.>
-**Pass rule:** <Expected outputs, errors, side effects, and allowed variation.>
-**Cleanup:** <Reset state and remove temporary resources.>
-**Evidence:** <Commands, outputs, observations, and execution owner.>
+**Pass rule:** <Expected outputs, errors, effects and allowed variation.>
+**Cleanup:** <Reset temporary state/resources.>
+**Evidence:** <Commands/results or manual authority and inspected artifact.>
 
-<For nondeterministic behavior, fix sampling and thresholds. Identify manual authorities and inspected artifacts where applicable. The planner prepares executable checks and freezes their identities before implementation; an unavailable mandatory check blocks execution acceptance.>
+<Specify sampling/thresholds for nondeterministic behavior and required real-dependency checks. Unavailable required execution blocks acceptance.>

@@ -59,7 +59,7 @@ The proposed task loop followed by an independent E2E evaluator has direct suppo
 
 Retain task-level behavioral, interface, and regression checks when deferring the review agent. Final evaluation should combine frozen assembled-app scenarios with exploratory assessment and relevant code-level checks. A browser journey alone cannot establish every requirement.
 
-Distinguish a provisional task whose checks passed from an independently accepted task. The current contract forbids unreviewed prerequisites from unlocking consumers, so deferred review requires an explicit policy revision. Removing central LLM coordination can preserve the existing gates; changing review frequency changes acceptance semantics. [Contract §§3–5](../spec-source-suite/docs/SUITE_CONTRACT.md#3-graph-ownership-and-execution).
+Distinguish a provisional task whose checks passed from an independently accepted task. The current contract forbids unreviewed prerequisites from unlocking consumers, so deferred review requires an explicit policy revision. Removing central LLM coordination can preserve the existing gates; changing review frequency changes acceptance semantics. [Contract §§3–5](../spec-source-suite/docs/SUITE_CONTRACT.md).
 
 ## Reduce overhead through measured changes
 
@@ -67,7 +67,7 @@ Current research supports choosing architecture by workload. A controlled study 
 
 Repeated instructions are another candidate for reduction. Move enforceable rules into the runner and retain concise role-specific guidance. Research on repository context files found increased inference cost without general success improvements in its studied settings, motivating evaluation of instruction content rather than assuming more guidance helps. [Evaluating AGENTS.md, v3](https://arxiv.org/abs/2602.11988v3).
 
-For unattended execution, protect frozen checks and reviewer results through actual access controls where required. Digest checks detect changes but do not prevent them. [Strong isolation](../spec-source-suite/docs/STRONG_ISOLATION.md).
+For unattended execution, apply and test access controls where isolation is required. Report actual limits. [Reconstruction and isolation](../spec-source-suite/docs/REGENERATION.md).
 
 ## Recommended implementation order
 

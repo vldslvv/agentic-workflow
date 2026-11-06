@@ -1,31 +1,40 @@
 {
   "package": "Spec Source Suite",
-  "version": "0.3-draft",
+  "version": "0.4-draft",
   "checked_date": "2026-11-06",
   "status": "STRUCTURAL_CHECKS_PASSED",
-  "scope": "Public-interface testing guidance, autonomous documented testing exceptions, role workflows and evidence templates. Documentation scenarios and package structural validation only.",
+  "scope": "Simplified instruction workflows, entry points, templates, package inventory and retained usage helper tests. No app generation or runner implementation.",
   "checks": {
+    "instruction_reduction": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/004-simplify-suite/instruction-counts.json"
+    },
+    "local_links": {
+      "result": "PASS",
+      "count": 94,
+      "evidence": "../.suite/runs/004-simplify-suite/links.json"
+    },
+    "usage_tests": {
+      "result": "PASS",
+      "count": 7,
+      "evidence": "../.suite/runs/004-simplify-suite/usage-tests.log"
+    },
     "instruction_scenarios": {
       "result": "PASS",
-      "count": 6,
-      "method": "Manual instruction walkthrough",
-      "evidence": "../.suite/runs/003-public-interface-tests/VALIDATION.md"
+      "count": 8,
+      "method": "Manual documentation walkthrough",
+      "evidence": "../.suite/runs/004-simplify-suite/walkthroughs.md"
     },
-    "package_structure": {
+    "package_inventory": {
       "result": "PASS",
-      "evidence": "../.suite/runs/003-public-interface-tests/package-validation.json"
-    },
-    "checksum_inventory": {
-      "result": "PASS",
-      "evidence": "../.suite/runs/003-public-interface-tests/checksum-verification.log"
+      "evidence": "../.suite/runs/004-simplify-suite/package-validation.json"
     }
   },
-  "evidence": "../.suite/runs/003-public-interface-tests/",
-  "previous_package_checks": "../.suite/runs/003-public-interface-tests/package-checks-before.json",
+  "evidence": "../.suite/runs/004-simplify-suite/",
+  "previous_package_checks": "../.suite/runs/004-simplify-suite/package-checks-before.json",
   "not_executed": [
-    "Helper tests (helpers and tests unchanged)",
     "Live app generation or regeneration",
-    "Live multi-agent execution",
+    "Automated runner execution",
     "Enforced filesystem isolation"
   ]
 }

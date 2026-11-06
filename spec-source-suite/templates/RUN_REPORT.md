@@ -1,24 +1,17 @@
-# Run — <RUN ID>
+# Result — <task / run / review>
 
-**Task/scope/mode:** <Selected spec and requirement IDs; baseline commit; approval references.>
-**Input identities:** <Document/check inventory, dependencies, target, suite/prompts, adapters, retained inputs and their digests.>
-**Ownership and isolation:** <Allowed candidate paths, protected inputs, reviewer paths; requested/actual isolation, integrity observations and limitations.>
-**Context and usage:** <Role manifest paths and suite-controlled bytes; per-role cached/uncached input, output/reasoning, response/tool counts, elapsed time; unavailable fields explicit; outer-driver overhead separate.>
-**Agents and handoffs:** <Planner, implementer, reviewer identities/session IDs when available; actual input references; fresh reviewer context excludes plan/conversation.>
-**Environment and limits:** <Tools/versions, timestamps, explicit cancellation/resource/infrastructure/specification stops; attempts continue until accepted; cost if available.>
+**Scope and candidate:** <Requirements/acceptance paths, implementation location/revision and relevant dependencies.>
+**Role and status:** <Author/reviewer; PASS, FAIL, BLOCKED or NOT_RUN; acceptance rationale or remaining work.>
 
-## Attempts and results
+| Requirement / check | Method and evidence | Outcome |
+|---|---|---|
+| <ID> | <Command, working directory, exit/result and useful output, or manual authority/artifact> | <PASS / FAIL / BLOCKED / NOT_RUN> |
 
-| Attempt | Candidate revision/digest | Requirement/gate | PASS / FAIL / BLOCKED / NOT_RUN | Method and raw evidence | Review findings / next action |
-|---|---|---|---|---|---|
-| 0 | <Identity> | <ID> | <Result> | <Commands, exit codes, outputs or manual observation> | <Reference> |
+**Findings and resolutions:** <Requirement-linked discrepancies, reproductions/evidence, repairs and unresolved actionable findings. Preserve useful failures and their resolution.>
+**Coverage and blockers:** <What the checks establish; substitutes, skipped checks and remaining gaps.>
+**Independent review:** <Fresh context/session, result path and confirmation of prior finding resolutions; exclude plans, conversations and memory from forwarded review inputs.>
+**Assembled app:** <Final execution evidence or why incomplete; omit for a task-only or document result.>
+**Usage:** <Source session/turn references and report links; totals and per-role/session statistics, available breakdowns, missing counters and limits. Reviewer may return references for the supervisor to aggregate.>
+**Reconstruction only:** <Allowed/retained inputs, target changes, actual isolation controls, exclusions/leakage and limitations.>
 
-Retain failed attempts and infrastructure incidents. Include independent review, integrity, dependency integration, manual gates, and assembled-app acceptance where applicable. Keep initial and repaired outcomes distinct. Record interventions and stale-evidence invalidation. Review details may be inline or use REVIEW.md; raw evidence remains linked.
-
-**Coverage assessment:** <Per-requirement public-interface check execution, coverage judgment, and review outcome separately; inventory versions and additive-check authorizations. Link testing exceptions with obstacles, affected IDs, remaining evidence, gaps and supervisor-authorized revisions; preserve skipped/blocked results and original failures.>
-
-**Supervisor decision:** <Scoped acceptance or remaining blockers; actual integrated candidate; reuse eligibility and missing checks.>
-
-## Only for regeneration / cross-target
-
-<Export inventory/digest, retained boundaries, new target/adapter identities, enforced controls or procedural limits, leakage, resumed provenance, and precise reconstruction claim. Ordinary runs omit this section.>
+Omit inapplicable fields. Document-only results record document validation, not app execution. This template also serves independent reviews; keep review findings distinct from the supervisor's acceptance decision.

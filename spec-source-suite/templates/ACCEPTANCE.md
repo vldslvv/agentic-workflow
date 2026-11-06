@@ -1,30 +1,15 @@
-# Acceptance record — <TASK ID>
+# Acceptance — <TASK ID>
 
-Save under `.suite/tasks/<NNN>-<task-id>/acceptance.md`. This record maps the standard bundle's behavior to checks. The task ID is the source filename stem; source files remain the specification authority.
+**Request:** <Authorizing request/decision.>
+**Sources and scope:** <Task file/source clauses, shared constraints, verification references and selected behavior.>
+**Prerequisites:** <Task IDs from source order and explicit declarations; accepted dependency contracts.>
+**Target and paths:** <Required target, implementation and evidence destinations.>
 
-**Baseline commit:** <Full pre-implementation Git commit.>
-**Source identities:** <Task file, project.md, task_order.md, verification.md, normative references, and their digests.>
-**Scope:** <Selected source clauses, boundary, and exclusions.>
-**Prerequisites:** <Task IDs derived from source order and explicit declarations; accepted revisions required for execution.>
+| Requirement ID | Source clause and observable outcome | Check method and pass rule |
+|---|---|---|
+| <ID> | <Source reference and required result> | <Public interface, inputs, expected outputs; setup/cleanup as needed> |
 
-## Requirements and checks
+**Shared/regression/final checks:** <References; include required real-dependency integration and manual criteria.>
+**Limits and unresolved decisions:** <Unavailable checks, substitutes and their fidelity, remaining evidence/coverage gaps, or none.>
 
-| Requirement ID | Source clause and observable acceptance criterion | Exercised public interface | Check ID and method | Setup, inputs, pass rule, cleanup, evidence |
-|---|---|---|---|---|
-| <TASK-ID>-R001 | <Exact source reference and approved criterion> | <API, endpoint, command, UI interaction, or pipeline input/output> | <CHECK-ID; reused/new test, command or authorized manual criterion> | <Concrete assessment; real dependency or safe substitute and its limits> |
-
-Reference shared scenarios in the bundle's verification.md. Include applicable dependency integration and regression checks. Record approved clarifications without copying source requirements; resolve conflicts before approval. The planner freezes executable checks and normative inputs before implementation.
-
-## Testing exceptions
-
-<None, or each exception under [shared contract §4](../docs/SUITE_CONTRACT.md#4-checks-and-repairs): affected requirement/check IDs, obstacle, alternatives considered, substitute and fidelity limits if used, remaining evidence, coverage gap, and planner/supervisor decision with authority/date. For post-freeze exceptions, reference the supervisor-authorized revision, original expectations/evidence and new frozen identities. Make this record available to the reviewer without plans/conversations.>
-
-<Record skipped tests as NOT_RUN or BLOCKED, preserve observed failures, and link the independent review's assessment of whether remaining evidence supports acceptance. An exception does not waive functional requirements or other acceptance gates.>
-
-## Retained inputs and approval
-
-<Required assets/data/services; unresolved decisions or none; approval reference binding this record, plan, and source digests to the baseline, authority, and decision. Follow shared contract §1 and planning-record rules for changes.>
-
-**Check sets:** <Task checks; declared regression set; separate final end-to-end scenarios.>
-**Coverage:** <Check execution, coverage assessment and independent review outcome are separate dispositions.>
-**Verifier revisions:** <Frozen inventory versions, authorized additive coverage and testing-exception revisions, retaining earlier bytes and evidence.>
+Source requirements remain authoritative. Record ordinary clarifications here; preserve explicitly approved text and report material conflicts. This record is available to reviewers without plans, conversations or memory.

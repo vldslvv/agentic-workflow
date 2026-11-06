@@ -1,12 +1,12 @@
 # Spec Source Suite
 
-Reusable guidance; app inputs, generated code and run evidence live outside this directory.
+App inputs, generated code and evidence live outside this reusable package.
 
-Read [shared contract](docs/SUITE_CONTRACT.md) once, then your role procedure:
+Read [shared rules](docs/SUITE_CONTRACT.md) once, then the routine for your role:
 
-- Planner/document author: [Define](docs/DEFINE.md).
+- Document author/planner: [Define](docs/DEFINE.md).
 - Implementer: [Implement](docs/IMPLEMENT.md).
-- Independent reviewer: [Reviewer](prompts/REVIEWER.md).
-- Supervisor/planner: [Generate](docs/GENERATE.md), then [Define](docs/DEFINE.md) when preparing a ready task.
+- Fresh independent reviewer: [Reviewer](prompts/REVIEWER.md); use only the restricted review inputs.
+- Supervisor: [Generate](docs/GENERATE.md), using Define as each task becomes ready.
 
-Role handoffs list required inputs and owned paths. Follow referenced branches only when applicable. Suite tooling changes follow user task acceptance; validate package references, metadata and checksums. Fixtures and walkthroughs remain distinct from live app experiments.
+For suite tooling changes follow the user's acceptance criteria and validate package links, metadata and retained tests. Documentation walkthroughs are distinct from live app experiments.

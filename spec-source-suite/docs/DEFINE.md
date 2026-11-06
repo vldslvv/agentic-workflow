@@ -1,27 +1,14 @@
 # Define — documents and ready-task planning
 
-Read [shared contract](SUITE_CONTRACT.md), [planning records](PLANNING.md) and [bundle format](MARKDOWN_BUNDLES.md). For app execution the supervisor performs this procedure for each ready task in its existing context. Scope determines the completion gate; writing future implementation steps does not execute them.
+1. Resolve current intent, selected sources, scope and accepted prerequisites. Read the [bundle format](MARKDOWN_BUNDLES.md) and relevant [memory](PROJECT_MEMORY.md). Preserve explicit constraints; choose reasonable defaults for unspecified details and surface material conflicts.
+2. Author requested documents using the bundle templates, or prepare source-linked [acceptance](../templates/ACCEPTANCE.md) for a ready task. Give requirements stable IDs, observable outcomes and proportionate check methods covering relevant normal, boundary, failure and interaction behavior. Link shared verification rather than copying it.
+3. Save the complete [plan](../templates/PLAN.md): approach, interfaces, dependency contracts, output paths, checks, evidence destination and relevant memory paths. Checks may be developed during implementation; describe expected outcomes now. Distinguish task checks, regressions and assembled-app scenarios. Record unavailable checks and remaining coverage gaps.
+4. Validate document consistency, source coverage, links, task order/prerequisites and verification descriptions. Document-only work finishes here with saved, validated documents; report generation readiness separately. App environments or implementation review are unnecessary for document authoring.
+5. For authorized implementation, hand the implementer the full plan, acceptance, sources, dependency contracts and relevant memory paths. A direct implementation request already authorizes derived records. On completion or a blocked stop, save concise results, usage and useful memory.
 
-## D1. Resolve authority and scope
+## Records
 
-Use current user intent/selected sources and accepted dependency contracts. Preserve source provenance and explicit constraints; resolve unspecified implementation choices with simple recorded defaults under contract §1. Material contradictions require a decision. Keep discovery within current scope and stop when authoritative inputs are resolved.
-
-For ordinary planning, select relevant notes through [project memory — starting inputs](PROJECT_MEMORY.md#starting-and-retaining-inputs); regeneration planning follows its exclusion boundary.
-
-## D2. Define acceptance and boundaries
-
-For new authorized authoring use the [bundle templates](../templates/bundle/project.md); preserve existing approved bundles in place. Map current task clauses/digests to stable requirement IDs and prerequisites using [acceptance](../templates/ACCEPTANCE.md). Cover applicable normal, boundary, error and interaction behavior. Shared constraints belong in project.md, shared/final scenarios in verification.md. Validate references and the derived graph.
-
-## D3. Prepare scoped plan/checks
-
-Use [plan](../templates/PLAN.md) for implementation approach, interfaces, dependency identities, ownership and integration. For documentation-only scope describe future checks without creating app environments/executables. For authorized handoff scope identify the public boundary and select existing tests or author coverage for gaps under [contract §4](SUITE_CONTRACT.md#4-checks-and-repairs). Link tests to requirements, record substitutes or testing exceptions, and define task checks, declared regression set and applicable manual criteria with explicit pass rules. Reference shared scenarios instead of copying them; final scenarios stay separate. Freeze executable checks and all normative inputs before implementation.
-
-## D4. Persist and hand off
-
-Apply [planning-record](PLANNING.md) authority/persistence rules. Derived handoffs under a supplied implementation request need no extra approval prompt; exact explicitly approved text stays unchanged. Record a compact [receipt](../templates/RECEIPT.json) with paths/digests, readiness and unresolved decisions; return it when planning was delegated. Supply separate implementer/reviewer manifests, retaining reviewer exclusions.
-
-Retain selected [memory inputs](PROJECT_MEMORY.md#starting-and-retaining-inputs) before freezing handoffs. When this completes the requested task, apply [memory maintenance](PROJECT_MEMORY.md#completing-and-maintaining).
-
-**Document-completion gate:** requested documents saved/authorized with baseline and digests; consistency, coverage, references, graph and verification descriptions validated. No app candidate, execution or implementation review is required. Report generation readiness separately.
-
-**Implementation-handoff gate:** document gate plus all prescribed available executable/manual checks, recorded testing exceptions and frozen inventory. Implementation must be authorized; an existing direct implementation request already supplies authority. Changes follow [CHANGE](../templates/CHANGE.md). Later reviewer reproductions and testing exceptions follow contract §4's delegated policies.
+- Keep `plan.md` and `acceptance.md` in `.suite/tasks/<NNN>-<task-id>/`; default run evidence is `.suite/runs/<NNN>-<task-id>/`. Allocate the next shared three-digit number by listing immediate directory names in both roots, without reading prior records.
+- Record the authorizing request or decision in the task documents. Preserve complete explicitly approved text. Ordinary derived details need no separate approval receipt. Required behavior changes need user authority; retain earlier approved versions when revising them.
+- Continuing work loads the identified complete records and relevant current state. Recover missing approved originals from that task's known source/conversation; if unavailable, report locations checked and request them instead of inventing text from a summary.
+- In Plan mode, present complete drafts and state when saving is deferred. Save approved text once editing is available, before implementation or handoff. Approval alone does not authorize execution, but an existing implementation instruction does.
