@@ -1,6 +1,6 @@
 # Acceptance record — <TASK ID>
 
-Save under `.agents/tasks/<NNN>-<task-id>/acceptance.md`. This record maps the standard bundle's behavior to checks. The task ID is the source filename stem; source files remain the specification authority.
+Save under `.suite/tasks/<NNN>-<task-id>/acceptance.md`. This record maps the standard bundle's behavior to checks. The task ID is the source filename stem; source files remain the specification authority.
 
 **Baseline commit:** <Full pre-implementation Git commit.>
 **Source identities:** <Task file, project.md, task_order.md, verification.md, normative references, and their digests.>

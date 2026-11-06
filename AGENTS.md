@@ -5,7 +5,7 @@
 Classify the request before discovery:
 
 - Fresh work: current brief or selected bundle; curated [project memory](spec-source-suite/docs/PROJECT_MEMORY.md) is available to ordinary planners without searching prior task records/runs/conversations.
-- Continuing work: identified task paths or execution-inventory references only. Resolve a bare task ID by immediate `.agents/tasks/` directory suffix; ask if absent/ambiguous. If continuation itself is unclear, ask before searching history.
+- Continuing work: identified task paths or execution-inventory references only. Resolve a bare task ID by immediate `.suite/tasks/` directory suffix; ask if absent/ambiguous. If continuation itself is unclear, ask before searching history.
 - Advice/guidance changes: requested files and relevant references; no task-history discovery.
 
 Before app work read [suite router](spec-source-suite/AGENTS.md) and [shared contract](spec-source-suite/docs/SUITE_CONTRACT.md) once. Load your role procedure through that router. Skills are short entry points: [Define](spec-source-suite/.agents/skills/spec-define/SKILL.md), [Implement](spec-source-suite/.agents/skills/spec-implement/SKILL.md), [Generate](spec-source-suite/.agents/skills/spec-generate/SKILL.md). Reviewers use their restricted handoff instead of loading plans or other role procedures.

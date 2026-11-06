@@ -18,7 +18,7 @@ plan stays in Define, including when requested as “implement the plan.” Repo
 document approval/completion separately from deferred app-generation readiness.
 
 Choose a short task ID, reusing the user's ID when provided. Allocate the next
-unused three-digit directory prefix across `.agents/tasks/` and `.suite/runs/`
+unused three-digit directory prefix across `.suite/tasks/` and `.suite/runs/`
 under planning-record rules; use the same prefix for a task and its run directory. Record the full baseline Git commit before implementation, normally
 `git rev-parse HEAD`; if work has already started, establish the actual baseline
 with the user. Present a concise draft containing the task ID, baseline commit,
@@ -31,7 +31,7 @@ questions visibly separate from agreed requirements.
 Present the complete draft in the conversation and explicitly ask the user to
 approve it. Wait for explicit approval of the current draft; revisions require
 presenting the revised draft for approval. Save only after approval, using
-`.agents/tasks/<NNN>-<task-id>/acceptance.md`, and preserve the approved text exactly.
+`.suite/tasks/<NNN>-<task-id>/acceptance.md`, and preserve the approved text exactly.
 Do not overwrite an existing approved specification without explicit authorization.
 When the task uses this repository's specification workflow, also preserve the
 complete approved plan as `plan.md` in the same directory and record both document

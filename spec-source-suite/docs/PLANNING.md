@@ -4,9 +4,9 @@ Planning reference for the supervisor or an explicitly delegated planner, reache
 
 ## Task records
 
-Keep the complete plan and authoritative source-linked acceptance in `.agents/tasks/<NNN>-<task-id>/`, plus approval record identifying the full baseline Git commit, both document digests, normative source digests, authority and conversation/decision reference. Direct implementation requests authorize agent-authored derived handoffs; label them accordingly. For explicitly reviewed documents preserve exact approved bytes. Plans explain implementation, never replace requirements.
+Keep the complete plan and authoritative source-linked acceptance in `.suite/tasks/<NNN>-<task-id>/`, plus approval record identifying the full baseline Git commit, both document digests, normative source digests, authority and conversation/decision reference. Direct implementation requests authorize agent-authored derived handoffs; label them accordingly. For explicitly reviewed documents preserve exact approved bytes. Plans explain implementation, never replace requirements.
 
-Allocate the next shared three-digit sequence across immediate directory names in `.agents/tasks/` and `.suite/runs/`; do not read earlier documents for allocation. Logical task IDs remain separate from storage prefixes. Resolve a supplied ID by its numbered suffix and ask on ambiguity. Relocation preserves approved text/history and records old-to-new references.
+Allocate the next shared three-digit sequence across immediate directory names in `.suite/tasks/` and `.suite/runs/`; do not read earlier documents for allocation. Logical task IDs remain separate from storage prefixes. Resolve a supplied ID by its numbered suffix and ask on ambiguity. Relocation preserves approved text/history and records old-to-new references.
 
 For continuing work use identified records and relevant state only. If approved originals are missing, recover complete text and approval from that task's known conversation/local transcript; a summary cannot replace it. If unavailable, state locations checked and request missing inputs. Fresh work uses current sources without history discovery.
 

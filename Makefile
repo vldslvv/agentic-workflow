@@ -8,7 +8,7 @@ REPO_ROOT := $(shell dirname -- "$(MAKEFILE_LIST)")
 help:
 	@echo "make clean        Remove run evidence and task records"
 	@echo "make clean-runs   Remove .suite/runs/"
-	@echo "make clean-tasks  Remove .agents/tasks/"
+	@echo "make clean-tasks  Remove .suite/tasks/"
 
 clean: clean-runs clean-tasks
 
@@ -16,4 +16,4 @@ clean-runs:
 	rm -rf -- "$(REPO_ROOT)/.suite/runs"
 
 clean-tasks:
-	rm -rf -- "$(REPO_ROOT)/.agents/tasks"
+	rm -rf -- "$(REPO_ROOT)/.suite/tasks"

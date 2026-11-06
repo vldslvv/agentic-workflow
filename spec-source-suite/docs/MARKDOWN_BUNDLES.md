@@ -19,7 +19,7 @@ Each task in the ordered list waits for the preceding task's acceptance. Record 
 
 ## Prepare the execution handoff
 
-Use [Define](DEFINE.md) to complete the acceptance and check mapping. Each `.agents/tasks/<NNN>-<task-id>/acceptance.md` references its original task file, shared project constraints, relevant verification intent, source digests, requirement IDs, and normalized dependencies. It adds approved observable criteria only where needed; it does not copy or replace the source behavior. Any conflict between the record and its sources must be resolved before approval. Preserve a complete plan and digest-bound approval record under [planning records](PLANNING.md), including the referenced source identities.
+Use [Define](DEFINE.md) to complete the acceptance and check mapping. Each `.suite/tasks/<NNN>-<task-id>/acceptance.md` references its original task file, shared project constraints, relevant verification intent, source digests, requirement IDs, and normalized dependencies. It adds approved observable criteria only where needed; it does not copy or replace the source behavior. Any conflict between the record and its sources must be resolved before approval. Preserve a complete plan and digest-bound approval record under [planning records](PLANNING.md), including the referenced source identities.
 
 Put the execution input inventory in a shared, planner-owned `inputs.md` alongside those task records, outside the source bundle and generated output. It records:
 
