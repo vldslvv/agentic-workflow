@@ -1,0 +1,43 @@
+{
+  "platform": "Linux-7.3.1-gentoo-dist-x86_64-AMD_Ryzen_9_9950X_16-Core_Processor-with-glibc2.44",
+  "python": "3.14.10",
+  "commands": [
+    {
+      "command": [
+        "rustc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "rustc 1.99.0 (b940084d7 2026-09-28)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cargo",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "cargo 1.99.0 (5f94df478 2026-08-27)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "docker",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "Docker version 29.9.0, build f415da838bed6a0e12ca6cb86ba198fdac6beb9c\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "version"
+      ],
+      "exit_code": 0,
+      "stdout": "Docker Compose version v5.6.0\n",
+      "stderr": ""
+    }
+  ]
+}

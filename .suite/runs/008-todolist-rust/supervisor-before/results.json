@@ -1,0 +1,13 @@
+{
+  "stage": "integrity",
+  "passed_requirements": [],
+  "integrity_before": {
+    "result": "PASS",
+    "files_checked": 29
+  },
+  "integrity_after": {
+    "result": "PASS",
+    "files_checked": 29
+  },
+  "status": "PASS"
+}

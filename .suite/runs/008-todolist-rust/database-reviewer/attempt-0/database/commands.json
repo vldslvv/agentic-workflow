@@ -1,0 +1,746 @@
+[
+  {
+    "command": [
+      "cargo",
+      "build",
+      "--locked"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s\n"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "up",
+      "-d",
+      "--wait",
+      "--wait-timeout",
+      "90"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": " Network todolist-rust-accept-140626_default Creating \n Volume todolist-rust-accept-140626_postgres_data Creating \n Network todolist-rust-accept-140626_default Creating \n Volume todolist-rust-accept-140626_postgres_data Creating \n Volume todolist-rust-accept-140626_postgres_data Created \n Volume todolist-rust-accept-140626_postgres_data Created \n Network todolist-rust-accept-140626_default Created \n Network todolist-rust-accept-140626_default Created \n Container todolist-rust-accept-140626-db-1 Creating \n Container todolist-rust-accept-140626-db-1 Created \n Container todolist-rust-accept-140626-db-1 Starting \n Container todolist-rust-accept-140626-db-1 Started \n Container todolist-rust-accept-140626-db-1 Waiting \n Container todolist-rust-accept-140626-db-1 Healthy \n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "Usage: todolist <command>\n\nCommands:\n  add DESCRIPTION  Add a task (quote descriptions containing spaces)\n  list             List active tasks\n  complete ID      Mark a task completed\n  delete ID        Delete a task\n  help             Show this help\n\nUse --help or no arguments to show help.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "help"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "Usage: todolist <command>\n\nCommands:\n  add DESCRIPTION  Add a task (quote descriptions containing spaces)\n  list             List active tasks\n  complete ID      Mark a task completed\n  delete ID        Delete a task\n  help             Show this help\n\nUse --help or no arguments to show help.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "--help"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "Usage: todolist <command>\n\nCommands:\n  add DESCRIPTION  Add a task (quote descriptions containing spaces)\n  list             List active tasks\n  complete ID      Mark a task completed\n  delete ID        Delete a task\n  help             Show this help\n\nUse --help or no arguments to show help.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "list"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "id\tstatus\tdescription\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "add",
+      "  Buy milk \ud83e\udd5b  "
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "Added task 1\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "add",
+      "Quote ' and ; SQL --"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "Added task 2\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "list"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "id\tstatus\tdescription\n1\tNew\tBuy milk \ud83e\udd5b\n2\tNew\tQuote ' and ; SQL --\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "complete",
+      "1"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "Completed task 1\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "complete",
+      "1"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "Completed task 1\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "list"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "id\tstatus\tdescription\n1\tCompleted\tBuy milk \ud83e\udd5b\n2\tNew\tQuote ' and ; SQL --\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "add",
+      "  "
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: task description must not be blank\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "add"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: invalid command or arguments\n\nUsage: todolist <command>\n\nCommands:\n  add DESCRIPTION  Add a task (quote descriptions containing spaces)\n  list             List active tasks\n  complete ID      Mark a task completed\n  delete ID        Delete a task\n  help             Show this help\n\nUse --help or no arguments to show help.\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "complete",
+      "wat"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: task ID must be a positive integer\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "delete",
+      "-1"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: task ID must be a positive integer\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "complete",
+      "999999"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: task 999999 not found\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "delete",
+      "999999"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: task 999999 not found\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "unknown"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: invalid command or arguments\n\nUsage: todolist <command>\n\nCommands:\n  add DESCRIPTION  Add a task (quote descriptions containing spaces)\n  list             List active tasks\n  complete ID      Mark a task completed\n  delete ID        Delete a task\n  help             Show this help\n\nUse --help or no arguments to show help.\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "list",
+      "extra"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: invalid command or arguments\n\nUsage: todolist <command>\n\nCommands:\n  add DESCRIPTION  Add a task (quote descriptions containing spaces)\n  list             List active tasks\n  complete ID      Mark a task completed\n  delete ID        Delete a task\n  help             Show this help\n\nUse --help or no arguments to show help.\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "list"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "id\tstatus\tdescription\n1\tCompleted\tBuy milk \ud83e\udd5b\n2\tNew\tQuote ' and ; SQL --\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "delete",
+      "2"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "Deleted task 2\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "delete",
+      "2"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: task 2 not found\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "complete",
+      "2"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: task 2 not found\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "list"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "id\tstatus\tdescription\n1\tCompleted\tBuy milk \ud83e\udd5b\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "add",
+      "Third"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "Added task 3\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "list"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "id\tstatus\tdescription\n1\tCompleted\tBuy milk \ud83e\udd5b\n3\tNew\tThird\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "list"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "id\tstatus\tdescription\n1\tCompleted\tBuy milk \ud83e\udd5b\n3\tNew\tThird\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "exec",
+      "-T",
+      "db",
+      "psql",
+      "-U",
+      "todolist",
+      "-d",
+      "todolist",
+      "-At",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema='public' AND table_name='tasks' ORDER BY ordinal_position"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "id|integer\ndescription|text\nadded|timestamp with time zone\nupdate|timestamp with time zone\nstatus|USER-DEFINED\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "exec",
+      "-T",
+      "db",
+      "psql",
+      "-U",
+      "todolist",
+      "-d",
+      "todolist",
+      "-At",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "SELECT e.enumlabel FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid JOIN information_schema.columns c ON c.udt_name=t.typname WHERE c.table_schema='public' AND c.table_name='tasks' AND c.column_name='status'"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "New\nCompleted\nDeleted\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "exec",
+      "-T",
+      "db",
+      "psql",
+      "-U",
+      "todolist",
+      "-d",
+      "todolist",
+      "-At",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "SELECT status::text FROM tasks WHERE id=1"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "Completed\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "exec",
+      "-T",
+      "db",
+      "psql",
+      "-U",
+      "todolist",
+      "-d",
+      "todolist",
+      "-At",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "SELECT status::text FROM tasks WHERE id=2"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "Deleted\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "exec",
+      "-T",
+      "db",
+      "psql",
+      "-U",
+      "todolist",
+      "-d",
+      "todolist",
+      "-At",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "SELECT count(*)=count(DISTINCT id) AND bool_and(id>0) FROM tasks"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "t\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "exec",
+      "-T",
+      "db",
+      "psql",
+      "-U",
+      "todolist",
+      "-d",
+      "todolist",
+      "-At",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "SELECT bool_and(added IS NOT NULL AND \"update\" IS NOT NULL AND \"update\">=added) FROM tasks"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "t\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "exec",
+      "-T",
+      "db",
+      "psql",
+      "-U",
+      "todolist",
+      "-d",
+      "todolist",
+      "-At",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "SELECT added::text FROM tasks WHERE id=3"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "2026-11-06 00:11:04.625511+00\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "exec",
+      "-T",
+      "db",
+      "psql",
+      "-U",
+      "todolist",
+      "-d",
+      "todolist",
+      "-At",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "SELECT \"update\"::text FROM tasks WHERE id=3"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "2026-11-06 00:11:04.625511+00\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "complete",
+      "3"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "Completed task 3\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "exec",
+      "-T",
+      "db",
+      "psql",
+      "-U",
+      "todolist",
+      "-d",
+      "todolist",
+      "-At",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "SELECT added::text FROM tasks WHERE id=3"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "2026-11-06 00:11:04.625511+00\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "exec",
+      "-T",
+      "db",
+      "psql",
+      "-U",
+      "todolist",
+      "-d",
+      "todolist",
+      "-At",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-c",
+      "SELECT \"update\">'2026-11-06 00:11:04.625511+00'::timestamptz FROM tasks WHERE id=3"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "t\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "list"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "id\tstatus\tdescription\n1\tCompleted\tBuy milk \ud83e\udd5b\n3\tCompleted\tThird\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "restart",
+      "db"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": " Container todolist-rust-accept-140626-db-1 Restarting \n Container todolist-rust-accept-140626-db-1 Started \n"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "up",
+      "-d",
+      "--wait",
+      "--wait-timeout",
+      "60"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": " Container todolist-rust-accept-140626-db-1 Running \n Container todolist-rust-accept-140626-db-1 Waiting \n Container todolist-rust-accept-140626-db-1 Healthy \n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "list"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 0,
+    "stdout": "id\tstatus\tdescription\n1\tCompleted\tBuy milk \ud83e\udd5b\n3\tCompleted\tThird\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "stop",
+      "db"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": " Container todolist-rust-accept-140626-db-1 Stopping \n Container todolist-rust-accept-140626-db-1 Stopped \n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "list"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: database connection failed: error connecting to server\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "add",
+      "offline"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: database connection failed: error connecting to server\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "complete",
+      "1"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: database connection failed: error connecting to server\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "delete",
+      "1"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: database connection failed: error connecting to server\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "help"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: database connection failed: error connecting to server\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+      "--help"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: database connection failed: error connecting to server\n"
+  },
+  {
+    "command": [
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist"
+    ],
+    "cwd": "/tmp/todo-rust-db-99kzjk0w",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Error: database connection failed: error connecting to server\n"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-f",
+      "/home/vv/ccode/generate-prototype/apps/todolist_rust/compose.yaml",
+      "-p",
+      "todolist-rust-accept-140626",
+      "down",
+      "-v",
+      "--remove-orphans"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype/apps/todolist_rust",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": " Container todolist-rust-accept-140626-db-1 Stopping \n Container todolist-rust-accept-140626-db-1 Stopped \n Container todolist-rust-accept-140626-db-1 Removing \n Container todolist-rust-accept-140626-db-1 Removed \n Volume todolist-rust-accept-140626_postgres_data Removing \n Network todolist-rust-accept-140626_default Removing \n Volume todolist-rust-accept-140626_postgres_data Removed \n Network todolist-rust-accept-140626_default Removed \n"
+  }
+]

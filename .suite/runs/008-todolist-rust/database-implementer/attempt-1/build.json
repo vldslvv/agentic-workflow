@@ -1,0 +1,36 @@
+[
+  {
+    "command": [
+      "cargo",
+      "fmt",
+      "--check"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "cargo",
+      "build",
+      "--locked"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "   Compiling todolist v0.1.0 (/home/vv/ccode/generate-prototype/apps/todolist_rust)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.21s\n"
+  },
+  {
+    "command": [
+      "cargo",
+      "clippy",
+      "--locked",
+      "--all-targets",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "    Checking todolist v0.1.0 (/home/vv/ccode/generate-prototype/apps/todolist_rust)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s\n"
+  }
+]

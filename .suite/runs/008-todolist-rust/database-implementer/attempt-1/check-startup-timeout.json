@@ -1,0 +1,13 @@
+{
+  "requirement": "D2",
+  "scenario": "TCP accepted; PostgreSQL handshake stalled",
+  "command": [
+    "/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/todolist",
+    "help"
+  ],
+  "exit_code": 1,
+  "stdout": "",
+  "stderr": "Error: database connection or initialization timed out\n",
+  "elapsed_seconds": 5.00114376500278,
+  "status": "PASS"
+}

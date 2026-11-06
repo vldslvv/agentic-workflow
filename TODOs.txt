@@ -1,0 +1,4 @@
+Add test generation
+Add spec verification -- consider something like OpenSpec
+Generate make commands for app manipulation
+

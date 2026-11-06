@@ -1,0 +1,17 @@
+{
+  "authority": "User request: Implement specs/todolist_rust",
+  "decision_reference": "current conversation user instruction",
+  "policy": "SUITE_CONTRACT.md section 2 specification authorization",
+  "derived_documents": "agent-authored, not separately user-reviewed",
+  "baseline_commit": "07fd1484a33826b53c9e669b7490175bce1bd11a",
+  "source_sha256": {
+    "specs/todolist_rust/project.md": "0f4f1b1364105ad082878494f55a8a599b49b8c291ba2f625195acae36eb9689",
+    "specs/todolist_rust/task_order.md": "cd1ad9c78acbdf162874b8bef1c2eba80bd81eb12334da58f66786e3e22abbdf",
+    "specs/todolist_rust/tasks/01_business_logic.md": "1262a1da26f58cb390a87ac067f8775dc33c366e1da83ad3d2928ef96ad2556f",
+    "specs/todolist_rust/tasks/02_cli.md": "63c8988e27105cc3155a06a48fe087ec3ce42f49d7ce137137656253a02e85fd",
+    "specs/todolist_rust/tasks/03_database.md": "17385934deddfd8eb987b175cf69ff6e1699e615800513b94fd60794a7fbaa8b",
+    "specs/todolist_rust/verification.md": "01b5eeb3ceace6c7e6fb7565e72082f40dbc5296fcbdfbd6a57730b65ca014f6"
+  },
+  "plan_sha256": "b6f32ebcf63dbcdfa8719aace11d9b3c3f961c8904f9bced4cc52562f676947f",
+  "acceptance_sha256": "33fd28afc0f8541ca09db80459320b7e1696ab122f50a40394c9ec04070b9b90"
+}

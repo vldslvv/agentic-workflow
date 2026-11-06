@@ -1,0 +1,28 @@
+{
+  "stage": "business",
+  "passed_requirements": [
+    "B1",
+    "B2",
+    "B3",
+    "B4",
+    "B5"
+  ],
+  "integrity_before": {
+    "result": "PASS",
+    "files_checked": 29
+  },
+  "candidate": {
+    "files": {
+      ".gitignore": "1c6b234af152ff503ff94556bf395fe0cc763222ecafad6bee6b1633f3d6413a",
+      "Cargo.lock": "b4f88da5a105cee82698f0ab15610b5e1895915bbf807d8e924460fee5cb25ec",
+      "Cargo.toml": "324b8327e815a49dd52f5220a2f91c75e6f7d111335e28d6ce90fff2973d60fd",
+      "src/lib.rs": "95e6c1e74465703cc8a1d2910735fe070135aeeaa27e383ba9733b9731fb8c05"
+    },
+    "sha256": "e0ddd6462a8e828d624f137d75f400676bb4b2a4458d2f734ae361a8a415281e"
+  },
+  "integrity_after": {
+    "result": "PASS",
+    "files_checked": 29
+  },
+  "status": "PASS"
+}
