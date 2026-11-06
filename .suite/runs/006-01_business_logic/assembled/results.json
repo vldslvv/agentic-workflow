@@ -1,0 +1,118 @@
+{
+  "A1": {
+    "status": "PASS",
+    "events": [
+      {
+        "argv": [
+          "uv",
+          "run",
+          "--offline",
+          "--no-sync",
+          "--project",
+          "/tmp/todo-cli-r60z0_6g/app",
+          "todo",
+          "add",
+          "Finish report"
+        ],
+        "cwd": "/tmp/todo-cli-r60z0_6g/app",
+        "exit_code": 0,
+        "stdout": "Added task 1: Finish report\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "uv",
+          "run",
+          "--offline",
+          "--no-sync",
+          "--project",
+          "/tmp/todo-cli-r60z0_6g/app",
+          "todo",
+          "add",
+          "Discard draft"
+        ],
+        "cwd": "/tmp/todo-cli-r60z0_6g/app",
+        "exit_code": 0,
+        "stdout": "Added task 2: Discard draft\n",
+        "stderr": ""
+      },
+      {
+        "storage": [
+          {
+            "id": 1,
+            "title": "Finish report",
+            "completed": false
+          },
+          {
+            "id": 2,
+            "title": "Discard draft",
+            "completed": false
+          }
+        ]
+      },
+      {
+        "argv": [
+          "uv",
+          "run",
+          "--offline",
+          "--no-sync",
+          "--project",
+          "/tmp/todo-cli-r60z0_6g/app",
+          "todo",
+          "complete",
+          "1"
+        ],
+        "cwd": "/tmp/todo-cli-r60z0_6g/elsewhere",
+        "exit_code": 0,
+        "stdout": "Completed task 1.\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "uv",
+          "run",
+          "--offline",
+          "--no-sync",
+          "--project",
+          "/tmp/todo-cli-r60z0_6g/app",
+          "todo",
+          "delete",
+          "2"
+        ],
+        "cwd": "/tmp/todo-cli-r60z0_6g/elsewhere",
+        "exit_code": 0,
+        "stdout": "Deleted task 2.\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "uv",
+          "run",
+          "--offline",
+          "--no-sync",
+          "--project",
+          "/tmp/todo-cli-r60z0_6g/app",
+          "todo",
+          "list"
+        ],
+        "cwd": "/tmp/todo-cli-r60z0_6g/elsewhere",
+        "exit_code": 0,
+        "stdout": "1 [x] Finish report\n",
+        "stderr": ""
+      },
+      {
+        "storage": [
+          {
+            "id": 1,
+            "title": "Finish report",
+            "completed": true
+          }
+        ]
+      }
+    ]
+  },
+  "candidate-integrity": {
+    "status": "PASS",
+    "events": []
+  }
+}

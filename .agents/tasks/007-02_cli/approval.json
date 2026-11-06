@@ -1,0 +1,20 @@
+{
+  "task": "02_cli",
+  "status": "authorized",
+  "baseline_commit": "07fd1484a33826b53c9e669b7490175bce1bd11a",
+  "authority": "user",
+  "approval_reference": "User: Implement todo app using specs/todolist specifications. Follow-up: Don't ask me for approval -- specs are enough. Adjust your instructions to not do that.",
+  "implementation_authorization": "User: Implement todo app using specs/todolist specifications",
+  "documents": {
+    ".agents/tasks/007-02_cli/plan.md": "95ecc16539e23243ab9d30b2836ac1cd6740622dc2df73f731bbbdd76d8d60f1",
+    ".agents/tasks/007-02_cli/acceptance.md": "aa7bcf0713c79c87d9e1dc0d17aff0b82411cb0c70ef90cb2109dd48ffb4f770"
+  },
+  "sources": {
+    "specs/todolist/project.md": "583d6507f3e0d4eb48ba9010ec0ea25c5f4450038a559d901c1ad1a407b9d487",
+    "specs/todolist/task_order.md": "f89c23d15e659a2657fe7c7edb4b283e592f53adb26e1477c3c6f48340d19912",
+    "specs/todolist/tasks/01_business_logic.md": "1262a1da26f58cb390a87ac067f8775dc33c366e1da83ad3d2928ef96ad2556f",
+    "specs/todolist/tasks/02_cli.md": "63c8988e27105cc3155a06a48fe087ec3ce42f49d7ce137137656253a02e85fd",
+    "specs/todolist/verification.md": "01b5eeb3ceace6c7e6fb7565e72082f40dbc5296fcbdfbd6a57730b65ca014f6"
+  },
+  "interpretation": "Direct implementation authorization and delegated routine details. Source bundle unchanged. Derived plan/acceptance authored by planner; no claim of separate user text review."
+}

@@ -1,0 +1,64 @@
+[
+  {
+    "argv": [
+      "uv",
+      "sync",
+      "--locked",
+      "--project",
+      "apps/todolist"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "Resolved 1 package in 2ms\n   Building todolist @ file:///home/vv/ccode/generate-prototype/apps/todolist\n      Built todolist @ file:///home/vv/ccode/generate-prototype/apps/todolist\nPrepared 1 package in 457ms\nUninstalled 1 package in 0.11ms\nInstalled 1 package in 1ms\n ~ todolist==0.1.0 (from file:///home/vv/ccode/generate-prototype/apps/todolist)\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "build",
+      "--project",
+      "apps/todolist"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "Building source distribution...\nrunning egg_info\nwriting todolist.egg-info/PKG-INFO\nwriting dependency_links to todolist.egg-info/dependency_links.txt\nwriting entry points to todolist.egg-info/entry_points.txt\nwriting top-level names to todolist.egg-info/top_level.txt\nreading manifest file 'todolist.egg-info/SOURCES.txt'\nwriting manifest file 'todolist.egg-info/SOURCES.txt'\nrunning sdist\nrunning egg_info\nwriting todolist.egg-info/PKG-INFO\nwriting dependency_links to todolist.egg-info/dependency_links.txt\nwriting entry points to todolist.egg-info/entry_points.txt\nwriting top-level names to todolist.egg-info/top_level.txt\nreading manifest file 'todolist.egg-info/SOURCES.txt'\nwriting manifest file 'todolist.egg-info/SOURCES.txt'\nrunning check\ncreating todolist-0.1.0\ncreating todolist-0.1.0/todolist\ncreating todolist-0.1.0/todolist.egg-info\ncopying files to todolist-0.1.0...\ncopying README.md -> todolist-0.1.0\ncopying pyproject.toml -> todolist-0.1.0\ncopying todolist/__init__.py -> todolist-0.1.0/todolist\ncopying todolist/cli.py -> todolist-0.1.0/todolist\ncopying todolist/core.py -> todolist-0.1.0/todolist\ncopying todolist.egg-info/PKG-INFO -> todolist-0.1.0/todolist.egg-info\ncopying todolist.egg-info/SOURCES.txt -> todolist-0.1.0/todolist.egg-info\ncopying todolist.egg-info/dependency_links.txt -> todolist-0.1.0/todolist.egg-info\ncopying todolist.egg-info/entry_points.txt -> todolist-0.1.0/todolist.egg-info\ncopying todolist.egg-info/top_level.txt -> todolist-0.1.0/todolist.egg-info\nWriting todolist-0.1.0/setup.cfg\nCreating tar archive\nremoving 'todolist-0.1.0' (and everything under it)\nBuilding wheel from source distribution...\nrunning egg_info\nwriting todolist.egg-info/PKG-INFO\nwriting dependency_links to todolist.egg-info/dependency_links.txt\nwriting entry points to todolist.egg-info/entry_points.txt\nwriting top-level names to todolist.egg-info/top_level.txt\nreading manifest file 'todolist.egg-info/SOURCES.txt'\nwriting manifest file 'todolist.egg-info/SOURCES.txt'\nrunning bdist_wheel\nrunning build\nrunning build_py\ncreating build/lib/todolist\ncopying todolist/__init__.py -> build/lib/todolist\ncopying todolist/cli.py -> build/lib/todolist\ncopying todolist/core.py -> build/lib/todolist\nrunning egg_info\nwriting todolist.egg-info/PKG-INFO\nwriting dependency_links to todolist.egg-info/dependency_links.txt\nwriting entry points to todolist.egg-info/entry_points.txt\nwriting top-level names to todolist.egg-info/top_level.txt\nreading manifest file 'todolist.egg-info/SOURCES.txt'\nwriting manifest file 'todolist.egg-info/SOURCES.txt'\ninstalling to build/bdist.linux-x86_64/wheel\nrunning install\nrunning install_lib\ncreating build/bdist.linux-x86_64/wheel\ncreating build/bdist.linux-x86_64/wheel/todolist\ncopying build/lib/todolist/__init__.py -> build/bdist.linux-x86_64/wheel/./todolist\ncopying build/lib/todolist/cli.py -> build/bdist.linux-x86_64/wheel/./todolist\ncopying build/lib/todolist/core.py -> build/bdist.linux-x86_64/wheel/./todolist\nrunning install_egg_info\nCopying todolist.egg-info to build/bdist.linux-x86_64/wheel/./todolist-0.1.0-py3.14.egg-info\nrunning install_scripts\ncreating build/bdist.linux-x86_64/wheel/todolist-0.1.0.dist-info/WHEEL\ncreating '/home/vv/ccode/generate-prototype/apps/todolist/dist/.tmp-v8p5mntb/todolist-0.1.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it\nadding 'todolist/__init__.py'\nadding 'todolist/cli.py'\nadding 'todolist/core.py'\nadding 'todolist-0.1.0.dist-info/METADATA'\nadding 'todolist-0.1.0.dist-info/WHEEL'\nadding 'todolist-0.1.0.dist-info/entry_points.txt'\nadding 'todolist-0.1.0.dist-info/top_level.txt'\nadding 'todolist-0.1.0.dist-info/RECORD'\nremoving build/bdist.linux-x86_64/wheel\nSuccessfully built apps/todolist/dist/todolist-0.1.0.tar.gz\nSuccessfully built apps/todolist/dist/todolist-0.1.0-py3-none-any.whl\n"
+  },
+  {
+    "argv": [
+      "python3",
+      ".suite/runs/006-01_business_logic/checks/cli.py",
+      "--app",
+      "apps/todolist",
+      "--evidence",
+      ".suite/runs/006-01_business_logic/cli-implementer/attempt-0/cli"
+    ],
+    "exit_code": 0,
+    "stdout": "{\"C1\": \"PASS\", \"C2\": \"PASS\", \"C3\": \"PASS\", \"C4\": \"PASS\", \"C5\": \"PASS\", \"C6\": \"PASS\", \"A1\": \"PASS\", \"candidate-integrity\": \"PASS\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      ".suite/runs/006-01_business_logic/checks/business.py",
+      "--app",
+      "apps/todolist",
+      "--evidence",
+      ".suite/runs/006-01_business_logic/cli-implementer/attempt-0/business"
+    ],
+    "exit_code": 0,
+    "stdout": "{\"B1\": \"PASS\", \"B2\": \"PASS\", \"B3\": \"PASS\", \"B4\": \"PASS\", \"B5\": \"PASS\", \"B6\": \"PASS\", \"candidate-integrity\": \"PASS\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      ".suite/runs/006-01_business_logic/checks/integrity.py",
+      "--app",
+      "apps/todolist",
+      "--output",
+      ".suite/runs/006-01_business_logic/cli-implementer/attempt-0/integrity-after.json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\"input_integrity\": \"PASS\", \"candidate_sha256\": \"9b647fb50750f038a1299257df8788d2cbbe3033fa0a270d980fe3a652a3a518\", \"changed\": []}\n",
+    "stderr": ""
+  }
+]

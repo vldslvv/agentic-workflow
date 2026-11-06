@@ -33,7 +33,7 @@ The inventory and acceptance records are derived handoff artifacts, not alternat
 
 ## Assess readiness separately from format
 
-Natural-language tasks and broad verification suggestions may need clarification. Resolve observable interfaces, persisted-state semantics, applicable failures, and concrete pass rules before freezing checks. Preserve the user's requirements and distinguish proposals from approved behavior. Existing approvals apply only to their recorded documents and digests; an older similarly named app or task is not authority for the selected bundle.
+Natural-language tasks and broad verification suggestions need concrete interfaces, persisted-state semantics, applicable failures, and pass rules before checks are frozen. Apply the shared contract's specification authorization policy: record simple defaults for unspecified details and proceed under the implementation request; clarify material conflicts rather than requesting routine handoff approval. Preserve explicit user requirements. Existing historical approvals apply only to their recorded documents and digests; an older similarly named app or task is not authority for the selected bundle.
 
 An incomplete bundle is input for Define when authoring is authorized; missing required files block generation until prepared and approved. Other source material can inform authorized Define work, but execution requires the standard bundle. Report the missing layout explicitly rather than falling back to historical specification formats. No supplied project intent or specification material yields NO_PROJECT.
 

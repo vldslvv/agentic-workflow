@@ -20,9 +20,17 @@ Before implementation, require the approved bundle, selected requirement IDs, ac
 
 ## 2. Task records and approval
 
+### Specification authorization
+
+A user's request to implement or generate an identified specification bundle authorizes that source baseline, derived plans and acceptance mappings, executable-check preparation, and implementation. Record the request as the authority and bind source and handoff digests; do not claim the user separately reviewed agent-authored text. Prepare and freeze the handoff without asking for another approval. This policy governs approval language in the workflow, skills, and templates when a supplied bundle is selected for implementation.
+
+Resolve unspecified implementation details with simple defaults consistent with the supplied requirements and record those choices. Ask for clarification only when a material contradiction or unavailable required input prevents faithful implementation, or a consequential action exceeds the requested scope. Existing explicit constraints remain binding. A separate approval step applies when the user requests interactive planning/approval or when proposing changes to explicit source requirements; ordinary derived handoffs do not add such a gate.
+
+For a newly selected bundle, discover inputs from that bundle and its references. Historical task records are relevant only when explicitly referenced or when resuming the same task; they are not a prerequisite to new handoff preparation.
+
 Prefix task and run directories with a shared three-digit sequence (`001-`, `002-`, …), allocated from the next unused number across both roots. Keep the logical task ID separate from this storage prefix. Resolve an unprefixed task ID by its directory suffix; use explicit paths to resolve any ambiguity. A relocation preserves approved document bytes and historical evidence, records old-to-new paths, and updates active references.
 
-The planner preserves the complete agreed `plan.md` and authoritative `acceptance.md` under `.agents/tasks/<NNN>-<task-id>/`, plus an approval record identifying the full baseline Git commit, the digests of both documents, approving authority, and the conversation/decision reference. Store the actual approved text, not a handoff summary. Bind referenced normative source digests in the approval record too. Each acceptance record identifies its source task, requirement mapping, and derived prerequisites; a follow-up task references the same source baseline and exact selected requirements.
+The planner preserves the complete `plan.md` and authoritative `acceptance.md` under `.agents/tasks/<NNN>-<task-id>/`, plus an authorization record identifying the full baseline Git commit, the digests of both documents, authority, and the conversation/decision reference. For explicitly reviewed documents, preserve the exact approved text. For a direct implementation request, identify derived documents as agent-authored under the specification authorization policy. Bind referenced normative source digests in the record too. Each acceptance record identifies its source task, requirement mapping, and derived prerequisites; a follow-up task references the same source baseline and exact selected requirements.
 
 In Plan mode, present both complete drafts for approval. If writing is unavailable, state that saving is deferred. On entering editing mode, save the approved text exactly and record its approval before implementation or context handoff. If a draft is lost, recover it or ask for it; never recreate it from a summary and label it approved. Approval alone does not start implementation: a separate instruction is required. Existing explicit approvals and implementation instructions remain valid across handoffs.
 

@@ -2,17 +2,27 @@
 
 This repository uses `spec-source-suite/` as reusable guidance for generating an app. The app's specification bundle lives outside that directory and defines what to build. Keep app specifications, target constraints, retained assets, generated code, and run evidence outside the suite. Modify the suite itself only when the user requests changes to the workflow tooling or guidance.
 
-## Locate existing task documents first
+## Resolve inputs for the current request
 
-When implementing, resuming, or receiving a task handoff, resolve its approved documents before asking the user to supply them:
+For a request to implement a supplied specification bundle, follow the [specification authorization policy](spec-source-suite/docs/SUITE_CONTRACT.md#specification-authorization): the request authorizes the bundle and derived handoff preparation. Record that authority, choose reasonable defaults for unspecified implementation details, and proceed without a separate plan or acceptance approval prompt.
 
-Use a shared three-digit sequence for each task and its run directory: `.agents/tasks/001-example/` and `.suite/runs/001-example/`, then `002-…`. Allocate the next unused number across both roots; preserve existing task IDs and approved text when renaming directories. For lookup by an unprefixed task ID, match the numbered directory suffix.
+Classify the request before discovering task records:
 
-1. Read any explicit task paths or execution-inventory task-record references. A user-selected Markdown bundle is authoritative for input discovery; use [Markdown bundles](spec-source-suite/docs/MARKDOWN_BUNDLES.md) to prepare its handoff rather than substituting historical task documents. Otherwise use the task ID from the request to open `.agents/tasks/<NNN>-<task-id>/plan.md`, `acceptance.md`, and the accompanying approval record, relative to this repository root.
-2. If the ID or files are missing, search hidden task directories explicitly with `rg --files --hidden .agents/tasks` and inspect matching task IDs, titles, and approval references. Default file searches can omit `.agents/`; an empty default search is not evidence that documents are absent.
-3. If saving was deferred or documents are still missing, inspect the identified prior task's available conversation history or local transcript to recover the complete approved originals and approval reference. Preserve exact text; a handoff summary cannot replace it.
+- **Starting fresh:** use the current brief or specification bundle. Never inspect past task records, runs, or conversations.
+- **Continuing existing work:** read the identified task's required documents and relevant run state, following dependencies only as needed for the current scope.
+- **Advice or repository guidance changes:** read the requested files and directly relevant references; task-history discovery is unnecessary.
 
-Ask the user only after these available sources are exhausted or conflicting records leave authority unresolved. State which locations were checked and what remains missing. Independent reviewers retain their restricted input boundary: read acceptance and approval records, never the plan or prior conversation.
+If it is unclear whether the request continues prior work, ask rather than searching history.
+
+For continuing work:
+
+1. Follow explicit task paths or execution-inventory task-record references. A user-selected Markdown bundle remains authoritative; use [Markdown bundles](spec-source-suite/docs/MARKDOWN_BUNDLES.md) to prepare its handoff rather than substituting historical task documents.
+2. If only a task ID is supplied, match immediate directory names under `.agents/tasks/` by their numbered suffix. Read only the matched task's required records, including `plan.md`, `acceptance.md`, and the accompanying approval record as appropriate to the role. If the task is unidentified or matches are ambiguous, ask for the task ID or path.
+3. If the identified task's records are missing or saving was deferred, recover the complete approved originals and approval reference from that task's known conversation or local transcript. Preserve exact text; a handoff summary cannot replace it. If recovery is unavailable or authority remains unresolved, state the specific locations checked and ask for what is missing.
+
+Stop discovery once the authoritative inputs are resolved. Independent reviewers retain their restricted input boundary: read acceptance and approval records, never the plan or prior conversation.
+
+When creating task/run directories, use a shared three-digit sequence: `.agents/tasks/001-example/` and `.suite/runs/001-example/`, then `002-…`. Allocate the next unused number across both roots by listing immediate directory names only; never read past task documents or run contents for allocation. Preserve existing task IDs and approved text when renaming directories.
 
 ## Load the workflow
 
@@ -39,7 +49,7 @@ For generation, also read the Implement skill and workflow: Generate orchestrate
 
 For documentation-only work, use Define's document-completion gate: approved, saved, internally consistent documents with verification descriptions. Report deferred app execution prerequisites separately as generation readiness. Writing an implementation-order document does not trigger its steps. The execution gates below apply to app implementation and generation, not document authoring.
 
-Before app implementation, establish the approved specification baseline, selected requirement IDs and scope, dependency graph, target constraints, verification arrangement, retained inputs, and authorized output paths required by the shared contract. Use existing approvals and delegated choices where applicable. Resolve missing decisions with the user instead of inventing a domain, stack, or deployment model. Missing required execution inputs yield `BLOCKED`.
+Before app implementation, establish the authorized specification baseline, selected requirement IDs and scope, dependency graph, target constraints, verification arrangement, retained inputs, and authorized output paths required by the shared contract. Apply the specification authorization policy to missing details; ask only about material conflicts or unavailable inputs that prevent a faithful implementation. Missing required execution inputs yield `BLOCKED`.
 
 Follow Generate's mode-specific workspace rules and Implement's review and verification loop. Keep the app bundle and acceptance baseline protected from implementation changes. Persist run state and requirement-linked evidence in the execution inventory's configured evidence directory, outside `spec-source-suite/`. Use the suite’s concise run-report and review templates when those steps are reached; the bundle's `verification.md` holds shared scenarios and acceptance records link task-specific checks. Follow the shared contract for planner-authored frozen checks, the implementer-spawned fresh reviewer, and the bounded correction loop. Initial and incremental work use procedural separation unless stronger isolation is explicitly required.
 

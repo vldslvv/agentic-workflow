@@ -96,5 +96,10 @@
     "Actual app generation or regeneration",
     "Sandbox enforcement",
     "Future app acceptance checks"
-  ]
+  ],
+  "authorization_policy_update": {
+    "status": "PASS",
+    "scope": "Markdown links, encoding, fences, and procedural inspection; app execution recorded separately.",
+    "evidence": "../.suite/runs/006-01_business_logic/workflow-validation.json"
+  }
 }

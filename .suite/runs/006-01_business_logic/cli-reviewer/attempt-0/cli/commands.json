@@ -1,0 +1,750 @@
+[
+  {
+    "argv": [
+      "uv",
+      "sync",
+      "--locked",
+      "--offline",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": "Using CPython 3.14.10 interpreter at: /usr/lib/python-exec/python3.14/python3\nCreating virtual environment at: /tmp/todo-cli-o1uyvloq/app/.venv\nResolved 1 package in 3ms\n   Building todolist @ file:///tmp/todo-cli-o1uyvloq/app\n      Built todolist @ file:///tmp/todo-cli-o1uyvloq/app\nPrepared 1 package in 432ms\nwarning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.\n         If the cache and target directories are on different filesystems, hardlinking may not be supported.\n         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.\nInstalled 1 package in 0.71ms\n + todolist==0.1.0 (from file:///tmp/todo-cli-o1uyvloq/app)\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "Buy caf\u00e9 beans"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Added task 1: Buy caf\u00e9 beans\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "Write notes"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Added task 2: Write notes\n",
+    "stderr": ""
+  },
+  {
+    "storage": [
+      {
+        "id": 1,
+        "title": "Buy caf\u00e9 beans",
+        "completed": false
+      },
+      {
+        "id": 2,
+        "title": "Write notes",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "1 [ ] Buy caf\u00e9 beans\n2 [ ] Write notes\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "Delete me"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Added task 1: Delete me\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "Keep me"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Added task 2: Keep me\n",
+    "stderr": ""
+  },
+  {
+    "storage": [
+      {
+        "id": 1,
+        "title": "Delete me",
+        "completed": false
+      },
+      {
+        "id": 2,
+        "title": "Keep me",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "delete",
+      "1"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Deleted task 1.\n",
+    "stderr": ""
+  },
+  {
+    "storage": [
+      {
+        "id": 2,
+        "title": "Keep me",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "2 [ ] Keep me\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "delete",
+      "999999"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: Task 999999 not found\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "Complete me"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Added task 1: Complete me\n",
+    "stderr": ""
+  },
+  {
+    "storage": [
+      {
+        "id": 1,
+        "title": "Complete me",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "complete",
+      "1"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Completed task 1.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "complete",
+      "1"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Completed task 1.\n",
+    "stderr": ""
+  },
+  {
+    "storage": [
+      {
+        "id": 1,
+        "title": "Complete me",
+        "completed": true
+      }
+    ]
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "1 [x] Complete me\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "complete",
+      "999999"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: Task 999999 not found\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "No tasks.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "Read only"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Added task 1: Read only\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "1 [ ] Read only\n",
+    "stderr": ""
+  },
+  {
+    "storage": [
+      {
+        "id": 1,
+        "title": "Read only",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "help"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "usage: todo [-h] {add,delete,complete,list,help} ...\n\nManage your tasks.\n\npositional arguments:\n  {add,delete,complete,list,help}\n    add                 Add a task\n    delete              Delete a task\n    complete            Mark a task complete\n    list                List all tasks\n    help                Show this help message\n\noptions:\n  -h, --help            show this help message and exit\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "--help"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "usage: todo [-h] {add,delete,complete,list,help} ...\n\nManage your tasks.\n\npositional arguments:\n  {add,delete,complete,list,help}\n    add                 Add a task\n    delete              Delete a task\n    complete            Mark a task complete\n    list                List all tasks\n    help                Show this help message\n\noptions:\n  -h, --help            show this help message and exit\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "help"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "usage: todo [-h] {add,delete,complete,list,help} ...\n\nManage your tasks.\n\npositional arguments:\n  {add,delete,complete,list,help}\n    add                 Add a task\n    delete              Delete a task\n    complete            Mark a task complete\n    list                List all tasks\n    help                Show this help message\n\noptions:\n  -h, --help            show this help message and exit\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "--help"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "usage: todo [-h] {add,delete,complete,list,help} ...\n\nManage your tasks.\n\npositional arguments:\n  {add,delete,complete,list,help}\n    add                 Add a task\n    delete              Delete a task\n    complete            Mark a task complete\n    list                List all tasks\n    help                Show this help message\n\noptions:\n  -h, --help            show this help message and exit\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "Keep bytes"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Added task 1: Keep bytes\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo [-h] {add,delete,complete,list,help} ...\ntodo: error: the following arguments are required: command\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "unknown"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo [-h] {add,delete,complete,list,help} ...\ntodo: error: argument command: invalid choice: 'unknown' (choose from 'add', 'delete', 'complete', 'list', 'help')\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo add [-h] title\ntodo add: error: the following arguments are required: title\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "  "
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: Task title must not be blank\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "delete",
+      "abc"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo delete [-h] id\ntodo delete: error: argument id: task ID must be a positive integer\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "delete",
+      "0"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo delete [-h] id\ntodo delete: error: argument id: task ID must be a positive integer\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "complete",
+      "-1"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo complete [-h] id\ntodo complete: error: argument id: task ID must be a positive integer\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: Invalid task data in /tmp/todo-cli-o1uyvloq/app/tasks.json: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "New"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: Invalid task data in /tmp/todo-cli-o1uyvloq/app/tasks.json: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "delete",
+      "1"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: Invalid task data in /tmp/todo-cli-o1uyvloq/app/tasks.json: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "complete",
+      "1"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: Invalid task data in /tmp/todo-cli-o1uyvloq/app/tasks.json: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: Cannot read tasks from /tmp/todo-cli-o1uyvloq/app/tasks.json: [Errno 21] Is a directory: '/tmp/todo-cli-o1uyvloq/app/tasks.json'\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "New"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: Cannot read tasks from /tmp/todo-cli-o1uyvloq/app/tasks.json: [Errno 21] Is a directory: '/tmp/todo-cli-o1uyvloq/app/tasks.json'\n"
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "Finish report"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Added task 1: Finish report\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "add",
+      "Discard draft"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/app",
+    "exit_code": 0,
+    "stdout": "Added task 2: Discard draft\n",
+    "stderr": ""
+  },
+  {
+    "storage": [
+      {
+        "id": 1,
+        "title": "Finish report",
+        "completed": false
+      },
+      {
+        "id": 2,
+        "title": "Discard draft",
+        "completed": false
+      }
+    ]
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "complete",
+      "1"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/elsewhere",
+    "exit_code": 0,
+    "stdout": "Completed task 1.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "delete",
+      "2"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/elsewhere",
+    "exit_code": 0,
+    "stdout": "Deleted task 2.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "uv",
+      "run",
+      "--offline",
+      "--no-sync",
+      "--project",
+      "/tmp/todo-cli-o1uyvloq/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/todo-cli-o1uyvloq/elsewhere",
+    "exit_code": 0,
+    "stdout": "1 [x] Finish report\n",
+    "stderr": ""
+  },
+  {
+    "storage": [
+      {
+        "id": 1,
+        "title": "Finish report",
+        "completed": true
+      }
+    ]
+  }
+]

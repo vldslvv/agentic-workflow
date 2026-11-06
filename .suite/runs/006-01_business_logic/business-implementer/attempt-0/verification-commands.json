@@ -1,0 +1,51 @@
+[
+  {
+    "argv": [
+      "python3",
+      ".suite/runs/006-01_business_logic/checks/integrity.py",
+      "--app",
+      "apps/todolist",
+      "--output",
+      ".suite/runs/006-01_business_logic/business-implementer/attempt-0/integrity-candidate.json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\"input_integrity\": \"PASS\", \"candidate_sha256\": \"33106f6fd42bcef808162a0ff0016ba53105797fc1369aa3cb4c3239f125964f\", \"changed\": []}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      ".suite/runs/006-01_business_logic/checks/business.py",
+      "--app",
+      "apps/todolist",
+      "--evidence",
+      ".suite/runs/006-01_business_logic/business-implementer/attempt-0/business"
+    ],
+    "exit_code": 0,
+    "stdout": "{\"B1\": \"PASS\", \"B2\": \"PASS\", \"B3\": \"PASS\", \"B4\": \"PASS\", \"B5\": \"PASS\", \"B6\": \"PASS\", \"candidate-integrity\": \"PASS\"}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "python3",
+      ".suite/runs/006-01_business_logic/checks/integrity.py",
+      "--app",
+      "apps/todolist",
+      "--output",
+      ".suite/runs/006-01_business_logic/business-implementer/attempt-0/integrity-after.json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\"input_integrity\": \"PASS\", \"candidate_sha256\": \"33106f6fd42bcef808162a0ff0016ba53105797fc1369aa3cb4c3239f125964f\", \"changed\": []}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "status",
+      "--short"
+    ],
+    "exit_code": 0,
+    "stdout": "AM .agents/tasks/006-01_business_logic/acceptance.md\nAM .agents/tasks/006-01_business_logic/approval.json\nAM .agents/tasks/006-01_business_logic/inputs.md\nAM .agents/tasks/006-01_business_logic/plan.md\nAM .agents/tasks/007-02_cli/acceptance.md\nAM .agents/tasks/007-02_cli/approval.json\nAM .agents/tasks/007-02_cli/plan.md\nAM .suite/runs/006-01_business_logic/RUN_REPORT.md\nMM AGENTS.md\n M spec-source-suite/PACKAGE_CHECKS.json\n M spec-source-suite/SHA256SUMS\nM  spec-source-suite/docs/DEFINE.md\nM  spec-source-suite/docs/MARKDOWN_BUNDLES.md\nM  spec-source-suite/docs/SUITE_CONTRACT.md\n?? .suite/runs/006-01_business_logic/business-implementer/\n?? .suite/runs/006-01_business_logic/checks/\n?? .suite/runs/006-01_business_logic/frozen-inventory.json\n?? .suite/runs/006-01_business_logic/supervisor-before.json\n?? .suite/runs/006-01_business_logic/workflow-validation.json\n?? apps/\n?? specs/todolist_db/\n",
+    "stderr": ""
+  }
+]

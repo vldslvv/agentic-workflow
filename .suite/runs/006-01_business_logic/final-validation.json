@@ -1,0 +1,33 @@
+{
+  "scope_note": "An earlier whole-workspace diff check reported trailing blank lines in concurrently added specs/todolist_rust files. Those unrelated files were preserved; validation below covers this task\u2019s owned paths.",
+  "git_diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "HEAD",
+      "--check",
+      "--",
+      "AGENTS.md",
+      "spec-source-suite",
+      ".agents/tasks/006-01_business_logic",
+      ".agents/tasks/007-02_cli",
+      ".suite/runs/006-01_business_logic",
+      "apps/todolist"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype",
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "suite_checksums": {
+    "argv": [
+      "sha256sum",
+      "-c",
+      "SHA256SUMS"
+    ],
+    "cwd": "spec-source-suite",
+    "exit_code": 0,
+    "stdout": ".agents/skills/spec-define/SKILL.md: OK\n.agents/skills/spec-define/agents/openai.yaml: OK\n.agents/skills/spec-generate/SKILL.md: OK\n.agents/skills/spec-generate/agents/openai.yaml: OK\n.agents/skills/spec-implement/SKILL.md: OK\n.agents/skills/spec-implement/agents/openai.yaml: OK\nAGENTS.md: OK\nCODEX_START.md: OK\nPACKAGE_CHECKS.json: OK\nREADME.md: OK\ndocs/BUILD_THE_SUITE.md: OK\ndocs/DEFINE.md: OK\ndocs/GENERATE.md: OK\ndocs/IMPLEMENT.md: OK\ndocs/MARKDOWN_BUNDLES.md: OK\ndocs/REGENERATION.md: OK\ndocs/SOURCES.md: OK\ndocs/STRONG_ISOLATION.md: OK\ndocs/SUITE_CONTRACT.md: OK\nprompts/REVIEWER.md: OK\nprompts/VERIFIER.md: OK\ntemplates/ACCEPTANCE.md: OK\ntemplates/CHANGE.md: OK\ntemplates/PLAN.md: OK\ntemplates/REVIEW.md: OK\ntemplates/RUN_REPORT.md: OK\ntemplates/bundle/project.md: OK\ntemplates/bundle/task_order.md: OK\ntemplates/bundle/tasks/task.md: OK\ntemplates/bundle/verification.md: OK\n",
+    "stderr": ""
+  }
+}

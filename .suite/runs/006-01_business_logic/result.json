@@ -1,0 +1,160 @@
+{
+  "status": "PASS",
+  "scope": "Full specs/todolist bundle, initial generation",
+  "baseline_commit": "07fd1484a33826b53c9e669b7490175bce1bd11a",
+  "candidate_sha256": "9b647fb50750f038a1299257df8788d2cbbe3033fa0a270d980fe3a652a3a518",
+  "timestamp": "2026-11-05T23:56:32.060312+00:00",
+  "task_acceptance": {
+    "01_business_logic": "business-acceptance.json",
+    "02_cli": "cli-acceptance.json"
+  },
+  "requirements": {
+    "BL-01": "PASS",
+    "BL-02": "PASS",
+    "BL-03": "PASS",
+    "BL-04": "PASS",
+    "BL-05": "PASS",
+    "BL-06": "PASS",
+    "CLI-01": "PASS",
+    "CLI-02": "PASS",
+    "CLI-03": "PASS",
+    "CLI-04": "PASS",
+    "CLI-05": "PASS",
+    "CLI-06": "PASS",
+    "CLI-07": "PASS"
+  },
+  "assembled": {
+    "A1": {
+      "status": "PASS",
+      "events": [
+        {
+          "argv": [
+            "uv",
+            "run",
+            "--offline",
+            "--no-sync",
+            "--project",
+            "/tmp/todo-cli-r60z0_6g/app",
+            "todo",
+            "add",
+            "Finish report"
+          ],
+          "cwd": "/tmp/todo-cli-r60z0_6g/app",
+          "exit_code": 0,
+          "stdout": "Added task 1: Finish report\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "uv",
+            "run",
+            "--offline",
+            "--no-sync",
+            "--project",
+            "/tmp/todo-cli-r60z0_6g/app",
+            "todo",
+            "add",
+            "Discard draft"
+          ],
+          "cwd": "/tmp/todo-cli-r60z0_6g/app",
+          "exit_code": 0,
+          "stdout": "Added task 2: Discard draft\n",
+          "stderr": ""
+        },
+        {
+          "storage": [
+            {
+              "id": 1,
+              "title": "Finish report",
+              "completed": false
+            },
+            {
+              "id": 2,
+              "title": "Discard draft",
+              "completed": false
+            }
+          ]
+        },
+        {
+          "argv": [
+            "uv",
+            "run",
+            "--offline",
+            "--no-sync",
+            "--project",
+            "/tmp/todo-cli-r60z0_6g/app",
+            "todo",
+            "complete",
+            "1"
+          ],
+          "cwd": "/tmp/todo-cli-r60z0_6g/elsewhere",
+          "exit_code": 0,
+          "stdout": "Completed task 1.\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "uv",
+            "run",
+            "--offline",
+            "--no-sync",
+            "--project",
+            "/tmp/todo-cli-r60z0_6g/app",
+            "todo",
+            "delete",
+            "2"
+          ],
+          "cwd": "/tmp/todo-cli-r60z0_6g/elsewhere",
+          "exit_code": 0,
+          "stdout": "Deleted task 2.\n",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "uv",
+            "run",
+            "--offline",
+            "--no-sync",
+            "--project",
+            "/tmp/todo-cli-r60z0_6g/app",
+            "todo",
+            "list"
+          ],
+          "cwd": "/tmp/todo-cli-r60z0_6g/elsewhere",
+          "exit_code": 0,
+          "stdout": "1 [x] Finish report\n",
+          "stderr": ""
+        },
+        {
+          "storage": [
+            {
+              "id": 1,
+              "title": "Finish report",
+              "completed": true
+            }
+          ]
+        }
+      ]
+    },
+    "candidate-integrity": {
+      "status": "PASS",
+      "events": []
+    }
+  },
+  "integrity": "PASS",
+  "independent_reviews": [
+    "business-reviewer/attempt-0/review.md",
+    "cli-reviewer/attempt-0/review.md"
+  ],
+  "attempts": {
+    "01_business_logic": 0,
+    "02_cli": 0
+  },
+  "isolation": "procedural",
+  "limitations": [
+    "Validated on Python 3.14.10 and uv 0.13.6; other supported Python versions were not separately exercised.",
+    "Concurrent writers are outside scope.",
+    "Fresh contexts and digest checks provide procedural separation, not enforced role filesystem isolation."
+  ],
+  "unmet_requirements": []
+}

@@ -1,0 +1,13 @@
+{
+  "local_markdown_links": {
+    "status": "PASS",
+    "count": 90
+  },
+  "markdown_encoding_newlines_fences": "PASS",
+  "authorization_walkthrough": {
+    "direct_implementation": "Request authorizes source baseline and derived handoff; no approval prompt.",
+    "interactive_planning": "Explicitly requested approval remains applicable.",
+    "conflicting_requirements": "Clarify material contradiction; preserve explicit requirements.",
+    "new_bundle": "Discover selected bundle; historical task lookup only when referenced/resumed."
+  }
+}

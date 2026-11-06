@@ -1,0 +1,14 @@
+{
+  "input_integrity": "PASS",
+  "changed": [],
+  "candidate_files": {
+    ".gitignore": "2fada029a63cafef8555b0450cf35ecb7d5c9f3e58e5bbbfa194ca8e2a2d1a93",
+    "README.md": "69a0b07f79374544f2f79018ef2820209ff00f5c692ca75c98064af0a550898d",
+    "pyproject.toml": "defe9ed2ab7fb124483c8c6dc31234b17d6a8361a6da223fa03407f5a834196b",
+    "todolist/__init__.py": "3a79c47bd1af06e48c77e4243743b801d3968ede17aed1e4d93f56b47cb9c8b8",
+    "todolist/cli.py": "0be2d69a23dceb2df096246c8b2648d04e2acc5527db0eb0fa93f5602b711618",
+    "todolist/core.py": "33c411c59d0453ff4169c378758531433899458ef888381ec0c67419a82f980c",
+    "uv.lock": "7189ac1ed50e1f48de96f4d0d849f094fc77eb49c0cad115d426826250bbdbeb"
+  },
+  "candidate_sha256": "9b647fb50750f038a1299257df8788d2cbbe3033fa0a270d980fe3a652a3a518"
+}
