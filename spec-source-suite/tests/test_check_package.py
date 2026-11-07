@@ -44,7 +44,7 @@ class PackageCheckTests(unittest.TestCase):
 
     def test_additional_valid_markdown_is_allowed_and_checked(self):
         (self.package / 'extra.md').write_text(
-            '# Extra\n[Routing](AGENTS.md#model-routing)\n')
+            '# Extra\n[Routing](MODELS.md#model-routing)\n')
         self.assertEqual(self.result(self.cli(), 0)['errors'], [])
 
     def test_broken_local_link_and_anchor_fail(self):

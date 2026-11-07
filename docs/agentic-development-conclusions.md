@@ -14,7 +14,7 @@ Fresh reviewers and restricted handoffs help separate evaluation from the implem
 
 ## Add deterministic specification validation
 
-The current bundle uses ordinary Markdown without required structured metadata. Dependencies can appear in prose, leaving the supervisor responsible for deriving and validating the execution graph. Existing helpers validate role and check manifests, but do not provide a complete source-bundle preflight. [Bundle format](../spec-source-suite/AGENTS.md#markdown-bundle), [helper capabilities](../spec-source-suite/SUPERVISOR.md#usage-aggregation).
+The current bundle uses ordinary Markdown without required structured metadata. Dependencies can appear in prose, leaving the supervisor responsible for deriving and validating the execution graph. Existing helpers validate role and check manifests, but do not provide a complete source-bundle preflight. [Bundle format](../spec-source-suite/BUNDLE.md), [helper capabilities](../spec-source-suite/RECORDS.md).
 
 OpenSpec is a suitable candidate for specification authoring and structural validation. Its CLI supports noninteractive validation with machine-readable output:
 
@@ -69,7 +69,7 @@ Current research supports choosing architecture by workload. A controlled study 
 
 Repeated instructions are another candidate for reduction. Move enforceable rules into the runner and retain concise role-specific guidance. Research on repository context files found increased inference cost without general success improvements in its studied settings, motivating evaluation of instruction content rather than assuming more guidance helps. [Evaluating AGENTS.md, v3](https://arxiv.org/abs/2602.11988v3).
 
-For unattended execution, apply and test access controls where isolation is required. Report actual limits. [Reconstruction and isolation](../spec-source-suite/AGENTS.md#reconstruction).
+For unattended execution, apply and test access controls where isolation is required. Report actual limits. [Reconstruction and isolation](../spec-source-suite/RECONSTRUCTION.md).
 
 ## Recommended implementation order
 

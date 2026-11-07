@@ -1,21 +1,24 @@
 # Supervisor
 
-Read [AGENTS.md](AGENTS.md) plus this routine. Track dependencies, accepted contracts, file ownership, review pauses, agent handles and artifacts. Coordinate through results; leave detailed planning and project memory to workers.
+Read [AGENTS.md](AGENTS.md), [Bundle](BUNDLE.md), [Checks](CHECKS.md) and [Records](RECORDS.md). Coordinate through concise results; workers own detailed planning. Relay memory paths under [Memory](MEMORY.md).
 
-1. Resolve the bundle, scope, target and output/evidence paths. Allocate or resume under shared record rules; validate selection and dependencies. Use new output paths for initial work and selected code for incremental work. Establish reconstruction boundaries before dispatch. Identify final scenarios and clarify unresolved pass rules against source requirements before execution.
-2. Read [TASK_MODES.md](TASK_MODES.md), assign each ready task's mode and create its task identity directory. Start ready tasks together as capacity permits, using table order when capacity is limited and leaving capacity for full-task reviewers. Launch each implementer fresh, without inherited conversation, with the assigned mode, original specifications, relevant code, accepted contracts and memory paths. Retain its handle through all task corrections; no execution planner is dispatched.
-3. Collect results, artifact/usage references, contracts and memory paths. Apply acceptance gates before unlocking dependents, using source criteria and check evidence for lightweight tasks and acceptance plus independent review for full tasks. Send all task defects to its implementer; reassess affected downstream evidence. Failed or blocked tasks hold their dependents; unrelated work continues.
-4. After all scheduled tasks pass, hold the assembled candidate unchanged and launch a fresh validator. Supply project requirements, the exact task set and modes, full-task acceptances, lightweight source criteria, candidate, factual check results/contracts and prior findings; exclude plans, conversations, memory and design narratives. Schedule repairs through steps 2–3, then use a fresh validator. Return task defects to their implementers and repeat affected checks before revalidation.
-5. On resume, reuse identified records, outstanding repairs and available agents; reassess stale evidence. Have the validator finish interrupted repair-file/table updates before scheduling. On completion or stopping, save results and usage, distinguishing selected-scope acceptance from whole-app acceptance.
+1. Resolve scope, bundle, target and output/evidence paths. Validate selection and dependencies; allocate or resume records. Use new output paths for initial work and selected code for incremental work. Apply [Reconstruction](RECONSTRUCTION.md) before dispatch when rebuilding. Resolve final-scenario pass rules before execution.
+2. Assign each task's mode using the table below; record it in the handoff. Ready means every declared dependency has passed acceptance; tasks with `None` are ready immediately. Failed or blocked prerequisites hold consumers while unrelated work continues.
+3. Agree interfaces and file ownership, including shared configuration, before concurrent edits. Track contracts, owners, agent handles, review pauses and artifacts. Resolve overlaps or interface changes before edits; return affected plans, checks and reviews to their owners.
+4. Create task identity directories and launch fresh implementers without inherited conversation. Supply assigned mode, original sources, relevant code, accepted contracts and permitted memory paths through Records. Start ready tasks together within capacity; use table order when capacity is limited and reserve room for full-task reviewers. Execution uses no separate planner.
+5. Collect results and apply Checks before unlocking dependents. Assess each task against its [assigned execution workflow](IMPLEMENTER.md). Return ordinary task defects to its retained implementer and reassess affected downstream evidence.
+6. Before independent review or validation, agree the candidate boundary and confirm affected writers have paused. Work outside it may continue. Release paused writers explicitly when checking ends; explain file conflicts, review delays or capacity limits.
+7. After all scheduled tasks pass, launch a fresh [Validator](VALIDATOR.md), in either task mode. Supply the exact task set/modes, requirements, applicable acceptance, assembled candidate, factual evidence/contracts and prior findings within Checks' input boundary. Task passes alone do not establish whole-app acceptance.
+8. Give each validator-created repair task a fresh implementer; that worker owns its corrections. Schedule it through the same gates, repeat affected checks, then launch a fresh validator. On resume, have the validator complete interrupted repair-file/table updates before dispatch; reuse other identified records and available owners.
+9. Use native waits/notifications for the longest duration allowed by host and user-update limits. Timeouts alone mean keep waiting. Avoid status prompts, short polling, sleep monitoring and repeated agent-list checks; use a status snapshot only for concrete uncertainty. Message workers for inputs, decisions, changes, blockers or repairs; keep user updates brief and factual.
+10. Save results on completion or stopping, distinguishing selected-scope from whole-app acceptance. At overall completion or a blocked stop, or earlier on request, run `python spec-source-suite/helpers/usage_report.py .suite/NNN_name`. Link reports and coverage limits. For the dashboard or tracing troubleshooting, read [Tracing](helpers/TRACING.md).
 
-## Concurrent work
+## Task mode
 
-Before concurrent implementation, agree interfaces and file ownership with affected workers, including shared configuration. Record decisions in handoffs; full-task implementers include them in their plans. Resolve overlaps and interface changes before edits; send affected plans, checks and reviews back to their owners.
+Honor source and user requirements; resolve conflicting instructions before dispatch. Unresolved requirements block either mode. Model profiles do not determine task mode.
 
-For review, agree the candidate boundary and confirm affected writers have paused. Release them explicitly when review ends. Explain delays caused by file conflicts, review timing or agent capacity.
-
-## Native evidence and reports
-
-Use the shared record and structured-handoff rules. At overall completion or a blocked stop, or earlier on request, run `python spec-source-suite/helpers/usage_report.py .suite/NNN_name` to refresh saved native evidence and rebuild usage JSON/Markdown, content events and the Perfetto timeline under `reports/`. Apply the shared [record boundaries](AGENTS.md#records) when forwarding reports. To collect, analyze and open the dashboard in one command, run `make trace IMPL=.suite/NNN_name`.
-
-Link reports and coverage diagnostics in results. Native identities retain follow-ups and distinguish replacements; ambiguous descendants or assignments remain diagnosed. Offline analysis uses saved files and discloses unavailable host storage. No role maintains trace inventories or manually calculates usage. Adapter semantics and collection limits are in the [tracing reference](helpers/TRACING.md), needed only for tracing troubleshooting.
+| Task conditions | Assigned mode |
+|---|---|
+| Planning or independent task review is required, or work is complex | `full` |
+| Work is simple and bounded, with clear source criteria | `lightweight` |
+| Uncertain which applies | `full` |

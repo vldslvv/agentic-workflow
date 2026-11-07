@@ -1,11 +1,6 @@
 # <Task capability>
 
-<Required observable behavior and scope. Rename this file for the task and update task_order.md.>
-
-It should:
-- <Operation and its observable result.>
-- <Applicable boundary, failure, persistence, and interaction outcomes.>
-
-<Describe required interface contracts and interactions here; declare scheduling dependencies only in task_order.md. Shared rules live in project.md; shared verification lives in verification.md.>
-
-<Optional: `Workflow: full` or `Workflow: lightweight`, subject to shared task-workflow rules. State required approvals/reviews.>
+- **Scope:** <Required observable behavior. Rename this file and update task_order.md.>
+- **Outcomes:** <Operations and results, including applicable boundary, failure, persistence and interaction behavior.>
+- **Interfaces:** <Required contracts and interactions. Scheduling dependencies belong only in task_order.md; shared constraints and verification belong in their bundle files.>
+- **Workflow requirements:** <Optional requested `Workflow: full` or `Workflow: lightweight`; required approvals/reviews. Refer to [Supervisor](../../SUPERVISOR.md) for task-mode policy.>
