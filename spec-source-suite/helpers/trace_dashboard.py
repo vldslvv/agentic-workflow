@@ -1,5 +1,6 @@
-"""Pure presentation of normalized accounting; no native reads or token arithmetic."""
+"""Presentation of usage and recorded content; no native reads or token arithmetic."""
 from html import escape
+import json
 from usage_report import format_settings
 
 GROUPS = {
@@ -36,7 +37,7 @@ def table(headers, rows, **attrs):
     return f'<div class="scroll"><table {attributes}><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
 
 
-def render(report, perfetto_url, *, interval=5, refreshed=None, error=None):
+def render(report, perfetto_url, *, interval=5, refreshed=None, error=None, content=None):
     summary = report['summary']
     parts = ['<!doctype html><html lang="en"><meta charset="utf-8">',
              '<meta name="viewport" content="width=device-width,initial-scale=1">',
@@ -50,7 +51,7 @@ def render(report, perfetto_url, *, interval=5, refreshed=None, error=None):
              f'<p>{text(report["implementation_id"])}</p></div><nav>',
              (f'<a class="button" id="perfetto" href="{text(perfetto_url)}" target="_blank" rel="noreferrer">Open timeline in Perfetto ↗</a>'
               if perfetto_url else '<span id="timeline-empty">No timeline events to display</span>'),
-             '<a href="usage.json">Download report JSON</a></nav></header>',
+             '<a href="usage.json">Usage JSON</a><a href="events.json">Content JSON</a></nav></header>',
              '<p class="notice">Scope: saved native turns and proven dispatch descendants. Updates are collected automatically. '
              'Unfinished evidence does not establish that an agent is currently running. '
              'Known subtotals exclude missing measurements; unavailable is never zero.</p>']
@@ -133,15 +134,41 @@ def render(report, perfetto_url, *, interval=5, refreshed=None, error=None):
               '<p>Snapshot exclusions are deliberate deduplication, not missing counters. Other diagnostics may limit totals. '
               'The JSON report includes scoped diagnostics and attribution omissions.</p><ul>']
     parts += [f'<li>{text(limit)}</li>' for limit in report['limitations']]
-    parts += ['</ul></section><footer>Perfetto needs internet and may request local-device access. '
+    payload = json.dumps(content or {'events': [], 'timing_omissions': []}, ensure_ascii=True)
+    payload = payload.replace('&', '\\u0026').replace('<', '\\u003c').replace('>', '\\u003e')
+    parts += ['</ul></section>', INSPECTOR,
+              '<script id="event-data" type="application/json">', payload, '</script>',
+              '<footer>Perfetto needs internet and may request local-device access. '
               'Perfetto is a snapshot; open it again for newer timing data. '
               'This summary stays local. Stop collection and serving with Ctrl+C in the owning terminal.</footer>',
               '</div></main><script>', SCRIPT, '</script></body></html>']
     return ''.join(parts)
 
 
+INSPECTOR = '''
+<section id="inspector"><h2>Recorded content</h2>
+<p class="hint">Full recorded content from selected turns. This is not a reconstruction of the assembled model request.
+Untimed observations appear after timed events. Encrypted, missing and upstream-truncated content is labeled when recorded.</p>
+<div class="event-controls controls">
+<label>Agent<select id="event-agent"></select></label>
+<label>Task<select id="event-task"></select></label>
+<label>Event type<select id="event-kind"></select></label>
+<label>Tool<select id="event-tool"></select></label>
+<label>Search full content<input id="event-search" type="search"></label></div>
+<p id="event-count" aria-live="polite"></p><p id="event-omissions" class="hint"></p>
+<div class="event-layout"><div id="event-list" class="scroll" tabindex="0"></div>
+<div id="event-detail" class="scroll" tabindex="0">Select an event to inspect its full content.</div></div></section>
+'''
+
+
 CSS = '''
 :root{color-scheme:light;font-family:system-ui,sans-serif;color:#203044;background:#f3f6f9}
+.event-layout{display:grid;grid-template-columns:minmax(250px,1fr) minmax(300px,2fr);gap:20px}
+#event-list,#event-detail{max-height:650px;overflow:auto}#event-detail pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}
+#event-list button{display:block;width:100%;text-align:left;padding:12px;border:0;border-bottom:1px solid #dbe2e9;background:white;color:inherit;cursor:pointer}
+#event-list button[aria-pressed="true"]{background:#d9edf2}#event-detail h3{overflow-wrap:anywhere}
+.content-value{padding-left:14px;border-left:1px solid #dbe2e9}
+@media(max-width:720px){.event-layout{grid-template-columns:1fr}}
 *{box-sizing:border-box}body{margin:0}main{max-width:1680px;margin:auto;padding:32px}
 header{display:flex;justify-content:space-between;gap:24px;align-items:center}h1{margin:0;font-size:30px;letter-spacing:-.7px}
 h2{font-size:21px}h3{font-size:16px}.eyebrow{font-size:11px;letter-spacing:2px;color:#45717d;font-weight:700}
@@ -171,6 +198,103 @@ group.addEventListener('change', () => { search.value = ''; update(); });
 search.addEventListener('input', update);
 update();
 
+const inspector = document.querySelector('#inspector');
+const eventList = inspector.querySelector('#event-list'), eventDetail = inspector.querySelector('#event-detail');
+const eventSearch = inspector.querySelector('#event-search');
+const eventFilters = [['agent', 'agent_id'], ['task', 'task_id'], ['kind', 'kind'], ['tool', 'tool_name']];
+let events = [], selectedEvent = null;
+let eventSearchText = new Map();
+function searchableText(value) {
+  if (value && typeof value === 'object') {
+    return Object.entries(value).map(([key, part]) => key + '\\n' + searchableText(part)).join('\\n');
+  }
+  return String(value);
+}
+function appendText(parent, tag, value) {
+  const node = document.createElement(tag);
+  node.textContent = value;
+  parent.append(node);
+  return node;
+}
+function showValue(parent, label, value) {
+  appendText(parent, 'h3', label);
+  if (typeof value === 'string') appendText(parent, 'pre', value);
+  else if (value && typeof value === 'object' && Object.keys(value).length) {
+    const nested = document.createElement('div');
+    nested.className = 'content-value';
+    parent.append(nested);
+    Object.entries(value).forEach(([key, part]) => showValue(nested, key, part));
+  }
+  else appendText(parent, 'pre', JSON.stringify(value));
+}
+function showEvent() {
+  const position = [eventDetail.scrollLeft, eventDetail.scrollTop];
+  const nativeOpen = Boolean(eventDetail.querySelector('details[open]'));
+  eventDetail.replaceChildren();
+  const event = events.find(e => e.event_id === selectedEvent);
+  if (!event) {
+    eventDetail.textContent = selectedEvent ? 'Selected event is no longer available.' : 'Select an event to inspect its full content.';
+    return;
+  }
+  appendText(eventDetail, 'h3', event.name || event.kind);
+  const {content, outputs, instructions, native_record, ...metadata} = event;
+  appendText(eventDetail, 'pre', JSON.stringify(metadata, null, 2));
+  if (content) showValue(eventDetail, 'Content', content);
+  if (outputs) showValue(eventDetail, 'Outputs', outputs);
+  if (instructions) showValue(eventDetail, 'Recorded instruction context', instructions);
+  if (native_record) {
+    const native = document.createElement('details');
+    native.open = nativeOpen;
+    appendText(native, 'summary', 'Recorded structured payload');
+    appendText(native, 'pre', JSON.stringify(native_record, null, 2));
+    eventDetail.append(native);
+  }
+  eventDetail.scrollTo(...position);
+}
+function filterEvents() {
+  const position = [eventList.scrollLeft, eventList.scrollTop];
+  const query = eventSearch.value.toLowerCase();
+  const visible = events.filter(e => eventFilters.every(([id, field]) => {
+    const value = inspector.querySelector('#event-' + id).value;
+    return !value || (e[field] ?? '(unavailable)') === value;
+  }) && eventSearchText.get(e.event_id).includes(query));
+  eventList.replaceChildren();
+  for (const event of visible) {
+    const time = event.timestamp ?? event.start ?? event.end;
+    const button = appendText(eventList, 'button',
+      (time == null ? 'Untimed' : new Date(time * 1000).toISOString()) + ' · ' +
+      event.agent_name + ' · ' + event.kind + ' · ' + (event.name || event.message_role || event.outcome || ''));
+    button.dataset.eventId = event.event_id;
+    button.setAttribute('aria-pressed', String(event.event_id === selectedEvent));
+    button.addEventListener('click', () => {
+      selectedEvent = event.event_id;
+      eventDetail.scrollTo(0, 0);
+      filterEvents();
+      showEvent();
+    });
+  }
+  inspector.querySelector('#event-count').textContent = visible.length + ' of ' + events.length + ' events';
+  eventList.scrollTo(...position);
+}
+function loadEvents(data) {
+  events = data.events.map(e => ({...e, tool_name: e.kind === 'tool' ? e.name : e.tool_name}));
+  eventSearchText = new Map(events.map(e => [e.event_id, searchableText(e).toLowerCase()]));
+  for (const [id, field] of eventFilters) {
+    const select = inspector.querySelector('#event-' + id), previous = select.value;
+    const choices = [...new Set(events.map(e => e[field] ?? '(unavailable)'))].sort();
+    if (previous && !choices.includes(previous)) choices.push(previous);
+    select.replaceChildren(new Option('All', ''), ...choices.map(value => new Option(value, value)));
+    select.value = previous;
+  }
+  inspector.querySelector('#event-omissions').textContent =
+    (data.timing_omissions || []).filter(e => e.reason === 'timing_unavailable').length + ' events lack timestamps and are omitted from Perfetto.';
+  filterEvents();
+  showEvent();
+}
+eventFilters.forEach(([id]) => inspector.querySelector('#event-' + id).addEventListener('change', filterEvents));
+eventSearch.addEventListener('input', filterEvents);
+loadEvents(JSON.parse(document.querySelector('#event-data').textContent));
+
 const interval = Number(document.querySelector('main').dataset.interval);
 async function poll() {
   const controller = new AbortController();
@@ -191,10 +315,13 @@ async function poll() {
       const focused = document.activeElement;
       // Retain the actual controls, including search text and event handlers.
       content.querySelector('.controls').replaceWith(current.querySelector('.controls'));
+      const freshEvents = JSON.parse(content.querySelector('#event-data').textContent);
+      content.querySelector('#inspector').replaceWith(inspector);
       content.querySelectorAll('details').forEach(node => { node.open = expanded.has(node.id); });
       current.replaceWith(content);
       update();
-      if (focused === group || focused === search) focused.focus({preventScroll: true});
+      loadEvents(freshEvents);
+      if (focused === group || focused === search || inspector.contains(focused)) focused.focus({preventScroll: true});
       content.querySelectorAll('.scroll').forEach((node, index) => {
         if (scrolls[index]) node.scrollTo(...scrolls[index]);
       });

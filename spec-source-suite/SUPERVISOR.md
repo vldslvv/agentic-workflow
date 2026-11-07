@@ -17,6 +17,6 @@ For review, agree the candidate boundary and confirm affected writers have pause
 
 ## Native evidence and reports
 
-Use the shared record and structured-handoff rules. At overall completion or a blocked stop, or earlier on request, run `python spec-source-suite/helpers/usage_report.py .suite/NNN_name` to refresh saved native evidence and rebuild usage JSON/Markdown and the Perfetto timeline under `reports/`. To collect, analyze and open the dashboard in one command, run `make trace IMPL=.suite/NNN_name`.
+Use the shared record and structured-handoff rules. At overall completion or a blocked stop, or earlier on request, run `python spec-source-suite/helpers/usage_report.py .suite/NNN_name` to refresh saved native evidence and rebuild usage JSON/Markdown, content events and the Perfetto timeline under `reports/`. Apply the shared [record boundaries](AGENTS.md#records) when forwarding reports. To collect, analyze and open the dashboard in one command, run `make trace IMPL=.suite/NNN_name`.
 
 Link reports and coverage diagnostics in results. Native identities retain follow-ups and distinguish replacements; ambiguous descendants or assignments remain diagnosed. Offline analysis uses saved files and discloses unavailable host storage. No role maintains trace inventories or manually calculates usage. Adapter semantics and collection limits are in the [tracing reference](helpers/TRACING.md), needed only for tracing troubleshooting.

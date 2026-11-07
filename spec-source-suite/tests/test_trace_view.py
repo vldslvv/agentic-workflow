@@ -87,6 +87,20 @@ class ViewerTests(unittest.TestCase):
         refresh(root)
         return root
 
+    @unittest.skipUnless(os.environ.get('PLAYWRIGHT_MODULE'), 'optional real browser unavailable')
+    def test_browser_content_search_selection_refresh_and_inert_payloads(self):
+        native = self.root / 'native/capture.jsonl'
+        marker = 'Unicode 雪\nprint("snow")\n</script><script>globalThis.injected=true</script>\n' + 'long content\n' * 200
+        with native.open('a') as stream:
+            for i in range(60):
+                stream.write(json.dumps(dict(timestamp=1793959261, type='response_item', payload=dict(
+                    type='message', id=f'browser-{i}', turn_id='turn-2', role='assistant', content=marker))) + '\n')
+        self.launch(interval=.2)
+        _, urls = self.ready()
+        result = subprocess.run(['node', str(Path(__file__).with_name('trace_dashboard_browser.cjs')), urls[0], str(native)],
+                                env=self.env, capture_output=True, text=True, timeout=40)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_empty_recording_is_explained_after_refresh(self):
         self.root = records.allocate(self.base / '.suite', 'empty')
         refresh(self.root)
@@ -272,6 +286,10 @@ class ViewerTests(unittest.TestCase):
         trace_url = parse_qs(urlsplit(perfetto).fragment.split('?',1)[1])['url'][0]
         with self.http.open(urls[0] + 'usage.json') as response:
             self.assertEqual(json.load(response)['summary']['tokens']['total_tokens']['total'], 200)
+        with self.http.open(urls[0] + 'events.json') as response:
+            exported = json.load(response)
+        self.assertTrue(any(e.get('content', {}).get('values', {}).get('arguments') == 'PRIVATE_ARGUMENTS'
+                            for e in exported['events']))
         with self.http.open(Request(trace_url, headers={'Origin':'https://ui.perfetto.dev'})) as response:
             self.assertEqual(response.headers['Access-Control-Allow-Origin'], 'https://ui.perfetto.dev')
             initial = response.read()
@@ -306,14 +324,14 @@ class ViewerTests(unittest.TestCase):
         reports = self.root / 'reports'
         parked = self.root / 'parked-reports'
         private = b'{"private_prompt":"SYNTHETIC_PRIVATE_NATIVE"}'
-        for filename in ('usage.json', 'timeline.json'):
+        for filename in ('usage.json', 'timeline.json', 'events.json'):
             (self.root / 'native' / filename).write_bytes(private)
         # A running server must recheck storage on every request, including
         # report changes after the valid startup and refresh.
         reports.rename(parked)
         reports.symlink_to(self.root / 'native', target_is_directory=True)
         try:
-            for endpoint in ('usage.json', 'timeline.json', ''):
+            for endpoint in ('usage.json', 'timeline.json', 'events.json', ''):
                 with self.subTest(alias='directory', endpoint=endpoint):
                     with self.assertRaises(HTTPError) as failure:
                         self.http.open(urls[0] + endpoint)
@@ -322,7 +340,7 @@ class ViewerTests(unittest.TestCase):
         finally:
             reports.unlink()
             parked.rename(reports)
-        for filename in ('usage.json', 'timeline.json'):
+        for filename in ('usage.json', 'timeline.json', 'events.json'):
             output = reports / filename
             original = output.read_bytes()
             output.unlink()

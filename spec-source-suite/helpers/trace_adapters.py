@@ -2,13 +2,16 @@
 
 Events use agent/model/tool kinds, native session/turn/event IDs, seconds since
 Unix epoch, optional observed start/end, outcome, observed settings, canonical
-usage and provenance. Unknown fields are None. No prompts, arguments or outputs
-cross this boundary. Add an adapter to ADAPTERS; accounting remains unchanged.
+usage and provenance. Content observations are separate from measurements.
+Add an adapter to ADAPTERS; accounting remains unchanged.
 Supported profiles are pinned, not a promise about arbitrary harness versions.
 """
 from datetime import datetime
+from collections import Counter
+import hashlib
 import json
 import math
+import re
 
 METRICS = ('input_tokens', 'cached_input_tokens', 'cache_write_input_tokens',
            'uncached_input_tokens', 'output_tokens', 'reasoning_output_tokens', 'total_tokens')
@@ -75,11 +78,61 @@ def diagnostic(source, code, turn=None, **values):
                 code=code, **values)
 
 
+def content(payload, *fields):
+    """Keep the recorded value, including empty values and opaque evidence."""
+    values = {key: payload[key] for key in fields if key in payload}
+    encrypted = {key: value for key, value in payload.items() if 'encrypted' in key and value is not None}
+    metadata = payload.get('metadata')
+    truncated = bool(payload.get('truncated') or isinstance(metadata, dict) and metadata.get('truncated'))
+    # Codex's command wrapper can record truncation in its returned text rather
+    # than a schema field. Only recognize its explicit diagnostic line.
+    truncated = truncated or any(isinstance(value, str) and re.search(
+        r'(?m)^Warning: truncated output \(original token count: \d+\)', value) for value in values.values())
+    truncated = bool(truncated)
+    state = 'recorded' if values else 'missing'
+    if values and all(value in ('', [], {}, None) for value in values.values()):
+        state = 'empty' if all(value is not None for value in values.values()) else 'missing'
+    if encrypted:
+        state = 'partially_encrypted' if state == 'recorded' else 'encrypted'
+    if truncated:
+        state = 'upstream_truncated'
+    return dict(availability=state, values=values, encrypted=encrypted, upstream_truncated=truncated)
+
+
+def codex_result_outcome(payload):
+    if payload.get('type') == 'mcp_tool_call_end':
+        result = payload.get('result') or {}
+        return ('failed' if 'Err' in result or (result.get('Ok') or {}).get('isError') else
+                'completed' if 'Ok' in result else None)
+    if payload.get('type') == 'exec_command_end':
+        status = payload.get('status')
+        if status is None and isinstance(payload.get('exit_code'), int):
+            status = 'failed' if payload['exit_code'] != 0 else 'completed'
+        return status
+    return 'returned'
+
+
+def observation_id(row, turn, occurrences):
+    """Native IDs win; ID-less records retain repeated occurrences within a turn.
+
+    Fingerprints ignore file offsets so selected copies deduplicate on import.
+    An identical ID-less row repeated in one file cannot safely be called a copy.
+    """
+    payload = row.get('payload') or {}
+    if payload.get('id') or payload.get('message_id'):
+        return f'{turn}:{row["type"]}:{payload.get("type")}:{payload.get("id") or payload["message_id"]}'
+    digest = hashlib.sha256(json.dumps(row, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    key = (turn, digest)
+    occurrences[key] += 1
+    return f'{turn}:{digest}:{occurrences[key]}'
+
+
 def codex(source, path):
     events, diagnostics, calls, agents, models = [], [], {}, {}, {}
     selected = set(source['turn_ids'])
     active, settings, meta = None, {}, {}
     contexts = {}
+    observations, occurrences, session_context = [], Counter(), {}
     declared, native_version = False, None
     with path.open('rb') as stream:
         for line, raw in enumerate(stream, 1):
@@ -102,6 +155,9 @@ def codex(source, path):
                             native_agent_path=p.get('agent_path') or spawn.get('agent_path'),
                             forked_from_id=p.get('forked_from_id'), continued_from_id=None,
                             spawn_timestamp=stamp(p.get('timestamp')))
+                session_context = {key: value for key, value in p.items()
+                                   if 'instruction' in key}
+                session_location = line
                 continue
             if kind == 'turn_context':
                 active = p.get('turn_id')
@@ -116,7 +172,30 @@ def codex(source, path):
             t = stamp(row.get('timestamp'))
             if turn not in agents:
                 agents[turn] = event(source, 'agent', turn, turn, line, **meta)
+                if session_context:
+                    observations.append(event(source, 'instruction', f'{turn}:session-context', turn,
+                                              session_location, content=content(session_context, *session_context),
+                                              name='session instructions', context_scope='session'))
             agent = agents[turn]
+            subtype = p.get('type')
+            observation_kind = None
+            fields = ()
+            if kind == 'turn_context':
+                observation_kind, fields = 'instruction', tuple(p)
+            elif kind == 'response_item' and subtype in ('message', 'reasoning'):
+                observation_kind = 'instruction' if p.get('role') in ('developer', 'system') else 'message'
+                fields = ('content', 'summary')
+            elif kind in ('event_msg', 'response_item') and subtype in ('user_message', 'agent_message', 'agent_reasoning', 'agent_reasoning_raw_content'):
+                observation_kind, fields = 'message', ('message', 'text', 'content')
+            elif (kind == 'response_item' and subtype in ('function_call_output', 'custom_tool_call_output') or
+                  kind == 'event_msg' and subtype in ('exec_command_end', 'mcp_tool_call_end')):
+                observation_kind, fields = 'tool_result', ('output', 'stdout', 'stderr', 'aggregated_output', 'result')
+            if observation_kind:
+                observations.append(event(source, observation_kind, observation_id(row, turn, occurrences), turn, line,
+                                          timestamp=t, call_id=p.get('call_id'), name=subtype or kind,
+                                          message_role=p.get('role') or ('user' if subtype == 'user_message' else None),
+                                          outcome=codex_result_outcome(p) if observation_kind == 'tool_result' else None,
+                                          content=content(p, *fields), native_record=p, **settings))
             if kind == 'turn_context':
                 agent.update(settings)
             if kind == 'event_msg':
@@ -131,15 +210,7 @@ def codex(source, path):
                 elif subtype in ('exec_command_end', 'mcp_tool_call_end'):
                     call = calls.get(p.get('call_id'))
                     if call:
-                        if subtype == 'mcp_tool_call_end':
-                            result = p.get('result') or {}
-                            status = ('failed' if 'Err' in result or (result.get('Ok') or {}).get('isError') else
-                                      'completed' if 'Ok' in result else None)
-                        else:
-                            status = p.get('status')
-                            if status is None and isinstance(p.get('exit_code'), int):
-                                status = 'failed' if p['exit_code'] != 0 else 'completed'
-                        call.update(end=t, outcome=status)
+                        call.update(end=t, outcome=codex_result_outcome(p))
                 continue
             if kind == 'token_usage_record':
                 rid = p.get('response_id')
@@ -162,10 +233,11 @@ def codex(source, path):
                         diagnostics.append(diagnostic(source, 'unidentified_tool', turn, location=line))
                         continue
                     call = event(source, 'tool', cid, turn, line, start=t, timestamp=t,
-                                 call_id=cid, name=p.get('name'), parent_call_id=p.get('parent_call_id'), **settings)
+                                 call_id=cid, name=p.get('name'), parent_call_id=p.get('parent_call_id'),
+                                 content=content(p, 'arguments', 'input'), native_record=p, **settings)
                     if cid in calls:
                         old = calls[cid]
-                        if any(old[k] != call[k] for k in ('turn_id', 'name', 'parent_call_id')):
+                        if any(old[k] != call[k] for k in ('turn_id', 'name', 'parent_call_id', 'content', 'native_record')):
                             raise ValueError('conflicting duplicate tool call')
                         old['provenance'] += call['provenance']
                     else:
@@ -184,6 +256,7 @@ def codex(source, path):
     events.extend(agents.values())
     events.extend(models.values())
     events.extend(calls.values())
+    events.extend(observations)
     for item in events:
         for field in ('native_agent_name', 'native_agent_path', 'parent_session_id',
                       'forked_from_id', 'continued_from_id', 'spawn_timestamp'):
@@ -224,6 +297,28 @@ def opencode(source, path):
                                  spawn_timestamp=stamp((info.get('time') or {}).get('created'), True))
         agent = agents[turn]
         time = m.get('time') or {}
+        if not message['parts']:
+            events.append(event(source, 'message', f'{m["id"]}:empty-message', turn, location,
+                                timestamp=stamp(time.get('created'), True), message_role=m['role'],
+                                name='message', message_id=m['id'], parent_message_id=m.get('parentID'),
+                                content=content({}, 'text')))
+        for part_index, part in enumerate(message['parts']):
+            if part['type'] in ('text', 'reasoning', 'subtask', 'compaction', 'file', 'agent'):
+                pt = part.get('time') or {}
+                events.append(event(source, 'message', f'{m["id"]}:{part.get("id", part_index)}', turn,
+                                    f'{location}/parts/{part_index}',
+                                    timestamp=stamp(pt.get('start', time.get('created')), True),
+                                    message_role=m['role'], name=part['type'],
+                                    message_id=m['id'], parent_message_id=m.get('parentID'),
+                                    content=content(part, 'text', 'prompt'), native_record=part))
+        if 'system' in m:
+            events.append(event(source, 'instruction', f'{m["id"]}:system', turn, location,
+                                timestamp=stamp(time.get('created'), True), name='system instructions',
+                                content=content(m, 'system')))
+        if m.get('error'):
+            events.append(event(source, 'message', f'{m["id"]}:error', turn, location,
+                                timestamp=stamp(time.get('completed'), True), name='message error',
+                                message_role=m['role'], outcome='failed', content=content(m, 'error')))
         if m['role'] == 'user':
             agent['start'] = stamp(time.get('created'), True)
             continue
@@ -260,7 +355,14 @@ def opencode(source, path):
                 continue
             events.append(event(source, 'tool', cid, turn, f'{location}/parts/{p["id"]}',
                                 call_id=cid, name=p.get('tool'), start=stamp(time.get('start'), True),
-                                end=stamp(time.get('end'), True), outcome={'error': 'failed'}.get(state.get('status'), state.get('status')), **settings))
+                                end=stamp(time.get('end'), True), outcome={'error': 'failed'}.get(state.get('status'), state.get('status')),
+                                content=content(state, 'input'), native_record=p, **settings))
+            if 'output' in state or 'error' in state:
+                events.append(event(source, 'tool_result', f'{cid}:{p["id"]}:result', turn,
+                                    f'{location}/parts/{p["id"]}', call_id=cid, name=p.get('tool'),
+                                    timestamp=stamp(time.get('end'), True),
+                                    outcome='failed' if state.get('status') == 'error' else state.get('status'),
+                                    content=content(state, 'output', 'error'), native_record=state, **settings))
     return list(agents.values()) + events, diagnostics
 
 

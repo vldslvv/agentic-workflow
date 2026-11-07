@@ -58,7 +58,42 @@ def import_evidence(root):
         diagnostics.extend(gaps)
     # Repeated copies can contain identical source-wide diagnostics.
     unique = {json.dumps(d, sort_keys=True): d for d in diagnostics}
-    return sorted(events.values(), key=lambda e: e['event_id']), [unique[k] for k in sorted(unique)]
+    observed = list(events.values())
+    calls = {(e['agent_id'], e['turn_id'], e['call_id']): e for e in observed if e['kind'] == 'tool'}
+    turns = {(e['agent_id'], e['turn_id']): e for e in observed if e['kind'] == 'agent'}
+    for e in observed:
+        e['provenance'] = list({json.dumps(p, sort_keys=True): p for p in e['provenance']}.values())
+        if e['kind'] == 'tool':
+            parent = calls.get((e['agent_id'], e['turn_id'], e.get('parent_call_id')))
+            e['parent_event_id'] = parent['event_id'] if parent else None
+            e['outputs'] = []
+        if e['kind'] == 'agent':
+            e['instructions'] = []
+    for e in observed:
+        if e['kind'] == 'tool_result':
+            call = calls.get((e['agent_id'], e['turn_id'], e['call_id']))
+            e['call_event_id'] = call['event_id'] if call else None
+            if call:
+                e['tool_name'] = call.get('name')
+                call['outputs'].append(e)
+        if e['kind'] == 'instruction':
+            agent = turns.get((e['agent_id'], e['turn_id']))
+            e['turn_event_id'] = agent['event_id'] if agent else None
+            if agent:
+                agent['instructions'].append(e)
+    for e in observed:
+        for field in ('outputs', 'instructions'):
+            if field in e:
+                e[field].sort(key=event_order)
+    return sorted(observed, key=event_order), [unique[k] for k in sorted(unique)]
+
+
+def event_order(e):
+    observed = next((e.get(k) for k in ('timestamp', 'start', 'end') if e.get(k) is not None), None)
+    location = e['provenance'][0]['location']
+    # Keep native ordering for records sharing a timestamp, including parts.
+    order = tuple(int(part) for part in str(location).split('/') if part.isdigit())
+    return (observed is None, observed or 0, e['agent_id'], order, e['event_id'])
 
 
 GAP_CODES = {'missing_usage', 'unidentified_usage', 'invalid_json_line'}
@@ -71,6 +106,7 @@ INCOMPLETE_CODES = GAP_CODES | {'source_unavailable', 'unfinished_turn', 'unveri
 
 
 def summarize(events, diagnostics):
+    events = [e for e in events if e['kind'] in ('agent', 'model', 'tool')]
     models = [e for e in events if e['kind'] == 'model']
     calls = [e for e in events if e['kind'] == 'tool']
     unknown = sum(d['code'] in GAP_CODES for d in diagnostics)
@@ -116,6 +152,7 @@ def spawn_tree(events):
 
 def build_report(events, diagnostics):
     """Pure accounting. No harness-specific parsing or grouping in adapters."""
+    events = [e for e in events if e['kind'] in ('agent', 'model', 'tool')]
     groups, omissions = {}, {}
     for name, fields in [('task', ('task_id',)), ('agent_run', ('agent_run_id',)),
                          ('role', ('role',)), ('model', ('model',)), ('effort', ('reasoning_effort',)),
@@ -230,12 +267,22 @@ def timeline(events):
                                                'assignment_source', 'assignment_evidence',
                                                'outcome', 'model', 'reasoning_effort', 'call_id', 'parent_call_id')})
         base['args'].update({f'tokens.{k}': v for k, v in (e.get('usage') or {}).items() if v is not None})
+        for key in ('native_event_id', 'session_id', 'turn_id', 'message_role', 'call_event_id',
+                    'parent_event_id', 'turn_event_id', 'message_id', 'parent_message_id'):
+            if e.get(key) is not None:
+                base['args'][key] = e[key]
+        # JSON strings keep complete arrays/structured values inspectable in
+        # Perfetto, whose argument importer otherwise flattens nested objects.
+        for key in ('content', 'outputs', 'instructions', 'native_record', 'provenance'):
+            if key in e:
+                base['args'][key] = json.dumps(e[key], ensure_ascii=False, indent=2)
         if start is not None and end is not None and end >= start:
             output.append(dict(base, ph='X', ts=start * 1_000_000, dur=(end - start) * 1_000_000))
         elif start is not None or end is not None or point is not None:
             observed = start if start is not None else end if end is not None else point
             output.append(dict(base, ph='i', s='t', ts=observed * 1_000_000))
-            omitted.append(dict(event_id=e['event_id'], reason='duration_unavailable'))
+            if e['kind'] in ('agent', 'model', 'tool'):
+                omitted.append(dict(event_id=e['event_id'], reason='duration_unavailable'))
         else:
             omitted.append(dict(event_id=e['event_id'], reason='timing_unavailable'))
         parent = f'{e["adapter"]}:{e.get("parent_session_id")}'
@@ -294,9 +341,13 @@ def refresh(root):
         events, diagnostics = import_evidence(root)
         report = build_report(events, diagnostics)
         report['implementation_id'] = root.name
+        trace = timeline(events)
+        content_report = dict(version=1, implementation_id=root.name, events=events,
+                              timing_omissions=trace['metadata']['timing_omissions'])
         outputs = {root / 'reports' / 'usage.json': json.dumps(report, indent=2) + '\n',
                    root / 'reports' / 'usage.md': markdown(report),
-                   root / 'reports' / 'timeline.json': json.dumps(timeline(events), indent=2) + '\n'}
+                   root / 'reports' / 'timeline.json': json.dumps(trace, indent=2) + '\n',
+                   root / 'reports' / 'events.json': json.dumps(content_report, indent=2) + '\n'}
         # Validate the whole output set before writing, including symlink/hardlink
         # aliases. Native inputs live outside this output boundary.
         for path in outputs:

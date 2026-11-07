@@ -30,7 +30,7 @@ from usage_report import refresh
 
 HOST, PORT = '127.0.0.1', 9001
 ORIGIN = 'https://ui.perfetto.dev'
-SERVICE = 'suite-insights-v4'
+SERVICE = 'suite-insights-v5'
 # /status belongs to Perfetto's native RPC probe; it must remain a 404 here.
 STATUS_PATH = '/__suite_trace_viewer__'
 
@@ -112,7 +112,7 @@ class Handler(BaseHTTPRequestHandler):
                                            token=self.server.token, pid=os.getpid(),
                                            interval=self.server.interval)).encode())
         elif self.path in (f'/{self.server.token}/', f'/{self.server.token}/usage.json',
-                           f'/{self.server.token}/timeline.json'):
+                           f'/{self.server.token}/timeline.json', f'/{self.server.token}/events.json'):
             # Identity is available while initial collection waits on the
             # implementation lock, but pages must wait for its first result.
             self.server.initial_collection.wait()
@@ -130,9 +130,10 @@ class Handler(BaseHTTPRequestHandler):
                         timeline = b'{"traceEvents":[]}'
                     available = any(e.get('ph') != 'M' for e in json.loads(timeline).get('traceEvents', []))
                     refreshed, error = self.server.refresh_status
+                    content = json.loads(read_report(self.server.root, 'events.json'))
                     self.reply(200, render(json.loads(data), perfetto_url(self.server.token) if available else None,
                                            interval=self.server.interval, refreshed=refreshed,
-                                           error=error).encode(), 'text/html; charset=utf-8')
+                                           error=error, content=content).encode(), 'text/html; charset=utf-8')
                 else:
                     self.reply(200, data)
             except FileNotFoundError:

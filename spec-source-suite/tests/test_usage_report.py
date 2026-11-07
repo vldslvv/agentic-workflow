@@ -207,7 +207,7 @@ class TraceTests(unittest.TestCase):
         self.assertTrue(any(e['args'].get('purpose') == 'Implement editor' for e in trace if 'args' in e))
         self.assertTrue(any(e['args'].get('tokens.total_tokens') == 130 for e in trace if 'args' in e))
 
-    def test_repeated_imports_preserve_native_bytes_and_content_free_stable_outputs(self):
+    def test_repeated_imports_preserve_native_bytes_and_separate_content_from_usage(self):
         path, _ = self.source()
         before = path.read_bytes()
         first = self.cli('usage_report.py', self.root)
@@ -217,9 +217,109 @@ class TraceTests(unittest.TestCase):
         self.assertEqual(second.returncode, 0, second.stderr)
         self.assertEqual({p:p.read_bytes() for p in outputs}, outputs)
         self.assertEqual(path.read_bytes(), before)
-        self.assertNotIn(b'PRIVATE_', b''.join(outputs.values()))
+        for path, data in outputs.items():
+            if path.name.startswith('usage.'):
+                self.assertNotIn(b'PRIVATE_', data)
+            else:
+                self.assertIn(b'PRIVATE_', data)
         events, _ = self.evidence()
         self.assertTrue(all(e['event_id'] and e['native_event_id'] and e['provenance'] for e in events))
+
+    def test_codex_content_identity_relationships_availability_and_full_exports(self):
+        path, _ = self.source(turns=['turn-1'])
+        before = usage.refresh(self.root)['summary']
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        rows[0]['payload']['base_instructions'] = {'text': 'Recorded base instructions'}
+        next(r['payload'] for r in rows if r['type'] == 'turn_context')['developer_instructions'] = 'Developer context'
+        large = '雪🌱 multiline\n<script>globalThis.injected = true</script>\n' + 'large payload ' * 6000
+        def row(payload, timestamp=1793959205):
+            return dict(type='response_item', timestamp=timestamp, payload=dict(turn_id='turn-1', **payload))
+        repeated = row(dict(type='message', role='assistant', content=[dict(type='output_text', text='same message')]))
+        identified = row(dict(type='message', id='native-message', role='user', content=[dict(type='input_text', text=large)]))
+        rows += [repeated, repeated, identified, identified,
+                 row(dict(type='custom_tool_call', call_id='unfinished', name='custom', input={'nested': [1, '雪']})),
+                 row(dict(type='custom_tool_call', call_id='custom-done', name='custom', input='raw custom input')),
+                 row(dict(type='custom_tool_call_output', call_id='custom-done', output='')),
+                 row(dict(type='function_call_output', call_id='nested', output={'second': large})),
+                 row(dict(type='function_call_output', call_id='orphan', output='orphan result')),
+                 row(dict(type='message', role='assistant', content=[])),
+                 row(dict(type='message', role='assistant')),
+                 row(dict(type='reasoning', summary=[], encrypted_content='opaque bytes')),
+                 row(dict(type='message', role='developer', content='Recorded developer message')),
+                 row(dict(type='message', role='assistant', content='Warning: truncated output (original token count: 1234)\nremaining text')),
+                 row(dict(type='message', role='assistant', content='upstream fragment', truncated=True)),
+                 row(dict(type='agent_message', sender='/root', recipient='/root/child', message='handoff body'), None)]
+        path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        report = usage.refresh(self.root)
+        self.assertEqual(report['summary']['tokens'], before['tokens'])
+        self.assertEqual(report['summary']['observed_tool_calls'], 4)
+        self.assertEqual(report['summary']['timed_operations'], before['timed_operations'] + 1)
+        self.assertEqual(report['summary']['untimed_operations'], before['untimed_operations'] + 1)
+        exported = json.loads((self.root / 'reports/events.json').read_text())
+        events = exported['events']
+        messages = [e for e in events if e['kind'] == 'message']
+        self.assertEqual(sum(e.get('native_record', {}).get('content') == repeated['payload']['content'] for e in messages), 2)
+        self.assertEqual(sum(e.get('native_record', {}).get('id') == 'native-message' for e in messages), 1)
+        self.assertTrue({'recorded', 'empty', 'missing', 'encrypted', 'upstream_truncated'} <= {e['content']['availability'] for e in messages})
+        tool = next(e for e in events if e['kind'] == 'tool' and e['call_id'] == 'nested')
+        self.assertEqual(len(tool['outputs']), 3)
+        self.assertEqual(tool['outputs'][-1]['content']['values']['output'], {'second': large})
+        self.assertTrue(all(e['call_event_id'] == tool['event_id'] for e in tool['outputs']))
+        self.assertTrue(tool['parent_event_id'])
+        self.assertEqual(next(e for e in events if e['call_id'] == 'unfinished')['outputs'], [])
+        custom = next(e for e in events if e['kind'] == 'tool' and e['call_id'] == 'custom-done')
+        self.assertEqual(custom['outputs'][0]['content']['availability'], 'empty')
+        self.assertEqual(custom['outputs'][0]['content']['values']['output'], '')
+        self.assertIsNone(next(e for e in events if e['call_id'] == 'orphan')['call_event_id'])
+        agent = next(e for e in events if e['kind'] == 'agent')
+        self.assertEqual(len(agent['instructions']), 3)
+        self.assertTrue(all(e['provenance'] and e['turn_event_id'] == agent['event_id'] for e in agent['instructions']))
+        trace = json.loads((self.root / 'reports/timeline.json').read_text())
+        args = next(e['args'] for e in trace['traceEvents'] if e.get('args', {}).get('event_id') == tool['event_id'])
+        self.assertEqual(json.loads(args['outputs'])[-1]['content']['values']['output'], {'second': large})
+        handoff = next(e for e in messages if e.get('name') == 'agent_message')
+        self.assertIn({'event_id': handoff['event_id'], 'reason': 'timing_unavailable'}, exported['timing_omissions'])
+        self.assertNotIn('handoff body', json.dumps(report))
+        # A second saved copy merges provenance without merging genuinely repeated messages.
+        (path.parent / 'copy.jsonl').write_bytes(path.read_bytes())
+        usage.refresh(self.root)
+        copied = json.loads((self.root / 'reports/events.json').read_text())['events']
+        self.assertEqual([e['event_id'] for e in copied], [e['event_id'] for e in events])
+        self.assertTrue(all(len(e['provenance']) >= 2 for e in copied))
+
+    def test_opencode_recorded_parts_instructions_errors_and_selected_turns(self):
+        from trace_adapters import read_source
+        path, _ = self.source('opencode')
+        before = usage.refresh(self.root)['summary']
+        data = json.loads(path.read_text())
+        user, assistant = data['messages'][:2]
+        user['info']['system'] = 'Recorded system instructions'
+        assistant['parts'] += [dict(id='answer-one', type='text', text='Repeated reply'),
+                               dict(id='answer-two', type='text', text='Repeated reply'),
+                               dict(id='thought', type='reasoning', text='Recorded reasoning'),
+                               dict(id='handoff', type='subtask', prompt='Delegate this work', agent='worker')]
+        assistant['parts'][1]['state']['output'] = {'nested': ['雪', 'line one\nline two']}
+        data['messages'] += [dict(info=dict(id='excluded', sessionID='supervisor', role='user'),
+                                 parts=[dict(id='excluded-text', type='text', text='EXCLUDED CONTENT')])]
+        path.write_text(json.dumps(data))
+        source = dict(id='test', path=str(path), adapter='opencode', source_version='opencode-export-1.2.27',
+                      session_id='supervisor', turn_ids=['turn-1', 'turn-2'])
+        selected, _ = read_source(source, path)
+        self.assertNotIn('EXCLUDED CONTENT', json.dumps(selected))
+        data['messages'].pop()
+        path.write_text(json.dumps(data))
+        report = usage.refresh(self.root)
+        self.assertEqual(report['summary'], before)
+        events = json.loads((self.root / 'reports/events.json').read_text())['events']
+        self.assertEqual(sum(e.get('content', {}).get('values', {}).get('text') == 'Repeated reply' for e in events), 2)
+        self.assertTrue(any(e.get('content', {}).get('values', {}).get('prompt') == 'Delegate this work' for e in events))
+        tool = next(e for e in events if e['kind'] == 'tool')
+        self.assertEqual(tool['content']['values']['input'], {'command': 'PRIVATE_ARGUMENTS'})
+        self.assertEqual(tool['outputs'][0]['content']['values'],
+                         {'output': {'nested': ['雪', 'line one\nline two']}, 'error': 'PRIVATE_OUTPUT'})
+        self.assertEqual(tool['outputs'][0]['outcome'], 'failed')
+        self.assertEqual(next(e for e in events if e['kind'] == 'agent')['instructions'][0]['content']['values'],
+                         {'system': 'Recorded system instructions'})
 
     def test_response_dedup_and_conflicting_native_measurements(self):
         path, _ = self.source()
@@ -409,7 +509,8 @@ class TraceTests(unittest.TestCase):
                 events, _ = self.evidence()
                 tool = next(e for e in events if e.get('call_id') == 'nested')
                 self.assertEqual(tool['outcome'], expected)
-                self.assertNotIn('PRIVATE_ERROR', json.dumps(events))
+                self.assertNotIn('PRIVATE_ERROR', json.dumps(usage.build_report(events, [])))
+                self.assertEqual(tool['outputs'][0]['content']['values']['result'], result)
 
     def test_source_wide_gaps_propagate_to_each_affected_assignment_and_model(self):
         path, source = self.source(bind=False)
@@ -425,6 +526,39 @@ class TraceTests(unittest.TestCase):
                     self.assertIsNone(row['summary']['tokens']['total_tokens']['total'])
                     self.assertGreater(row['summary']['tokens']['total_tokens']['known_subtotal'], 0)
                     self.assertIn('invalid_json_line', row['summary']['coverage'])
+
+    @unittest.skipUnless(os.environ.get('PERFETTO_TRACE_PROCESSOR'), 'optional real Perfetto parser unavailable')
+    def test_real_perfetto_retains_full_content_arguments_and_message_instants(self):
+        path, _ = self.source(turns=['turn-1'])
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        large = '雪\n<script>inert</script> ' * 4000
+        rows[0]['payload']['base_instructions'] = {'text': 'Recorded instructions'}
+        next(r['payload'] for r in rows if r['payload'].get('type') == 'function_call_output')['output'] = large
+        rows.append(dict(type='response_item', timestamp=1793959205,
+                         payload=dict(type='message', id='final', turn_id='turn-1', role='assistant', content=large)))
+        path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        usage.refresh(self.root)
+        trace = self.root / 'reports/timeline.json'
+        def query(sql):
+            result = subprocess.run([os.environ['PERFETTO_TRACE_PROCESSOR'], 'query', '--format', 'csv', str(trace), sql],
+                                    text=True, capture_output=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            previous_limit = csv.field_size_limit(16 * 1024 * 1024)
+            try:
+                return list(csv.DictReader(io.StringIO(result.stdout)))
+            finally:
+                csv.field_size_limit(previous_limit)
+        self.assertEqual(query("SELECT name,value FROM stats WHERE value != 0 AND severity IN ('error','data_loss')"), [])
+        arguments = query("SELECT slice.category, args.key, hex(args.string_value) AS value_hex FROM slice JOIN args USING(arg_set_id) "
+                          "WHERE args.key IN ('args.content', 'args.outputs', 'args.instructions')")
+        content = [json.loads(bytes.fromhex(a['value_hex']).decode()) for a in arguments if a['category'] == 'message' and a['key'] == 'args.content']
+        self.assertTrue(any(c['values'].get('content') == large for c in content))
+        outputs = [json.loads(bytes.fromhex(a['value_hex']).decode()) for a in arguments if a['category'] == 'tool' and a['key'] == 'args.outputs']
+        self.assertTrue(any(o['content']['values'].get('output') == large for group in outputs for o in group))
+        instructions = [json.loads(bytes.fromhex(a['value_hex']).decode()) for a in arguments if a['category'] == 'agent' and a['key'] == 'args.instructions']
+        self.assertTrue(any(i['content']['values'].get('base_instructions') == {'text': 'Recorded instructions'}
+                            for group in instructions for i in group))
+        self.assertEqual(query("SELECT count(*) AS n FROM slice WHERE category='message' AND dur != 0"), [{'n': '0'}])
 
     @unittest.skipUnless(os.environ.get('PERFETTO_TRACE_PROCESSOR'), 'optional real Perfetto parser unavailable')
     def test_real_perfetto_preserves_spawn_direction_without_enclosing_parent_slice(self):
