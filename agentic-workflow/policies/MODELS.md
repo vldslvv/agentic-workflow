@@ -4,26 +4,39 @@ Read on role entry and before launching workers.
 
 ## Routing source
 
-- Context: apply this routing policy on role entry and before launching workers.
+- Context: choose the routing policy when starting a role and before launching workers.
 - Inputs: assigned workspace and optional `<project-root>/.agentic-workflow/MODELS.md`.
-- Effects: resolve the project root from the assigned workspace. Use the project file when present; otherwise use this file. The project file replaces the complete routing policy, profiles and role routes without merging defaults. Copy this file there to start a customization. Correct missing or malformed override routes without silently falling back.
-- Outputs: chosen routing path, passed in handoffs and reread before subsequent dispatches. The eval launcher uses the same precedence for the Supervisor default route.
+- Effects:
+  1. Find the project root from the assigned workspace.
+  2. Use the project file if it exists; otherwise use this file. The project file replaces the whole policy and all tables. Do not merge in defaults.
+  3. Correct missing or invalid routes in the project file instead of falling back to this file.
+- Outputs: the chosen policy path. Pass it in handoffs and reread it before launching more workers. The eval launcher follows the same rule for the Supervisor's default route.
+
+To customize routing, copy this file to the project path and edit it there.
 
 ## Select settings
 
-- Context: read the chosen routing source and its tables; reread edits for subsequent dispatches.
-- Inputs: role, work conditions, profiles and role routes.
-- Effects: resolve profiles and role routes; correct undefined profiles or malformed entries before routing. Select the first applicable route below and request settings through supported host controls.
-- Outputs: profile, reason, requested settings and observed settings recorded separately in the role's result. Keep unknown observations unavailable.
+- Context: read the chosen policy and its tables, including edits made before launching another worker.
+- Inputs: role, task conditions, profiles and role routes.
+- Effects:
+  1. Check that routes are valid and refer to defined profiles. Correct errors before choosing a route.
+  2. Select the first matching route below.
+  3. Request its settings through controls the host supports.
+- Outputs: record the profile and reason in the role's result. Record requested and observed settings separately; leave unknown observations unavailable.
 
 ## Routing guidelines
 
 Apply when requesting or changing worker settings.
 
-- Use host defaults with a reported fallback for unsupported settings; never guess equivalent replacements. Keep infrastructure, credentials and unresolved requirements as blockers.
-- Change retained-worker settings only through supported controls, preserving contexts and fresh-review rules. Keep existing settings in sessions without controls; treat top-level routing as launch guidance in that case. Disclose known mismatches.
-- Keep concrete models and native reasoning values in this policy. Treat model identifiers as opaque, including provider-qualified names; use `default` to leave the host setting.
-- Update model names/values for provider changes; keep authentication and connectivity in host configuration. Add no dispatcher, adapters or Markdown parser through these tables.
+- Use host defaults when a setting is unsupported and report the fallback. Do not guess a replacement.
+- Keep missing infrastructure, credentials and unresolved requirements as blockers.
+- Change an existing worker's settings only through supported controls. Preserve its context and the rules for fresh reviews.
+- Keep current settings when the session has no controls to change them. In that case, use top-level routing only as guidance when launching a session.
+- Report known differences between requested and actual settings.
+- Keep model names and supported reasoning values in this policy. Use model identifiers exactly as supplied, including provider prefixes.
+- Use `default` to keep the host setting.
+- Update model names and values when the provider changes them. Keep authentication and connections in the host configuration.
+- Do not add a dispatcher, adapters or a Markdown parser to apply these tables.
 
 ## Route selection
 

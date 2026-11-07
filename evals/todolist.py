@@ -78,7 +78,7 @@ def safe_path(root, relative):
     return path
 
 
-def supervisor_settings(path):
+def role_settings(path, role):
     tables = {}
     section = None
     for line in path.read_text().splitlines():
@@ -93,10 +93,10 @@ def supervisor_settings(path):
                 raise RunnerError(f"Duplicate model configuration row: {row[0]}")
             table[row[0]] = row[1:]
     try:
-        profile = tables["Role routes"]["Supervisor"][0]
+        profile = tables["Role routes"][role][0]
         model, reasoning = tables["Profiles"][profile]
     except KeyError as exc:
-        raise RunnerError("Missing Supervisor default route or profile in MODELS.md") from exc
+        raise RunnerError(f"Missing {role} default route or profile in MODELS.md") from exc
     return {"profile": profile, "model": model, "reasoning": reasoning}
 
 
@@ -125,7 +125,7 @@ def preflight(root, allow_dirty):
         raise RunnerError("Codex is not authenticated; run codex login first")
     override = root / ".agentic-workflow/MODELS.md"
     routing = override if override.exists() else root / "agentic-workflow/policies/MODELS.md"
-    return git(root, "rev-parse", "HEAD").strip(), supervisor_settings(routing), dirty
+    return git(root, "rev-parse", "HEAD").strip(), role_settings(routing, "Supervisor"), dirty
 
 
 def terminate_group(process):

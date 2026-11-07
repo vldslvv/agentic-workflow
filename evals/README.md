@@ -1,4 +1,43 @@
-# Todolist end-to-end eval
+# Local evaluations
+
+## Workflow document validation
+
+- Context: use [Workflow review](../agentic-workflow/guides/WORKFLOW_REVIEW.md) to judge document agreement with [WORKFLOW.md](../agentic-workflow/WORKFLOW.md), the fixed source of truth.
+- Inputs: current package files, root `AGENTS.md`, installed `.agents/skills/agentic-workflow-*` wrappers, Python 3.10+, and an authenticated local Codex CLI on POSIX. Uncommitted changes are included.
+- Effects: run `make validate-workflow`. The launcher snapshots these inputs and starts one fresh, read-only LLM judge pass. It disables subagents, automatic project instructions and memory injection so candidate instructions can be read as evidence. It does not run the app workflow, retry, or correct findings. Keep files stable while the initial snapshot is copied.
+- Outputs: the console verdict and a unique `.evals/workflow/review-*/` directory containing `inputs/`, the prompt and output schema, `run.json`, `events.jsonl`, `agent.stderr`, `judgment.json`, `result.json` and the rendered `report.md` when judging succeeds. Partial evidence remains available on errors or interruption. These are advisory findings about document agreement, not proof of agent behavior.
+
+The judge follows the guide across the whole package and its entry points. Its
+table covers each workflow step and linked contract, with source locations,
+reading paths, omissions and corrective guidance. The launcher derives the
+overall verdict from those rows: any `FAIL`, otherwise any `UNCLEAR`, otherwise
+`PASS`. Only `PASS` exits successfully; missing or malformed judge output also
+fails. A valid `FAIL` or `UNCLEAR` report is a completed review.
+
+The Reviewer default route comes from `.agentic-workflow/MODELS.md` when present,
+otherwise [the packaged model policy](../agentic-workflow/policies/MODELS.md).
+The existing eval routing reader applies that route without merging defaults.
+Requested settings are recorded separately from unavailable observed settings.
+The CLI uses local authentication and configuration. Its
+[structured-output options](https://learn.chatgpt.com/docs/non-interactive-mode)
+provide the machine-readable judgment; semantic coverage is assessed by the LLM.
+Input selection and the prompt exclude history and app artifacts; this is not a
+filesystem read-isolation guarantee.
+
+Override the 1,800-second limit with
+`make validate-workflow WORKFLOW_TIMEOUT=900`, or run
+`python3 evals/workflow.py --timeout 900` from the repository root.
+The Python runner exits `0` for `PASS`, `1` for `FAIL`/`UNCLEAR`, `2` for launcher
+or judge errors, `124` for timeout, and `128 + signal` for interruption. Make
+returns a nonzero status for any unsuccessful outcome. Timeout and interruption
+terminate the judge process group and retain evidence. Each invocation makes
+at most one judge attempt; setup failures make none.
+
+Run `python3 -m unittest discover -s evals/tests -v` for the subprocess fixture
+checks. Those verify the launcher contract without spending model calls; they do
+not measure the quality of the judge's conclusions.
+
+## Todolist end-to-end eval
 
 Run with Python 3.10+, Git, uv, and an authenticated local Codex CLI on a POSIX host:
 
