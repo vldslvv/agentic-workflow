@@ -2,7 +2,7 @@
 
 - Read only when runner implementation is requested. This is an automation assignment, not an app specification or a claim that automation exists.
 - Inspect repository conventions and installed worker help. Build a bundle reader/validator, dependency scheduler, role/review adapters, project-check adapter and durable result store using the contracts below.
-- Support document authoring, single-task execution, whole-app generation, status/resume, incremental work and reconstruction with existing bundle/task/run locations. Follow [suite entry points](AGENTS.md); add no separate orchestration policy.
+- Support document authoring, single-task execution, whole-app generation, status/resume, incremental work and reconstruction with existing bundle/task/run locations. Follow [suite entry points](AGENTS.md) and the [Workflow contract](WORKFLOW.md); add no separate orchestration policy.
 - Keep the runner app/stack-neutral. Add no hosted control plane, mandatory manifests, frozen checks or approval receipts. Record manual fallback origins and unavailable capabilities honestly.
 - Verify mechanics with synthetic dependency graphs, inert artifacts, stub/manual adapters, explicit failures and excluded sentinel files. Map evidence to these IDs; report implemented automation, documentation walkthroughs and live app experiments separately. Fixtures alone do not establish successful generation or reconstruction.
 
@@ -10,9 +10,9 @@
 |---|---|
 | SUITE-001 | Empty installation has no selected app/stack; no intent returns `NO_PROJECT`. |
 | SUITE-002 | Read [Bundle](BUNDLE.md); report missing files, duplicate IDs, unknown references, cycles and missing required acceptance mappings. |
-| SUITE-003 | Schedule from the dependency table using [Supervisor](SUPERVISOR.md), including its task-mode decisions. |
-| SUITE-004 | Follow [Implementer](IMPLEMENTER.md) document requirements for the assigned mode, preserving explicit requirements and approved text while resolving ordinary choices autonomously. |
-| SUITE-005 | Dispatch and retain role contexts through the current Supervisor/Implementer workflows; keep document-only work with [Planner](PLANNER.md). Verify required independent checks under [Checks](CHECKS.md). |
+| SUITE-003 | Schedule through Workflow W2 using [Supervisor](SUPERVISOR.md) task-mode decisions. |
+| SUITE-004 | Follow Workflow W3 and [Implementer](IMPLEMENTER.md) procedures for the assigned mode, preserving explicit requirements and approved text while resolving ordinary choices autonomously. |
+| SUITE-005 | Dispatch and retain role contexts through Workflow; keep document-only work with [Planner](PLANNER.md). Verify required independent checks under [Checks](CHECKS.md). |
 | SUITE-006 | Apply Checks using actual outcomes, adequate coverage, required manual checks and explicit unavailable capabilities. |
 | SUITE-007 | Resume from [Records](RECORDS.md); preserve history and reassess evidence after relevant changes. |
 | SUITE-008 | Carry and maintain useful lessons under [Memory](MEMORY.md). |

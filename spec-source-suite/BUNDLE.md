@@ -15,5 +15,5 @@
 
 - Only the `Task | Depends on` table in `task_order.md` declares scheduling dependencies. List each task once; use `None` or comma-separated task filenames for dependencies. Names and row order add no dependencies.
 - Use unique filename stems as task IDs. Resolve bare task filenames under `tasks/`, task paths/links from the bundle root, and normative links from their containing document. Reject missing files, unlisted dependencies, unknown references and cycles, including self-dependencies.
-- Select listed tasks with their prerequisites and normative inputs. Include unmet prerequisites or leave the selection blocked; accepted prerequisites require valid evidence. An empty selection yields `NO_WORK`. [Supervisor](SUPERVISOR.md) owns scheduling.
+- Select listed tasks with their prerequisites and normative inputs. Include unmet prerequisites or leave the selection blocked; accepted prerequisites require valid evidence. An empty selection yields `NO_WORK`. Supervisor schedules through [Workflow](WORKFLOW.md) W2.
 - Resolve repository-relative output paths from the repository root. Material ambiguity blocks execution. Clarify broad scenarios' pass rules before execution without changing requirements; checks can develop during implementation without frozen inventories or approval receipts. Format validity and app acceptance are separate conclusions.

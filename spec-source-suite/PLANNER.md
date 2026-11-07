@@ -10,8 +10,9 @@ Read [AGENTS.md](AGENTS.md), [Checks](CHECKS.md) and [Records](RECORDS.md). Auth
 
 ## Suite maintenance
 
-- Keep decisions with their owning role and shared procedures in focused references. Reference rules instead of repeating them. Prefer replacement/removal to added guidance; add a file only for a responsibility that existing boundaries cannot hold, and explain why.
+- Keep implementation sequence/handoffs in [Workflow](WORKFLOW.md), local decisions with their role and detailed policies in focused references. Reference rules instead of repeating them. Prefer replacement/removal to added guidance; add a file only for a responsibility that existing boundaries cannot hold, and explain why.
 - Use simple language and roughly 5–10 short top-level items per instruction document. Prefer ordered steps or small lists; use sections only for meaningful branches/reference needs. Completeness takes priority over a word limit.
 - Index persistent Markdown with relative links and read conditions. Workflow guidance belongs in the root index; project documents/memory use scoped indexes linked from their parent. Create a scoped index only if absent. Exclude transient plans, acceptance, run artifacts and reviews; indexing never expands allowed inputs.
 - Review changes for preserved behavior, duplication, ownership and complete role reading paths. Follow the requested scope and acceptance; record material exceptions. Documentation walkthroughs are not live app experiments.
+- When asked for workflow conformance review, use [Workflow review](WORKFLOW_REVIEW.md). Its sole purpose is judging document agreement; it adds no routine gate. Keep the reference fixed during a review and resolve intended workflow changes under the user's authorized scope.
 - Run `python spec-source-suite/helpers/check_package.py` from the repository root, plus relevant tests; check entry points and links, including affected callers outside the checker. Extra valid files are allowed; Git history is unnecessary. Legacy `--base VALUE` only prints a removal notice, without comparing a baseline.

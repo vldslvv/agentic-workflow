@@ -9,6 +9,8 @@
 
 | Read when | Path |
 |---|---|
+| Implementing specifications or changing the implementation workflow | [Workflow contract](spec-source-suite/WORKFLOW.md) |
+| Asked to review documents against the workflow | [Workflow document review](spec-source-suite/WORKFLOW_REVIEW.md) |
 | Before planning, writing, changing or reviewing code/tests/tooling | [Engineering guidelines](spec-source-suite/GUIDELINES.md) |
 | Suite work: role and reference entry points | [Suite entry points](spec-source-suite/AGENTS.md) |
 | Entering a role or selecting worker settings | [Model routing](spec-source-suite/MODELS.md) |

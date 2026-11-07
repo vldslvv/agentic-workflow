@@ -2,12 +2,14 @@
 
 - This suite provides reusable instructions, templates and local helpers. Keep app inputs, code, memory and evidence outside it; no app or automated runner is selected by installing it.
 - For any role, read [engineering guidelines](GUIDELINES.md), [model routing](MODELS.md) and the role below. Follow its linked references when their stated conditions apply.
-- For specification implementation, including one task, enter through [Supervisor](SUPERVISOR.md). For document-only work or suite maintenance, use [Planner](PLANNER.md).
+- For specification implementation, including one task, read [Workflow](WORKFLOW.md) and enter through [Supervisor](SUPERVISOR.md). Every implementation role follows that contract. For document-only work or suite maintenance, use [Planner](PLANNER.md).
 - Load role files directly. The explicit `spec-planner` and `spec-supervisor` skills in `.agents/skills/` are optional entry points.
 - When adopting the suite, merge repository instructions and verify host capabilities. Worker flags, setting controls and isolation depend on the host.
 
 | Read when | Document |
 |---|---|
+| Implementing specifications or changing the implementation workflow | [Workflow contract](WORKFLOW.md) |
+| Asked to review documents against the workflow | [Workflow document review](WORKFLOW_REVIEW.md) |
 | Coordinating implementation | [Supervisor](SUPERVISOR.md) |
 | Authoring or maintaining documents | [Planner](PLANNER.md) |
 | Executing an assigned task | [Implementer](IMPLEMENTER.md) |
