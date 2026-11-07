@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "role": "reviewer",
+  "reads": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "50633bd032269b7daa693f6b9b7566548d6d4099a02b3d774877b66c70510b83"
+    },
+    {
+      "path": "spec-source-suite/AGENTS.md",
+      "sha256": "1cf82f44d80c8ae2fda52e37159d11e4f90e102f54a704c12a96bc89874dbccd"
+    },
+    {
+      "path": "spec-source-suite/docs/SUITE_CONTRACT.md",
+      "sha256": "c6fb123d57ecccb550a28876d171c513cb884685df253f683fb06a674be64e12"
+    },
+    {
+      "path": "spec-source-suite/prompts/REVIEWER.md",
+      "sha256": "f34fb1fdac723eb358d9d2afeef9497e8532ec9dc32526f73fe7bb1d44b513a7"
+    },
+    {
+      "path": "spec-source-suite/prompts/VERIFIER.md",
+      "sha256": "c903b435c5e45015a925eda84203a78bde66a894b63f9125e8ff0e5240c3277f"
+    },
+    {
+      "path": "specs/todolist/project.md",
+      "sha256": "583d6507f3e0d4eb48ba9010ec0ea25c5f4450038a559d901c1ad1a407b9d487"
+    },
+    {
+      "path": "specs/todolist/task_order.md",
+      "sha256": "f89c23d15e659a2657fe7c7edb4b283e592f53adb26e1477c3c6f48340d19912"
+    },
+    {
+      "path": "specs/todolist/verification.md",
+      "sha256": "01b5eeb3ceace6c7e6fb7565e72082f40dbc5296fcbdfbd6a57730b65ca014f6"
+    },
+    {
+      "path": "specs/todolist/tasks/02_cli.md",
+      "sha256": "63c8988e27105cc3155a06a48fe087ec3ce42f49d7ce137137656253a02e85fd"
+    },
+    {
+      "path": "specs/todolist/tasks/01_business_logic.md",
+      "sha256": "1262a1da26f58cb390a87ac067f8775dc33c366e1da83ad3d2928ef96ad2556f"
+    },
+    {
+      "path": ".suite/tasks/002-02_cli/acceptance.md",
+      "sha256": "b20d129da52fb869c1297b4bf853043eca6614f2f670f733ea392085ddaf8e06"
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/business-accepted.json",
+      "sha256": "9456f468a5771e8ab39071df813e41f0ba14dc58606c5b7a1855cb23e4a5df71"
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/attempt-0/candidate.json",
+      "sha256": "271b9adf3adf8829502db7ed5b26a5276b73dee067f8514a3dd84c2786fea0eb"
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/checks/business.py",
+      "sha256": "0dcc8f6e07213095424d135523eb62ff8151de4c1f09894d7308715e96832271"
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/002-02_cli/checks/cli.py",
+      "sha256": "a4dd9faa563cb0f4512d7be179c557885ddc9fc2e4c87601179783a9f06f0b1d"
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/002-02_cli/checks/task-v1.json",
+      "sha256": "45ce4a03fa1c33a1b77acb74b68c52a3f2563314d6e9f54937d65e4e63044d70"
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/002-02_cli/checks/regression-v1.json",
+      "sha256": "14a9a452b1cc9aaa0a1a3c607e499285d8d1176e13ca4b32398f8f71a0e3895c"
+    }
+  ],
+  "owned_paths": [
+    ".suite/runs/001-01_business_logic/002-02_cli/review-0"
+  ],
+  "forbidden_paths": [
+    ".suite/tasks/002-02_cli/plan.md",
+    ".suite/tasks/001-01_business_logic/plan.md",
+    "apps/todolist/.agents/memory",
+    ".suite/tasks/002-02_cli/memory-inputs",
+    ".suite/tasks/001-01_business_logic/memory-inputs"
+  ]
+}

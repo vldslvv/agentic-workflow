@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "protected_files_before": 186,
+  "protected_files_after": 186,
+  "added": [],
+  "removed": [],
+  "changed": [],
+  "excluded": [
+    ".git",
+    ".venv",
+    "__pycache__",
+    ".pytest_cache",
+    ".suite/runs/001-01_business_logic/002-02_cli/review-0"
+  ],
+  "method": "Read bytes only for protected files; no protected content rendered. Scope: AGENTS.md, specs/todolist, spec-source-suite, .suite, apps/todolist."
+}

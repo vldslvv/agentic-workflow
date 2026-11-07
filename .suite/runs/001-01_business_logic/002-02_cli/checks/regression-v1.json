@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "requirements": [
+    "BL-CREATE",
+    "BL-LIST",
+    "BL-DELETE",
+    "BL-COMPLETE",
+    "BL-STORE"
+  ],
+  "setup": [],
+  "checks": [
+    {
+      "id": "business-regression",
+      "argv": [
+        "uv",
+        "run",
+        "--project",
+        "apps/todolist",
+        "python",
+        "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/checks/business.py"
+      ],
+      "cwd": "/home/vv/ccode/generate-prototype",
+      "timeout_seconds": 180,
+      "timeout_kind": "infrastructure",
+      "expected_exit_codes": [
+        0
+      ],
+      "requirements": [
+        "BL-CREATE",
+        "BL-LIST",
+        "BL-DELETE",
+        "BL-COMPLETE",
+        "BL-STORE"
+      ],
+      "mandatory": true
+    }
+  ],
+  "cleanup": []
+}

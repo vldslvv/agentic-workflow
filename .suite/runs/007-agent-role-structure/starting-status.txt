@@ -1,0 +1,11 @@
+ M apps/todolist/.gitignore
+ M apps/todolist/README.md
+ M apps/todolist/pyproject.toml
+ M apps/todolist/todolist/__init__.py
+ M apps/todolist/todolist/__main__.py
+ M apps/todolist/todolist/cli.py
+ M apps/todolist/todolist/store.py
+ M apps/todolist/uv.lock
+?? .suite/
+?? apps/todolist/.agents/
+?? apps/todolist/tests/

@@ -1,0 +1,14 @@
+{
+  "duration_seconds": 0.9012789189982868,
+  "evidence": "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/final-execution/steps/checks-000-assembled",
+  "executed": true,
+  "exit_code": 0,
+  "finished_at": "2026-11-06T17:17:48.376994+00:00",
+  "id": "assembled",
+  "interrupted_by": null,
+  "phase": "checks",
+  "signal": null,
+  "started_at": "2026-11-06T17:17:47.470899+00:00",
+  "status": "PASS",
+  "timed_out": false
+}

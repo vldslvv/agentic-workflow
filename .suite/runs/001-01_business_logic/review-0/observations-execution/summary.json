@@ -1,0 +1,30 @@
+{
+  "cleanup_status": "NOT_RUN",
+  "evidence": "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/review-0/observations-execution",
+  "finished_at": "2026-11-06T17:08:25.323853+00:00",
+  "mandatory_executed": 1,
+  "manifest_sha256": "d796d3894ccf568e5c31ea6137948a6a605e2291ef06ad090c9de9b43464b4fa",
+  "primary_status": "PASS",
+  "requirements": {
+    "BL-STORE": "PASS"
+  },
+  "started_at": "2026-11-06T17:08:25.189763+00:00",
+  "status": "PASS",
+  "steps": [
+    {
+      "duration_seconds": 0.10037815800023964,
+      "evidence": "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/review-0/observations-execution/steps/checks-000-storage-observations",
+      "executed": true,
+      "exit_code": 0,
+      "finished_at": "2026-11-06T17:08:25.317767+00:00",
+      "id": "storage-observations",
+      "interrupted_by": null,
+      "phase": "checks",
+      "signal": null,
+      "started_at": "2026-11-06T17:08:25.212459+00:00",
+      "status": "PASS",
+      "timed_out": false
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,73 @@
+{
+  "scope": "Implementation run only: original supervisor turn plus four descendants including provenance follow-ups; excludes analysis request.",
+  "wall_clock_seconds": 1016.4060001373291,
+  "total_tokens": 4555116,
+  "input_tokens": 4513450,
+  "cached_input_tokens": 4359040,
+  "uncached_input_tokens": 154410,
+  "output_tokens": 41666,
+  "reasoning_output_tokens_subset": 3872,
+  "model_responses": 118,
+  "model_facing_tool_calls": 107,
+  "tool_breakdown": {
+    "exec": 59,
+    "spawn_agent": 4,
+    "wait_agent": 28,
+    "send_message": 12,
+    "followup_task": 4
+  },
+  "observed_shell_executions_inside_batches": 72,
+  "recorded_verification_commands": 12,
+  "recorded_verification_seconds": 4.5119340729988835,
+  "workers": 4,
+  "models": "All five sessions recorded gpt-6-astra with high reasoning effort.",
+  "findings": [
+    {
+      "finding": "Supervisor planning, orchestration and reporting used 40.65% of all tokens.",
+      "total_tokens": 1851444,
+      "output_tokens": 16572
+    },
+    {
+      "finding": "48 of 107 model-facing tool calls coordinated agents; 28 waits, 17 timeout returns. Root wait time overlaps useful child work.",
+      "root_wait_seconds": 488.689
+    },
+    {
+      "finding": "Four child provenance follow-up turns used 484601 tokens and 11 model responses. Almost all were reused context.",
+      "input_tokens": 483895,
+      "cached_input_tokens": 480896,
+      "output_tokens": 706,
+      "share_of_all_tokens_percent": 10.638609422899439
+    },
+    {
+      "finding": "All verification gates passed first attempt; no implementation repair. Three nonzero shell exits reflected optional discovery and integrity/bookkeeping assertions, not failed app behavior."
+    },
+    {
+      "finding": "Artifact footprint reflects the mandated workflow plus redundant metadata.",
+      "production_python_lines_including_blanks": 156,
+      "task_and_run_artifact_files_excluding_analysis": 169,
+      "task_and_run_artifact_bytes_excluding_analysis": 457458
+    }
+  ],
+  "recommendations": [
+    "Capture response-level telemetry automatically with exact session and turn identities; the original unavailable-counter report was avoidable.",
+    "Generate manifests, hashes, receipts and reports from one structured execution record to reduce repeated authored metadata and rereading.",
+    "Scope integrity checks to immutable inputs and owned candidate paths; keep mutable agent logs out of broad workspace snapshots to avoid metadata-only alarms.",
+    "Use one followup_task for an idle worker when a reply is needed; avoid send_message followed by followup_task for the same question.",
+    "Retain independent review and final assembled verification. Reduce empty polling within the progress-update constraints and favor completion notifications."
+  ],
+  "limitations": [
+    "Cached tokens are included in total input; reasoning tokens are included in output and not added again.",
+    "Dollar cost unavailable without billing data; no estimate made.",
+    "Model-facing tool counts differ from nested shell/patch events and child subprocess counts.",
+    "Elapsed time is actual original task-start to task-complete interval. usage.json raw event span includes inter-turn events; usage-bounded.json applies explicit turn boundaries.",
+    "Original reports remain historical evidence; this supplement supersedes their unavailable token/tool counters."
+  ],
+  "evidence": [
+    "sessions.json",
+    "bounded-sessions.json",
+    "usage-bounded.json",
+    "details.json",
+    "source-metadata.json",
+    "analyze.py"
+  ]
+}

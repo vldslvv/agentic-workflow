@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "role": "implementer",
+  "status": "PASS",
+  "requirement_ids": [
+    "CLI-ADD",
+    "CLI-DELETE",
+    "CLI-COMPLETE",
+    "CLI-LIST",
+    "CLI-HELP",
+    "CLI-ERROR",
+    "CLI-UV"
+  ],
+  "attempt": 0,
+  "candidate": {
+    "path": "apps/todolist",
+    "sha256": "f953d273be81bd37ead19f6818277ab843e45f115953997245ee0153f9b7bdff"
+  },
+  "checks": {
+    "inventory_path": ".suite/runs/001-01_business_logic/002-02_cli/checks/task-v1.json",
+    "version": "v1",
+    "sha256": "45ce4a03fa1c33a1b77acb74b68c52a3f2563314d6e9f54937d65e4e63044d70",
+    "regression_path": ".suite/runs/001-01_business_logic/002-02_cli/checks/regression-v1.json",
+    "regression_sha256": "14a9a452b1cc9aaa0a1a3c607e499285d8d1176e13ca4b32398f8f71a0e3895c"
+  },
+  "documents": [
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/RUN_REPORT.md"
+  ],
+  "read_manifest": ".suite/tasks/002-02_cli/implementer.json",
+  "owned_paths": [
+    "apps/todolist/todolist/cli.py",
+    "apps/todolist/todolist/__main__.py",
+    "apps/todolist/pyproject.toml",
+    "apps/todolist/uv.lock",
+    "apps/todolist/README.md",
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0"
+  ],
+  "dependency_identities": [
+    {
+      "task": "01_business_logic",
+      "status": "ACCEPTED",
+      "sha256": "dd770c472c384f4747c8f6056496c91212200199a6253e2426b3ca7c9ea6b85e",
+      "business_source_unchanged": true
+    }
+  ],
+  "evidence_paths": [
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/candidate.json",
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/snapshot",
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/task-execution",
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/regression-execution",
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/integrity-before.json",
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/integrity-after-implementation.json",
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/integrity-after-review.json",
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/scope-assessment.json",
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/scope-after-review.json",
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/session.json",
+    ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/environment.txt",
+    ".suite/runs/001-01_business_logic/002-02_cli/review-0/receipt.json",
+    ".suite/runs/001-01_business_logic/002-02_cli/review-0/REVIEW.md"
+  ],
+  "execution_status": "PASS",
+  "coverage_status": "PASS",
+  "review_status": "PASS",
+  "manual_status": "PASS",
+  "integrity_status": "PASS",
+  "findings": [],
+  "unresolved_decisions": [],
+  "limitations": [
+    "Final assembled-app gate remains supervisor-owned and NOT_RUN by this role.",
+    "Procedural isolation; usage counters unavailable."
+  ],
+  "additional_reads": [
+    "spec-source-suite/docs/HELPERS.md",
+    "spec-source-suite/templates/RECEIPT.json",
+    "spec-source-suite/templates/RUN_REPORT.md",
+    ".suite/tasks/002-02_cli/reviewer.json",
+    "spec-source-suite/docs/PROJECT_MEMORY.md#completing-and-maintaining",
+    ".suite/runs/001-01_business_logic/002-02_cli/review-0/receipt.json",
+    ".suite/runs/001-01_business_logic/002-02_cli/review-0/REVIEW.md"
+  ]
+}

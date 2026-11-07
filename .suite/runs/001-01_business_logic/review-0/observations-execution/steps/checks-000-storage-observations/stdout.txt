@@ -1,0 +1,1 @@
+PASS: default path is app root from a different cwd; JSON array reloads in a separate process

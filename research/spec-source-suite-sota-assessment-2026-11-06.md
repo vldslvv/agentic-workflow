@@ -1,5 +1,7 @@
 # Spec Source Suite: alignment with current agentic development practice
 
+> Reference maintenance: suite links now point to the consolidated role guidance. The assessment below retains its original observations and proposals about the earlier suite.
+
 Historical assessment: the later suite simplification removed role/check helpers and consolidated the workflow. References to those mechanisms below describe the assessed version, not current instructions.
 
 Research date: 2026-11-06. Scope: the current `spec-source-suite/` working tree, primary-source research, and official implementation documentation. This is an assessment and proposed direction, not a workflow change or approval of a new execution policy.
@@ -23,12 +25,12 @@ There is no single demonstrated best architecture across repository repairs, gre
 
 | Area | Current evidence | Assessment |
 |---|---|---|
-| Specification authority | [Contract §1](../spec-source-suite/docs/SUITE_CONTRACT.md) separates approved requirements from derived plans | Preserve. Implementation plans must not silently redefine success. |
-| Feedback through execution | [Contract §4](../spec-source-suite/docs/SUITE_CONTRACT.md) requires public-interface tests and repairs | Strong foundation for agent feedback. |
-| Whole-application validation | [Generate G4](../spec-source-suite/docs/GENERATE.md) requires independently executed final scenarios | Already present; the proposal changes when other evaluation happens, not whether final E2E exists. |
-| Independent evaluation | [Reviewer](../spec-source-suite/prompts/REVIEWER.md) excludes implementation narratives and checks coverage | Valuable defense against self-assessment bias; frequency should be evaluated. |
-| Durable state | [Contract §5](../spec-source-suite/docs/SUITE_CONTRACT.md) binds evidence to actual inputs/candidates and preserves failed attempts | Well suited to an automated runner. |
-| Context control | Role manifests (subsequently removed) and [curated memory](../spec-source-suite/docs/PROJECT_MEMORY.md) scope reads and retain selected inputs | Good design intent; measure actual context cost and completeness. |
+| Specification authority | [Contract §1](../spec-source-suite/AGENTS.md) separates approved requirements from derived plans | Preserve. Implementation plans must not silently redefine success. |
+| Feedback through execution | [Contract §4](../spec-source-suite/AGENTS.md) requires public-interface tests and repairs | Strong foundation for agent feedback. |
+| Whole-application validation | [Generate G4](../spec-source-suite/SUPERVISOR.md) requires independently executed final scenarios | Already present; the proposal changes when other evaluation happens, not whether final E2E exists. |
+| Independent evaluation | [Reviewer](../spec-source-suite/REVIEWER.md) excludes implementation narratives and checks coverage | Valuable defense against self-assessment bias; frequency should be evaluated. |
+| Durable state | [Contract §5](../spec-source-suite/AGENTS.md) binds evidence to actual inputs/candidates and preserves failed attempts | Well suited to an automated runner. |
+| Context control | Role manifests (subsequently removed) and [curated memory](../spec-source-suite/AGENTS.md#project-memory) scope reads and retain selected inputs | Good design intent; measure actual context cost and completeness. |
 | Basic deterministic machinery | `check_execution.py` and `role_context.py` (subsequently removed), and [usage_report.py](../spec-source-suite/helpers/usage_report.py) | Reuse these rather than rebuilding the whole system. |
 
 Anthropic's November 2025 long-running-agent report emphasizes incremental progress, durable handoffs, and testing through actual application interactions. These correspond closely to existing suite policies. It is an engineering case study, not proof that every suite rule improves performance. [Source](https://www.anthropic.com/research/effective-harnesses-for-long-running-agents).
@@ -37,9 +39,9 @@ Anthropic's November 2025 long-running-agent report emphasizes incremental progr
 
 ### The concrete gap
 
-[MARKDOWN_BUNDLES.md](../spec-source-suite/docs/MARKDOWN_BUNDLES.md) deliberately accepts ordinary prose without required frontmatter. Dependencies may appear in prose, and requirement IDs/check mappings are derived later. The supervisor is instructed to validate these relationships.
+[MARKDOWN_BUNDLES.md](../spec-source-suite/AGENTS.md#markdown-bundle) deliberately accepts ordinary prose without required frontmatter. Dependencies may appear in prose, and requirement IDs/check mappings are derived later. The supervisor is instructed to validate these relationships.
 
-The existing helpers validate role manifests and check manifests. For example, `check_execution.validate()` rejects unknown requirement mappings, duplicate IDs, and missing mandatory mappings. However, the inspected package has no executable source-bundle parser/validator or runner that enforces the complete task-readiness and acceptance policy. Structural validation exists downstream, but not as a complete preflight before agents are launched. [Helper scope](../spec-source-suite/docs/HELPERS.md).
+The existing helpers validate role manifests and check manifests. For example, `check_execution.validate()` rejects unknown requirement mappings, duplicate IDs, and missing mandatory mappings. However, the inspected package has no executable source-bundle parser/validator or runner that enforces the complete task-readiness and acceptance policy. Structural validation exists downstream, but not as a complete preflight before agents are launched. [Helper scope](../spec-source-suite/SUPERVISOR.md#usage-aggregation).
 
 ### What OpenSpec actually supplies
 
@@ -78,7 +80,7 @@ Avoid two editable sources of truth. If OpenSpec becomes authoritative, generate
 
 ### What is unnecessarily agent-mediated today
 
-[Generate G2–G3](../spec-source-suite/docs/GENERATE.md) assigns graph validation, ready-task planning, dispatch, and acceptance to the supervisor. [Contract §2](../spec-source-suite/docs/SUITE_CONTRACT.md) requires that supervisor to retain planning context. The [helpers explicitly exclude scheduling and acceptance](../spec-source-suite/docs/HELPERS.md).
+[Generate G2–G3](../spec-source-suite/SUPERVISOR.md) assigns graph validation, ready-task planning, dispatch, and acceptance to the supervisor. [Contract §2](../spec-source-suite/AGENTS.md) requires that supervisor to retain planning context. The [helpers explicitly exclude scheduling and acceptance](../spec-source-suite/SUPERVISOR.md#usage-aggregation).
 
 Task ordering, checking prerequisites, constructing manifests, dispatch, collecting receipts, checking hashes, rerunning declared checks, and recording state transitions can be ordinary code once their policy and inputs are explicit. Coverage judgments, ambiguous requirements, novel interfaces, and disputed verifier results still need reasoning.
 
@@ -126,9 +128,9 @@ Keep a planner available on demand. Existing planning is just-in-time because do
 
 **Measure required instruction overhead.** Every role manifest requires the shared contract; it is approximately 1,476 whitespace-separated words in this snapshot, before role instructions and app inputs. This is not a token count or cost estimate. Move mechanically enforced policies into code and retain concise, role-relevant instructions. The September 2026 revision of *Evaluating AGENTS.md* reports no general success improvement and increased inference cost in its studied settings; this motivates ablation, not deleting necessary project conventions. [Paper, v3](https://arxiv.org/abs/2602.11988v3).
 
-**Enforce the boundaries that automation relies on.** The suite correctly distinguishes digest checks from a sandbox. For unattended execution, protect frozen checks and reviewer results through actual write permissions or isolated execution, not only role instructions. Use stronger separation where the threat model requires it; a separate Git worktree alone does not stop writes elsewhere. This follows the suite's own [reconstruction and isolation guidance](../spec-source-suite/docs/REGENERATION.md).
+**Enforce the boundaries that automation relies on.** The suite correctly distinguishes digest checks from a sandbox. For unattended execution, protect frozen checks and reviewer results through actual write permissions or isolated execution, not only role instructions. Use stronger separation where the threat model requires it; a separate Git worktree alone does not stop writes elsewhere. This follows the suite's own [reconstruction and isolation guidance](../spec-source-suite/AGENTS.md#reconstruction).
 
-**Calibrate evaluators.** A fresh context does not remove correlated model errors. Assess whether evaluators catch known defects and whether their findings are reproducible. Keep deterministic final scenarios alongside exploratory E2E assessment, including non-UI requirements that browser testing alone cannot establish. Existing [coverage/review distinctions](../spec-source-suite/docs/SUITE_CONTRACT.md) are worth preserving.
+**Calibrate evaluators.** A fresh context does not remove correlated model errors. Assess whether evaluators catch known defects and whether their findings are reproducible. Keep deterministic final scenarios alongside exploratory E2E assessment, including non-UI requirements that browser testing alone cannot establish. Existing [coverage/review distinctions](../spec-source-suite/AGENTS.md) are worth preserving.
 
 **Do not infer savings from agent count alone.** Removing coordination calls should reduce that category of model work, but later repair loops may offset it. Measure total cost per successfully completed app, including checks, retries, evaluator calls, and planning.
 

@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "requirements": [
+    "BL-CREATE",
+    "BL-LIST",
+    "BL-DELETE",
+    "BL-COMPLETE",
+    "BL-STORE",
+    "PROJECT-UV"
+  ],
+  "setup": [],
+  "checks": [
+    {
+      "id": "uv-sync",
+      "argv": [
+        "uv",
+        "sync",
+        "--project",
+        "apps/todolist"
+      ],
+      "cwd": "/home/vv/ccode/generate-prototype",
+      "timeout_seconds": 120,
+      "expected_exit_codes": [
+        0
+      ],
+      "timeout_kind": "infrastructure",
+      "requirements": [
+        "PROJECT-UV"
+      ],
+      "mandatory": true
+    },
+    {
+      "id": "business",
+      "argv": [
+        "uv",
+        "run",
+        "--project",
+        "apps/todolist",
+        "python",
+        "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/checks/business.py"
+      ],
+      "cwd": "/home/vv/ccode/generate-prototype",
+      "timeout_seconds": 120,
+      "expected_exit_codes": [
+        0
+      ],
+      "timeout_kind": "infrastructure",
+      "requirements": [
+        "BL-CREATE",
+        "BL-LIST",
+        "BL-DELETE",
+        "BL-COMPLETE",
+        "BL-STORE"
+      ],
+      "mandatory": true
+    }
+  ],
+  "cleanup": []
+}

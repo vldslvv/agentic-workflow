@@ -1,0 +1,226 @@
+{
+  "status": "PASS",
+  "count": 55,
+  "links": [
+    {
+      "source": "spec-source-suite/AGENTS.md",
+      "target": "SUPERVISOR.md"
+    },
+    {
+      "source": "spec-source-suite/AGENTS.md",
+      "target": "PLANNER.md"
+    },
+    {
+      "source": "spec-source-suite/AGENTS.md",
+      "target": "IMPLEMENTER.md"
+    },
+    {
+      "source": "spec-source-suite/AGENTS.md",
+      "target": "REVIEWER.md"
+    },
+    {
+      "source": "spec-source-suite/AGENTS.md",
+      "target": "VALIDATOR.md"
+    },
+    {
+      "source": "spec-source-suite/AGENTS.md",
+      "target": "RUNNER.md"
+    },
+    {
+      "source": "spec-source-suite/AGENTS.md",
+      "target": "templates/project.md"
+    },
+    {
+      "source": "spec-source-suite/AGENTS.md",
+      "target": "templates/task_order.md"
+    },
+    {
+      "source": "spec-source-suite/AGENTS.md",
+      "target": "templates/tasks/task.md"
+    },
+    {
+      "source": "spec-source-suite/AGENTS.md",
+      "target": "templates/verification.md"
+    },
+    {
+      "source": "spec-source-suite/PLANNER.md",
+      "target": "AGENTS.md"
+    },
+    {
+      "source": "spec-source-suite/IMPLEMENTER.md",
+      "target": "AGENTS.md"
+    },
+    {
+      "source": "spec-source-suite/REVIEWER.md",
+      "target": "AGENTS.md"
+    },
+    {
+      "source": "spec-source-suite/VALIDATOR.md",
+      "target": "AGENTS.md"
+    },
+    {
+      "source": "spec-source-suite/SUPERVISOR.md",
+      "target": "AGENTS.md"
+    },
+    {
+      "source": "spec-source-suite/RUNNER.md",
+      "target": "AGENTS.md"
+    },
+    {
+      "source": "spec-source-suite/.agents/skills/spec-planner/SKILL.md",
+      "target": "../../../AGENTS.md"
+    },
+    {
+      "source": "spec-source-suite/.agents/skills/spec-planner/SKILL.md",
+      "target": "../../../PLANNER.md"
+    },
+    {
+      "source": "spec-source-suite/.agents/skills/spec-supervisor/SKILL.md",
+      "target": "../../../AGENTS.md"
+    },
+    {
+      "source": "spec-source-suite/.agents/skills/spec-supervisor/SKILL.md",
+      "target": "../../../SUPERVISOR.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "spec-source-suite/AGENTS.md#project-memory"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "spec-source-suite/AGENTS.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "spec-source-suite/AGENTS.md#markdown-bundle"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "spec-source-suite/PLANNER.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "spec-source-suite/SUPERVISOR.md"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "spec-source-suite/AGENTS.md#records"
+    },
+    {
+      "source": "AGENTS.md",
+      "target": "spec-source-suite/RUNNER.md"
+    },
+    {
+      "source": ".agents/skills/acceptance-spec/SKILL.md",
+      "target": "../../../spec-source-suite/AGENTS.md#records"
+    },
+    {
+      "source": ".agents/skills/acceptance-spec/SKILL.md",
+      "target": "../../../spec-source-suite/PLANNER.md"
+    },
+    {
+      "source": ".agents/skills/acceptance-spec/SKILL.md",
+      "target": "../../../spec-source-suite/AGENTS.md#markdown-bundle"
+    },
+    {
+      "source": ".agents/skills/acceptance-spec/SKILL.md",
+      "target": "../../../spec-source-suite/SUPERVISOR.md"
+    },
+    {
+      "source": "docs/agentic-development-conclusions.md",
+      "target": "../spec-source-suite/AGENTS.md"
+    },
+    {
+      "source": "docs/agentic-development-conclusions.md",
+      "target": "../spec-source-suite/REVIEWER.md"
+    },
+    {
+      "source": "docs/agentic-development-conclusions.md",
+      "target": "../spec-source-suite/AGENTS.md#markdown-bundle"
+    },
+    {
+      "source": "docs/agentic-development-conclusions.md",
+      "target": "../spec-source-suite/SUPERVISOR.md#usage-aggregation"
+    },
+    {
+      "source": "docs/agentic-development-conclusions.md",
+      "target": "../spec-source-suite/SUPERVISOR.md"
+    },
+    {
+      "source": "docs/agentic-development-conclusions.md",
+      "target": "../spec-source-suite/AGENTS.md"
+    },
+    {
+      "source": "docs/agentic-development-conclusions.md",
+      "target": "../spec-source-suite/AGENTS.md#reconstruction"
+    },
+    {
+      "source": "docs/agentic-development-conclusions.md",
+      "target": "../research/spec-source-suite-sota-assessment-2026-11-06.md"
+    },
+    {
+      "source": "docs/agentic-development-conclusions.md",
+      "target": "../research/agentic-development-evidence.md"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "agentic-development-evidence.md"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/AGENTS.md"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/AGENTS.md"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/SUPERVISOR.md"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/REVIEWER.md"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/AGENTS.md"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/AGENTS.md#project-memory"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/helpers/usage_report.py"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/AGENTS.md#markdown-bundle"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/SUPERVISOR.md#usage-aggregation"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/SUPERVISOR.md"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/AGENTS.md"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/SUPERVISOR.md#usage-aggregation"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/AGENTS.md#reconstruction"
+    },
+    {
+      "source": "research/spec-source-suite-sota-assessment-2026-11-06.md",
+      "target": "../spec-source-suite/AGENTS.md"
+    }
+  ]
+}

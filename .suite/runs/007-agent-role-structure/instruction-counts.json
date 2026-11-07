@@ -1,0 +1,15 @@
+{
+  "method": "Whitespace-separated words in all package Markdown, including skills/templates/optional runner. Files include all package files; directories exclude root and Python caches. Same rule before/after. External routing files excluded from both.",
+  "before": {
+    "files": 31,
+    "directories_excluding_root_and_caches": 15,
+    "instruction_markdown_files": 24,
+    "instruction_words": 4239
+  },
+  "after": {
+    "files": 19,
+    "directories_excluding_root_and_caches": 10,
+    "instruction_markdown_files": 13,
+    "instruction_words": 4487
+  }
+}

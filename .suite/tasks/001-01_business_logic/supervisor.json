@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "role": "supervisor",
+  "reads": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "50633bd032269b7daa693f6b9b7566548d6d4099a02b3d774877b66c70510b83"
+    },
+    {
+      "path": "spec-source-suite/AGENTS.md",
+      "sha256": "1cf82f44d80c8ae2fda52e37159d11e4f90e102f54a704c12a96bc89874dbccd"
+    },
+    {
+      "path": "spec-source-suite/docs/SUITE_CONTRACT.md",
+      "sha256": "c6fb123d57ecccb550a28876d171c513cb884685df253f683fb06a674be64e12"
+    },
+    {
+      "path": "spec-source-suite/docs/GENERATE.md",
+      "sha256": "80128e26d2060894e9c3cd61a274fe7f142bdbfc0244847d9ca334c6bcb1a5a2"
+    },
+    {
+      "path": "spec-source-suite/docs/DEFINE.md",
+      "sha256": "bb69ae6ea3c4e8bfd84a0491faa169fcdc035eccc3bb6274d75e1feff19dc974"
+    },
+    {
+      "path": "spec-source-suite/docs/PLANNING.md",
+      "sha256": "05830456cda065913b48774724cb2e406a77b4d440d6b42cea89bce9723528b2"
+    },
+    {
+      "path": "spec-source-suite/docs/MARKDOWN_BUNDLES.md",
+      "sha256": "a073bbfda9fd0b67728c7f1a5bef5ec408b5647c50ef75bafb4f38516b5efc31"
+    },
+    {
+      "path": "spec-source-suite/docs/HELPERS.md",
+      "sha256": "861c54a15602971f378eeea47584dfe27492ac8b0518173e9695987919a853fb"
+    },
+    {
+      "path": "spec-source-suite/docs/PROJECT_MEMORY.md",
+      "sha256": "9089a4de4526a68aa4bf281cacd9dfd9287f2d4bf7355684361d3c36a4f04421"
+    },
+    {
+      "path": "specs/todolist/project.md",
+      "sha256": "583d6507f3e0d4eb48ba9010ec0ea25c5f4450038a559d901c1ad1a407b9d487"
+    },
+    {
+      "path": "specs/todolist/task_order.md",
+      "sha256": "f89c23d15e659a2657fe7c7edb4b283e592f53adb26e1477c3c6f48340d19912"
+    },
+    {
+      "path": "specs/todolist/verification.md",
+      "sha256": "01b5eeb3ceace6c7e6fb7565e72082f40dbc5296fcbdfbd6a57730b65ca014f6"
+    },
+    {
+      "path": "specs/todolist/tasks/02_cli.md",
+      "sha256": "63c8988e27105cc3155a06a48fe087ec3ce42f49d7ce137137656253a02e85fd"
+    },
+    {
+      "path": "specs/todolist/tasks/01_business_logic.md",
+      "sha256": "1262a1da26f58cb390a87ac067f8775dc33c366e1da83ad3d2928ef96ad2556f"
+    }
+  ],
+  "owned_paths": [
+    ".suite/tasks/001-01_business_logic",
+    ".suite/runs/001-01_business_logic"
+  ],
+  "forbidden_paths": []
+}

@@ -1,0 +1,163 @@
+[
+  {
+    "label": "environment",
+    "argv": [
+      "uv",
+      "--version"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype",
+    "started_at": "2026-11-06T17:15:29.940414+00:00",
+    "duration_seconds": 0.002770793000308913,
+    "exit_code": 0,
+    "stdout": "uv 0.13.6 (x86_64-unknown-linux-gnu)\n",
+    "stderr": "",
+    "timeout": false
+  },
+  {
+    "label": "documented uv run entry point and root help",
+    "argv": [
+      "uv",
+      "run",
+      "--project",
+      "apps/todolist",
+      "todo",
+      "--help"
+    ],
+    "cwd": "/home/vv/ccode/generate-prototype",
+    "started_at": "2026-11-06T17:15:29.943446+00:00",
+    "duration_seconds": 0.046277282999653835,
+    "exit_code": 0,
+    "stdout": "usage: todo [-h] {add,delete,complete,list,help} ...\n\nManage your TODO tasks.\n\npositional arguments:\n  {add,delete,complete,list,help}\n    add                 Add a task (quote multiword titles)\n    delete              Delete a task\n    complete            Mark a task complete\n    list                List tasks and their completion state\n    help                Show this help\n\noptions:\n  -h, --help            show this help message and exit\n",
+    "stderr": "",
+    "timeout": false
+  },
+  {
+    "label": "empty-list readability",
+    "argv": [
+      "uv",
+      "run",
+      "--project",
+      "/tmp/tmpk109dif4/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/tmpk109dif4",
+    "started_at": "2026-11-06T17:15:29.991107+00:00",
+    "duration_seconds": 0.5171329510012583,
+    "exit_code": 0,
+    "stdout": "No tasks.\n",
+    "stderr": "Using CPython 3.14.10 interpreter at: /usr/lib/python-exec/python3.14/python3\nCreating virtual environment at: app/.venv\n   Building todolist @ file:///tmp/tmpk109dif4/app\n      Built todolist @ file:///tmp/tmpk109dif4/app\nwarning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.\n         If the cache and target directories are on different filesystems, hardlinking may not be supported.\n         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.\nInstalled 1 package in 0.69ms\n",
+    "timeout": false
+  },
+  {
+    "label": "mixed-list readability",
+    "argv": [
+      "uv",
+      "run",
+      "--project",
+      "/tmp/tmpk109dif4/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/tmpk109dif4",
+    "started_at": "2026-11-06T17:15:30.508429+00:00",
+    "duration_seconds": 0.0620511830002215,
+    "exit_code": 0,
+    "stdout": "1 [ ] Buy caf\u00e9 supplies\n2 [x] Read book\n",
+    "stderr": "",
+    "timeout": false
+  },
+  {
+    "label": "syntax-error readability",
+    "argv": [
+      "uv",
+      "run",
+      "--project",
+      "/tmp/tmpk109dif4/app",
+      "todo",
+      "complete",
+      "abc"
+    ],
+    "cwd": "/tmp/tmpk109dif4",
+    "started_at": "2026-11-06T17:15:30.570775+00:00",
+    "duration_seconds": 0.03350619899902085,
+    "exit_code": 2,
+    "stdout": "",
+    "stderr": "usage: todo complete [-h] ID\ntodo complete: error: argument ID: invalid int value: 'abc'\n",
+    "timeout": false
+  },
+  {
+    "label": "unknown-ID readability",
+    "argv": [
+      "uv",
+      "run",
+      "--project",
+      "/tmp/tmpk109dif4/app",
+      "todo",
+      "delete",
+      "999"
+    ],
+    "cwd": "/tmp/tmpk109dif4",
+    "started_at": "2026-11-06T17:15:30.604527+00:00",
+    "duration_seconds": 0.033292742000412545,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: error: Task 999 does not exist\n",
+    "timeout": false
+  },
+  {
+    "label": "empty-title readability",
+    "argv": [
+      "uv",
+      "run",
+      "--project",
+      "/tmp/tmpk109dif4/app",
+      "todo",
+      "add",
+      " "
+    ],
+    "cwd": "/tmp/tmpk109dif4",
+    "started_at": "2026-11-06T17:15:30.637966+00:00",
+    "duration_seconds": 0.0347733149992564,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: error: Task title must not be empty\n",
+    "timeout": false
+  },
+  {
+    "label": "corrupt-storage readability",
+    "argv": [
+      "uv",
+      "run",
+      "--project",
+      "/tmp/tmpk109dif4/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/tmpk109dif4",
+    "started_at": "2026-11-06T17:15:30.673001+00:00",
+    "duration_seconds": 0.03477116000067326,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: error: Task storage is not valid JSON\n",
+    "timeout": false
+  },
+  {
+    "label": "unreadable-storage readability",
+    "argv": [
+      "uv",
+      "run",
+      "--project",
+      "/tmp/tmpk109dif4/app",
+      "todo",
+      "list"
+    ],
+    "cwd": "/tmp/tmpk109dif4",
+    "started_at": "2026-11-06T17:15:30.708003+00:00",
+    "duration_seconds": 0.034693626999796834,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "todo: error: [Errno 21] Is a directory: '/tmp/tmpk109dif4/app/tasks.json'\n",
+    "timeout": false
+  }
+]

@@ -1,5 +1,5 @@
-"""Run the TODO CLI with python -m todolist."""
+"""Run with python -m todolist."""
 
-from .cli import main
+from todolist.cli import main
 
 raise SystemExit(main())

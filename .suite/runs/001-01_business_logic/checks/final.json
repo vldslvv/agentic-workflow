@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "requirements": [
+    "FINAL-LIFECYCLE",
+    "FINAL-PERSISTENCE",
+    "FINAL-ROOT"
+  ],
+  "setup": [],
+  "checks": [
+    {
+      "id": "assembled",
+      "argv": [
+        "python",
+        "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/checks/final.py"
+      ],
+      "cwd": "/home/vv/ccode/generate-prototype",
+      "timeout_seconds": 120,
+      "expected_exit_codes": [
+        0
+      ],
+      "timeout_kind": "infrastructure",
+      "requirements": [
+        "FINAL-LIFECYCLE",
+        "FINAL-PERSISTENCE",
+        "FINAL-ROOT"
+      ],
+      "mandatory": true
+    }
+  ],
+  "cleanup": []
+}

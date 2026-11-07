@@ -1,0 +1,41 @@
+{
+  "status": "UNAVAILABLE",
+  "scope": "Selected specs/todolist implementation, two implementers and two fresh reviewers",
+  "agents": [
+    {
+      "reference": "/root",
+      "role": "supervisor",
+      "parent": null
+    },
+    {
+      "reference": "/root/business",
+      "role": "implementer",
+      "parent": "/root"
+    },
+    {
+      "reference": "/root/business/review",
+      "role": "reviewer",
+      "parent": "/root/business"
+    },
+    {
+      "reference": "/root/cli",
+      "role": "implementer",
+      "parent": "/root"
+    },
+    {
+      "reference": "/root/cli/review",
+      "role": "reviewer",
+      "parent": "/root/cli"
+    }
+  ],
+  "session_ids": null,
+  "turn_ids": null,
+  "log_paths": null,
+  "total_tokens": null,
+  "input_tokens": null,
+  "cached_input_tokens": null,
+  "output_tokens": null,
+  "reasoning_tokens": null,
+  "tool_calls": null,
+  "limits": "Only agent task references are exposed. No logs/counters available, so usage helper cannot compute execution or per-role/per-session totals. No inferred zero or complete totals."
+}

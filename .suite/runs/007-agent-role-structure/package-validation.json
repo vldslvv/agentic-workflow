@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "package_files": 19,
+  "inventory_entries": 18,
+  "sha256sum_output": ".agents/skills/spec-planner/SKILL.md: OK\n.agents/skills/spec-planner/agents/openai.yaml: OK\n.agents/skills/spec-supervisor/SKILL.md: OK\n.agents/skills/spec-supervisor/agents/openai.yaml: OK\nAGENTS.md: OK\nIMPLEMENTER.md: OK\nPACKAGE_CHECKS.json: OK\nPLANNER.md: OK\nREVIEWER.md: OK\nRUNNER.md: OK\nSUPERVISOR.md: OK\nVALIDATOR.md: OK\nhelpers/usage_report.py: OK\ntemplates/project.md: OK\ntemplates/task_order.md: OK\ntemplates/tasks/task.md: OK\ntemplates/verification.md: OK\ntests/test_usage_report.py: OK\n",
+  "skill_metadata": "name, description, default invocation and explicit-only policy checked; descriptions <=64 chars",
+  "obsolete_paths_and_entry_points": "absent from active instructions",
+  "links_and_anchors": "all local Markdown references resolved; archived evidence excluded"
+}

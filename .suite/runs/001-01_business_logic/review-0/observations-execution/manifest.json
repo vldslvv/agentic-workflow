@@ -1,0 +1,27 @@
+{
+  "checks": [
+    {
+      "argv": [
+        "python",
+        "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/review-0/observations.py"
+      ],
+      "cwd": "/home/vv/ccode/generate-prototype",
+      "expected_exit_codes": [
+        0
+      ],
+      "id": "storage-observations",
+      "mandatory": true,
+      "requirements": [
+        "BL-STORE"
+      ],
+      "timeout_kind": "infrastructure",
+      "timeout_seconds": 30
+    }
+  ],
+  "cleanup": [],
+  "requirements": [
+    "BL-STORE"
+  ],
+  "setup": [],
+  "version": 1
+}

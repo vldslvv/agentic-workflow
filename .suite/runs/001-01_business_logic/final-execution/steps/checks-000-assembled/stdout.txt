@@ -1,0 +1,9 @@
+{"args": ["list"], "exit": 0, "stdout": "No tasks.\n", "stderr": "Using CPython 3.14.10 interpreter at: /usr/lib/python-exec/python3.14/python3\nCreating virtual environment at: app/.venv\n   Building todolist @ file:///tmp/tmp38isajwd/app\n      Built todolist @ file:///tmp/tmp38isajwd/app\nwarning: Failed to hardlink files; falling back to full copy. This may lead to degraded performance.\n         If the cache and target directories are on different filesystems, hardlinking may not be supported.\n         If this is intentional, set `export UV_LINK_MODE=copy` or use `--link-mode=copy` to suppress this warning.\nInstalled 1 package in 0.68ms\n"}
+{"args": ["add", "Pack suitcase"], "exit": 0, "stdout": "Added task 1: Pack suitcase\n", "stderr": ""}
+{"args": ["add", "Book train"], "exit": 0, "stdout": "Added task 2: Book train\n", "stderr": ""}
+{"args": ["complete", "1"], "exit": 0, "stdout": "Completed task 1.\n", "stderr": ""}
+{"args": ["list"], "exit": 0, "stdout": "1 [x] Pack suitcase\n2 [ ] Book train\n", "stderr": ""}
+{"args": ["delete", "2"], "exit": 0, "stdout": "Deleted task 2.\n", "stderr": ""}
+{"args": ["delete", "1"], "exit": 0, "stdout": "Deleted task 1.\n", "stderr": ""}
+{"args": ["list"], "exit": 0, "stdout": "No tasks.\n", "stderr": ""}
+PASS: assembled CLI lifecycle, persistence across processes, default app-root storage

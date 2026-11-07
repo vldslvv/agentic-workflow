@@ -1,0 +1,21 @@
+{
+  "baseline": "e63405b4205b0f965879f37e739e3a161ab7f47a",
+  "authority": "User: Implement specs/todolist",
+  "kind": "agent-authored derived handoff authorized by supplied implementation request",
+  "decisions": [
+    "Simple TaskStore API and JSON schema in acceptance",
+    "Project root = apps/todolist",
+    "Numeric IDs, trimmed nonempty titles, idempotent completion; malformed store is an error",
+    "CLI interface todo add/delete/complete/list/help"
+  ],
+  "digests": {
+    "specs/todolist/project.md": "583d6507f3e0d4eb48ba9010ec0ea25c5f4450038a559d901c1ad1a407b9d487",
+    "specs/todolist/task_order.md": "f89c23d15e659a2657fe7c7edb4b283e592f53adb26e1477c3c6f48340d19912",
+    "specs/todolist/verification.md": "01b5eeb3ceace6c7e6fb7565e72082f40dbc5296fcbdfbd6a57730b65ca014f6",
+    "specs/todolist/tasks/02_cli.md": "63c8988e27105cc3155a06a48fe087ec3ce42f49d7ce137137656253a02e85fd",
+    "specs/todolist/tasks/01_business_logic.md": "1262a1da26f58cb390a87ac067f8775dc33c366e1da83ad3d2928ef96ad2556f",
+    ".suite/tasks/001-01_business_logic/plan.md": "54d32eecf6db77a507733f91911916e9eee1e4a78eb79778681f9474d7fdc3e5",
+    ".suite/tasks/001-01_business_logic/acceptance.md": "ab0e27cb40097a3764b9c24cc1df05a0c52e181df082176e0ea467780a557049",
+    ".suite/tasks/001-01_business_logic/inputs.md": "9d7ec1f9868770bdc7dbd6da00dfb3b0f8d72322fa016be84af9ed7bfd34d3c9"
+  }
+}

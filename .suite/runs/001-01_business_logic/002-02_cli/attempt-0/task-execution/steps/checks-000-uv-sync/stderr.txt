@@ -1,0 +1,7 @@
+Resolved 1 package in 2ms
+   Building todolist @ file:///home/vv/ccode/generate-prototype/apps/todolist
+      Built todolist @ file:///home/vv/ccode/generate-prototype/apps/todolist
+Prepared 1 package in 454ms
+Uninstalled 1 package in 0.23ms
+Installed 1 package in 1ms
+ ~ todolist==0.1.0 (from file:///home/vv/ccode/generate-prototype/apps/todolist)

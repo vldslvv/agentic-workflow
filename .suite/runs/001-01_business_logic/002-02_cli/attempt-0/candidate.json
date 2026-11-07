@@ -1,0 +1,16 @@
+{
+  "path": "apps/todolist",
+  "sha256": "f953d273be81bd37ead19f6818277ab843e45f115953997245ee0153f9b7bdff",
+  "files": {
+    "apps/todolist/.gitignore": "f2ed85230a611e07a275c210d0dd37b3e9d5a1b9ee825c12df18a428f98103b4",
+    "apps/todolist/README.md": "3b386958477f8a6c706b4a794de15f108772fc55ea10f9c741684444d33de4d1",
+    "apps/todolist/pyproject.toml": "07efe7e5d7f3f9761e4e135aa95e42be0b673df7089ea48b57dd85c94941a188",
+    "apps/todolist/todolist/__init__.py": "0e3a3f72d520d425230e41cb5886ef89fb892422875569db1f28db6480370378",
+    "apps/todolist/todolist/__main__.py": "18bc172c69fefed7eded0fdddae3225d2b0f31796de5c8c11e82b38ccd8960f4",
+    "apps/todolist/todolist/cli.py": "3b2831bde6ba3703f22a9eef02d84b6b134207d6e18f4685b9194b83a3ded5e1",
+    "apps/todolist/todolist/store.py": "42e4c603f4fd453afb0c1740c798957a8e49fc1cb74d1e0b3cde800fb433e730",
+    "apps/todolist/uv.lock": "7189ac1ed50e1f48de96f4d0d849f094fc77eb49c0cad115d426826250bbdbeb"
+  },
+  "snapshot": ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/snapshot",
+  "digest_algorithm": "sha256 of compact sorted JSON file-to-sha256 mapping"
+}

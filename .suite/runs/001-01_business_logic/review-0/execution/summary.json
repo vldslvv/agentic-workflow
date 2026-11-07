@@ -1,0 +1,49 @@
+{
+  "cleanup_status": "NOT_RUN",
+  "evidence": "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/review-0/execution",
+  "finished_at": "2026-11-06T17:08:04.916612+00:00",
+  "mandatory_executed": 2,
+  "manifest_sha256": "ed1339c3ced2f198099b85fa76e9c321b132b5d8373aae2761502c37316ca4bb",
+  "primary_status": "PASS",
+  "requirements": {
+    "BL-COMPLETE": "PASS",
+    "BL-CREATE": "PASS",
+    "BL-DELETE": "PASS",
+    "BL-LIST": "PASS",
+    "BL-STORE": "PASS",
+    "PROJECT-UV": "PASS"
+  },
+  "started_at": "2026-11-06T17:08:04.801754+00:00",
+  "status": "PASS",
+  "steps": [
+    {
+      "duration_seconds": 0.015682914000535675,
+      "evidence": "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/review-0/execution/steps/checks-000-uv-sync",
+      "executed": true,
+      "exit_code": 0,
+      "finished_at": "2026-11-06T17:08:04.836066+00:00",
+      "id": "uv-sync",
+      "interrupted_by": null,
+      "phase": "checks",
+      "signal": null,
+      "started_at": "2026-11-06T17:08:04.815636+00:00",
+      "status": "PASS",
+      "timed_out": false
+    },
+    {
+      "duration_seconds": 0.06381877700005134,
+      "evidence": "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/review-0/execution/steps/checks-001-business",
+      "executed": true,
+      "exit_code": 0,
+      "finished_at": "2026-11-06T17:08:04.910519+00:00",
+      "id": "business",
+      "interrupted_by": null,
+      "phase": "checks",
+      "signal": null,
+      "started_at": "2026-11-06T17:08:04.841858+00:00",
+      "status": "PASS",
+      "timed_out": false
+    }
+  ],
+  "version": 1
+}

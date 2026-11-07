@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "changed": [
+    "apps/todolist/README.md",
+    "apps/todolist/pyproject.toml",
+    "apps/todolist/todolist/__main__.py",
+    "apps/todolist/todolist/cli.py"
+  ],
+  "unauthorized": [],
+  "excluded_authorized_reviewer_directory": ".suite/runs/001-01_business_logic/002-02_cli/review-0"
+}

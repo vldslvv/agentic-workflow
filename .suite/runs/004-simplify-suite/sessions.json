@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "root": {
+    "session_id": "01a1b20b-0bad-7c41-adeb-0df6bf4c7a7a",
+    "path": "/home/vv/.codex/sessions/2026/11/06/rollout-2026-11-06T15-07-10-01a1b20b-0bad-7c41-adeb-0df6bf4c7a7a.jsonl",
+    "turn_ids": [
+      "01a1b20b-0bc9-7f41-b658-987994e191bc"
+    ],
+    "role": "supervisor"
+  },
+  "descendants": [
+    {
+      "session_id": "01a1b210-edc4-7c80-a82e-dd6585e80585",
+      "path": "/home/vv/.codex/sessions/2026/11/06/rollout-2026-11-06T15-13-36-01a1b210-edc4-7c80-a82e-dd6585e80585.jsonl",
+      "turn_ids": [
+        "01a1b210-edc9-7be2-ad73-9c9fd422ebc3"
+      ],
+      "role": "reviewer",
+      "parent_session_id": "01a1b20b-0bad-7c41-adeb-0df6bf4c7a7a"
+    }
+  ]
+}

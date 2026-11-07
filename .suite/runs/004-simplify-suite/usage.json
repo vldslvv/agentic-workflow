@@ -1,0 +1,265 @@
+{
+  "tokens": {
+    "input_tokens": {
+      "total": 2070012,
+      "known_subtotal": 2070012,
+      "missing_records": 0
+    },
+    "cached_input_tokens": {
+      "total": 1971456,
+      "known_subtotal": 1971456,
+      "missing_records": 0
+    },
+    "uncached_input_tokens": {
+      "total": 98556,
+      "known_subtotal": 98556,
+      "missing_records": 0
+    },
+    "output_tokens": {
+      "total": 23202,
+      "known_subtotal": 23202,
+      "missing_records": 0
+    },
+    "reasoning_output_tokens": {
+      "total": 2763,
+      "known_subtotal": 2763,
+      "missing_records": 0
+    },
+    "total_tokens": {
+      "total": 2093214,
+      "known_subtotal": 2093214,
+      "missing_records": 0
+    }
+  },
+  "model_responses": 37,
+  "identified_model_responses": 37,
+  "unidentified_usage_records": 0,
+  "tool_calls": 35,
+  "identified_tool_calls": 35,
+  "unidentified_tool_records": 0,
+  "tool_categories": {
+    "agent": 4,
+    "execution_batch": 31
+  },
+  "execution_batches": 31,
+  "observed_nested_operations": null,
+  "nested_operation_measurement": "explicit parent_call_id records only; unavailable otherwise",
+  "elapsed_seconds": 533.1160001754761,
+  "elapsed_measurement": "selected event timestamp span; not CPU or billed time",
+  "version": 1,
+  "root_session_id": "01a1b20b-0bad-7c41-adeb-0df6bf4c7a7a",
+  "sessions": {
+    "01a1b20b-0bad-7c41-adeb-0df6bf4c7a7a": {
+      "tokens": {
+        "input_tokens": {
+          "total": 1481344,
+          "known_subtotal": 1481344,
+          "missing_records": 0
+        },
+        "cached_input_tokens": {
+          "total": 1423488,
+          "known_subtotal": 1423488,
+          "missing_records": 0
+        },
+        "uncached_input_tokens": {
+          "total": 57856,
+          "known_subtotal": 57856,
+          "missing_records": 0
+        },
+        "output_tokens": {
+          "total": 19324,
+          "known_subtotal": 19324,
+          "missing_records": 0
+        },
+        "reasoning_output_tokens": {
+          "total": 2305,
+          "known_subtotal": 2305,
+          "missing_records": 0
+        },
+        "total_tokens": {
+          "total": 1500668,
+          "known_subtotal": 1500668,
+          "missing_records": 0
+        }
+      },
+      "model_responses": 23,
+      "identified_model_responses": 23,
+      "unidentified_usage_records": 0,
+      "tool_calls": 23,
+      "identified_tool_calls": 23,
+      "unidentified_tool_records": 0,
+      "tool_categories": {
+        "agent": 2,
+        "execution_batch": 21
+      },
+      "execution_batches": 21,
+      "observed_nested_operations": null,
+      "nested_operation_measurement": "explicit parent_call_id records only; unavailable otherwise",
+      "elapsed_seconds": 533.1160001754761,
+      "elapsed_measurement": "selected event timestamp span; not CPU or billed time",
+      "role": "supervisor",
+      "turn_ids": [
+        "01a1b20b-0bc9-7f41-b658-987994e191bc"
+      ]
+    },
+    "01a1b210-edc4-7c80-a82e-dd6585e80585": {
+      "tokens": {
+        "input_tokens": {
+          "total": 588668,
+          "known_subtotal": 588668,
+          "missing_records": 0
+        },
+        "cached_input_tokens": {
+          "total": 547968,
+          "known_subtotal": 547968,
+          "missing_records": 0
+        },
+        "uncached_input_tokens": {
+          "total": 40700,
+          "known_subtotal": 40700,
+          "missing_records": 0
+        },
+        "output_tokens": {
+          "total": 3878,
+          "known_subtotal": 3878,
+          "missing_records": 0
+        },
+        "reasoning_output_tokens": {
+          "total": 458,
+          "known_subtotal": 458,
+          "missing_records": 0
+        },
+        "total_tokens": {
+          "total": 592546,
+          "known_subtotal": 592546,
+          "missing_records": 0
+        }
+      },
+      "model_responses": 14,
+      "identified_model_responses": 14,
+      "unidentified_usage_records": 0,
+      "tool_calls": 12,
+      "identified_tool_calls": 12,
+      "unidentified_tool_records": 0,
+      "tool_categories": {
+        "agent": 2,
+        "execution_batch": 10
+      },
+      "execution_batches": 10,
+      "observed_nested_operations": null,
+      "nested_operation_measurement": "explicit parent_call_id records only; unavailable otherwise",
+      "elapsed_seconds": 122.68499994277954,
+      "elapsed_measurement": "selected event timestamp span; not CPU or billed time",
+      "role": "reviewer",
+      "turn_ids": [
+        "01a1b210-edc9-7be2-ad73-9c9fd422ebc3"
+      ]
+    }
+  },
+  "roles": {
+    "supervisor": {
+      "tokens": {
+        "input_tokens": {
+          "total": 1481344,
+          "known_subtotal": 1481344,
+          "missing_records": 0
+        },
+        "cached_input_tokens": {
+          "total": 1423488,
+          "known_subtotal": 1423488,
+          "missing_records": 0
+        },
+        "uncached_input_tokens": {
+          "total": 57856,
+          "known_subtotal": 57856,
+          "missing_records": 0
+        },
+        "output_tokens": {
+          "total": 19324,
+          "known_subtotal": 19324,
+          "missing_records": 0
+        },
+        "reasoning_output_tokens": {
+          "total": 2305,
+          "known_subtotal": 2305,
+          "missing_records": 0
+        },
+        "total_tokens": {
+          "total": 1500668,
+          "known_subtotal": 1500668,
+          "missing_records": 0
+        }
+      },
+      "model_responses": 23,
+      "identified_model_responses": 23,
+      "unidentified_usage_records": 0,
+      "tool_calls": 23,
+      "identified_tool_calls": 23,
+      "unidentified_tool_records": 0,
+      "tool_categories": {
+        "agent": 2,
+        "execution_batch": 21
+      },
+      "execution_batches": 21,
+      "observed_nested_operations": null,
+      "nested_operation_measurement": "explicit parent_call_id records only; unavailable otherwise",
+      "elapsed_seconds": 533.1160001754761,
+      "elapsed_measurement": "selected event timestamp span; not CPU or billed time"
+    },
+    "reviewer": {
+      "tokens": {
+        "input_tokens": {
+          "total": 588668,
+          "known_subtotal": 588668,
+          "missing_records": 0
+        },
+        "cached_input_tokens": {
+          "total": 547968,
+          "known_subtotal": 547968,
+          "missing_records": 0
+        },
+        "uncached_input_tokens": {
+          "total": 40700,
+          "known_subtotal": 40700,
+          "missing_records": 0
+        },
+        "output_tokens": {
+          "total": 3878,
+          "known_subtotal": 3878,
+          "missing_records": 0
+        },
+        "reasoning_output_tokens": {
+          "total": 458,
+          "known_subtotal": 458,
+          "missing_records": 0
+        },
+        "total_tokens": {
+          "total": 592546,
+          "known_subtotal": 592546,
+          "missing_records": 0
+        }
+      },
+      "model_responses": 14,
+      "identified_model_responses": 14,
+      "unidentified_usage_records": 0,
+      "tool_calls": 12,
+      "identified_tool_calls": 12,
+      "unidentified_tool_records": 0,
+      "tool_categories": {
+        "agent": 2,
+        "execution_batch": 10
+      },
+      "execution_batches": 10,
+      "observed_nested_operations": null,
+      "nested_operation_measurement": "explicit parent_call_id records only; unavailable otherwise",
+      "elapsed_seconds": 122.68499994277954,
+      "elapsed_measurement": "selected event timestamp span; not CPU or billed time"
+    }
+  },
+  "verification_subprocesses": null,
+  "limitations": [
+    "Only explicitly selected sessions and turns are included.",
+    "Nested execution is unavailable unless explicit parent call IDs were logged.",
+    "Legacy token_count snapshots lack response IDs and cannot establish deduplicated totals."
+  ]
+}

@@ -1,32 +1,38 @@
-"""Task operations backed by a JSON file."""
+"""Task operations backed by a JSON file in the application root."""
 
 import json
 import os
-import tempfile
 from pathlib import Path
+import tempfile
 
 
 class TaskStore:
-    """Read current tasks for each operation and save mutations atomically."""
+    """Read current tasks on every operation and persist successful mutations.
+
+    Tasks are dictionaries with integer ``id``, string ``title``, and boolean
+    ``completed`` fields. Invalid input, malformed storage, and unknown IDs raise
+    ValueError. Filesystem errors propagate as OSError. Concurrent writers are
+    outside this small store's contract.
+    """
 
     def __init__(self, path: str | Path | None = None):
         self.path = (
             Path(path) if path is not None
-            else Path(__file__).resolve().parents[1] / "tasks.json"
+            else Path(__file__).resolve().parent.parent / "tasks.json"
         )
 
-    def list_tasks(self) -> list[dict]:
-        """Return tasks in creation order, or an empty list for a new store."""
+    def list(self) -> list[dict]:
+        """Return all tasks, or an empty list if the file does not exist."""
         try:
             raw = self.path.read_text(encoding="utf-8")
         except FileNotFoundError:
             return []
         try:
             tasks = json.loads(raw)
-        except json.JSONDecodeError as error:
-            raise ValueError("Task storage is not valid JSON") from error
+        except (json.JSONDecodeError, UnicodeError) as exc:
+            raise ValueError(f"Invalid task storage: {self.path}") from exc
         if not isinstance(tasks, list):
-            raise ValueError("Task storage must be a JSON array")
+            raise ValueError("Invalid task storage: expected a JSON list")
         ids = set()
         for task in tasks:
             if (
@@ -34,20 +40,21 @@ class TaskStore:
                 or set(task) != {"id", "title", "completed"}
                 or type(task["id"]) is not int
                 or task["id"] <= 0
-                or task["id"] in ids
                 or not isinstance(task["title"], str)
                 or not task["title"].strip()
                 or type(task["completed"]) is not bool
             ):
-                raise ValueError("Task storage contains an invalid task")
+                raise ValueError("Invalid task storage: invalid task fields")
+            if task["id"] in ids:
+                raise ValueError("Invalid task storage: duplicate task ID")
             ids.add(task["id"])
         return tasks
 
-    def create_task(self, title: str) -> dict:
-        """Create a task with a trimmed title and an unused positive ID."""
+    def create(self, title: str) -> dict:
+        """Create an incomplete task with a positive ID and return it."""
         if not isinstance(title, str) or not title.strip():
-            raise ValueError("Task title must not be empty")
-        tasks = self.list_tasks()
+            raise ValueError("Task title must not be blank")
+        tasks = self.list()
         task = {
             "id": max((item["id"] for item in tasks), default=0) + 1,
             "title": title.strip(),
@@ -57,36 +64,34 @@ class TaskStore:
         self._save(tasks)
         return task
 
-    def delete_task(self, task_id: int) -> None:
-        """Delete a task, raising ValueError when the ID does not exist."""
-        tasks = self.list_tasks()
-        task = self._find(tasks, task_id)
+    def complete(self, task_id: int) -> dict:
+        """Mark a task complete and return it; repeated completion is harmless."""
+        tasks, task = self._find(task_id)
+        task["completed"] = True
+        self._save(tasks)
+        return task
+
+    def delete(self, task_id: int) -> None:
+        """Delete the selected task, reporting unknown IDs without mutation."""
+        tasks, task = self._find(task_id)
         tasks.remove(task)
         self._save(tasks)
 
-    def complete_task(self, task_id: int) -> None:
-        """Mark a task complete; completing it again succeeds."""
-        tasks = self.list_tasks()
-        task = self._find(tasks, task_id)
-        if not task["completed"]:
-            task["completed"] = True
-            self._save(tasks)
-
-    @staticmethod
-    def _find(tasks: list[dict], task_id: int) -> dict:
+    def _find(self, task_id: int) -> tuple[list[dict], dict]:
         if type(task_id) is not int or task_id <= 0:
             raise ValueError("Task ID must be a positive integer")
+        tasks = self.list()
         for task in tasks:
             if task["id"] == task_id:
-                return task
-        raise ValueError(f"Task {task_id} does not exist")
+                return tasks, task
+        raise ValueError(f"Task {task_id} not found")
 
     def _save(self, tasks: list[dict]) -> None:
         temporary_path = None
         try:
             with tempfile.NamedTemporaryFile(
                 mode="w", encoding="utf-8", dir=self.path.parent,
-                prefix=".tasks-", suffix=".tmp", delete=False,
+                prefix=f".{self.path.name}.", suffix=".tmp", delete=False,
             ) as temporary:
                 temporary_path = Path(temporary.name)
                 json.dump(tasks, temporary, ensure_ascii=False, indent=2)

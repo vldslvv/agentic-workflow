@@ -1,0 +1,239 @@
+{
+  "version": 1,
+  "role": "reviewer",
+  "reads": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "50633bd032269b7daa693f6b9b7566548d6d4099a02b3d774877b66c70510b83",
+      "section": null,
+      "category": null,
+      "file_bytes": 3145,
+      "selected_bytes": 3145,
+      "suite_controlled": true
+    },
+    {
+      "path": "spec-source-suite/AGENTS.md",
+      "sha256": "1cf82f44d80c8ae2fda52e37159d11e4f90e102f54a704c12a96bc89874dbccd",
+      "section": null,
+      "category": null,
+      "file_bytes": 737,
+      "selected_bytes": 737,
+      "suite_controlled": true
+    },
+    {
+      "path": "spec-source-suite/docs/SUITE_CONTRACT.md",
+      "sha256": "c6fb123d57ecccb550a28876d171c513cb884685df253f683fb06a674be64e12",
+      "section": null,
+      "category": null,
+      "file_bytes": 9226,
+      "selected_bytes": 9226,
+      "suite_controlled": true
+    },
+    {
+      "path": "spec-source-suite/prompts/REVIEWER.md",
+      "sha256": "f34fb1fdac723eb358d9d2afeef9497e8532ec9dc32526f73fe7bb1d44b513a7",
+      "section": null,
+      "category": null,
+      "file_bytes": 1724,
+      "selected_bytes": 1724,
+      "suite_controlled": true
+    },
+    {
+      "path": "spec-source-suite/prompts/VERIFIER.md",
+      "sha256": "c903b435c5e45015a925eda84203a78bde66a894b63f9125e8ff0e5240c3277f",
+      "section": null,
+      "category": null,
+      "file_bytes": 1231,
+      "selected_bytes": 1231,
+      "suite_controlled": true
+    },
+    {
+      "path": "specs/todolist/project.md",
+      "sha256": "583d6507f3e0d4eb48ba9010ec0ea25c5f4450038a559d901c1ad1a407b9d487",
+      "section": null,
+      "category": null,
+      "file_bytes": 171,
+      "selected_bytes": 171,
+      "suite_controlled": false
+    },
+    {
+      "path": "specs/todolist/task_order.md",
+      "sha256": "f89c23d15e659a2657fe7c7edb4b283e592f53adb26e1477c3c6f48340d19912",
+      "section": null,
+      "category": null,
+      "file_bytes": 37,
+      "selected_bytes": 37,
+      "suite_controlled": false
+    },
+    {
+      "path": "specs/todolist/verification.md",
+      "sha256": "01b5eeb3ceace6c7e6fb7565e72082f40dbc5296fcbdfbd6a57730b65ca014f6",
+      "section": null,
+      "category": null,
+      "file_bytes": 68,
+      "selected_bytes": 68,
+      "suite_controlled": false
+    },
+    {
+      "path": "specs/todolist/tasks/02_cli.md",
+      "sha256": "63c8988e27105cc3155a06a48fe087ec3ce42f49d7ce137137656253a02e85fd",
+      "section": null,
+      "category": null,
+      "file_bytes": 143,
+      "selected_bytes": 143,
+      "suite_controlled": false
+    },
+    {
+      "path": "specs/todolist/tasks/01_business_logic.md",
+      "sha256": "1262a1da26f58cb390a87ac067f8775dc33c366e1da83ad3d2928ef96ad2556f",
+      "section": null,
+      "category": null,
+      "file_bytes": 187,
+      "selected_bytes": 187,
+      "suite_controlled": false
+    },
+    {
+      "path": ".suite/tasks/001-01_business_logic/acceptance.md",
+      "sha256": "ab0e27cb40097a3764b9c24cc1df05a0c52e181df082176e0ea467780a557049",
+      "section": null,
+      "category": null,
+      "file_bytes": 2840,
+      "selected_bytes": 2840,
+      "suite_controlled": false
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/checks/business.py",
+      "sha256": "0dcc8f6e07213095424d135523eb62ff8151de4c1f09894d7308715e96832271",
+      "section": null,
+      "category": null,
+      "file_bytes": 2284,
+      "selected_bytes": 2284,
+      "suite_controlled": false
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/checks/task-v1.json",
+      "sha256": "ed1339c3ced2f198099b85fa76e9c321b132b5d8373aae2761502c37316ca4bb",
+      "section": null,
+      "category": null,
+      "file_bytes": 1161,
+      "selected_bytes": 1161,
+      "suite_controlled": false
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/attempt-0/candidate.json",
+      "sha256": "271b9adf3adf8829502db7ed5b26a5276b73dee067f8514a3dd84c2786fea0eb",
+      "section": null,
+      "category": null,
+      "file_bytes": 892,
+      "selected_bytes": 892,
+      "suite_controlled": false
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/attempt-0/execution.json",
+      "sha256": "91201fbee739acb6957e2f4bcb3208ff691d11383b567e0bc2d447a79baf66b1",
+      "section": null,
+      "category": null,
+      "file_bytes": 1157,
+      "selected_bytes": 1157,
+      "suite_controlled": false
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/attempt-0/uv-sync.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "section": null,
+      "category": null,
+      "file_bytes": 0,
+      "selected_bytes": 0,
+      "suite_controlled": false
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/attempt-0/uv-sync.stderr.log",
+      "sha256": "e601d5cb02855cc0866068bd6b1f3ccbb39afbf2b8a7a9df7e1b4d415c3bc645",
+      "section": null,
+      "category": null,
+      "file_bytes": 453,
+      "selected_bytes": 453,
+      "suite_controlled": false
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/attempt-0/business.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "section": null,
+      "category": null,
+      "file_bytes": 0,
+      "selected_bytes": 0,
+      "suite_controlled": false
+    },
+    {
+      "path": ".suite/runs/001-01_business_logic/attempt-0/business.stderr.log",
+      "sha256": "921b60a7fd52e978fbb551cacd29df2d6708879400278e1fcc70fceeb0c6f8e0",
+      "section": null,
+      "category": null,
+      "file_bytes": 101,
+      "selected_bytes": 101,
+      "suite_controlled": false
+    },
+    {
+      "path": "apps/todolist/.gitignore",
+      "sha256": "f2ed85230a611e07a275c210d0dd37b3e9d5a1b9ee825c12df18a428f98103b4",
+      "section": null,
+      "category": null,
+      "file_bytes": 56,
+      "selected_bytes": 56,
+      "suite_controlled": false
+    },
+    {
+      "path": "apps/todolist/README.md",
+      "sha256": "8eff26656c39916d0da1b45530b8304816b5543318f78521198a93438621b3b6",
+      "section": null,
+      "category": null,
+      "file_bytes": 1060,
+      "selected_bytes": 1060,
+      "suite_controlled": false
+    },
+    {
+      "path": "apps/todolist/pyproject.toml",
+      "sha256": "d51c779cb709245dc1fc9b8af2195535409cf6fe1f302e30e6d1e6ebf19679bd",
+      "section": null,
+      "category": null,
+      "file_bytes": 276,
+      "selected_bytes": 276,
+      "suite_controlled": false
+    },
+    {
+      "path": "apps/todolist/todolist/__init__.py",
+      "sha256": "0e3a3f72d520d425230e41cb5886ef89fb892422875569db1f28db6480370378",
+      "section": null,
+      "category": null,
+      "file_bytes": 82,
+      "selected_bytes": 82,
+      "suite_controlled": false
+    },
+    {
+      "path": "apps/todolist/todolist/store.py",
+      "sha256": "42e4c603f4fd453afb0c1740c798957a8e49fc1cb74d1e0b3cde800fb433e730",
+      "section": null,
+      "category": null,
+      "file_bytes": 3551,
+      "selected_bytes": 3551,
+      "suite_controlled": false
+    },
+    {
+      "path": "apps/todolist/uv.lock",
+      "sha256": "7189ac1ed50e1f48de96f4d0d849f094fc77eb49c0cad115d426826250bbdbeb",
+      "section": null,
+      "category": null,
+      "file_bytes": 129,
+      "selected_bytes": 129,
+      "suite_controlled": false
+    }
+  ],
+  "owned_paths": [
+    ".suite/runs/001-01_business_logic/review-0"
+  ],
+  "memory_write_paths": [],
+  "suite_controlled_selected_bytes": 16063,
+  "suite_controlled_validated_file_bytes": 16063,
+  "selected_bytes": 30711,
+  "measurement": "selected context bytes; actual model reads are not observable"
+}

@@ -1,0 +1,14 @@
+{
+  "duration_seconds": 0.500809059999483,
+  "evidence": "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/002-02_cli/attempt-0/task-execution/steps/checks-000-uv-sync",
+  "executed": true,
+  "exit_code": 0,
+  "finished_at": "2026-11-06T17:13:31.085226+00:00",
+  "id": "uv-sync",
+  "interrupted_by": null,
+  "phase": "checks",
+  "signal": null,
+  "started_at": "2026-11-06T17:13:30.579718+00:00",
+  "status": "PASS",
+  "timed_out": false
+}

@@ -1,0 +1,505 @@
+{
+  "scope": "Original implementation and descendant follow-ups; analysis turn excluded.",
+  "agents": {
+    "/root": {
+      "session_id": "01a1b1d0-4f17-77b3-bdbf-4620840a5ad6",
+      "turns": {
+        "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c": {
+          "start": "2026-11-06T17:03:16.645Z",
+          "end": "2026-11-06T17:20:13.051Z",
+          "duration_seconds": 1016.4060001373291,
+          "tokens": {
+            "input_tokens": 1834872,
+            "cached_input_tokens": 1797120,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 16572,
+            "reasoning_output_tokens": 1866,
+            "total_tokens": 1851444
+          },
+          "responses": 44
+        }
+      },
+      "tools": {
+        "exec": 18,
+        "spawn_agent": 2,
+        "wait_agent": 17,
+        "send_message": 2,
+        "followup_task": 2
+      },
+      "observed_shell_executions": 18,
+      "observed_file_change_events": 0,
+      "agent_message_events": 15,
+      "waits": [
+        {
+          "call_id": "call_7fbb0dcd31c44344a038c24b30a6ee3d",
+          "duration_seconds": 10.006999969482422,
+          "timed_out": true,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_416e416db121441da2a400a916081e31",
+          "duration_seconds": 50.00699996948242,
+          "timed_out": true,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_e9bbaa63afcd4366a6823ba3cdce1f61",
+          "duration_seconds": 6.179999828338623,
+          "timed_out": false,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_a634aeabf6a54c6d907df5ee121d59e9",
+          "duration_seconds": 50.00699996948242,
+          "timed_out": true,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_aaedfd909b4f46439939ed21d982697e",
+          "duration_seconds": 50.00699996948242,
+          "timed_out": true,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_163e821480da4aa39c62db0ec0476fb2",
+          "duration_seconds": 10.006999969482422,
+          "timed_out": true,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_36caeb95295d4ec291291254801d4bf6",
+          "duration_seconds": 5.238000154495239,
+          "timed_out": false,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_734ec51383984671b657bece977291ca",
+          "duration_seconds": 50.00699996948242,
+          "timed_out": true,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_43b64861dafa4901b4f57a80c36e1c70",
+          "duration_seconds": 8.871999979019165,
+          "timed_out": false,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_3d5268c8f19d4cd6a8026593636c5979",
+          "duration_seconds": 50.00600004196167,
+          "timed_out": true,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_40a074c7620149e2b5fc92ed65dfea16",
+          "duration_seconds": 13.88100004196167,
+          "timed_out": false,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_f51169fcf4a94ae9b349bb2dbebae1bb",
+          "duration_seconds": 50.00800013542175,
+          "timed_out": true,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_e382b7eb459e433a8d349309593d15c5",
+          "duration_seconds": 50.007000207901,
+          "timed_out": true,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_937e8566c6d9422a836917b35a91a241",
+          "duration_seconds": 10.006999969482422,
+          "timed_out": true,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_4050ef95c2f94bdfa812066d5cbddd0e",
+          "duration_seconds": 3.305999994277954,
+          "timed_out": false,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_d8e2c6bad25a4414baae98da16a87ff4",
+          "duration_seconds": 50.01799988746643,
+          "timed_out": true,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        },
+        {
+          "call_id": "call_6541788ce2bd4b0c8046b4e0a1cacce9",
+          "duration_seconds": 21.124000072479248,
+          "timed_out": false,
+          "turn": "01a1b1d0-8aa0-7893-a2aa-b027b4a0368c"
+        }
+      ],
+      "wait_seconds": 488.6890001296997,
+      "timed_out_waits": 11,
+      "nonzero_shell_exits": [
+        {
+          "id": "exec-3c33cc37-56f0-4bd3-840b-31c3774d6181",
+          "exit_code": 1,
+          "command_preview": "['/bin/zsh', '-lc', \"cat specs/todolist/project.md specs/todolist/task_order.md specs/todolist/tasks/01_business_logic.md specs/todolist/tasks/02_cli.md specs/todolist/verification.md spec-source-suite/docs/PROJECT_MEMORY.md spec-source-suite/templates/PLAN.md spec-source-suite/t"
+        },
+        {
+          "id": "exec-ff6a5f0b-acc7-4f1c-9077-926ce32c4603",
+          "exit_code": 1,
+          "command_preview": "['/bin/zsh', '-lc', \"python - <<'PY'\\nimport datetime,hashlib,json,subprocess\\nfrom pathlib import Path\\nr=Path('.suite/runs/001-01_business_logic'); c=r/'002-02_cli'\\ndef sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()\\ndef dump(p,o):Path(p).write_text(json.dumps("
+        }
+      ]
+    },
+    "/root/business": {
+      "session_id": "01a1b1d2-a914-7d13-9d14-2dc7ade464b7",
+      "turns": {
+        "01a1b1d2-a925-7500-a7dd-74e186fca7b4": {
+          "start": "2026-11-06T17:05:35.529Z",
+          "end": "2026-11-06T17:10:55.545Z",
+          "duration_seconds": 320.0160000324249,
+          "tokens": {
+            "input_tokens": 798952,
+            "cached_input_tokens": 765184,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 6850,
+            "reasoning_output_tokens": 408,
+            "total_tokens": 805802
+          },
+          "responses": 23
+        },
+        "01a1b1df-0e05-7b33-b5a2-dc76f3592408": {
+          "start": "2026-11-06T17:19:07.784Z",
+          "end": "2026-11-06T17:19:32.101Z",
+          "duration_seconds": 24.317000150680542,
+          "tokens": {
+            "input_tokens": 209099,
+            "cached_input_tokens": 207744,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 365,
+            "reasoning_output_tokens": 53,
+            "total_tokens": 209464
+          },
+          "responses": 5
+        }
+      },
+      "tools": {
+        "exec": 11,
+        "spawn_agent": 1,
+        "send_message": 6,
+        "wait_agent": 7,
+        "followup_task": 1
+      },
+      "observed_shell_executions": 11,
+      "observed_file_change_events": 1,
+      "agent_message_events": 6,
+      "waits": [
+        {
+          "call_id": "call_977bde802b994e309b3400d56b635409",
+          "duration_seconds": 10.006999969482422,
+          "timed_out": true,
+          "turn": "01a1b1d2-a925-7500-a7dd-74e186fca7b4"
+        },
+        {
+          "call_id": "call_9f4a8de6e2a04abb9ab43dedf389281b",
+          "duration_seconds": 10.008000135421753,
+          "timed_out": true,
+          "turn": "01a1b1d2-a925-7500-a7dd-74e186fca7b4"
+        },
+        {
+          "call_id": "call_b54ea40b1cc24f76aa7660ec8cf3553e",
+          "duration_seconds": 10.006999969482422,
+          "timed_out": true,
+          "turn": "01a1b1d2-a925-7500-a7dd-74e186fca7b4"
+        },
+        {
+          "call_id": "call_ffdfda0f32bf4fca9bc09eb51e72ec01",
+          "duration_seconds": 30.00600004196167,
+          "timed_out": true,
+          "turn": "01a1b1d2-a925-7500-a7dd-74e186fca7b4"
+        },
+        {
+          "call_id": "call_8ccde417e850437395e80bfb2948e127",
+          "duration_seconds": 26.236000061035156,
+          "timed_out": false,
+          "turn": "01a1b1d2-a925-7500-a7dd-74e186fca7b4"
+        },
+        {
+          "call_id": "call_5aad1507911044d7a954b41bba0fbde0",
+          "duration_seconds": 19.759000062942505,
+          "timed_out": false,
+          "turn": "01a1b1d2-a925-7500-a7dd-74e186fca7b4"
+        },
+        {
+          "call_id": "call_103e197c7e754530bc28123d5b1d4797",
+          "duration_seconds": 0.9500000476837158,
+          "timed_out": false,
+          "turn": "01a1b1df-0e05-7b33-b5a2-dc76f3592408"
+        }
+      ],
+      "wait_seconds": 106.97300028800964,
+      "timed_out_waits": 4,
+      "nonzero_shell_exits": []
+    },
+    "/root/business/review_business": {
+      "session_id": "01a1b1d4-22a2-7ab2-bf04-213bb6ff9a17",
+      "turns": {
+        "01a1b1d4-22a8-7f70-9e0b-a6a6f3f1f621": {
+          "start": "2026-11-06T17:07:12.173Z",
+          "end": "2026-11-06T17:10:05.264Z",
+          "duration_seconds": 173.09099984169006,
+          "tokens": {
+            "input_tokens": 330665,
+            "cached_input_tokens": 311936,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 5936,
+            "reasoning_output_tokens": 728,
+            "total_tokens": 336601
+          },
+          "responses": 11
+        },
+        "01a1b1df-4c0a-7dc3-ab42-10d606b36409": {
+          "start": "2026-11-06T17:19:23.660Z",
+          "end": "2026-11-06T17:19:27.981Z",
+          "duration_seconds": 4.32099986076355,
+          "tokens": {
+            "input_tokens": 37016,
+            "cached_input_tokens": 36608,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 52,
+            "reasoning_output_tokens": 0,
+            "total_tokens": 37068
+          },
+          "responses": 1
+        }
+      },
+      "tools": {
+        "exec": 9,
+        "send_message": 1
+      },
+      "observed_shell_executions": 18,
+      "observed_file_change_events": 0,
+      "agent_message_events": 4,
+      "waits": [],
+      "wait_seconds": 0,
+      "timed_out_waits": 0,
+      "nonzero_shell_exits": [
+        {
+          "id": "exec-ef6b9304-e40e-40fe-a403-8ab35d264db8",
+          "exit_code": 1,
+          "command_preview": "['/bin/zsh', '-lc', \"python - <<'PY'\\nimport hashlib,json,subprocess\\nfrom pathlib import Path\\nr=Path('.suite/runs/001-01_business_logic/review-0')\\nbefore=json.loads((r/'integrity-before.json').read_text())\\nh=lambda p: hashlib.sha256(Path(p).read_bytes()).hexdigest()\\nafter={'"
+        }
+      ]
+    },
+    "/root/cli": {
+      "session_id": "01a1b1d9-1216-7a72-b5c7-b47e36e30c74",
+      "turns": {
+        "01a1b1d9-121d-7fe2-8ef0-4e0317bd2d6c": {
+          "start": "2026-11-06T17:12:35.620Z",
+          "end": "2026-11-06T17:17:43.122Z",
+          "duration_seconds": 307.5020000934601,
+          "tokens": {
+            "input_tokens": 687679,
+            "cached_input_tokens": 654464,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 5737,
+            "reasoning_output_tokens": 182,
+            "total_tokens": 693416
+          },
+          "responses": 18
+        },
+        "01a1b1df-02c8-7d41-999b-abf123fb0699": {
+          "start": "2026-11-06T17:19:04.906Z",
+          "end": "2026-11-06T17:19:19.131Z",
+          "duration_seconds": 14.225000143051147,
+          "tokens": {
+            "input_tokens": 191775,
+            "cached_input_tokens": 190848,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 237,
+            "reasoning_output_tokens": 0,
+            "total_tokens": 192012
+          },
+          "responses": 4
+        }
+      },
+      "tools": {
+        "exec": 11,
+        "send_message": 3,
+        "spawn_agent": 1,
+        "wait_agent": 4,
+        "followup_task": 1
+      },
+      "observed_shell_executions": 11,
+      "observed_file_change_events": 1,
+      "agent_message_events": 6,
+      "waits": [
+        {
+          "call_id": "call_fdc5224c90f04643bab7e82d3ed863b0",
+          "duration_seconds": 60.00800013542175,
+          "timed_out": true,
+          "turn": "01a1b1d9-121d-7fe2-8ef0-4e0317bd2d6c"
+        },
+        {
+          "call_id": "call_7613b05ed00a4c719731804e6722bdb0",
+          "duration_seconds": 60.00699996948242,
+          "timed_out": true,
+          "turn": "01a1b1d9-121d-7fe2-8ef0-4e0317bd2d6c"
+        },
+        {
+          "call_id": "call_5c5c1eac45264d4d9750a859da3de8d5",
+          "duration_seconds": 29.473999977111816,
+          "timed_out": false,
+          "turn": "01a1b1d9-121d-7fe2-8ef0-4e0317bd2d6c"
+        },
+        {
+          "call_id": "call_e506edfaec834686aaebbbb09a195bc4",
+          "duration_seconds": 1.7339999675750732,
+          "timed_out": false,
+          "turn": "01a1b1df-02c8-7d41-999b-abf123fb0699"
+        }
+      ],
+      "wait_seconds": 151.22300004959106,
+      "timed_out_waits": 2,
+      "nonzero_shell_exits": []
+    },
+    "/root/cli/review": {
+      "session_id": "01a1b1da-947c-7740-9294-202279424f85",
+      "turns": {
+        "01a1b1da-9481-7811-9d96-b7f131e9d02e": {
+          "start": "2026-11-06T17:14:14.535Z",
+          "end": "2026-11-06T17:16:55.462Z",
+          "duration_seconds": 160.9269998073578,
+          "tokens": {
+            "input_tokens": 377387,
+            "cached_input_tokens": 349440,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 5865,
+            "reasoning_output_tokens": 635,
+            "total_tokens": 383252
+          },
+          "responses": 11
+        },
+        "01a1b1df-20e8-7340-be3d-f2c1e0cf6383": {
+          "start": "2026-11-06T17:19:12.618Z",
+          "end": "2026-11-06T17:19:16.317Z",
+          "duration_seconds": 3.6989998817443848,
+          "tokens": {
+            "input_tokens": 46005,
+            "cached_input_tokens": 45696,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 52,
+            "reasoning_output_tokens": 0,
+            "total_tokens": 46057
+          },
+          "responses": 1
+        }
+      },
+      "tools": {
+        "exec": 10
+      },
+      "observed_shell_executions": 14,
+      "observed_file_change_events": 1,
+      "agent_message_events": 5,
+      "waits": [],
+      "wait_seconds": 0,
+      "timed_out_waits": 0,
+      "nonzero_shell_exits": []
+    }
+  },
+  "tools": {
+    "exec": 59,
+    "spawn_agent": 4,
+    "wait_agent": 28,
+    "send_message": 12,
+    "followup_task": 4
+  },
+  "wall_clock_seconds": 1016.4060001373291,
+  "observed_shell_executions": 72,
+  "observed_file_change_events": 3,
+  "timed_out_waits": 17,
+  "supervisor_wait_seconds": 488.6890001296997,
+  "verification_steps": [
+    {
+      "evidence": ".suite/runs/001-01_business_logic/final-execution/summary.json",
+      "id": "assembled",
+      "duration_seconds": 0.9012789189982868,
+      "status": "PASS"
+    },
+    {
+      "evidence": ".suite/runs/001-01_business_logic/002-02_cli/review-0/task-execution/summary.json",
+      "id": "uv-sync",
+      "duration_seconds": 0.015684082999541715,
+      "status": "PASS"
+    },
+    {
+      "evidence": ".suite/runs/001-01_business_logic/002-02_cli/review-0/task-execution/summary.json",
+      "id": "cli",
+      "duration_seconds": 1.0647687900000165,
+      "status": "PASS"
+    },
+    {
+      "evidence": ".suite/runs/001-01_business_logic/002-02_cli/review-0/regression-execution/summary.json",
+      "id": "business-regression",
+      "duration_seconds": 0.06380708600045182,
+      "status": "PASS"
+    },
+    {
+      "evidence": ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/task-execution/summary.json",
+      "id": "uv-sync",
+      "duration_seconds": 0.500809059999483,
+      "status": "PASS"
+    },
+    {
+      "evidence": ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/task-execution/summary.json",
+      "id": "cli",
+      "duration_seconds": 1.0328329579997444,
+      "status": "PASS"
+    },
+    {
+      "evidence": ".suite/runs/001-01_business_logic/002-02_cli/attempt-0/regression-execution/summary.json",
+      "id": "business-regression",
+      "duration_seconds": 0.06397898700015503,
+      "status": "PASS"
+    },
+    {
+      "evidence": ".suite/runs/001-01_business_logic/review-0/execution/summary.json",
+      "id": "uv-sync",
+      "duration_seconds": 0.015682914000535675,
+      "status": "PASS"
+    },
+    {
+      "evidence": ".suite/runs/001-01_business_logic/review-0/execution/summary.json",
+      "id": "business",
+      "duration_seconds": 0.06381877700005134,
+      "status": "PASS"
+    },
+    {
+      "evidence": ".suite/runs/001-01_business_logic/review-0/observations-execution/summary.json",
+      "id": "storage-observations",
+      "duration_seconds": 0.10037815800023964,
+      "status": "PASS"
+    },
+    {
+      "evidence": ".suite/runs/001-01_business_logic/attempt-0/execution.json",
+      "id": "uv-sync",
+      "duration_seconds": 0.639975406999838,
+      "status": "PASS"
+    },
+    {
+      "evidence": ".suite/runs/001-01_business_logic/attempt-0/execution.json",
+      "id": "business",
+      "duration_seconds": 0.04891893400053959,
+      "status": "PASS"
+    }
+  ],
+  "verification_step_count": 12,
+  "verification_step_seconds": 4.5119340729988835,
+  "notes": [
+    "Token totals deduplicated by session/response ID; tools by session/call ID.",
+    "Normalized logs contain only usage, tool identity and turn boundary events from the original sources. No prompt/tool argument content copied.",
+    "Original helper selected-event spans can include events arriving between task completion and the next task-start. These normalized inputs enforce task_started/task_complete boundaries.",
+    "Shell and file-change counts come from distinct item_completed UI events; not inferred from executable source text. They occur inside execution batches and must not be added as additional model-facing tool calls.",
+    "Wait durations overlap child work; neither agent spans nor waits may be summed as overall wall time.",
+    "Verification step duration includes subprocess setup where that step performs it; nested CLI processes are not additionally added.",
+    "No billing ledger or actual dollar charge is available. No price estimate made.",
+    "No external outer-driver session was identified; analysis turn is excluded."
+  ]
+}

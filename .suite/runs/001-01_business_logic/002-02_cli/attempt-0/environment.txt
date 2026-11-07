@@ -1,0 +1,3 @@
+Python 3.14.10
+uv 0.13.6 (x86_64-unknown-linux-gnu)
+Existing uv cache/environment reused. No custom budget. Per-command infrastructure deadlines 180 seconds.

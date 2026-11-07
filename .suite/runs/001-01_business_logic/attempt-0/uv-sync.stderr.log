@@ -1,0 +1,8 @@
+Using CPython 3.14.10 interpreter at: /usr/lib/python-exec/python3.14/python3
+Creating virtual environment at: apps/todolist/.venv
+Resolved 1 package in 19ms
+   Building todolist @ file:///home/vv/ccode/generate-prototype/apps/todolist
+      Built todolist @ file:///home/vv/ccode/generate-prototype/apps/todolist
+Prepared 1 package in 547ms
+Installed 1 package in 0.68ms
+ + todolist==0.1.0 (from file:///home/vv/ccode/generate-prototype/apps/todolist)

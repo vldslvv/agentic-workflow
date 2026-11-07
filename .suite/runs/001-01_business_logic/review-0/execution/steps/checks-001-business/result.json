@@ -1,0 +1,14 @@
+{
+  "duration_seconds": 0.06381877700005134,
+  "evidence": "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/review-0/execution/steps/checks-001-business",
+  "executed": true,
+  "exit_code": 0,
+  "finished_at": "2026-11-06T17:08:04.910519+00:00",
+  "id": "business",
+  "interrupted_by": null,
+  "phase": "checks",
+  "signal": null,
+  "started_at": "2026-11-06T17:08:04.841858+00:00",
+  "status": "PASS",
+  "timed_out": false
+}

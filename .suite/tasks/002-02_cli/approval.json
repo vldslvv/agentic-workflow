@@ -1,0 +1,22 @@
+{
+  "baseline": "e63405b4205b0f965879f37e739e3a161ab7f47a",
+  "authority": "User: Implement specs/todolist",
+  "kind": "agent-authored derived handoff",
+  "digests": {
+    "specs/todolist/project.md": "583d6507f3e0d4eb48ba9010ec0ea25c5f4450038a559d901c1ad1a407b9d487",
+    "specs/todolist/task_order.md": "f89c23d15e659a2657fe7c7edb4b283e592f53adb26e1477c3c6f48340d19912",
+    "specs/todolist/verification.md": "01b5eeb3ceace6c7e6fb7565e72082f40dbc5296fcbdfbd6a57730b65ca014f6",
+    "specs/todolist/tasks/02_cli.md": "63c8988e27105cc3155a06a48fe087ec3ce42f49d7ce137137656253a02e85fd",
+    "specs/todolist/tasks/01_business_logic.md": "1262a1da26f58cb390a87ac067f8775dc33c366e1da83ad3d2928ef96ad2556f",
+    ".suite/tasks/002-02_cli/acceptance.md": "b20d129da52fb869c1297b4bf853043eca6614f2f670f733ea392085ddaf8e06",
+    ".suite/tasks/002-02_cli/plan.md": "1d4904934b6618a3f53fca926eaa38d2e0e07626dfc8122244e2ecef75984cda",
+    ".suite/tasks/002-02_cli/inputs.md": "5ac534620d624aa6471e2354631a3085119eaaf3b4d29ffe6f818a4072da6dca"
+  },
+  "dependency_candidate": "dd770c472c384f4747c8f6056496c91212200199a6253e2426b3ca7c9ea6b85e",
+  "accepted_dependency_evidence": ".suite/runs/001-01_business_logic/business-accepted.json",
+  "authorized_shared_integration_paths": [
+    "apps/todolist/pyproject.toml",
+    "apps/todolist/uv.lock",
+    "apps/todolist/README.md"
+  ]
+}

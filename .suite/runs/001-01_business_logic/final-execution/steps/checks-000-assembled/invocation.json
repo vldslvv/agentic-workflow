@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "python",
+    "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/checks/final.py"
+  ],
+  "cwd": "/home/vv/ccode/generate-prototype",
+  "expected_exit_codes": [
+    0
+  ],
+  "id": "assembled",
+  "mandatory": true,
+  "phase": "checks",
+  "requirements": [
+    "FINAL-LIFECYCLE",
+    "FINAL-PERSISTENCE",
+    "FINAL-ROOT"
+  ],
+  "started_at": "2026-11-06T17:17:47.470899+00:00",
+  "timeout_kind": "infrastructure",
+  "timeout_seconds": 120
+}

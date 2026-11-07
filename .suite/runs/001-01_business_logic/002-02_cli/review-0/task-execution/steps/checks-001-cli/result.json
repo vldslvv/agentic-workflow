@@ -1,0 +1,14 @@
+{
+  "duration_seconds": 1.0647687900000165,
+  "evidence": "/home/vv/ccode/generate-prototype/.suite/runs/001-01_business_logic/002-02_cli/review-0/task-execution/steps/checks-001-cli",
+  "executed": true,
+  "exit_code": 0,
+  "finished_at": "2026-11-06T17:14:55.543532+00:00",
+  "id": "cli",
+  "interrupted_by": null,
+  "phase": "checks",
+  "signal": null,
+  "started_at": "2026-11-06T17:14:54.473896+00:00",
+  "status": "PASS",
+  "timed_out": false
+}

@@ -1,18 +1,20 @@
 # Spec Source Suite agentic development conclusions
 
+> Reference maintenance: suite links now point to the consolidated role guidance. The assessment below retains its original observations and proposals about the earlier suite.
+
 Assessment date: 2026-11-06.
 
 Spec Source Suite has strong verification and provenance rules, but delegates too much mechanical coordination to a supervising LLM. The highest-priority improvements are machine-checkable specifications and a deterministic execution runner. Moving independent review from every task to the completed application is a separate optimization that should be evaluated against the current policy.
 
 ## Preserve the verification foundation
 
-The suite already separates authoritative requirements from implementation plans, freezes checks before implementation, links evidence to requirements and candidate identities, retains failed attempts, and requires final assembled-app verification. These are useful foundations for reliable automation. [Shared contract](../spec-source-suite/docs/SUITE_CONTRACT.md).
+The suite already separates authoritative requirements from implementation plans, freezes checks before implementation, links evidence to requirements and candidate identities, retains failed attempts, and requires final assembled-app verification. These are useful foundations for reliable automation. [Shared contract](../spec-source-suite/AGENTS.md).
 
-Fresh reviewers and restricted handoffs help separate evaluation from the implementer's narrative. Their frequency should be measured, while preserving the distinction between passing commands, adequate requirement coverage, and an independent review outcome. [Reviewer procedure](../spec-source-suite/prompts/REVIEWER.md).
+Fresh reviewers and restricted handoffs help separate evaluation from the implementer's narrative. Their frequency should be measured, while preserving the distinction between passing commands, adequate requirement coverage, and an independent review outcome. [Reviewer procedure](../spec-source-suite/REVIEWER.md).
 
 ## Add deterministic specification validation
 
-The current bundle uses ordinary Markdown without required structured metadata. Dependencies can appear in prose, leaving the supervisor responsible for deriving and validating the execution graph. Existing helpers validate role and check manifests, but do not provide a complete source-bundle preflight. [Bundle format](../spec-source-suite/docs/MARKDOWN_BUNDLES.md), [helper capabilities](../spec-source-suite/docs/HELPERS.md).
+The current bundle uses ordinary Markdown without required structured metadata. Dependencies can appear in prose, leaving the supervisor responsible for deriving and validating the execution graph. Existing helpers validate role and check manifests, but do not provide a complete source-bundle preflight. [Bundle format](../spec-source-suite/AGENTS.md#markdown-bundle), [helper capabilities](../spec-source-suite/SUPERVISOR.md#usage-aggregation).
 
 OpenSpec is a suitable candidate for specification authoring and structural validation. Its CLI supports noninteractive validation with machine-readable output:
 
@@ -37,7 +39,7 @@ Keep one authoritative specification source. If OpenSpec becomes authoritative, 
 
 ## Replace routine supervision with a deterministic runner
 
-[Generate](../spec-source-suite/docs/GENERATE.md) currently assigns planning, graph validation, dispatch, and acceptance to the supervisor. Separate mechanical execution from decisions that require judgment:
+[Generate](../spec-source-suite/SUPERVISOR.md) currently assigns planning, graph validation, dispatch, and acceptance to the supervisor. Separate mechanical execution from decisions that require judgment:
 
 | Runner responsibilities | Agent responsibilities |
 |---|---|
@@ -59,7 +61,7 @@ The proposed task loop followed by an independent E2E evaluator has direct suppo
 
 Retain task-level behavioral, interface, and regression checks when deferring the review agent. Final evaluation should combine frozen assembled-app scenarios with exploratory assessment and relevant code-level checks. A browser journey alone cannot establish every requirement.
 
-Distinguish a provisional task whose checks passed from an independently accepted task. The current contract forbids unreviewed prerequisites from unlocking consumers, so deferred review requires an explicit policy revision. Removing central LLM coordination can preserve the existing gates; changing review frequency changes acceptance semantics. [Contract §§3–5](../spec-source-suite/docs/SUITE_CONTRACT.md).
+Distinguish a provisional task whose checks passed from an independently accepted task. The current contract forbids unreviewed prerequisites from unlocking consumers, so deferred review requires an explicit policy revision. Removing central LLM coordination can preserve the existing gates; changing review frequency changes acceptance semantics. [Contract §§3–5](../spec-source-suite/AGENTS.md).
 
 ## Reduce overhead through measured changes
 
@@ -67,7 +69,7 @@ Current research supports choosing architecture by workload. A controlled study 
 
 Repeated instructions are another candidate for reduction. Move enforceable rules into the runner and retain concise role-specific guidance. Research on repository context files found increased inference cost without general success improvements in its studied settings, motivating evaluation of instruction content rather than assuming more guidance helps. [Evaluating AGENTS.md, v3](https://arxiv.org/abs/2602.11988v3).
 
-For unattended execution, apply and test access controls where isolation is required. Report actual limits. [Reconstruction and isolation](../spec-source-suite/docs/REGENERATION.md).
+For unattended execution, apply and test access controls where isolation is required. Report actual limits. [Reconstruction and isolation](../spec-source-suite/AGENTS.md#reconstruction).
 
 ## Recommended implementation order
 
