@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "base_commit": "0d6dabf7203c05254632ddfd103225e91cb58b42",
+  "errors": [],
+  "local_links_checked": 42,
+  "method": "All package files excluding Python caches; directories exclude root; whitespace words in all Markdown, including skills/templates/runner.",
+  "before": {
+    "files": 20,
+    "directories": 10,
+    "instruction_words": 4953,
+    "shared_plus_role_words": {
+      "SUPERVISOR": 2648,
+      "PLANNER": 2343,
+      "IMPLEMENTER": 2154,
+      "REVIEWER": 2105,
+      "VALIDATOR": 2266
+    }
+  },
+  "after": {
+    "files": 21,
+    "directories": 10,
+    "instruction_words": 5477,
+    "shared_plus_role_words": {
+      "SUPERVISOR": 2960,
+      "PLANNER": 2655,
+      "IMPLEMENTER": 2466,
+      "REVIEWER": 2417,
+      "VALIDATOR": 2578
+    }
+  },
+  "delta": {
+    "files": 1,
+    "directories": 0,
+    "instruction_words": 524,
+    "shared_plus_role_words": {
+      "SUPERVISOR": 312,
+      "PLANNER": 312,
+      "IMPLEMENTER": 312,
+      "REVIEWER": 312,
+      "VALIDATOR": 312
+    }
+  },
+  "added_files": [
+    "MODELS.md"
+  ],
+  "removed_files": [],
+  "review_signals": [
+    "Explain file or instruction growth in the maintenance review."
+  ],
+  "manual_review_required": "Assess behavior added, duplication, role placement and shared-plus-role sufficiency; structural PASS does not establish these."
+}

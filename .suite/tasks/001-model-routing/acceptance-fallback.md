@@ -1,0 +1,16 @@
+# Fallback clarification acceptance
+
+Authority: the user's “Make the fallbacks more clear” request concerns the previously explained distinction between host-default fallback and translating profiles into provider-equivalent models. This supplements [original acceptance](acceptance.md), whose requirements remain in force. Engineering source: [guidelines](../../../guidelines.md), resolved as `/tmp/generate-prototype-model-routing/guidelines.md`.
+
+Target: existing `/tmp/generate-prototype-model-routing`, branch `suite/model-routing`; evidence `.suite/runs/001-model-routing/fallback/`. Original checkout, historical records and profile/role tables are preserved. No merge, commit, provider adapter or automatic model-equivalence mechanism is authorized.
+
+| ID | Required clarification | Pass rule |
+|---|---|---|
+| F1 | Profile labels do not identify equivalent models on another provider; unsupported requests use host defaults, without guessing a replacement. | Walk through unavailable model on a different provider and generic profile label; no inferred model mapping or provider switch. |
+| F2 | Distinguish supported settings, unsupported model, unsupported reasoning, and intentional reasoning `default`. | Supported settings are applied where independently controllable; unsupported settings use host defaults; default reasoning is intentional, not an error. |
+| F3 | Existing sessions lacking controls retain their actual settings; fresh worker settings depend on supported host controls. Context and fresh-review constraints remain. | Walk through immutable top-level/retained worker; no claim that a fallback reset or changed runtime settings. |
+| F4 | Undefined/malformed configuration needs correction; credentials/connectivity/infrastructure and unresolved requirements remain blockers. | Walk through invalid profile, absent required cells, unsupported setting and failed required service distinctly; fallback does not conceal blockers. |
+| F5 | Fallback results identify requested profile/settings, unsupported setting and reason, observed settings when available; unknowns remain unavailable. | Inspect reporting procedure and example interpretation; no unsupported assertion of model equivalence or applied settings. |
+| F6 | Keep one shared authoritative procedure, link from MODELS.md, retain tables and historical records; index additions; refresh validation/metadata/checksums. | Package checker against `0d6dabf7203c05254632ddfd103225e91cb58b42`, 7 retained tests, checksum/link checks and fresh independent review pass; report word growth and walkthrough limits. |
+
+Latest user correction supersedes the proposed expansion: “The clarification should be in MODELS.md. Be VERY concise about it. Remove changes to AGENTS to avoid bloat.” Required result: one short fallback paragraph in MODELS.md; shared AGENTS.md exactly matches its pre-clarification snapshot. F1–F5 retain only existing-policy clarification (host defaults, no inferred equivalent, immutable sessions, invalid configuration and blockers); no new independent-control policy is required. F6's proposed shared expansion/link is superseded by this placement requirement. Original profile tables and acceptance remain unchanged.

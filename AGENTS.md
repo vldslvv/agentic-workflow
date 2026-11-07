@@ -8,6 +8,7 @@ Use the paths below directly and batch independent reads. Search for paths only 
 |---|---|
 | Before planning, writing, changing or reviewing code, tests or tooling | [guidelines.md](guidelines.md) |
 | App work or suite maintenance: shared rules | [spec-source-suite/AGENTS.md](spec-source-suite/AGENTS.md) |
+| Entering a role or selecting settings for a worker | [spec-source-suite/MODELS.md](spec-source-suite/MODELS.md) |
 | Document authoring or assigned task planning | [spec-source-suite/PLANNER.md](spec-source-suite/PLANNER.md) |
 | Single-task implementation or app generation: orchestration | [spec-source-suite/SUPERVISOR.md](spec-source-suite/SUPERVISOR.md) |
 | Assigned implementation | [spec-source-suite/IMPLEMENTER.md](spec-source-suite/IMPLEMENTER.md) |
@@ -17,6 +18,7 @@ Use the paths below directly and batch independent reads. Search for paths only 
 | Checking suite changes | [spec-source-suite/helpers/check_package.py](spec-source-suite/helpers/check_package.py) |
 | Aggregating execution usage | [spec-source-suite/helpers/usage_report.py](spec-source-suite/helpers/usage_report.py) |
 | Requested automated-runner work only | [spec-source-suite/RUNNER.md](spec-source-suite/RUNNER.md) |
+| Locating identified maintenance task records, subject to role context limits | [Suite records](.suite/index.md) |
 
 Apply the engineering guidelines and include their resolved paths in delegated work; shared rules govern source resolution and handoff.
 

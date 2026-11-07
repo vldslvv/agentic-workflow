@@ -18,7 +18,26 @@ For suite changes, keep operative guidance in this file plus one routine per rol
 
 Before completion, run `python spec-source-suite/helpers/check_package.py --base <starting-commit>` from the repository root. Check layout, links and skill entry points; report file/directory counts, instruction words and shared-plus-role context sizes. Explain increases as review signals, not automatic failures or reasons to weaken requirements. Update package metadata and checksums after validation.
 
-Review each added instruction: does it change behavior, duplicate a rule, or force a role to load supporting procedure files? Confirm each role can operate with shared guidance plus its own routine. Record the answers and any justified growth in the change's results.
+Review each added instruction: does it change behavior, duplicate a rule, or force a role to load supporting procedure files? Confirm each role can operate with shared guidance, its own routine and the routing configuration below. Record the answers and any justified growth in the change's results.
+
+Whenever a Markdown file is added, register it with an explicit relative-path link in the applicable index in the same change. Include a short purpose or read condition. Update the index when the file is moved, renamed, or removed.
+
+Workflow guidance belongs in the root file index. Generated project documents, task records and memory belong in their applicable scoped indexes. Create a scoped index only when none exists, and link it from its parent index. Indexing does not authorize loading material excluded from a role's context.
+
+## Model routing
+
+Read [MODELS.md](MODELS.md) when entering a role and before launching workers; reread edits for subsequent dispatches. Resolve profiles and role routes from its tables; undefined profiles or malformed entries require correction before routing. Keep concrete model names and native reasoning settings in that configuration, not role routines.
+
+Select the first applicable route:
+
+1. After two consecutive implementation repair attempts reproduce the same failure without new diagnostic evidence, request the escalation profile.
+2. Use the role's demanding route for conflicting requirements, complex component interactions, or correctness decisions involving security, data loss or compatibility.
+3. Use small-change for local implementation with explicit expected behavior, an established pattern and no interface or dependency changes.
+4. Otherwise use the role default.
+
+Missing infrastructure, credentials and unresolved requirements remain blockers; routing does not resolve them.
+
+Request the selected settings through supported host controls. If the host cannot apply a requested setting, continue with host defaults and report the fallback. Change retained-worker settings only through supported host controls, preserving contexts and fresh-review requirements. If an existing top-level session cannot change settings, treat its route as launch guidance and disclose known mismatches. Record requests separately from observed settings using the result outline below; unknown observations remain unavailable.
 
 ## Authority and acceptance
 
@@ -81,6 +100,7 @@ Use this common result outline, omitting inapplicable fields. Keep review/valida
 
 - **Scope and candidate:** source/acceptance paths, implementation location/revision, dependencies.
 - **Role and status:** PASS, FAIL, BLOCKED or NOT_RUN; rationale and unfinished work.
+- **Model routing:** chosen profile, selection reason, requested model/reasoning, observed settings when available, and any host-default fallback or known mismatch.
 - **Requirement-linked checks:** ID, command/method, working directory, exit/outcome and evidence; manual checks identify authority and inspected artifact. Separate execution outcomes from coverage judgment and cleanup errors from primary failures.
 - **Findings and resolutions:** requirement, expected/observed behavior, reproduction, repair and remaining actionable findings. Preserve useful failures.
 - **Coverage and blockers:** substitutes, skipped checks, remaining gaps and required decisions.

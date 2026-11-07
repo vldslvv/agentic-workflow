@@ -1,0 +1,12 @@
+test_cli_output_aliases_cannot_modify_input_logs (test_usage_report.UsageReportTests.test_cli_output_aliases_cannot_modify_input_logs) ... ok
+test_codex_records_use_thread_identity_and_response_ids_without_snapshot_double_count (test_usage_report.UsageReportTests.test_codex_records_use_thread_identity_and_response_ids_without_snapshot_double_count) ... ok
+test_disconnected_descendant_and_conflicting_duplicate_are_errors (test_usage_report.UsageReportTests.test_disconnected_descendant_and_conflicting_duplicate_are_errors) ... ok
+test_known_totals_dedup_scope_descendants_and_batch_nested_counts (test_usage_report.UsageReportTests.test_known_totals_dedup_scope_descendants_and_batch_nested_counts) ... ok
+test_missing_counters_remain_unavailable_with_known_subtotals (test_usage_report.UsageReportTests.test_missing_counters_remain_unavailable_with_known_subtotals) ... ok
+test_selected_turn_without_usage_cannot_disappear_from_totals (test_usage_report.UsageReportTests.test_selected_turn_without_usage_cannot_disappear_from_totals) ... ok
+test_unidentified_usage_and_legacy_snapshots_cannot_claim_zero (test_usage_report.UsageReportTests.test_unidentified_usage_and_legacy_snapshots_cannot_claim_zero) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.100s
+
+OK

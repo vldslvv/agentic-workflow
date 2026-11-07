@@ -36,7 +36,7 @@ def anchors(text):
 
 
 def check(files):
-    expected = {"AGENTS.md", "RUNNER.md", "PACKAGE_CHECKS.json", "SHA256SUMS",
+    expected = {"AGENTS.md", "MODELS.md", "RUNNER.md", "PACKAGE_CHECKS.json", "SHA256SUMS",
                 "helpers/usage_report.py", "helpers/check_package.py",
                 "tests/test_usage_report.py", "templates/project.md",
                 "templates/task_order.md", "templates/tasks/task.md",
