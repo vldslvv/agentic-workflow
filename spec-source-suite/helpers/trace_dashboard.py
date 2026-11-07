@@ -23,7 +23,7 @@ def measurement(metric):
     if metric['total'] is not None:
         return number(metric['total'])
     if metric['known_subtotal'] is not None:
-        return f'{number(metric["known_subtotal"])} known · partial'
+        return number(metric['known_subtotal'])
     return 'Unavailable'
 
 
@@ -36,17 +36,23 @@ def table(headers, rows, **attrs):
     return f'<div class="scroll"><table {attributes}><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table></div>'
 
 
-def render(report, perfetto_url):
+def render(report, perfetto_url, *, interval=5, refreshed=None, error=None):
     summary = report['summary']
     parts = ['<!doctype html><html lang="en"><meta charset="utf-8">',
              '<meta name="viewport" content="width=device-width,initial-scale=1">',
-             '<title>Agent trace insights</title><style>', CSS, '</style><body><main>',
+             '<title>Agent trace insights</title><style>', CSS, '</style><body>',
+             f'<main data-interval="{text(interval)}">',
+             f'<p id="refresh-status" role="status" data-error="{text(error or "")}">'
+             f'Last successful refresh: <time>{text(refreshed)}</time> · '
+             f'Polling every {text(interval)}s. <span id="refresh-error">{text(error or "")}</span></p>',
+             '<div id="report-content">',
              '<header><div><p class="eyebrow">LOCAL EXECUTION EVIDENCE</p><h1>Agent trace insights</h1>',
              f'<p>{text(report["implementation_id"])}</p></div><nav>',
              (f'<a class="button" id="perfetto" href="{text(perfetto_url)}" target="_blank" rel="noreferrer">Open timeline in Perfetto ↗</a>'
               if perfetto_url else '<span id="timeline-empty">No timeline events to display</span>'),
              '<a href="usage.json">Download report JSON</a></nav></header>',
-             '<p class="notice">Scope: saved native turns and proven dispatch descendants. Reinvoke make trace to collect and refresh. '
+             '<p class="notice">Scope: saved native turns and proven dispatch descendants. Updates are collected automatically. '
+             'Unfinished evidence does not establish that an agent is currently running. '
              'Known subtotals exclude missing measurements; unavailable is never zero.</p>']
     if not summary['observed_model_measurements'] and not summary['observed_tool_calls']:
         parts += ['<section role="status"><h2>No imported execution observations</h2>'
@@ -117,7 +123,7 @@ def render(report, perfetto_url):
                          a['task_id'], a['role'], a['agent_run_id'], ', '.join(a['outcomes']) or 'Unavailable',
                          a['native_agent_path'], a.get('assignment_source')] for a in assignments], id='assignments'))
     names = {a['agent_id']: f'{a["agent_name"] or a["agent_id"]} [{a["agent_run_id"] or "unassigned"}]' for a in assignments}
-    parts += ['<details><summary>Native lineage and identities</summary>',
+    parts += ['<details id="native-lineage"><summary>Native lineage and identities</summary>',
               table(['Parent', 'Relationship', 'Child'],
                     [[names.get(e['parent'], e['parent']), e['relationship'], names.get(e['child'], e['child'])]
                      for e in report['spawn_tree']['edges']]),
@@ -128,8 +134,9 @@ def render(report, perfetto_url):
               'The JSON report includes scoped diagnostics and attribution omissions.</p><ul>']
     parts += [f'<li>{text(limit)}</li>' for limit in report['limitations']]
     parts += ['</ul></section><footer>Perfetto needs internet and may request local-device access. '
-              'This summary stays local. Stop its server with Ctrl+C in the owning terminal.</footer>',
-              '</main><script>', SCRIPT, '</script></body></html>']
+              'Perfetto is a snapshot; open it again for newer timing data. '
+              'This summary stays local. Stop collection and serving with Ctrl+C in the owning terminal.</footer>',
+              '</div></main><script>', SCRIPT, '</script></body></html>']
     return ''.join(parts)
 
 
@@ -163,4 +170,54 @@ function update() {
 group.addEventListener('change', () => { search.value = ''; update(); });
 search.addEventListener('input', update);
 update();
+
+const interval = Number(document.querySelector('main').dataset.interval);
+async function poll() {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch(location.href, {cache: 'no-store', signal: controller.signal});
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+    const status = page.querySelector('#refresh-status');
+    const content = page.querySelector('#report-content');
+    if (!status || !content) throw new Error('Invalid dashboard response');
+    document.querySelector('#refresh-status').replaceWith(status);
+    if (!status.dataset.error) {
+      const current = document.querySelector('#report-content');
+      const expanded = new Set([...current.querySelectorAll('details[open]')].map(node => node.id));
+      const scrolls = [...current.querySelectorAll('.scroll')].map(node => [node.scrollLeft, node.scrollTop]);
+      const position = [window.scrollX, window.scrollY];
+      const focused = document.activeElement;
+      // Retain the actual controls, including search text and event handlers.
+      content.querySelector('.controls').replaceWith(current.querySelector('.controls'));
+      content.querySelectorAll('details').forEach(node => { node.open = expanded.has(node.id); });
+      current.replaceWith(content);
+      update();
+      if (focused === group || focused === search) focused.focus({preventScroll: true});
+      content.querySelectorAll('.scroll').forEach((node, index) => {
+        if (scrolls[index]) node.scrollTo(...scrolls[index]);
+      });
+      window.scrollTo(...position);
+    }
+  } catch (error) {
+    const refreshError = document.querySelector('#refresh-error');
+    const collectionError = document.querySelector('#refresh-status').dataset.error;
+    refreshError.textContent = [collectionError, 'Connection failed; retrying on the next cycle.'].filter(Boolean).join(' ');
+  } finally {
+    clearTimeout(timeout);
+    schedulePoll();
+  }
+}
+function schedulePoll() {
+  // Split long intervals to avoid the browser's 32-bit timer overflow.
+  const started = performance.now();
+  function wait() {
+    const remaining = interval - (performance.now() - started) / 1000;
+    if (remaining > 0) setTimeout(wait, Math.min(remaining * 1000, 2147483647));
+    else poll();
+  }
+  wait();
+}
+schedulePoll();
 '''

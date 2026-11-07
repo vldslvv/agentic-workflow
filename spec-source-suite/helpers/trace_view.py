@@ -3,13 +3,16 @@
 
 The foreground viewer serves normalized reports on loopback port 9001
 (the port allowed by Perfetto's CSP). Repeated invocations reuse a compatible
-viewer for the same implementation. Each invocation refreshes reports first.
+viewer for the same implementation. The owning viewer refreshes immediately,
+then waits the configured interval after each collection attempt until Ctrl+C.
 """
 import argparse
 from contextlib import ExitStack
+from datetime import datetime, timezone
 import errno
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -27,7 +30,7 @@ from usage_report import refresh
 
 HOST, PORT = '127.0.0.1', 9001
 ORIGIN = 'https://ui.perfetto.dev'
-SERVICE = 'suite-insights-v3'
+SERVICE = 'suite-insights-v4'
 # /status belongs to Perfetto's native RPC probe; it must remain a 404 here.
 STATUS_PATH = '/__suite_trace_viewer__'
 
@@ -63,10 +66,18 @@ def read_report(root, filename):
 class Viewer(ThreadingHTTPServer):
     daemon_threads = True
 
-    def __init__(self, root):
+    def __init__(self, root, interval):
         self.root = root
+        self.interval = interval
+        self.refresh_status = (None, None)
+        self.initial_collection = threading.Event()
         self.token = secrets.token_hex(16)
         super().__init__((HOST, PORT), Handler)
+
+    def collect(self):
+        report = refresh(self.root)
+        self.refresh_status = (datetime.now(timezone.utc).isoformat(timespec='seconds'), None)
+        return report
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -98,9 +109,16 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(403)
         elif self.path == STATUS_PATH:
             self.reply(200, json.dumps(dict(service=SERVICE, implementation=str(self.server.root),
-                                           token=self.server.token, pid=os.getpid())).encode())
+                                           token=self.server.token, pid=os.getpid(),
+                                           interval=self.server.interval)).encode())
         elif self.path in (f'/{self.server.token}/', f'/{self.server.token}/usage.json',
                            f'/{self.server.token}/timeline.json'):
+            # Identity is available while initial collection waits on the
+            # implementation lock, but pages must wait for its first result.
+            self.server.initial_collection.wait()
+            if self.server.refresh_status[0] is None:
+                self.reply(503)
+                return
             dashboard = self.path.endswith('/')
             filename = 'usage.json' if dashboard else self.path.rsplit('/', 1)[1]
             try:
@@ -111,7 +129,10 @@ class Handler(BaseHTTPRequestHandler):
                     except FileNotFoundError:
                         timeline = b'{"traceEvents":[]}'
                     available = any(e.get('ph') != 'M' for e in json.loads(timeline).get('traceEvents', []))
-                    self.reply(200, render(json.loads(data), perfetto_url(self.server.token) if available else None).encode(), 'text/html; charset=utf-8')
+                    refreshed, error = self.server.refresh_status
+                    self.reply(200, render(json.loads(data), perfetto_url(self.server.token) if available else None,
+                                           interval=self.server.interval, refreshed=refreshed,
+                                           error=error).encode(), 'text/html; charset=utf-8')
                 else:
                     self.reply(200, data)
             except FileNotFoundError:
@@ -131,7 +152,7 @@ def existing_viewer(root):
                 status = json.loads(response.read(8192))
             if (status.get('service') == SERVICE and status.get('implementation') == str(root)
                     and re.fullmatch(r'[0-9a-f]{32}', status.get('token', ''))):
-                return viewer_url(status['token'])
+                return status
             break
         except (OSError, ValueError, AttributeError, TypeError):
             time.sleep(.1)  # A concurrently starting viewer may not yet be serving.
@@ -149,31 +170,59 @@ def open_browser(url):
         print('Browser launch unavailable. Open the dashboard URL above on this machine.', flush=True)
 
 
-def run(root):
-    root = Path(root).resolve()
-    report = refresh(root)
-    print(f'Refreshed {report["implementation_id"]}: {root / "reports"}', flush=True)
-    if not report['summary']['observed_model_measurements'] and not report['summary']['observed_tool_calls']:
-        print('No imported execution observations in this report; the viewer cannot reconstruct missing native evidence.', flush=True)
-    if report['summary']['coverage']:
-        print('Coverage: ' + json.dumps(report['summary']['coverage'], sort_keys=True), flush=True)
+def positive_interval(value):
     try:
-        server = Viewer(root)
+        interval = float(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError('interval must be positive and finite') from None
+    if not math.isfinite(interval) or interval <= 0:
+        raise argparse.ArgumentTypeError('interval must be positive and finite')
+    return interval
+
+
+def wait_interval(interval):
+    # Bound individual sleeps so even very large finite intervals are supported.
+    started = time.monotonic()
+    while (remaining := interval - (time.monotonic() - started)) > 0:
+        time.sleep(min(remaining, 3600))
+
+
+def run(root, interval=5):
+    root = Path(root).resolve()
+    try:
+        server = Viewer(root, interval)
     except OSError as exc:
         if exc.errno != errno.EADDRINUSE:
             raise
-        url = existing_viewer(root)
-        print('Reusing the running viewer; refreshed reports are available.', flush=True)
-        open_browser(url)
+        status = existing_viewer(root)
+        print(f'Reusing the running viewer (interval {status["interval"]:g}s). '
+              'Restart the owning viewer to change its interval.', flush=True)
+        open_browser(viewer_url(status['token']))
         return
     with server:
         worker = threading.Thread(target=server.serve_forever, daemon=True)
         worker.start()
         try:
-            print('Serving agent insights locally. Ctrl+C stops this viewer.', flush=True)
+            # Initial failures remain command errors; only the owner collects.
+            report = server.collect()
+            server.initial_collection.set()
+            print(f'Refreshed {report["implementation_id"]}: {root / "reports"}', flush=True)
+            if not report['summary']['observed_model_measurements'] and not report['summary']['observed_tool_calls']:
+                print('No imported execution observations in this report; the viewer cannot reconstruct missing native evidence.', flush=True)
+            if report['summary']['coverage']:
+                print('Coverage: ' + json.dumps(report['summary']['coverage'], sort_keys=True), flush=True)
+            print(f'Serving agent insights locally; refreshing every {interval:g}s after collection. '
+                  'Ctrl+C stops collection and serving.', flush=True)
             open_browser(viewer_url(server.token))
-            worker.join()
+            while True:
+                wait_interval(interval)
+                try:
+                    server.collect()
+                except (OSError, ValueError, KeyError, TypeError) as exc:
+                    server.refresh_status = (server.refresh_status[0], 'Refresh failed; retrying on the next cycle.')
+                    print(f'trace-view: refresh failed: {exc}', flush=True)
         finally:
+            server.initial_collection.set()
             server.shutdown()
             worker.join()
 
@@ -181,12 +230,14 @@ def run(root):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('implementation', type=Path)
+    parser.add_argument('--interval', type=positive_interval, default=5,
+                        metavar='SECONDS', help='collection and browser poll interval (default: 5; restart viewer to change)')
     args = parser.parse_args()
     def stop(_signum, _frame):
         raise KeyboardInterrupt
     signal.signal(signal.SIGTERM, stop)
     try:
-        run(args.implementation)
+        run(args.implementation, args.interval)
     except KeyboardInterrupt:
         print('\nViewer stopped.', flush=True)
     except (OSError, ValueError, KeyError, TypeError) as exc:
