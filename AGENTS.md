@@ -2,18 +2,22 @@
 
 `spec-source-suite/` is reusable guidance; change it only for requested workflow/tooling work. Keep app inputs, code and evidence outside it.
 
+For ordinary top-level work, implement directly or make a short conversational plan first, then implement. Follow engineering guidelines, run relevant checks, inspect the diff and report results. No formal acceptance documents, `.suite` allocation, role handoffs, mandatory independent review, final validator or usage reports are required unless requested. Plan-only requests stop at the plan; honor explicit review and approval requirements.
+
+This lightweight routine applies only to top-level work. Project implementation through the suite, explicit suite skills/roles and work inside `spec-source-suite/` follow the suite's existing guidance.
+
 Use the paths below directly and batch independent reads. Search for paths only when the request, this map or the handoff leaves them unresolved. Read only entries applicable to the work.
 
 | Read when | Path |
 |---|---|
 | Before planning, writing, changing or reviewing code, tests or tooling | [guidelines.md](guidelines.md) |
-| App work or suite maintenance: shared rules | [spec-source-suite/AGENTS.md](spec-source-suite/AGENTS.md) |
+| Suite app work or suite maintenance: shared rules | [spec-source-suite/AGENTS.md](spec-source-suite/AGENTS.md) |
 | Entering a role or selecting settings for a worker | [spec-source-suite/MODELS.md](spec-source-suite/MODELS.md) |
-| Document authoring or assigned task planning | [spec-source-suite/PLANNER.md](spec-source-suite/PLANNER.md) |
-| Single-task implementation or app generation: orchestration | [spec-source-suite/SUPERVISOR.md](spec-source-suite/SUPERVISOR.md) |
-| Assigned implementation | [spec-source-suite/IMPLEMENTER.md](spec-source-suite/IMPLEMENTER.md) |
-| Assigned independent review | [spec-source-suite/REVIEWER.md](spec-source-suite/REVIEWER.md) |
-| Assigned final validation | [spec-source-suite/VALIDATOR.md](spec-source-suite/VALIDATOR.md) |
+| Full-workflow document authoring or assigned suite planning | [spec-source-suite/PLANNER.md](spec-source-suite/PLANNER.md) |
+| Full-workflow task implementation or app generation: orchestration | [spec-source-suite/SUPERVISOR.md](spec-source-suite/SUPERVISOR.md) |
+| Assigned suite implementation | [spec-source-suite/IMPLEMENTER.md](spec-source-suite/IMPLEMENTER.md) |
+| Assigned suite independent review | [spec-source-suite/REVIEWER.md](spec-source-suite/REVIEWER.md) |
+| Assigned suite final validation | [spec-source-suite/VALIDATOR.md](spec-source-suite/VALIDATOR.md) |
 | Authoring project inputs | [project](spec-source-suite/templates/project.md), [task order](spec-source-suite/templates/task_order.md), [task](spec-source-suite/templates/tasks/task.md), [verification](spec-source-suite/templates/verification.md) |
 | Checking suite changes | [spec-source-suite/helpers/check_package.py](spec-source-suite/helpers/check_package.py) |
 | Allocating implementations or binding native sessions | [records helper](spec-source-suite/helpers/records.py) |
@@ -27,7 +31,7 @@ Apply the engineering guidelines and include their resolved paths in delegated w
 - Continuing work uses identified task paths or execution references. Resolve a bare task ID only under the identified `.suite/<NNN>_<name>/tasks/`; ask if the implementation or task is absent, ambiguous, or continuation itself is unclear. Stop discovery when authority is resolved.
 - Advice/tooling work uses requested files and relevant references, without task-history discovery.
 
-For app work read shared rules and your role routine. Use the selected [Markdown bundle](spec-source-suite/AGENTS.md#markdown-bundle); otherwise look outside the suite for its four file types and ask if multiple bundles are plausible. New authorized authoring uses `specs/` and the bundle templates. Missing required inputs block generation; no project intent yields NO_PROJECT.
+For full-workflow app work read shared rules and your role routine. Use the selected [Markdown bundle](spec-source-suite/AGENTS.md#markdown-bundle); otherwise look outside the suite for its four file types and ask if multiple bundles are plausible. New authorized authoring uses `specs/` and the bundle templates. Missing required inputs block generation; no project intent yields NO_PROJECT.
 
 The explicit suite skills are `spec-planner` and `spec-supervisor`. A direct implementation request authorizes derived plans and acceptance without routine reapproval. Preserve explicit requirements, approved text and historical records. [Records](spec-source-suite/AGENTS.md#records) describes task storage and recovery.
 
