@@ -11,3 +11,7 @@ Approach: make the repository guidelines required reading for code work; define 
 Validation: check local Markdown links and anchors, package inventory/checksums, retained helper tests, and documentation scenarios for direct work, both entry skills, role handoffs, missing files, reconstruction, and justified exceptions. These are documentation checks, not live agent execution. Preserve the previous package metadata in the new evidence directory before updating it.
 
 Evidence: `.suite/runs/008-engineering-guidelines/`. No implementation agent delegation is required for this workflow documentation edit.
+
+## Follow-up: agreed wording
+
+The user's subsequent request, “Re-read the project files and incorporate the guidelines,” authorizes replacing `guidelines.md` with the nine concise guidelines agreed in this conversation. This supersedes the earlier instruction to leave that file unchanged for discussion. Re-read current repository routing, shared rules, role routines, project template and both existing project briefs; retain their current integration without duplicating the guidelines. Verify the saved wording, existing source routing, package structure/checksums and diff whitespace. Record this document-only follow-up in the existing run directory; application conformance is outside this edit's scope.

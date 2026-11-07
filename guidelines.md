@@ -1,9 +1,11 @@
-- Separate state and logic
-- Use classes that mix state and logic sparingly, only when required
-- Localize side effects
-- A top-level flow of each module should have a clear, functional-like flow
-- Prefer small, Unix-like modules, each module has public API with small set of responsibilities
-- Test public behaviours, not internals
-- Prefer using real infrastructure for testing, mock only if testing is expensive or destructive or too complex.
-- Build with small modules, composing larger architectural structures out of them
+# Engineering guidelines
 
+- Prefer a **functional core**: represent state explicitly and express business rules as functions transforming inputs into outputs.
+- Use stateful objects when they protect invariants, manage resource lifetimes, or satisfy framework requirements.
+- Localize side effects behind explicit boundaries; keep domain logic independent of infrastructure and hidden mutable state.
+- Build cohesive, composable modules with small public interfaces and one clear responsibility.
+- Express processing as readable pipelines with explicit inputs, outputs, and dependencies.
+- Make pipeline stages substitutable: replacements must accept supported inputs and preserve promised outputs, behavior, errors, and side-effect guarantees.
+- Test observable behavior through public interfaces; tests should survive internal refactoring.
+- Prefer real implementations and isolated, disposable infrastructure in tests. Use test doubles when real dependencies are costly, destructive, unreliable, or impractical; document meaningful coverage limits.
+- Treat these as design defaults. Explain material departures with a concrete benefit or constraint.

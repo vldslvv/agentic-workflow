@@ -10,3 +10,10 @@ Authority: current user request. Target: workflow documentation in this reposito
 | G4 | Shared rules: workflow edits validate links, metadata and retained tests. | Local links/anchors and package hashes resolve, retained tests pass, new evidence identifies documentation-only scope and preserves old metadata. |
 
 No app execution prerequisites. Documentation walkthroughs do not establish live multi-agent compliance. No unavailable required capabilities identified.
+
+## Follow-up acceptance
+
+The user's subsequent incorporation request supersedes G3's original-file-preservation condition for this revision. The previous result remains historical.
+
+- G5: `guidelines.md` contains the nine agreed guidelines, including a functional core, justified stateful objects, composable responsibilities, substitutable pipeline contracts, behavioral testing, isolated real infrastructure and explained departures. Compare directly with the user's accepted discussion wording.
+- G6: Existing repository and role routing continues to require these guidelines without copying them into app briefs or suite routines. Validate current routing, package structure/checksums and whitespace. No app execution or renewed application acceptance is claimed.
