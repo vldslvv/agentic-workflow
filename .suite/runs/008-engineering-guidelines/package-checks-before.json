@@ -1,0 +1,44 @@
+{
+  "package": "Spec Source Suite",
+  "version": "0.5-draft",
+  "checked_date": "2026-11-06",
+  "status": "STRUCTURAL_CHECKS_PASSED",
+  "scope": "Five-role instruction structure, entry points, links, templates, inventory, preservation, retained usage tests and documentation walkthroughs. No live app generation or runner implementation.",
+  "checks": {
+    "instruction_counts": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/007-agent-role-structure/instruction-counts.json"
+    },
+    "local_links": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/007-agent-role-structure/links.json",
+      "count": 55
+    },
+    "usage_tests": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/007-agent-role-structure/usage-tests.log",
+      "count": 7
+    },
+    "instruction_scenarios": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/007-agent-role-structure/walkthroughs.md",
+      "count": 12,
+      "method": "Manual documentation walkthrough; not executed app scenarios"
+    },
+    "package_inventory": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/007-agent-role-structure/package-validation.json"
+    },
+    "scope_preservation": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/007-agent-role-structure/scope-preservation.json"
+    }
+  },
+  "evidence": "../.suite/runs/007-agent-role-structure/",
+  "previous_package_checks": "../.suite/runs/007-agent-role-structure/package-checks-before.json",
+  "not_executed": [
+    "Live app generation or reconstruction",
+    "Automated runner execution",
+    "Enforced filesystem isolation"
+  ]
+}

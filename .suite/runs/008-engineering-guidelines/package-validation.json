@@ -1,0 +1,8 @@
+{
+  "result": "PASS",
+  "inventory_count": 19,
+  "inventory_matches_files": true,
+  "guidelines_unchanged": true,
+  "hashes": "SHA-256 regenerated from current package bytes; verified with sha256sum -c SHA256SUMS",
+  "concurrent_changes": "Maintenance rules and helpers/check_package.py appeared during validation; preserved and included in the current inventory."
+}

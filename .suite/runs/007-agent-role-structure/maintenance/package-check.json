@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "base_commit": "4aa4b7a7ed9d2ac96a750f26497f823b8a61d629",
+  "errors": [],
+  "local_links_checked": 20,
+  "method": "All package files excluding Python caches; directories exclude root; whitespace words in all Markdown, including skills/templates/runner.",
+  "before": {
+    "files": 19,
+    "directories": 10,
+    "instruction_words": 4487,
+    "shared_plus_role_words": {
+      "SUPERVISOR": 2231,
+      "PLANNER": 1922,
+      "IMPLEMENTER": 1732,
+      "REVIEWER": 1683,
+      "VALIDATOR": 1843
+    }
+  },
+  "after": {
+    "files": 20,
+    "directories": 10,
+    "instruction_words": 4899,
+    "shared_plus_role_words": {
+      "SUPERVISOR": 2594,
+      "PLANNER": 2289,
+      "IMPLEMENTER": 2100,
+      "REVIEWER": 2051,
+      "VALIDATOR": 2212
+    }
+  },
+  "delta": {
+    "files": 1,
+    "directories": 0,
+    "instruction_words": 412,
+    "shared_plus_role_words": {
+      "SUPERVISOR": 363,
+      "PLANNER": 367,
+      "IMPLEMENTER": 368,
+      "REVIEWER": 368,
+      "VALIDATOR": 369
+    }
+  },
+  "added_files": [
+    "helpers/check_package.py"
+  ],
+  "removed_files": [],
+  "review_signals": [
+    "Explain file or instruction growth in the maintenance review."
+  ],
+  "manual_review_required": "Assess behavior added, duplication, role placement and shared-plus-role sufficiency; structural PASS does not establish these."
+}

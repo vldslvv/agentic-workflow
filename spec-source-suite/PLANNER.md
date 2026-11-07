@@ -12,13 +12,13 @@ Read [AGENTS.md](AGENTS.md) plus this routine. Start fresh for each ready task, 
 
 - **Request and scope:** authorizing request/decision, goal, constraints, exclusions.
 - **Acceptance:** separate path and requirement IDs.
-- **Sources and dependencies:** normative sources and accepted prerequisite contracts.
+- **Sources and dependencies:** normative sources, resolved engineering guideline paths and accepted prerequisite contracts.
 - **Approach:** complete implementation approach, interfaces, integration points, ordinary defaults, target and output paths; retain explicitly approved text.
 - **Checks and handoff:** methods/commands and expected outcomes, task checks, regressions, assembled-app scenarios and required manual/real-dependency checks; evidence destination, selected ordinary memory paths and implementer handoff.
 
 ## Acceptance outline
 
-- **Request, sources and scope:** authorizing request, exact source clauses, shared constraints and selected behavior.
+- **Request, sources and scope:** authorizing request, exact source clauses, applicable engineering guideline clauses, shared constraints and selected behavior.
 - **Prerequisites:** order-derived and explicitly declared task IDs, accepted dependency contracts.
 - **Target and paths:** required target, implementation and evidence destinations.
 

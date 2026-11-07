@@ -12,6 +12,14 @@ This package supplies instructions, blank templates and a usage helper, not a se
 
 Document-only requests enter through `spec-planner`; single-task and whole-app execution through `spec-supervisor`. The two instruction-only skills under `.agents/skills/` require explicit invocation. Role dispatch may load the role files directly. Only requested automated-runner work reads [RUNNER.md](RUNNER.md). Suite tooling follows the user's acceptance and checks links, metadata and retained tests; documentation walkthroughs are distinct from live app experiments. These are proposed engineering procedures, not proven guarantees. When adopting the package, deliberately merge repository instructions and verify installed worker capabilities rather than assuming CLI flags or isolation.
 
+## Workflow maintenance
+
+For suite changes, keep operative guidance in this file plus one routine per role. Put common rules here and role-specific procedures with their role. Give each rule one authoritative home; reference it instead of repeating it. Prefer replacing or removing instructions when adding guidance. Add a file only when existing boundaries cannot accommodate its responsibility, and explain why.
+
+Before completion, run `python spec-source-suite/helpers/check_package.py --base <starting-commit>` from the repository root. Check layout, links and skill entry points; report file/directory counts, instruction words and shared-plus-role context sizes. Explain increases as review signals, not automatic failures or reasons to weaken requirements. Update package metadata and checksums after validation.
+
+Review each added instruction: does it change behavior, duplicate a rule, or force a role to load supporting procedure files? Confirm each role can operate with shared guidance plus its own routine. Record the answers and any justified growth in the change's results.
+
 ## Authority and acceptance
 
 The selected bundle and normative references define behavior; plans and memory cannot override them. Preserve explicit requirements, complete approved text and history. A direct implementation request authorizes derived records and ordinary choices without routine reapproval. Required behavior changes and material conflicts need user authority. Approval of documents alone does not authorize execution.
@@ -19,6 +27,14 @@ The selected bundle and normative references define behavior; plans and memory c
 Save a full plan and separate source-linked acceptance before implementation. Required unavailable capabilities block acceptance; skipped checks are NOT_RUN or BLOCKED, observed violations are FAIL, never weakened expectations. Use proportionate observable checks, relevant regressions and required manual/real-dependency checks. Reuse meaningful tests and cover gaps through public interfaces; avoid tests that assert their own mock outputs, implementation details, or test-only production hooks. Record substitute limits and remaining coverage gaps.
 
 A task passes only with successful required checks, adequate requirement coverage and fresh independent review with no actionable findings. Missing fresh review is INDEPENDENT_REVIEW_NOT_RUN and blocks acceptance. Failed or blocked prerequisites never unlock consumers. Changed sources, dependencies or implementation require reassessing affected results and repeating checks/review. Final independent validation is required after scheduled tasks pass; task passes alone do not establish whole-app acceptance. Cancellation, applicable limits, conflicts or unavailable capabilities preserve unfinished results and blockers.
+
+## Engineering guidelines
+
+Every role must resolve and read applicable engineering guidelines before its work. Use sources required by repository instructions and those linked from the selected `project.md`; include repository-root `guidelines.md` when present. Resolve links from their containing document and pass resolved paths, not summaries. An explicitly required or handed-off file that is unavailable blocks work; an adopting repository with no guideline source has no additional guidelines. Keep project guidelines outside this reusable suite.
+
+Treat these files as shared engineering constraints for planning, production code, tests, tooling and repairs. Plans and acceptance reference applicable clauses; implementation applies them; review and validation check conformance. Preserve each clause's strength: a preference permits a justified exception, while a requirement remains binding. Record material exceptions with their reason in review-visible results. Findings cite the clause and concrete consequence; stylistic preferences alone do not create new product requirements. Resolve conflicts under authority and acceptance above.
+
+Every worker handoff includes the applicable guideline paths, including fresh reviewers, validators and replacement workers. Guidelines are allowed source inputs for independent checks, separate from excluded plans and memory. Reconstruction exports include the applicable guidelines within the allowed-input boundary; workers read the exported paths. Guideline changes require reassessing affected plans, checks and reviews under the ordinary changed-source rules.
 
 ## Markdown bundle
 
@@ -42,6 +58,8 @@ Keep full `plan.md` and `acceptance.md` in `.suite/tasks/<NNN>-<task-id>/`; defa
 Fresh work uses the current brief/bundle and relevant memory, without searching earlier tasks or conversations. Continuing work uses identified task paths or execution references. Resolve a bare task ID by immediate `.suite/tasks/` directory suffix; ask if absent, ambiguous, or continuation is unclear. Stop discovery once authority is resolved. Recover missing approved originals from that task's known source/conversation; if unavailable, report locations checked and request the originals rather than inventing them from summaries. Reviewers/validators receive recovered source requirements or acceptance only, never the recovery conversation. In Plan mode present full drafts and state deferred saving; save approved text once editing is available before implementation or handoff.
 
 Resume from complete identified records, findings and current artifacts. Reassess stale or missing evidence; preserve useful failure evidence and resolutions. Retain role handles and artifact paths so corrections return to the same task planner and implementation repairs to the same implementer while available. If a session is unavailable, restore that role from its allowed saved inputs and disclose the replacement; never claim an unavailable session was retained.
+
+Handoffs supply exact paths, absolute or relative to an explicit root, for the recipient's shared/role guidance and allowed specifications, acceptance, candidate and evidence. Include plans and memory only for permitted roles. Recipients read supplied paths directly; discover only unresolved inputs under the selection/recovery rules above. Paths identify inputs; their contents still must be read.
 
 ## Project memory
 
