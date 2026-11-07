@@ -1,6 +1,6 @@
 ---
 name: spec-planner
-description: Author documents or prepare one ready task and its acceptance.
+description: Author project specifications or planning documents without executing tasks.
 disable-model-invocation: true
 ---
 

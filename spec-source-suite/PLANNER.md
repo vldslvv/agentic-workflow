@@ -1,32 +1,8 @@
 # Planner
 
-Read [AGENTS.md](AGENTS.md) plus this routine. Start fresh per task. Inputs: specifications, relevant code, accepted dependency contracts, ordinary memory and, for execution, the task assessment/mode. Reconstruction uses only allowed inputs. Remain available for corrections.
+Read [AGENTS.md](AGENTS.md) plus this routine. Author documents only. Inputs: the authorized brief, specifications, relevant code, dependency contracts and ordinary memory. Reconstruction uses only allowed inputs.
 
-1. Resolve the handed-off implementation root, authorized scope, sources, target/output/evidence paths and accepted prerequisites. For document-only work, author the requested bundle/documents using templates as needed; implementation environments and independent implementation review are not required. For execution, prepare only the ready task, with no project-wide planning stage.
-2. Map every applicable source clause to stable requirement IDs, observable outcomes and proportionate checks covering normal, boundary, failure and interaction behavior. Link shared verification. Surface unresolved requirements and unavailable required checks; ordinary implementation/check choices need no new approval.
-3. Save the plan and separate source-linked acceptance using the outlines below and shared record rules. Record agreed interfaces and ownership in the plan and handoff; report missing decisions before concurrent implementation. Preserve approved originals. Define expected outcomes now; check code can follow during implementation.
-4. Validate consistency, source coverage, links, the dependency table and verification pass rules. Document-only work ends with saved, validated documents and a separate generation-readiness statement. For execution return status, artifact paths, dependency contracts, relevant memory paths and this planner's handle for implementer access; the supervisor need not load detailed planning discussions.
-5. On a planning or acceptance defect, correct this task's records against original requirements, preserve earlier approved versions, and return changed paths plus affected checks. Required behavior changes need user authority; unresolved conflicts block work. The implementer repeats affected checks and fresh review. At completion/blocked stop save results, usage references and useful ordinary memory.
-
-## Plan outline
-
-- **Request and scope:** authority, difficulty assessment/mode, goal, constraints, exclusions.
-- **Acceptance:** separate path and requirement IDs.
-- **Sources and dependencies:** normative sources, resolved engineering guideline paths and accepted prerequisite contracts.
-- **Approach:** complete implementation approach, agreed interfaces, file ownership including shared configuration, integration points, ordinary defaults, target and output paths; retain explicitly approved text.
-- **Checks and handoff:** methods/commands and expected outcomes, task checks, regressions, assembled-app scenarios and required manual/real-dependency checks; evidence destination, selected ordinary memory paths and implementer handoff.
-
-## Acceptance outline
-
-- **Request, sources and scope:** authorizing request, exact source clauses, applicable engineering guideline clauses, shared constraints and selected behavior.
-- **Prerequisites:** task IDs from `task_order.md` dependencies and accepted dependency contracts.
-- **Target and paths:** required target, implementation and evidence destinations.
-
-| Requirement ID | Source clause and observable outcome | Check method and pass rule |
-|---|---|---|
-| Stable ID | Exact requirement reference and required result | Public interface, inputs, expected outputs, setup/cleanup as needed |
-
-- **Shared/regression/final checks:** references including required real-dependency integration and manual criteria.
-- **Limits and decisions:** unavailable checks, substitutes/fidelity, remaining coverage gaps and material conflicts, or none.
-
-Acceptance contains source requirements and ordinary clarifications, not plans, conversations or memory. A source omission is a planning defect even if the implementation satisfies the incomplete acceptance table.
+1. Resolve scope, sources, target and document destinations under shared record rules. Author the requested bundle/documents using templates and the [task document outlines](AGENTS.md#task-document-outlines) as applicable; implementation environments and implementation review are not required.
+2. Map applicable requirements to observable outcomes and proportionate checks. Link shared verification and surface unresolved requirements or unavailable required checks. Preserve approved originals.
+3. Validate consistency, source coverage, links, dependency tables and verification pass rules. Return saved document paths, status and a separate generation-readiness statement. Stop before execution.
+4. Handle document corrections against original requirements, preserving approved history. Required behavior changes need user authority. Save results, usage references and useful ordinary memory at completion or a blocked stop.

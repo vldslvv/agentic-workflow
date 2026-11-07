@@ -10,4 +10,5 @@
 - Prefer real implementations and isolated, disposable infrastructure in tests. Use test doubles when real dependencies are costly, destructive, unreliable, or impractical; document meaningful coverage limits.
 - Treat these as design defaults. Explain material departures with a concrete benefit or constraint.
 - Do not create unnecessary validations, locks, checksums and manifests unless explicitly requested.
-- Do not created backwards-compatible functionality unless explicitly requested.
+- Do not create backwards-compatible functionality unless explicitly requested.
+- Use simple language in comments and documents and avoid dense tech jargon typical for LLM outputs.

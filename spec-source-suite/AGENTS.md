@@ -5,16 +5,16 @@ This package supplies instructions, blank templates and a usage helper, not a se
 | Role | Routine | Responsibility |
 |---|---|---|
 | Supervisor | [SUPERVISOR.md](SUPERVISOR.md) | Schedule and collect outcomes |
-| Planner | [PLANNER.md](PLANNER.md) | Author documents or prepare one ready task |
-| Implementer | [IMPLEMENTER.md](IMPLEMENTER.md) | Implement, check and own fresh reviews |
+| Planner | [PLANNER.md](PLANNER.md) | Author documents only |
+| Implementer | [IMPLEMENTER.md](IMPLEMENTER.md) | Plan full tasks, implement, self-review and own repairs |
 | Reviewer | [REVIEWER.md](REVIEWER.md) | Independently check one candidate |
 | Validator | [VALIDATOR.md](VALIDATOR.md) | Independently check the assembled app and specify repairs |
 
-Spec implementation always uses the Supervisor's full project workflow, including single-task selections. Load roles directly; named skills are optional. Explicit `spec-planner` and `spec-supervisor` invocations use `.agents/skills/`. Document-only work uses the Planner and stops before execution. Only requested automated-runner work reads [RUNNER.md](RUNNER.md). Suite maintenance follows user acceptance and checks links, entry points and relevant tests. Documentation walkthroughs are not live app experiments. When adopting these procedures, merge repository instructions and verify worker capabilities; CLI flags and isolation are host-dependent.
+Spec implementation always uses the Supervisor's project workflow, including single-task selections. Load roles directly; named skills are optional. Explicit `spec-planner` and `spec-supervisor` invocations use `.agents/skills/`. Document-only work uses the Planner and stops before execution. Only requested automated-runner work reads [RUNNER.md](RUNNER.md). Suite maintenance follows user acceptance and checks links, entry points and relevant tests. Documentation walkthroughs are not live app experiments. When adopting these procedures, merge repository instructions and verify worker capabilities; CLI flags and isolation are host-dependent.
 
 ## Workflow maintenance
 
-For suite changes, keep operative guidance in this file plus one routine per role. Put common rules here and role-specific procedures with their role. Give each rule one authoritative home; reference it instead of repeating it. Prefer replacing or removing instructions when adding guidance. Add a file only when existing boundaries cannot accommodate its responsibility, and explain why.
+For suite changes, keep shared guidance here, task-mode selection and execution policy in [TASK_MODES.md](TASK_MODES.md), and role-specific procedures in one routine per role. The separate task-mode policy makes the selection rules visible across roles. Give each rule one authoritative home; reference it instead of repeating it. Prefer replacing or removing instructions when adding guidance. Add a file only when existing boundaries cannot accommodate its responsibility, and explain why.
 
 Before completion, run `python spec-source-suite/helpers/check_package.py` from the repository root to check required guidance/templates, skill entry points/policies and local links/anchors. Additional valid files are allowed; no Git history is required. Legacy `--base VALUE` is accepted with a removal notice and performs no baseline comparison.
 
@@ -43,24 +43,44 @@ Request the selected settings through supported host controls. If the host canno
 
 The selected bundle and normative references define behavior; plans and memory cannot override them. Preserve explicit requirements, complete approved text and history. A direct implementation request authorizes derived records and ordinary choices without routine reapproval. Required behavior changes and material conflicts need user authority. Approval of documents alone does not authorize execution.
 
-Save the task plan and separate source-linked acceptance before implementation, with depth appropriate to its workflow below. Required unavailable capabilities block acceptance; skipped checks are NOT_RUN or BLOCKED, observed violations are FAIL, never weakened expectations. Use proportionate observable checks, relevant regressions and required manual/real-dependency checks. Reuse meaningful tests and cover gaps through public interfaces; avoid tests that assert their own mock outputs, implementation details, or test-only production hooks. Record substitute limits and remaining coverage gaps.
+Use the acceptance criteria defined by the [assigned task workflow](TASK_MODES.md#execution). Required unavailable capabilities block acceptance; skipped checks are NOT_RUN or BLOCKED, observed violations are FAIL, never weakened expectations. Use proportionate observable checks, relevant regressions and required manual/real-dependency checks. Reuse meaningful tests and cover gaps through public interfaces; avoid tests that assert their own mock outputs, implementation details, or test-only production hooks. Record substitute limits and remaining coverage gaps.
 
 A task passes only with successful required checks, adequate requirement coverage and no unresolved actionable findings. Where task review is required, it must be fresh and independent; missing review is INDEPENDENT_REVIEW_NOT_RUN and blocks acceptance. Failed or blocked prerequisites never unlock consumers. Changed sources, dependencies or implementation require reassessing affected results and repeating applicable checks/review. Final independent validation is required after scheduled tasks pass in either task workflow; task passes alone do not establish whole-app acceptance. Cancellation, applicable limits, conflicts or unavailable capabilities preserve unfinished results and blockers.
 
 ## Task workflows
 
-Before implementation, the implementer assesses logic, component interactions, compatibility/data-loss risks and verification effort. Complex tasks require `full` regardless of certainty; only simple tasks qualify for `lightweight`. Default to `full` and honor explicit source/user requirements. Record the assessment and mode in the plan and results; report them to the supervisor. Unresolved requirements block either mode. Model profiles do not select workflows.
+Read [TASK_MODES.md](TASK_MODES.md) before selecting a mode or applying an assigned task workflow.
 
-| Mode | Planning owner | Task review |
+## Task document outlines
+
+Use these outlines for full-task records and requested document-only authoring. Lightweight tasks use source criteria and result evidence directly.
+
+### Plan outline
+
+- **Request and scope:** authority, assigned mode, goal, constraints and exclusions.
+- **Acceptance:** separate path and requirement IDs.
+- **Sources and dependencies:** normative sources, resolved engineering guideline paths and accepted prerequisite contracts.
+- **Approach:** implementation approach, agreed interfaces, file ownership including shared configuration, integration points, defaults, target and output paths; retain explicitly approved text.
+- **Checks:** methods/commands and expected outcomes, regressions, assembled-app scenarios and required manual/real-dependency checks; evidence destination and relevant ordinary memory paths.
+
+### Acceptance outline
+
+- **Request, sources and scope:** authorizing request, exact source clauses, applicable engineering guideline clauses, shared constraints and selected behavior.
+- **Prerequisites:** task IDs from `task_order.md` and accepted dependency contracts.
+- **Target and paths:** required target, implementation and evidence destinations.
+
+| Requirement ID | Source clause and observable outcome | Check method and pass rule |
 |---|---|---|
-| `full` | Separate fresh planner; full plan and acceptance | Fresh independent review required |
-| `lightweight` | Implementer; concise plan and separate acceptance, unless a planner is assigned | Optional unless explicitly required; a chosen optional review needs a concrete reason; omission is not a review PASS |
+| Stable ID | Exact requirement reference and required result | Public interface, inputs, expected outputs, setup/cleanup as needed |
 
-The planning owner handles planning/acceptance corrections. Both modes follow all shared acceptance, engineering, record and usage rules. Concise plans retain authority, sources, prerequisites, approach, target and evidence paths; acceptance maps every requirement to checks/pass rules, including shared verification and coverage limits. Reassess changed scope or implementation demands; complexity requires escalation to full, preserving records and completing its gates. Explicit approval/review requirements remain binding.
+- **Shared/regression/final checks:** references including required real-dependency integration and manual criteria.
+- **Limits and decisions:** unavailable checks, substitutes/fidelity, coverage gaps and material conflicts, or none.
+
+Acceptance derives from original requirements before coding. Keep internal design choices and private helper details in the plan unless the source explicitly requires them. Exclude author correctness claims, plans, conversations and memory. Check every applicable source clause for coverage, including normal, boundary, failure and interaction behavior. A source omission remains a defect even if the implementation passes the incomplete table. Correct acceptance against its sources and preserve approved history; full-task corrections require repeating affected checks and fresh review.
 
 ## Engineering guidelines
 
-Every role must resolve and read applicable engineering guidelines before its work. Use sources required by repository instructions and those linked from the selected `project.md`; include repository-root `guidelines.md` when present. Resolve links from their containing document and pass resolved paths, not summaries. An explicitly required or handed-off file that is unavailable blocks work; an adopting repository with no guideline source has no additional guidelines. Keep project guidelines outside this reusable suite.
+Every role must read the bundled [engineering guidelines](GUIDELINES.md) before its work. Also read sources required by repository instructions and those linked from the selected `project.md`; include repository-root `guidelines.md` when present. Resolve links from their containing document and pass resolved paths, not summaries. An explicitly required or handed-off file that is unavailable blocks work. Keep project-specific additions outside this reusable suite.
 
 Treat these files as shared engineering constraints for planning, production code, tests, tooling and repairs. Plans and acceptance reference applicable clauses; implementation applies them; review and validation check conformance. Preserve each clause's strength: a preference permits a justified exception, while a requirement remains binding. Record material exceptions with their reason in review-visible results. Findings cite the clause and concrete consequence; stylistic preferences alone do not create new product requirements. Resolve conflicts under authority and acceptance above.
 
@@ -87,7 +107,7 @@ Keep shared constraints in `project.md` and shared/final scenarios in `verificat
 
 ## Records
 
-One implementation owns `.suite/<NNN>_<name>/`: `native/<session-id>/<turn-id>.jsonl`, `tasks/<task-id>/{plan,acceptance}.md`, `runs/<task-id>/<agent-run-id>/` and `reports/`. Allocate before task work with `python spec-source-suite/helpers/records.py allocate NAME` (serialized locally by locking the suite directory). Fresh implementations receive new numbers; resumes and repairs reuse their root. Keep new records there, using source filename stems as task IDs in documents, assignments and run paths. Preserve approved originals and history in place. Reserve `orchestration` for supervisor activity and `validation` for final validation, not planning stages. Task documents identify authority, sources, prerequisites, target and destinations.
+One implementation owns `.suite/<NNN>_<name>/`: `native/<session-id>/<turn-id>.jsonl`, `tasks/<task-id>/`, `runs/<task-id>/<agent-run-id>/` and `reports/`. Allocate before task work with `python spec-source-suite/helpers/records.py allocate NAME` (serialized locally by locking the suite directory). Fresh implementations receive new numbers; resumes and repairs reuse their root. Keep new records there, using source filename stems as task IDs in documents, assignments and run paths. Preserve approved originals and history in place. Reserve `orchestration` for supervisor activity and `validation` for final validation, not planning stages. Create the task identity directory before dispatch in either mode. Full tasks store `plan.md` and `acceptance.md` there; lightweight tasks store only their result and check evidence under `runs/`. Missing plan/acceptance files are valid for lightweight execution and resume. Task documents identify authority, sources, prerequisites, target and destinations.
 
 Allocation saves the current session metadata and active native turn; on resume, run `python spec-source-suite/helpers/records.py resolve IMPLEMENTATION TASK` to resolve the task and save that turn. Pass the implementation root through every handoff and include one structured line, substituting its implementation name, source task ID and recipient role:
 
@@ -99,9 +119,9 @@ An optional `purpose` describes the assignment. Recipients also emit their assig
 
 Fresh work uses the current brief/bundle and relevant memory, without searching earlier tasks or conversations. Continuing work uses identified task paths or execution references. Resolve a bare task ID under the identified implementation’s immediate `tasks/` directory; ask if the implementation or task is absent, ambiguous, or continuation is unclear. Stop discovery once authority is resolved. Recover missing approved originals from that task's known source/conversation; if unavailable, report locations checked and request the originals rather than inventing them from summaries. Reviewers/validators receive recovered source requirements or acceptance only, never the recovery conversation. In Plan mode present full drafts and state deferred saving; save approved text once editing is available before implementation or handoff.
 
-Resume from complete identified records, findings and current artifacts. Reassess stale or missing evidence; preserve useful failure evidence and resolutions. Retain role handles and artifact paths so corrections return to the same task planner and implementation repairs to the same implementer while available. If a session is unavailable, restore that role from its allowed saved inputs and disclose the replacement; never claim an unavailable session was retained.
+Resume from complete identified records, findings and current artifacts. Reassess stale or missing evidence; preserve useful failure evidence and resolutions. Retain role handles and artifact paths so all execution-task corrections and repairs return to the same implementer; document-only corrections return to their author while available. If a session is unavailable, restore that role from its allowed saved inputs and disclose the replacement; never claim an unavailable session was retained.
 
-Handoffs include the implementation root and supply exact paths, absolute or relative to an explicit root, for the recipient's shared/role guidance and allowed specifications, acceptance, candidate and evidence. Include plans and memory only for permitted roles. Recipients read supplied paths directly; discover only unresolved inputs under the selection/recovery rules above. Paths identify inputs; their contents still must be read.
+Handoffs include the implementation root and supply exact paths, absolute or relative to an explicit root, for the recipient's shared/role guidance and allowed specifications, full-task acceptance, candidate and evidence. Include plans and memory only for permitted roles. Recipients read supplied paths directly; discover only unresolved inputs under the selection/recovery rules above. Paths identify inputs; their contents still must be read.
 
 ## Coordination and checking
 
@@ -129,12 +149,12 @@ Inspect exports and report actual separation across filesystem access, parent in
 
 ## Results and usage references
 
-Keep separate plan/acceptance documents and one concise result per role/run using the outline below; save extra logs and explanations when useful, preserving repair history and failures. Routine candidate manifests, checksum lists, duplicate check summaries and repeated hash sweeps are excluded; functional identity, deduplication and regression hashes remain valid.
+Keep one concise result per role/run using the outline below; save extra logs and explanations when useful, preserving repair history and failures. Routine candidate manifests, checksum lists, duplicate check summaries and repeated hash sweeps are excluded; functional identity, deduplication and regression hashes remain valid.
 
-Roles link derived usage reports and coverage limitations, including repairs and blocked work, without maintaining token totals. The supervisor generates aggregate reports at overall completion or a blocked stop; earlier refreshes are on request. Native capture and assignment handling continue throughout; adapters calculate usage. Missing telemetry is a reporting limitation, never an app acceptance blocker; unknown measurements remain unavailable. Omit inapplicable outline fields and keep forwarded review/validation results free of plans, conversations and memory.
+Roles link derived usage reports and coverage limitations, including repairs and blocked work, without maintaining token totals. The supervisor generates aggregate reports at overall completion or a blocked stop; earlier refreshes are on request. Native capture and assignment handling continue throughout; adapters calculate usage. Missing telemetry is a reporting limitation, never an app acceptance blocker; unknown measurements remain unavailable. Omit inapplicable outline fields and keep forwarded review/validation results free of plans, conversations, memory and author design narratives.
 
-- **Scope and candidate:** source/acceptance paths, implementation location/revision, dependencies.
-- **Role and status:** PASS, FAIL, BLOCKED or NOT_RUN; rationale and unfinished work.
+- **Scope and candidate:** source paths and full-task acceptance paths, implementation location/revision, dependencies.
+- **Role and status:** assigned task mode, PASS, FAIL, BLOCKED or NOT_RUN; rationale and unfinished work.
 - **Model routing:** chosen profile, selection reason, requested model/reasoning, observed settings when available, and any host-default fallback or known mismatch.
 - **Requirement-linked checks:** ID, command/method, working directory, exit/outcome and evidence; manual checks identify authority and inspected artifact. Separate execution outcomes from coverage judgment and cleanup errors from primary failures.
 - **Findings and resolutions:** requirement, expected/observed behavior, reproduction, repair and remaining actionable findings. Preserve useful failures.

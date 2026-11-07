@@ -24,7 +24,7 @@ def anchors(text):
 
 
 def check(files):
-    expected = {"AGENTS.md", "MODELS.md", "templates/project.md",
+    expected = {"AGENTS.md", "GUIDELINES.md", "MODELS.md", "templates/project.md",
                 "templates/task_order.md", "templates/tasks/task.md",
                 "templates/verification.md"}
     expected.update(f"{role}.md" for role in ROLES)

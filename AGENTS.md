@@ -2,7 +2,7 @@
 
 `spec-source-suite/` is reusable guidance; change it only for requested workflow/tooling work. Keep app inputs, code and evidence outside it.
 
-Spec implementation (for example, `Implement specs/todolist`) always uses the full project workflow: read [shared rules](spec-source-suite/AGENTS.md) and act as [Supervisor](spec-source-suite/SUPERVISOR.md), even without a named skill. Individual [task modes](spec-source-suite/AGENTS.md#task-workflows) operate within that workflow.
+Spec implementation (for example, `Implement specs/todolist`) always uses the project workflow: read [shared rules](spec-source-suite/AGENTS.md) and act as [Supervisor](spec-source-suite/SUPERVISOR.md), even without a named skill. Individual [task modes](spec-source-suite/TASK_MODES.md) operate within that workflow.
 
 For other ordinary work, implement directly or briefly plan first; follow engineering guidelines, run relevant checks, inspect the diff and report results. Formal workflow artifacts and roles are optional unless requested. Plan-only requests stop at the plan; honor explicit review/approval requirements. Explicit suite skills/roles and suite maintenance follow the suite's applicable guidance.
 
@@ -10,12 +10,13 @@ Use the paths below directly and batch independent reads. Search for paths only 
 
 | Read when | Path |
 |---|---|
-| Before planning, writing, changing or reviewing code, tests or tooling | [guidelines.md](guidelines.md) |
+| Before planning, writing, changing or reviewing code, tests or tooling | [engineering guidelines](spec-source-suite/GUIDELINES.md) |
 | Suite app work or suite maintenance: shared rules | [spec-source-suite/AGENTS.md](spec-source-suite/AGENTS.md) |
 | Entering a role or selecting settings for a worker | [spec-source-suite/MODELS.md](spec-source-suite/MODELS.md) |
-| Full-workflow document authoring or assigned suite planning | [spec-source-suite/PLANNER.md](spec-source-suite/PLANNER.md) |
+| Selecting full/lightweight task mode or applying an assigned workflow | [spec-source-suite/TASK_MODES.md](spec-source-suite/TASK_MODES.md) |
+| Document-only suite authoring | [spec-source-suite/PLANNER.md](spec-source-suite/PLANNER.md) |
 | Any spec implementation or app generation: orchestration | [spec-source-suite/SUPERVISOR.md](spec-source-suite/SUPERVISOR.md) |
-| Assigned suite implementation | [spec-source-suite/IMPLEMENTER.md](spec-source-suite/IMPLEMENTER.md) |
+| Assigned suite task execution, including full-mode planning | [spec-source-suite/IMPLEMENTER.md](spec-source-suite/IMPLEMENTER.md) |
 | Assigned suite independent review | [spec-source-suite/REVIEWER.md](spec-source-suite/REVIEWER.md) |
 | Assigned suite final validation | [spec-source-suite/VALIDATOR.md](spec-source-suite/VALIDATOR.md) |
 | Authoring project inputs | [project](spec-source-suite/templates/project.md), [task order](spec-source-suite/templates/task_order.md), [task](spec-source-suite/templates/tasks/task.md), [verification](spec-source-suite/templates/verification.md) |
@@ -27,7 +28,7 @@ Use the paths below directly and batch independent reads. Search for paths only 
 
 Apply the engineering guidelines and include their resolved paths in delegated work; shared rules govern source resolution and handoff.
 
-- Fresh work uses the current brief or selected bundle. Ordinary planners may consult [project memory](spec-source-suite/AGENTS.md#project-memory), without searching earlier tasks or conversations.
+- Fresh work uses the current brief or selected bundle. Ordinary planners and implementers may consult [project memory](spec-source-suite/AGENTS.md#project-memory), without searching earlier tasks or conversations.
 - Continuing work uses identified task paths or execution references. Resolve a bare task ID only under the identified `.suite/<NNN>_<name>/tasks/`; ask if the implementation or task is absent, ambiguous, or continuation itself is unclear. Stop discovery when authority is resolved.
 - Advice/tooling work uses requested files and relevant references, without task-history discovery.
 
