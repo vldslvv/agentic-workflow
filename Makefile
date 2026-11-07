@@ -16,7 +16,7 @@ help:
 	@echo "make eval         Evaluate HEAD in a clean temporary worktree; retain reports under .evals/todolist-worktrees/"
 	@echo "make trace        Live agent insights until Ctrl+C (optional IMPL=path TRACE_INTERVAL=5; restart to change interval)"
 	@echo "make cleanup      Remove all .suite/ records and transient artifacts"
-	@echo "make clean        Remove run evidence and task records (optional IMPL=path)"
+	@echo "make clean        Remove all .suite/ records and transient artifacts"
 	@echo "make clean-runs   Remove runs/ under IMPL"
 	@echo "make clean-tasks  Remove tasks/ under IMPL"
 
@@ -29,7 +29,7 @@ trace:
 cleanup:
 	@cd "$(REPO_ROOT)" && rm -rf -- .suite
 
-clean: clean-runs clean-tasks
+clean: cleanup
 
 clean-runs:
 	@cd "$(REPO_ROOT)" && rm -rf -- "$${IMPL:?IMPL must identify an implementation directory}/runs"

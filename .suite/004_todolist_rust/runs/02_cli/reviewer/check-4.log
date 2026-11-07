@@ -1,4 +1,0 @@
-Command: cargo clippy --offline --all-targets -- -D warnings
-Working directory: /home/vv/ccode/generate-prototype/apps/todolist_rust
-Exit: 0
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s

@@ -1,3 +1,0 @@
-Command: ['cargo', 'fmt', '--check']
-Working directory: /home/vv/ccode/generate-prototype/apps/todolist_rust
-Exit: 0
