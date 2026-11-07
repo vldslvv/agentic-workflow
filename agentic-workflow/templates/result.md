@@ -1,6 +1,6 @@
 # <Role/run> — result
 
-Omit inapplicable fields. Keep forwarded independent-check inputs within [Checks](../CHECKS.md). Document-only results describe document validation, not app execution.
+Omit inapplicable fields. Keep forwarded independent-check inputs within [Checks](../policies/CHECKS.md). Document-only results describe document validation, not app execution.
 
 - **Scope and candidate:** <Sources, applicable acceptance, candidate location/revision and dependencies.>
 - **Role and status:** <Assigned mode; PASS, FAIL, BLOCKED or NOT_RUN; rationale and unfinished work.>

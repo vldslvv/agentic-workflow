@@ -43,7 +43,7 @@ an unsuitable checkout before creating files. It never stashes or resets changes
 `run` launches one `codex exec` with the exact prompt `Implement specs/todolist`.
 It resolves the Supervisor default profile from
 `<project-root>/.agentic-workflow/MODELS.md` when present, otherwise
-[the packaged defaults](../agentic-workflow/MODELS.md#routing-source). An override
+[the packaged defaults](../agentic-workflow/policies/MODELS.md#routing-source). An override
 is a complete replacement; malformed configuration fails without falling back.
 The launcher enables subagents, requests the
 workspace-write sandbox and outbound network access for dependencies, and sets

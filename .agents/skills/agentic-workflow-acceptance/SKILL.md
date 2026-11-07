@@ -6,9 +6,8 @@ disable-model-invocation: true
 
 # Acceptance specification
 
-When explicitly invoked, read [workflow entry points](../../../agentic-workflow/AGENTS.md).
-
-1. Extract agreed requirements, constraints, boundaries, failure behavior and non-goals. Give criteria stable IDs, source references, observable outcomes and concrete checks under [Checks](../../../agentic-workflow/CHECKS.md). Keep design choices open unless explicitly required; surface material conflicts.
-2. Apply [source authority](../../../agentic-workflow/BUNDLE.md) to approvals and implementation authorization. Present complete plan/acceptance drafts when approval is needed; preserve explicitly approved text.
-3. Use the [plan](../../../agentic-workflow/templates/plan.md) and [acceptance](../../../agentic-workflow/templates/acceptance.md) templates. Save and recover originals under [Records](../../../agentic-workflow/RECORDS.md), including its Plan-mode rules.
-4. Route document-only work to [Planner](../../../agentic-workflow/PLANNER.md) and authorized app execution to [Supervisor](../../../agentic-workflow/SUPERVISOR.md). This skill is not a prerequisite for the [lightweight execution workflow](../../../agentic-workflow/IMPLEMENTER.md).
+- Context: when explicitly invoked, read [workflow entry points](../../../agentic-workflow/AGENTS.md) and follow [Planner](../../../agentic-workflow/roles/PLANNER.md) for document authoring.
+- Inputs: interactive planning discussion, agreed requirements, constraints, boundaries, failure behavior and non-goals.
+- Effects: extract source-linked criteria with stable IDs, observable outcomes and concrete checks under [Checks](../../../agentic-workflow/policies/CHECKS.md). Keep design choices open unless explicitly required; surface material conflicts. Apply [source authority](../../../agentic-workflow/policies/BUNDLE.md) to approvals and implementation authorization. Present complete plan/acceptance drafts when approval is needed; preserve explicitly approved text. Use the [plan](../../../agentic-workflow/templates/plan.md) and [acceptance](../../../agentic-workflow/templates/acceptance.md) templates; save and recover originals under [Records](../../../agentic-workflow/policies/RECORDS.md), including its Plan-mode rules.
+- Outputs: complete plan/acceptance drafts or saved approved documents, as authorized.
+- Next: route authorized app execution to [Supervisor](../../../agentic-workflow/roles/SUPERVISOR.md). This skill is not a prerequisite for the [lightweight execution workflow](../../../agentic-workflow/roles/IMPLEMENTER.md).

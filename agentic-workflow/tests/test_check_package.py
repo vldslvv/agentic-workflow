@@ -38,7 +38,7 @@ class PackageCheckTests(unittest.TestCase):
 
     def test_additional_valid_markdown_is_allowed_and_checked(self):
         (self.package / 'extra.md').write_text(
-            '# Extra\n[Routing](MODELS.md#model-routing)\n')
+            '# Extra\n[Routing](policies/MODELS.md#model-routing)\n')
         self.assertEqual(self.result(self.cli(), 0)['errors'], [])
 
     def test_broken_local_link_and_anchor_fail(self):
@@ -50,7 +50,7 @@ class PackageCheckTests(unittest.TestCase):
                 self.assertTrue(any(target in error for error in report['errors']))
 
     def test_missing_required_role_and_template_fail(self):
-        for relative in ('REVIEWER.md', 'templates/verification.md', 'VERSION', 'helpers/records.py'):
+        for relative in ('roles/REVIEWER.md', 'templates/verification.md', 'VERSION', 'helpers/records.py'):
             with self.subTest(path=relative):
                 path = self.package / relative
                 original = path.read_bytes()

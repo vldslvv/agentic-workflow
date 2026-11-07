@@ -6,4 +6,7 @@ disable-model-invocation: true
 
 # Planner
 
-When explicitly invoked, read [workflow entry points](../../../agentic-workflow/AGENTS.md) and follow [Planner](../../../agentic-workflow/PLANNER.md). For saved work, read [Records](../../../agentic-workflow/RECORDS.md); load only the role's allowed task inputs and triggered branches.
+- Context: when explicitly invoked, read [workflow entry points](../../../agentic-workflow/AGENTS.md) and follow [Planner](../../../agentic-workflow/roles/PLANNER.md).
+- Inputs: brief, authorized scope and source paths; load only the role's allowed task inputs and triggered branches.
+- Effects: execute the role's local procedure; for saved work, apply [Records](../../../agentic-workflow/policies/RECORDS.md).
+- Outputs: requested documents and document-validation results.

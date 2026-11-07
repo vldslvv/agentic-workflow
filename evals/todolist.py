@@ -124,7 +124,7 @@ def preflight(root, allow_dirty):
     if auth.returncode:
         raise RunnerError("Codex is not authenticated; run codex login first")
     override = root / ".agentic-workflow/MODELS.md"
-    routing = override if override.exists() else root / "agentic-workflow/MODELS.md"
+    routing = override if override.exists() else root / "agentic-workflow/policies/MODELS.md"
     return git(root, "rev-parse", "HEAD").strip(), supervisor_settings(routing), dirty
 
 

@@ -11,4 +11,4 @@
 - **Shared/regression/final checks:** <References, including required real-dependency integration and manual criteria.>
 - **Limits and decisions:** <Unavailable checks, substitutes/fidelity, coverage gaps and material conflicts, or none.>
 
-Derive this document under [Checks](../CHECKS.md), independently of plans, conversations, memory and author correctness claims.
+Derive this document under [Checks](../policies/CHECKS.md), independently of plans, conversations, memory and author correctness claims.

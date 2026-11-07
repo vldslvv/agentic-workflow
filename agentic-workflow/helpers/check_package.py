@@ -46,11 +46,12 @@ def check_links(documents, boundary):
 
 
 def check(files):
-    expected = {"README.md", "VERSION", "AGENTS.md", "GUIDELINES.md", "MODELS.md",
-                "WORKFLOW.md", "WORKFLOW_REVIEW.md", "BUNDLE.md", "CHECKS.md",
-                "RECORDS.md", "MEMORY.md", "RECONSTRUCTION.md", "RUNNER.md",
-                "helpers/TRACING.md"}
-    expected.update(f"{role}.md" for role in ROLES)
+    expected = {"README.md", "VERSION", "AGENTS.md", "WORKFLOW.md"}
+    expected.update(f"roles/{role}.md" for role in ROLES)
+    expected.update(f"policies/{name}.md" for name in
+                    ("BUNDLE", "CHECKS", "DOCUMENT_STYLE", "GUIDELINES", "MEMORY", "MODELS",
+                     "RECORDS", "RECONSTRUCTION"))
+    expected.update(f"guides/{name}.md" for name in ("WORKFLOW_REVIEW", "RUNNER", "TRACING"))
     expected.update(f"templates/{name}.md" for name in
                     ("project", "task_order", "tasks/task", "verification", "plan", "acceptance", "result"))
     expected.update(f"helpers/{name}.py" for name in
@@ -64,9 +65,9 @@ def check(files):
         errors.append("Invalid package VERSION; expected MAJOR.MINOR.PATCH")
     shared = files.get("AGENTS.md", b"").decode()
     for role in ROLES:
-        if f"]({role}.md)" not in shared:
+        if f"](roles/{role}.md)" not in shared:
             errors.append(f"Missing shared role entry point: {role}")
-        if "](AGENTS.md)" not in files.get(f"{role}.md", b"").decode():
+        if "](../AGENTS.md)" not in files.get(f"roles/{role}.md", b"").decode():
             errors.append(f"Missing shared-rules entry point in {role}")
     return errors, links
 
@@ -82,9 +83,10 @@ def check_integration(root):
     else:
         block = text.split(start, 1)[1].split(end, 1)[0]
         documents[instructions] = block
-        for name in ("AGENTS", "GUIDELINES", "MEMORY"):
-            if f"agentic-workflow/{name}.md" not in local_targets(block):
-                errors.append(f"Missing root entry point: {name}")
+        for path in ("AGENTS.md", "policies/DOCUMENT_STYLE.md", "policies/GUIDELINES.md",
+                     "policies/MEMORY.md"):
+            if f"agentic-workflow/{path}" not in local_targets(block):
+                errors.append(f"Missing root entry point: {Path(path).stem}")
     for skill in SKILLS:
         name = f"agentic-workflow-{skill}"
         directory = root / ".agents/skills" / name
@@ -96,7 +98,8 @@ def check_integration(root):
         invocation = policy.read_text() if policy.is_file() else ""
         required = (f"name: {name}", "description:", "disable-model-invocation: true")
         targets = local_targets(content)
-        references = ["AGENTS.md", "PLANNER.md", "SUPERVISOR.md"] if skill == "acceptance" else ["AGENTS.md", f"{skill.upper()}.md"]
+        references = (["AGENTS.md", "roles/PLANNER.md", "roles/SUPERVISOR.md"]
+                      if skill == "acceptance" else ["AGENTS.md", f"roles/{skill.upper()}.md"])
         if (not all(item in content for item in required)
                 or not all(f"../../../agentic-workflow/{ref}" in targets for ref in references)):
             errors.append(f"Invalid skill entry point: {name}")

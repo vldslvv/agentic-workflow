@@ -66,7 +66,7 @@ class InstallationTests(unittest.TestCase):
                     path.write_text(original)
 
     def test_missing_or_broken_root_block_fails(self):
-        for block in ('', self.block.replace('agentic-workflow/MEMORY.md', 'missing.md')):
+        for block in ('', self.block.replace('agentic-workflow/policies/MEMORY.md', 'missing.md')):
             with self.subTest(block=block):
                 (self.root / 'AGENTS.md').write_text('# Host\n' + block)
                 self.assertTrue(self.check(1)['errors'])

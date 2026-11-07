@@ -34,8 +34,8 @@ class TodolistEvalTests(unittest.TestCase):
         shutil.copyfile(EVALS / "todolist.py", self.root / "evals/todolist.py")
         shutil.copyfile(EVALS / "worktree.py", self.root / "evals/worktree.py")
         shutil.copyfile(EVALS.parent / "Makefile", self.root / "Makefile")
-        (self.root / "agentic-workflow").mkdir()
-        (self.root / "agentic-workflow/MODELS.md").write_text(
+        (self.root / "agentic-workflow/policies").mkdir(parents=True)
+        (self.root / "agentic-workflow/policies/MODELS.md").write_text(
             "## Profiles\n| Profile | Model | Reasoning |\n|---|---|---|\n"
             "| coordinator | fixture-model | high |\n"
             "## Role routes\n| Role | Default | Demanding work |\n|---|---|---|\n"
@@ -107,7 +107,7 @@ class TodolistEvalTests(unittest.TestCase):
     def test_project_routing_replaces_defaults_and_survives_cleanup(self):
         override = self.root / ".agentic-workflow/MODELS.md"
         override.parent.mkdir()
-        source = (self.root / "agentic-workflow/MODELS.md").read_text()
+        source = (self.root / "agentic-workflow/policies/MODELS.md").read_text()
         content = source.replace("fixture-model", "project-model").replace("high", "default")
         override.write_text(content)
         result = self.invoke("run", "--allow-dirty")
