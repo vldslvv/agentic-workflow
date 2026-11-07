@@ -32,6 +32,8 @@ class TodolistEvalTests(unittest.TestCase):
         self.env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}")
         (self.root / "evals").mkdir()
         shutil.copyfile(EVALS / "todolist.py", self.root / "evals/todolist.py")
+        shutil.copyfile(EVALS / "worktree.py", self.root / "evals/worktree.py")
+        shutil.copyfile(EVALS.parent / "Makefile", self.root / "Makefile")
         (self.root / "spec-source-suite").mkdir()
         (self.root / "spec-source-suite/MODELS.md").write_text(
             "## Profiles\n| Profile | Model | Reasoning |\n|---|---|---|\n"
@@ -104,8 +106,8 @@ class TodolistEvalTests(unittest.TestCase):
 
     def test_existing_ignored_output_paths_rejected(self):
         with (self.root / ".git/info/exclude").open("a") as f:
-            f.write("\n/apps/todolist/\n/.suite/\n")
-        for name in ("apps/todolist", ".suite", ".evals/todolist"):
+            f.write("\n/apps/todolist/\n")
+        for name in ("apps/todolist", ".evals/todolist"):
             with self.subTest(path=name):
                 path = self.root / name
                 path.mkdir(parents=True)
@@ -115,11 +117,74 @@ class TodolistEvalTests(unittest.TestCase):
                 self.assertFalse((self.results / "run.json").exists())
                 path.rmdir()
 
+    def test_allow_dirty_preserves_inputs_and_still_rejects_existing_outputs(self):
+        (self.root / "source.txt").write_text("uncommitted input\n")
+        self.git("add", "source.txt")
+        (self.root / "source.txt").write_text("further unstaged input\n")
+        (self.root / "new.txt").write_text("untracked input\n")
+        index_before = self.git("diff", "--cached")
+        result = self.invoke("run", "--allow-dirty")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        launch = json.loads((self.results / "run.json").read_text())
+        self.assertTrue(launch["allow_dirty"])
+        self.assertIn("MM source.txt", launch["git_status_before"])
+        self.assertIn("?? new.txt", launch["git_status_before"])
+        result = self.invoke("run", "--allow-dirty")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("Required absent path", result.stderr)
+        self.assertEqual(self.invoke("clean").returncode, 0)
+        self.assertEqual((self.root / "source.txt").read_text(), "further unstaged input\n")
+        self.assertEqual((self.root / "new.txt").read_text(), "untracked input\n")
+        self.assertEqual(self.git("diff", "--cached"), index_before)
+
+    def test_existing_suite_records_are_excluded_from_grading_and_cleanup(self):
+        old = self.root / ".suite/000_previous"
+        old.mkdir(parents=True)
+        (old / "keep.txt").write_text("existing evidence\n")
+        self.git("add", ".suite")
+        self.git("-c", "user.name=Eval Test", "-c", "user.email=eval@example.invalid",
+                 "commit", "-qm", "existing suite records")
+        # Old records need no traces and may coexist with ignored local records.
+        ignored = self.root / ".suite/ignored"
+        ignored.mkdir()
+        (ignored / "keep.txt").write_text("ignored evidence\n")
+        with (self.root / ".git/info/exclude").open("a") as f:
+            f.write("\n/.suite/ignored/\n")
+        result = self.invoke()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.report()["artifacts"]["implementations"], ["001_todolist"])
+        # A directory added after the trial also does not belong to its cleanup.
+        later = self.root / ".suite/002_later"
+        later.mkdir()
+        (later / "keep.txt").write_text("later evidence\n")
+        result = self.invoke("clean")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        for directory, text in ((old, "existing evidence\n"), (ignored, "ignored evidence\n"),
+                                (later, "later evidence\n")):
+            self.assertEqual((directory / "keep.txt").read_text(), text)
+        self.assertFalse((self.root / ".suite/001_todolist").exists())
+        self.assertFalse(self.results.exists())
+
     def test_unauthenticated_launch_rejected_before_creating_results(self):
         result = self.invoke(mode="unauthenticated")
         self.assertEqual(result.returncode, 2)
         self.assertIn("not authenticated", result.stderr)
         self.assertFalse(self.results.exists())
+
+    def test_existing_traces_cannot_satisfy_missing_new_implementation(self):
+        old = self.root / ".suite/000_previous"
+        (old / "reports").mkdir(parents=True)
+        (old / "native/session").mkdir(parents=True)
+        for name in ("reports/usage.json", "reports/usage.md", "reports/timeline.json", "native/session/turn.jsonl"):
+            (old / name).touch()
+        with (self.root / ".git/info/exclude").open("a") as f:
+            f.write("\n/.suite/000_previous/\n")
+        result = self.invoke(mode="no_implementation")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(self.report()["artifacts"]["status"], "FAIL")
+        self.assertEqual(self.report()["artifacts"]["implementations"], [])
+        self.assertEqual(self.invoke("clean").returncode, 0)
+        self.assertTrue((old / "native/session/turn.jsonl").is_file())
 
     def test_launch_error_is_distinct_from_failed_assertion(self):
         # Exclude the host's real Codex so the disappeared fixture cannot fall back.
@@ -212,7 +277,7 @@ class TodolistEvalTests(unittest.TestCase):
         self.assertIn("Unexpected changes retained", result.stdout)
         self.assertEqual((self.root / "source.txt").read_text(), "unexpected tracked modification\n")
         self.assertTrue((self.root / "unrelated").exists())
-        for path in ("apps/todolist", ".suite", ".evals/todolist"):
+        for path in ("apps/todolist", ".suite/001_todolist", ".evals/todolist"):
             self.assertFalse((self.root / path).exists())
 
     def test_cleanup_refuses_any_tracked_output_before_deleting(self):
@@ -249,6 +314,59 @@ class TodolistEvalTests(unittest.TestCase):
         self.assertIn("symlink", result.stderr)
         self.assertTrue((self.base / "external-apps/todolist/todo.py").is_file())
         self.assertTrue(self.results.exists())
+
+    def test_make_eval_uses_clean_head_and_preserves_dirty_source_checkout(self):
+        (self.root / "source.txt").write_text("staged edit\n")
+        self.git("add", "source.txt")
+        (self.root / "source.txt").write_text("unstaged edit\n")
+        (self.root / "untracked.txt").write_text("keep untracked\n")
+        existing_app = self.root / "apps/todolist"
+        existing_app.mkdir(parents=True)
+        (existing_app / "keep.txt").write_text("existing app\n")
+        self.results.mkdir(parents=True)
+        (self.results / "keep.txt").write_text("previous eval\n")
+        before = (self.git("status", "--porcelain"), self.git("diff", "--cached"), self.git("rev-parse", "HEAD"))
+        result = subprocess.run(["make", "eval"], cwd=self.root, env=self.env,
+                                capture_output=True, text=True, timeout=15)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Eval: PASS", result.stdout)
+        archived, = (self.root / ".evals/todolist-worktrees").iterdir()
+        summary = json.loads((archived / "worktree.json").read_text())
+        launch = json.loads((archived / "run.json").read_text())
+        self.assertTrue(summary["worktree_removed"])
+        self.assertFalse(Path(summary["worktree"]).exists())
+        self.assertEqual(launch["git_status_before"], "")
+        self.assertFalse(launch["allow_dirty"])
+        self.assertEqual((archived / "fixture-source.txt").read_text(), "original\n")
+        self.assertTrue((archived / "app/todo.py").is_file())
+        self.assertTrue((archived / "suite/001_todolist/native/session/turn.jsonl").is_file())
+        self.assertEqual(self.git("worktree", "list", "--porcelain").count("worktree "), 1)
+        self.assertEqual((self.git("status", "--porcelain"), self.git("diff", "--cached"),
+                          self.git("rev-parse", "HEAD")), before)
+        self.assertEqual((existing_app / "keep.txt").read_text(), "existing app\n")
+        self.assertEqual((self.results / "keep.txt").read_text(), "previous eval\n")
+
+    def test_make_eval_reports_failures_and_archives_each_run_before_cleanup(self):
+        for mode, status, code in (("wrong_output", "FAIL", 1), ("unauthenticated", "RUNNER_ERROR", 2),
+                                   ("agent_timeout", "TIMEOUT", 124)):
+            with self.subTest(mode=mode):
+                archive_root = self.root / ".evals/todolist-worktrees"
+                before = set(archive_root.iterdir()) if archive_root.exists() else set()
+                result = subprocess.run(["make", "eval", "EVAL_AGENT_TIMEOUT=0.5"], cwd=self.root,
+                                        env=dict(self.env, EVAL_FIXTURE=mode),
+                                        capture_output=True, text=True, timeout=15)
+                self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn(f"Eval: {status}", result.stdout)
+                archived, = set(archive_root.iterdir()) - before
+                summary = json.loads((archived / "worktree.json").read_text())
+                self.assertEqual(summary["exit_code"], code)
+                self.assertTrue(summary["worktree_removed"])
+                self.assertFalse(Path(summary["worktree"]).exists())
+                if mode == "wrong_output":
+                    self.assertEqual(json.loads((archived / "result.json").read_text())["cli"]["status"], "FAIL")
+                    self.assertEqual((archived / "cli-01.stdout").read_text(), "Wrong output\n")
+                self.assertEqual(self.git("worktree", "list", "--porcelain").count("worktree "), 1)
+                self.assertEqual(self.git("status", "--porcelain"), "")
 
 
 if __name__ == "__main__":

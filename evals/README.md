@@ -1,16 +1,43 @@
 # Todolist end-to-end eval
 
-Run from this checkout with Python 3.10+, Git, uv, and an authenticated local Codex
-CLI on a POSIX host:
+Run with Python 3.10+, Git, uv, and an authenticated local Codex CLI on a POSIX host:
+
+```sh
+make eval
+```
+
+This creates a detached temporary worktree at committed `HEAD`, verifies that its
+Git state is clean, and runs one full todolist eval with the default strict checks.
+Your current branch, index, and files stay unchanged; uncommitted app inputs are
+not included. The launcher and grader come from the invoking checkout, so changes
+to the eval tooling itself can be exercised without committing them. A fresh
+worktree starts clean, so no reset or deletion in your current checkout is needed.
+
+The command prints the agent, CLI, artifact, and overall outcomes, returning a
+nonzero Make exit status on failure. It saves logs, `result.json`, `worktree.json`,
+the generated app (excluding its virtual environment and bytecode), and the new
+suite evidence under `.evals/todolist-worktrees/<unique-run>/` before removing
+the worktree, including after a failed eval. If preserving evidence or removing
+the worktree fails, it reports the retained location for recovery. Runs do not
+overwrite previous reports.
+
+Override timeouts with `make eval EVAL_AGENT_TIMEOUT=1800 EVAL_COMMAND_TIMEOUT=60`.
+This target runs the end-to-end eval; the fixture tests below verify the runner.
+
+To run directly in the current checkout and retain generated files there:
 
 ```sh
 python3 evals/todolist.py run
 python3 evals/todolist.py clean
 ```
 
-Before running, commit the evaluator and intended source changes and manually
-resolve other staged, unstaged, or non-ignored untracked changes. `apps/todolist`,
-`.suite`, and `.evals/todolist` must be absent, even if ignored. The runner rejects
+By default, commit intended source changes and resolve other staged, unstaged,
+or non-ignored untracked changes before running. Pass `run --allow-dirty` to
+evaluate uncommitted inputs instead; `run.json` records the initial Git status,
+and `source_commit` identifies the base commit rather than all evaluated inputs.
+This option does not commit, stash, or reset anything. `apps/todolist`
+and `.evals/todolist` must be absent, even if ignored. Existing `.suite` records
+are allowed under the selected checkout policy. The runner rejects
 an unsuitable checkout before creating files. It never stashes or resets changes.
 
 `run` launches one `codex exec` with the exact prompt `Implement specs/todolist`.
@@ -35,13 +62,17 @@ tasks creates the file again. Expected output is owned by the evaluator. Raw
 stdout is compared byte-for-byte, including trailing newlines; stderr is retained
 but does not affect the CLI grade.
 
-The artifact grade requires a single implementation directory under `.suite` with
+The runner records existing `.suite` entry names before launch and identifies new
+implementation directories after Codex exits. Run without concurrent suite work
+so those new directories can be attributed to this eval.
+The artifact grade requires a single new implementation directory with
 regular files `reports/usage.json`, `reports/usage.md`, `reports/timeline.json`,
 and at least one `native/*/*.jsonl`. Empty files pass. Contents, sizes, worker
 counts, task documents, and workflow compliance are not graded. The evaluator
 never produces or repairs these artifacts.
 
-`.evals/todolist/` contains `run.json` (launch settings and source commit),
+`.evals/todolist/` contains `run.json` (launch settings, source commit, and existing
+suite entry names),
 `events.jsonl`, `agent.stderr`, Codex's `final-response.txt` when available,
 per-command raw stdout/stderr, and `result.json`. The result reports agent
 execution, CLI behavior, and artifact presence separately, with observed output,
@@ -52,10 +83,13 @@ for timeout, and `128 + signal` for interruption. An interruption skips any
 remaining CLI commands.
 
 Generated files remain available for inspection. `clean` requires this checkout's
-eval run marker and checks all three removal paths against the Git index and HEAD
-before deleting anything. It refuses symlinked removal paths. It removes only
-`apps/todolist`, `.suite`, and `.evals/todolist`; any remaining repository changes
-are reported for manual handling. Local Codex session history remains intact.
+eval run marker and the completed run's suite inventory in `result.json`. It checks
+removal paths against the Git index and HEAD before deleting anything and refuses
+symlinked removal paths. It removes only `apps/todolist`, the implementation
+directories recorded as created by this eval, and `.evals/todolist`. Existing
+suite entries, directories added after the eval, and the shared `.suite` directory
+remain. Other repository changes are reported for manual handling. A missing
+inventory requires manual cleanup. Local Codex session history remains intact.
 
 Run the fast checks without a model call:
 
@@ -66,6 +100,6 @@ python3 -m unittest discover -s evals/tests -v
 These checks use disposable Git repositories and PATH-selected subprocess
 fixtures for Codex and uv. The fixture app has real on-disk task persistence;
 these checks validate the evaluator, not Codex generation or dependency setup.
-Follow them with one real `run` in the clean current checkout. No worktree,
-snapshot, automatic retry, repeated-trial statistics, baseline comparison, CI
-integration, or trace-content audit is part of this eval.
+Follow them with one real `run`. The runner uses the current checkout; it does not
+create worktrees or snapshots. Automatic retries, repeated-trial statistics,
+baseline comparisons, CI integration, and trace-content audits are outside this eval.

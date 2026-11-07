@@ -47,6 +47,7 @@ if tool == "uv":
     os.execv(sys.executable, [sys.executable, "todo.py", *sys.argv[3:]])
 
 (results / "received.json").write_text(json.dumps(sys.argv[1:]))
+(results / "fixture-source.txt").write_text((root / "source.txt").read_text())
 print('{"fixture": "agent event"}', flush=True)
 print("fixture stderr", file=sys.stderr, flush=True)
 if mode in ("agent_timeout", "interrupt"):
@@ -70,6 +71,8 @@ if mode == "artifact_directory":
     (reports / "usage.json").mkdir()
 if mode == "multiple_implementations":
     (root / ".suite/002_other").mkdir()
+if mode == "no_implementation":
+    shutil.rmtree(implementation)
 if mode == "unexpected_changes":
     (root / "source.txt").write_text("unexpected tracked modification\n")
     (root / "unrelated").touch()
