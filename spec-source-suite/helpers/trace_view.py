@@ -7,7 +7,7 @@ viewer for the same implementation. The owning viewer refreshes immediately,
 then waits the configured interval after each collection attempt until Ctrl+C.
 """
 import argparse
-from contextlib import ExitStack
+from dataclasses import dataclass
 from datetime import datetime, timezone
 import errno
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -18,7 +18,6 @@ from pathlib import Path
 import re
 import secrets
 import signal
-import stat
 import threading
 import time
 from urllib.parse import quote
@@ -26,11 +25,11 @@ from urllib.request import ProxyHandler, build_opener
 import webbrowser
 
 from trace_dashboard import render
-from usage_report import refresh
+from usage_report import ReportBundle, refresh
 
 HOST, PORT = '127.0.0.1', 9001
 ORIGIN = 'https://ui.perfetto.dev'
-SERVICE = 'suite-insights-v5'
+SERVICE = 'suite-insights-v6'
 # /status belongs to Perfetto's native RPC probe; it must remain a 404 here.
 STATUS_PATH = '/__suite_trace_viewer__'
 
@@ -44,23 +43,11 @@ def perfetto_url(token):
     return f'{ORIGIN}/#!/?url={quote(source, safe="")}&referrer=spec-source-suite'
 
 
-def read_report(root, filename):
-    """Read only regular, unaliased reports, including after viewer startup.
-
-    Directory descriptors and O_NOFOLLOW keep the opened boundary stable if a
-    report directory is replaced between validation and reading.
-    """
-    with ExitStack() as resources:
-        parent = None
-        for path in (root, 'reports'):
-            parent = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
-            resources.callback(os.close, parent)
-        descriptor = os.open(filename, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
-        stream = resources.enter_context(os.fdopen(descriptor, 'rb'))
-        metadata = os.fstat(stream.fileno())
-        if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
-            raise ValueError('report aliases another file or is not regular')
-        return stream.read()
+@dataclass(frozen=True)
+class Snapshot:
+    bundle: ReportBundle
+    html: bytes
+    refreshed: str
 
 
 class Viewer(ThreadingHTTPServer):
@@ -69,15 +56,21 @@ class Viewer(ThreadingHTTPServer):
     def __init__(self, root, interval):
         self.root = root
         self.interval = interval
-        self.refresh_status = (None, None)
+        self.snapshot = None
         self.initial_collection = threading.Event()
         self.token = secrets.token_hex(16)
         super().__init__((HOST, PORT), Handler)
 
     def collect(self):
-        report = refresh(self.root)
-        self.refresh_status = (datetime.now(timezone.utc).isoformat(timespec='seconds'), None)
-        return report
+        bundle = refresh(self.root)
+        self.publish(bundle, datetime.now(timezone.utc).isoformat(timespec='seconds'))
+        return bundle.usage
+
+    def publish(self, bundle, refreshed, error=None):
+        page = render(bundle.usage, perfetto_url(self.token) if bundle.timeline_available else None,
+                      interval=self.interval, refreshed=refreshed, error=error, content=bundle.content)
+        # Published bundles are never mutated. Each request captures one snapshot.
+        self.snapshot = Snapshot(bundle, page.encode(), refreshed)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -116,30 +109,13 @@ class Handler(BaseHTTPRequestHandler):
             # Identity is available while initial collection waits on the
             # implementation lock, but pages must wait for its first result.
             self.server.initial_collection.wait()
-            if self.server.refresh_status[0] is None:
+            snapshot = self.server.snapshot
+            if snapshot is None:
                 self.reply(503)
-                return
-            dashboard = self.path.endswith('/')
-            filename = 'usage.json' if dashboard else self.path.rsplit('/', 1)[1]
-            try:
-                data = read_report(self.server.root, filename)
-                if dashboard:
-                    try:
-                        timeline = read_report(self.server.root, 'timeline.json')
-                    except FileNotFoundError:
-                        timeline = b'{"traceEvents":[]}'
-                    available = any(e.get('ph') != 'M' for e in json.loads(timeline).get('traceEvents', []))
-                    refreshed, error = self.server.refresh_status
-                    content = json.loads(read_report(self.server.root, 'events.json'))
-                    self.reply(200, render(json.loads(data), perfetto_url(self.server.token) if available else None,
-                                           interval=self.server.interval, refreshed=refreshed,
-                                           error=error, content=content).encode(), 'text/html; charset=utf-8')
-                else:
-                    self.reply(200, data)
-            except FileNotFoundError:
-                self.reply(404)
-            except (OSError, ValueError):
-                self.reply(403)
+            elif self.path.endswith('/'):
+                self.reply(200, snapshot.html, 'text/html; charset=utf-8')
+            else:
+                self.reply(200, snapshot.bundle.files[self.path.rsplit('/', 1)[1]])
         else:
             self.reply(404)
 
@@ -220,7 +196,8 @@ def run(root, interval=5):
                 try:
                     server.collect()
                 except (OSError, ValueError, KeyError, TypeError) as exc:
-                    server.refresh_status = (server.refresh_status[0], 'Refresh failed; retrying on the next cycle.')
+                    previous = server.snapshot
+                    server.publish(previous.bundle, previous.refreshed, 'Refresh failed; retrying on the next cycle.')
                     print(f'trace-view: refresh failed: {exc}', flush=True)
         finally:
             server.initial_collection.set()

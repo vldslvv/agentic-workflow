@@ -7,6 +7,7 @@ manifest, registration, recorder, service or costs. Missing measurements stay nu
 """
 import argparse
 from collections import Counter, defaultdict
+from dataclasses import dataclass
 import hashlib
 import json
 from pathlib import Path
@@ -335,6 +336,14 @@ def markdown(report):
     return '\n'.join(lines) + '\n'
 
 
+@dataclass(frozen=True)
+class ReportBundle:
+    usage: dict
+    content: dict
+    files: dict
+    timeline_available: bool
+
+
 def refresh(root):
     root = Path(root).resolve()
     with locked(root / '.records.lock'):
@@ -344,17 +353,16 @@ def refresh(root):
         trace = timeline(events)
         content_report = dict(version=1, implementation_id=root.name, events=events,
                               timing_omissions=trace['metadata']['timing_omissions'])
-        outputs = {root / 'reports' / 'usage.json': json.dumps(report, indent=2) + '\n',
-                   root / 'reports' / 'usage.md': markdown(report),
-                   root / 'reports' / 'timeline.json': json.dumps(trace, indent=2) + '\n',
-                   root / 'reports' / 'events.json': json.dumps(content_report, indent=2) + '\n'}
+        outputs = {name: (json.dumps(value, indent=2) + '\n').encode()
+                   for name, value in [('usage.json', report), ('timeline.json', trace), ('events.json', content_report)]}
+        outputs['usage.md'] = markdown(report).encode()
         # Validate the whole output set before writing, including symlink/hardlink
         # aliases. Native inputs live outside this output boundary.
-        for path in outputs:
-            safe_destination(root, path)
-        for path, data in outputs.items():
-            write_atomic(path, data)
-    return report
+        for name in outputs:
+            safe_destination(root, root / 'reports' / name)
+        for name, data in outputs.items():
+            write_atomic(root / 'reports' / name, data)
+    return ReportBundle(report, content_report, outputs, any(e['ph'] != 'M' for e in trace['traceEvents']))
 
 
 def main():
@@ -362,7 +370,7 @@ def main():
     parser.add_argument('implementation', type=Path)
     args = parser.parse_args()
     try:
-        report = refresh(args.implementation)
+        report = refresh(args.implementation).usage
         print(json.dumps({'implementation_id': report['implementation_id'], 'reports': str(args.implementation / 'reports'),
                           'coverage': report['summary']['coverage']}))
     except (OSError, ValueError, KeyError, TypeError) as exc:

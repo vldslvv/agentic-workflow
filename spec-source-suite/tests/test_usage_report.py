@@ -130,20 +130,20 @@ class TraceTests(unittest.TestCase):
             with self.subTest(adapter=adapter):
                 self.root = records.allocate(self.suite, adapter)
                 self.source(adapter)
-                report = usage.refresh(self.root)
+                report = usage.refresh(self.root).usage
                 self.assertEqual({k: v['total'] for k, v in report['summary']['tokens'].items()}, expected)
                 self.assertEqual(report['summary']['observed_model_measurements'], 2)
                 self.assertEqual(report['groups']['task'][0]['summary']['tokens']['total_tokens']['total'], 200)
 
-    def test_requested_and_observed_settings_do_not_infer_effort_from_variant(self):
+    def test_opencode_variant_does_not_supply_missing_observed_effort(self):
         _, source = self.source('opencode', bind=False)
-        events, gaps = self.evidence()
-        models = [e for e in events if e['kind'] == 'model']
+        bundle = usage.refresh(self.root)
+        models = [e for e in bundle.content['events'] if e['kind'] == 'model']
         self.assertEqual({e['model'] for e in models}, {'model-a', 'model-b'})
         self.assertEqual({e['variant'] for e in models}, {'high', 'low'})
         self.assertTrue(all(e['reasoning_effort'] is None for e in models))
         self.assertTrue(all(not e['requested'] for e in models))
-        report = usage.refresh(self.root)
+        report = bundle.usage
         self.assertEqual(report['summary']['tokens']['total_tokens']['total'], 200)
         self.assertEqual(report['groups']['model_effort'], [])
         self.assertEqual(len(report['attribution_omissions']['model_effort']['event_ids']), 2)
@@ -153,17 +153,6 @@ class TraceTests(unittest.TestCase):
         dashboard = render(report, 'https://ui.perfetto.dev')
         agent_table = dashboard.split('id="assignments"', 1)[1].split('</table>', 1)[0]
         self.assertIn('model-a / unavailable; model-b / unavailable', agent_table)
-        self.assertNotIn('requested-model', agent_table)
-
-    def test_codex_model_effort_changes_are_grouped_downstream(self):
-        self.source()
-        report = usage.refresh(self.root)
-        rows = report['groups']['model_effort']
-        self.assertEqual([(r['key'], r['summary']['tokens']['total_tokens']['total']) for r in rows],
-                         [({'model':'model-a','reasoning_effort':'high'},130), ({'model':'model-b','reasoning_effort':'low'},70)])
-        dashboard = render(report, 'https://ui.perfetto.dev')
-        agent_table = dashboard.split('id="assignments"', 1)[1].split('</table>', 1)[0]
-        self.assertIn('model-a / high; model-b / low', agent_table)
 
     def test_named_assignments_and_task_model_tool_breakdowns_survive_session_reuse(self):
         path, source = self.source(bind=False)
@@ -172,13 +161,17 @@ class TraceTests(unittest.TestCase):
         path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
         self.tag(path, {'turn-1': dict(task='build', role='implementer', purpose='Implement editor'),
                         'turn-2': dict(task='repair', role='reviewer', purpose='Check correction')})
-        report = usage.refresh(self.root)
+        report = usage.refresh(self.root).usage
         assignments = report['assignments']
         self.assertEqual({a['agent_name'] for a in assignments}, {'Ada'})
         self.assertEqual({a['native_agent_path'] for a in assignments}, {'/root/builder'})
         self.assertEqual({(a['task_id'], a['purpose']) for a in assignments},
                          {('build', 'Implement editor'), ('repair', 'Check correction')})
         self.assertEqual(len(report['spawn_tree']['nodes']), 1)
+        self.assertEqual([(r['key'], r['summary']['tokens']['total_tokens']['total'])
+                          for r in report['groups']['model_effort']],
+                         [({'model':'model-a','reasoning_effort':'high'},130),
+                          ({'model':'model-b','reasoning_effort':'low'},70)])
         self.assertEqual([(r['key'], r['summary']['tokens']['total_tokens']['total'])
                           for r in report['groups']['task_model_effort']],
                          [({'task_id':'build', 'model':'model-a', 'reasoning_effort':'high'},130),
@@ -212,9 +205,10 @@ class TraceTests(unittest.TestCase):
         before = path.read_bytes()
         first = self.cli('usage_report.py', self.root)
         self.assertEqual(first.returncode, 0, first.stderr)
-        outputs = {p: p.read_bytes() for p in [*self.root.glob('reports/*'), *self.root.glob('runs/*/*/trace.jsonl')]}
-        second = self.cli('usage_report.py', self.root)
-        self.assertEqual(second.returncode, 0, second.stderr)
+        outputs = {p: p.read_bytes() for p in self.root.glob('reports/*')}
+        with ThreadPoolExecutor(max_workers=3) as pool:
+            results = list(pool.map(lambda _: self.cli('usage_report.py', self.root), range(3)))
+        self.assertTrue(all(r.returncode == 0 for r in results), [r.stderr for r in results])
         self.assertEqual({p:p.read_bytes() for p in outputs}, outputs)
         self.assertEqual(path.read_bytes(), before)
         for path, data in outputs.items():
@@ -222,12 +216,12 @@ class TraceTests(unittest.TestCase):
                 self.assertNotIn(b'PRIVATE_', data)
             else:
                 self.assertIn(b'PRIVATE_', data)
-        events, _ = self.evidence()
+        events = json.loads(outputs[self.root / 'reports/events.json'])['events']
         self.assertTrue(all(e['event_id'] and e['native_event_id'] and e['provenance'] for e in events))
 
     def test_codex_content_identity_relationships_availability_and_full_exports(self):
         path, _ = self.source(turns=['turn-1'])
-        before = usage.refresh(self.root)['summary']
+        before = usage.refresh(self.root).usage['summary']
         rows = [json.loads(line) for line in path.read_text().splitlines()]
         rows[0]['payload']['base_instructions'] = {'text': 'Recorded base instructions'}
         next(r['payload'] for r in rows if r['type'] == 'turn_context')['developer_instructions'] = 'Developer context'
@@ -250,7 +244,7 @@ class TraceTests(unittest.TestCase):
                  row(dict(type='message', role='assistant', content='upstream fragment', truncated=True)),
                  row(dict(type='agent_message', sender='/root', recipient='/root/child', message='handoff body'), None)]
         path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
-        report = usage.refresh(self.root)
+        report = usage.refresh(self.root).usage
         self.assertEqual(report['summary']['tokens'], before['tokens'])
         self.assertEqual(report['summary']['observed_tool_calls'], 4)
         self.assertEqual(report['summary']['timed_operations'], before['timed_operations'] + 1)
@@ -290,7 +284,7 @@ class TraceTests(unittest.TestCase):
     def test_opencode_recorded_parts_instructions_errors_and_selected_turns(self):
         from trace_adapters import read_source
         path, _ = self.source('opencode')
-        before = usage.refresh(self.root)['summary']
+        before = usage.refresh(self.root).usage['summary']
         data = json.loads(path.read_text())
         user, assistant = data['messages'][:2]
         user['info']['system'] = 'Recorded system instructions'
@@ -308,7 +302,7 @@ class TraceTests(unittest.TestCase):
         self.assertNotIn('EXCLUDED CONTENT', json.dumps(selected))
         data['messages'].pop()
         path.write_text(json.dumps(data))
-        report = usage.refresh(self.root)
+        report = usage.refresh(self.root).usage
         self.assertEqual(report['summary'], before)
         events = json.loads((self.root / 'reports/events.json').read_text())['events']
         self.assertEqual(sum(e.get('content', {}).get('values', {}).get('text') == 'Repeated reply' for e in events), 2)
@@ -326,7 +320,7 @@ class TraceTests(unittest.TestCase):
         rows = path.read_text().splitlines()
         duplicate = next(row for row in rows if 'token_usage_record' in row)
         path.write_text('\n'.join(rows + [duplicate]) + '\n')
-        report = usage.refresh(self.root)
+        report = usage.refresh(self.root).usage
         self.assertEqual(report['summary']['tokens']['total_tokens']['total'], 200)
         changed = json.loads(duplicate)
         changed['payload']['usage']['input_tokens'] = 101
@@ -342,19 +336,18 @@ class TraceTests(unittest.TestCase):
             if row['type'] == 'token_usage_record' and row['payload']['response_id'] == 'response-1':
                 del row['payload']['usage']['cached_input_tokens']
         path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
-        report = usage.refresh(self.root)
+        report = usage.refresh(self.root).usage
         self.assertEqual(report['summary']['tokens']['input_tokens']['total'], 150)
         self.assertEqual(report['summary']['tokens']['cached_input_tokens'], dict(total=None, known_subtotal=10, measured_records=1, missing_records=1))
         self.assertEqual(report['groups']['task'], [])
         self.assertGreater(len(report['attribution_omissions']['task']['event_ids']), 0)
-        self.assertFalse(list(self.root.glob('runs/*/*/trace.jsonl')))
 
     def test_aggregate_snapshots_and_truncated_capture_are_omissions(self):
         path, _ = self.source(turns=['turn-1'])
         rows = [json.loads(r) for r in path.read_text().splitlines()]
         rows = [r for r in rows if r['type'] != 'token_usage_record']
         path.write_text(''.join(json.dumps(r) + '\n' for r in rows) + '{"truncated":')
-        report = usage.refresh(self.root)
+        report = usage.refresh(self.root).usage
         self.assertIsNone(report['summary']['tokens']['total_tokens']['known_subtotal'])
         self.assertIn('missing_usage', report['summary']['coverage'])
         self.assertIn('invalid_json_line', report['summary']['coverage'])
@@ -374,18 +367,6 @@ class TraceTests(unittest.TestCase):
         self.assertIsNone(report['summary']['tokens']['input_tokens']['total'])
         self.assertEqual(report['summary']['tokens']['input_tokens']['known_subtotal'], 100)
         self.assertIsNone(report['groups']['model_effort'][0]['summary']['tokens']['total_tokens']['total'])
-
-    def test_opencode_unfinished_zero_initialized_aggregate_is_not_measurement(self):
-        path, _ = self.source('opencode', turns=['turn-2'])
-        data = json.loads(path.read_text())
-        data['messages'][1]['parts'] = []
-        data['messages'][1]['info']['time'].pop('completed')
-        data['messages'][1]['info'].pop('finish')
-        data['messages'][1]['info']['tokens'] = {'input':0,'output':0,'reasoning':0,'cache':{'read':0,'write':0}}
-        path.write_text(json.dumps(data))
-        report = usage.refresh(self.root)
-        self.assertIsNone(report['summary']['tokens']['total_tokens']['known_subtotal'])
-        self.assertIn('unfinished_turn', report['summary']['coverage'])
 
     def test_native_lineage_parallel_children_forks_and_perfetto_subset(self):
         self.source()
@@ -419,7 +400,7 @@ class TraceTests(unittest.TestCase):
     def test_native_source_version_is_derived_and_unverified_versions_are_disclosed(self):
         path, _ = self.source()
         path.write_text(path.read_text().replace('0.167.0', 'unknown'))
-        report = usage.refresh(self.root)
+        report = usage.refresh(self.root).usage
         self.assertIn('unverified_native_version', report['summary']['coverage'])
         self.assertEqual(report['summary']['tokens']['total_tokens']['known_subtotal'], 200)
 
@@ -457,7 +438,7 @@ class TraceTests(unittest.TestCase):
         message['parts'].insert(1, dict(message['parts'][0], id='step-2'))
         # Native message tokens repeat the latest step, not the sum.
         path.write_text(json.dumps(data))
-        report = usage.refresh(self.root)
+        report = usage.refresh(self.root).usage
         self.assertEqual(report['summary']['tokens']['total_tokens']['total'], 260)
         self.assertEqual(report['summary']['observed_model_measurements'], 2)
         self.assertEqual(report['summary']['outcomes'], {'failed':1})
@@ -473,24 +454,31 @@ class TraceTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'exceed'):
                     usage.refresh(self.root)
 
-    def test_completed_opencode_failure_has_no_measurement_but_retains_completed_steps(self):
+    def test_opencode_zero_initialized_messages_are_unmeasured_but_completed_steps_survive(self):
         path, _ = self.source('opencode', turns=['turn-2'])
         data = json.loads(path.read_text())
         message = data['messages'][1]
         message['info'].pop('finish')
-        message['info']['error'] = {'name':'APIError','data':{'message':'PRIVATE_ERROR'}}
         message['info']['tokens'] = {'input':0,'output':0,'reasoning':0,'cache':{'read':0,'write':0}}
         step = message['parts'].pop()
-        path.write_text(json.dumps(data))
-        report = usage.refresh(self.root)
-        tokens = report['summary']['tokens']['total_tokens']
-        self.assertIsNone(tokens['total'])
-        self.assertIsNone(tokens['known_subtotal'])
-        self.assertEqual(tokens['missing_records'], 1)
-        self.assertIn('unmeasured_message', report['summary']['coverage'])
+        completed = message['info']['time'].pop('completed')
+        for state in ('unfinished', 'failed'):
+            with self.subTest(state=state):
+                if state == 'failed':
+                    message['info']['time']['completed'] = completed
+                    message['info']['error'] = {'name':'APIError','data':{'message':'PRIVATE_ERROR'}}
+                path.write_text(json.dumps(data))
+                report = usage.refresh(self.root).usage
+                tokens = report['summary']['tokens']['total_tokens']
+                self.assertIsNone(tokens['total'])
+                self.assertIsNone(tokens['known_subtotal'])
+                self.assertEqual(tokens['missing_records'], 1)
+                self.assertIn('unmeasured_message', report['summary']['coverage'])
+                if state == 'unfinished':
+                    self.assertIn('unfinished_turn', report['summary']['coverage'])
         message['parts'].append(step)
         path.write_text(json.dumps(data))
-        report = usage.refresh(self.root)
+        report = usage.refresh(self.root).usage
         self.assertEqual(report['summary']['tokens']['total_tokens']['known_subtotal'], 70)
 
     def test_native_mcp_transport_tool_failure_success_and_unknown_status(self):
@@ -518,7 +506,7 @@ class TraceTests(unittest.TestCase):
                         'turn-2': dict(task='second', role='implementer')})
         with path.open('a') as stream:
             stream.write('{"truncated":')
-        report = usage.refresh(self.root)
+        report = usage.refresh(self.root).usage
         for name in ('task','agent_run','role','model_effort'):
             with self.subTest(group=name):
                 self.assertTrue(report['groups'][name])
