@@ -4,7 +4,7 @@ Read only when runner implementation is requested. This assignment is not an app
 
 ## Assignment
 
-1. Inspect repository conventions and available worker tools. Build a small bundle reader/validator, serial dependency scheduler, role/review adapters, project check adapter and durable result store.
+1. Inspect repository conventions and available worker tools. Build a small bundle reader/validator, dependency scheduler following the shared bundle rules and Supervisor coordination procedure, role/review adapters, project check adapter and durable result store.
 2. Support document authoring, single-task execution, whole-app generation, status/resume, incremental work and reconstruction with existing bundle/task/run locations. Keep the supervisor orchestration-only; dispatch a fresh planner when prerequisites pass and retain it for corrections. Retain implementers through their fresh-review loops. Run fresh final validators and schedule their recorded repair tasks through new planners/implementers, without duplicate repair creation on resume.
 3. Capture all five roles' session/turn references and use the retained usage helper. Missing counters remain explicit and separate from acceptance.
 4. Exercise acceptance with abstract fixtures, stub/manual adapters and explicit failures. Record manual fallback origin; never claim fresh review or execution that did not occur.
@@ -16,7 +16,7 @@ Read only when runner implementation is requested. This assignment is not an app
 |---|---|
 | SUITE-001 | Empty installation contains no selected app/stack; generation without intent returns NO_PROJECT. |
 | SUITE-002 | Read the existing Markdown bundle; report missing files, duplicate IDs, unknown references, cycles and missing acceptance mappings. |
-| SUITE-003 | Schedule ordered tasks and explicit prerequisites; failed/blocked work never unlocks consumers. Partial selections cannot bypass dependencies; no selection is NO_WORK. |
+| SUITE-003 | Schedule tasks from the explicit dependency table under the shared bundle rules and Supervisor coordination procedure. |
 | SUITE-004 | Save full plans and source-linked acceptance before implementation; preserve explicit requirements and approved text. Resolve ordinary choices autonomously. |
 | SUITE-005 | Dispatch a fresh planner per ready task, retain task planners for corrections and implementers through repairs, and have implementers request fresh reviewers excluding plans, conversations and memory. Missing fresh review blocks acceptance. |
 | SUITE-006 | Use actual check results and adequate coverage; worker success with failed checks cannot pass. Record required manual checks and unavailable capabilities. |
