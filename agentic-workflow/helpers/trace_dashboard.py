@@ -54,7 +54,9 @@ def render(report, perfetto_url, *, interval=5, refreshed=None, error=None, cont
              '<a href="usage.json">Usage JSON</a><a href="events.json">Content JSON</a></nav></header>',
              '<p class="notice">Scope: saved native turns and proven dispatch descendants. Updates are collected automatically. '
              'Unfinished evidence does not establish that an agent is currently running. '
-             'Known subtotals exclude missing measurements; unavailable is never zero.</p>']
+             'Token totals may be partial when work is unfinished, trace records are missing, or coverage cannot be verified. '
+             'In those cases, displayed numbers include only known usage; actual usage may be higher. '
+             'See Coverage and interpretation below for details. Unavailable is never zero.</p>']
     if not summary['observed_model_measurements'] and not summary['observed_tool_calls']:
         parts += ['<section role="status"><h2>No imported execution observations</h2>'
                   '<p>This report contains no model usage or tool observations. Missing observations do not mean '
