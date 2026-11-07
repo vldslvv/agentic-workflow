@@ -20,9 +20,9 @@ Before completion, run `python spec-source-suite/helpers/check_package.py --base
 
 Review each added instruction: does it change behavior, duplicate a rule, or force a role to load supporting procedure files? Confirm each role can operate with shared guidance, its own routine and the routing configuration below. Record the answers and any justified growth in the change's results.
 
-Whenever a Markdown file is added, register it with an explicit relative-path link in the applicable index in the same change. Include a short purpose or read condition. Update the index when the file is moved, renamed, or removed.
+Index only persistent Markdown documentation, with explicit relative-path links and short purposes or read conditions. Update the applicable index when documentation is added, moved, renamed, or removed. Exclude transient task plans, acceptance records, run artifacts and review reports from indexes.
 
-Workflow guidance belongs in the root file index. Generated project documents, task records and memory belong in their applicable scoped indexes. Create a scoped index only when none exists, and link it from its parent index. Indexing does not authorize loading material excluded from a role's context.
+Workflow guidance belongs in the root file index. Persistent project documents and memory belong in their applicable scoped indexes. Create a scoped index only when none exists, and link it from its parent index. Indexing does not authorize loading material excluded from a role's context.
 
 ## Model routing
 

@@ -87,6 +87,24 @@
       "result": "PASS",
       "evidence": "../.suite/001_model-routing-merge/runs/merge/root/results.md",
       "scope": "Preservation of reviewed configuration, concise fallback and shared routing/index rules alongside main tracing guidance; documentation inspection only."
+    },
+    "persistent_document_indexing": {
+      "result": "PASS",
+      "scope": "Removed the transient maintenance-record index and its root entry point; indexing now applies only to persistent Markdown documentation.",
+      "base_commit": "7f64ba992d21c4638fd67f778d972c7c121aff23",
+      "local_links": 45,
+      "files": 29,
+      "directories": 11,
+      "instruction_words": 6843,
+      "shared_plus_role_words": {
+        "SUPERVISOR": 2896,
+        "PLANNER": 2756,
+        "IMPLEMENTER": 2569,
+        "REVIEWER": 2518,
+        "VALIDATOR": 2680
+      },
+      "review": "One shared indexing rule replaces the broader rule; no duplication or new role dependencies. Shared guidance plus each role routine remains sufficient. Package file and directory counts unchanged; instruction words decrease by one.",
+      "limits": "Documentation and package validation only; historical execution claims above were not rerun."
     }
   },
   "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/root/",

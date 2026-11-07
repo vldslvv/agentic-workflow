@@ -1,9 +1,0 @@
-# Merge routing into main
-
-Authority: “Merge this work into main worktree. Make sure to review the merge to avoid breaking anything.” This supersedes the earlier no-merge boundary. Original routing and concise fallback acceptance remain authoritative; preserve main's committed tracing implementation and historical routing records.
-
-Target: main checkout `/home/vv/ccode/generate-prototype`, starting at `535edd6096d9d344f5d5d57fb4b00cd52c4b8c49`. Source: `suite/model-routing`, routing commit `60b1432`, worktree `/tmp/generate-prototype-model-routing`. Main was clean at start. Engineering guidance: `/tmp/generate-prototype-model-routing/guidelines.md` during integration and `/home/vv/ccode/generate-prototype/guidelines.md` after delivery. Implementation root: `.suite/001_model-routing-merge`, allocated with main's records helper; historical records keep their baseline layout.
-
-[Acceptance](acceptance.md) defines observable requirements. Integrate main into the source worktree, resolve metadata/checksums by retaining tracing records and adding routing checks, verify merged guidance and inventory, run package checker and all current tests with the available real Perfetto parser, refresh checksums, and commit the integration candidate. Review its diff against pinned main independently on standards and spec axes. Resolve any findings and repeat affected checks. Once accepted, fast-forward main to the reviewed integration commit and confirm the same tree and clean status. Keep both worktrees and branches; no push or cleanup requested.
-
-Evidence: `runs/merge/root/`, reviews under `runs/merge/{standards,spec}/`. No native source/session IDs are exposed; do not invent manifest bindings or usage. Reviewers receive acceptance, candidate, guidelines and check evidence, excluding plans/conversation/memory. New records use current main's convention. Existing missing historical tracing evidence is not reconstructed or revalidated by assumption.

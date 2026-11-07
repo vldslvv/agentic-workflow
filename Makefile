@@ -7,16 +7,20 @@ REPO_ROOT := $(shell dirname -- "$(MAKEFILE_LIST)")
 IMPL ?= .suite/001_portable_tracing
 export IMPL
 
-.PHONY: help trace clean clean-runs clean-tasks
+.PHONY: help trace cleanup clean clean-runs clean-tasks
 
 help:
 	@echo "make trace        Refresh agent insights with a Perfetto link (optional IMPL=path)"
+	@echo "make cleanup      Remove all .suite/ records and transient artifacts"
 	@echo "make clean        Remove run evidence and task records (optional IMPL=path)"
 	@echo "make clean-runs   Remove runs/ under IMPL"
 	@echo "make clean-tasks  Remove tasks/ under IMPL"
 
 trace:
 	@cd "$(REPO_ROOT)" && python3 spec-source-suite/helpers/trace_view.py "$$IMPL"
+
+cleanup:
+	@cd "$(REPO_ROOT)" && rm -rf -- .suite
 
 clean: clean-runs clean-tasks
 

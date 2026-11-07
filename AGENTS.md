@@ -23,7 +23,6 @@ Use the paths below directly and batch independent reads. Search for paths only 
 | Allocating implementations or binding native sessions | [records helper](spec-source-suite/helpers/records.py) |
 | Aggregating execution usage | [spec-source-suite/helpers/usage_report.py](spec-source-suite/helpers/usage_report.py) |
 | Requested automated-runner work only | [spec-source-suite/RUNNER.md](spec-source-suite/RUNNER.md) |
-| Locating identified maintenance task records, subject to role context limits | [Suite records](.suite/index.md) |
 
 Apply the engineering guidelines and include their resolved paths in delegated work; shared rules govern source resolution and handoff.
 
