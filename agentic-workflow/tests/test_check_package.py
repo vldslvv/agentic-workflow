@@ -50,7 +50,7 @@ class PackageCheckTests(unittest.TestCase):
                 self.assertTrue(any(target in error for error in report['errors']))
 
     def test_missing_required_role_and_template_fail(self):
-        for relative in ('roles/REVIEWER.md', 'templates/verification.md', 'VERSION', 'helpers/records.py'):
+        for relative in ('roles/REVIEWER.md', 'templates/verification.md', 'helpers/records.py'):
             with self.subTest(path=relative):
                 path = self.package / relative
                 original = path.read_bytes()

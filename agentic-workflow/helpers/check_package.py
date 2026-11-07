@@ -46,7 +46,7 @@ def check_links(documents, boundary):
 
 
 def check(files):
-    expected = {"README.md", "VERSION", "AGENTS.md", "WORKFLOW.md"}
+    expected = {"README.md", "AGENTS.md", "WORKFLOW.md"}
     expected.update(f"roles/{role}.md" for role in ROLES)
     expected.update(f"policies/{name}.md" for name in
                     ("BUNDLE", "CHECKS", "DOCUMENT_STYLE", "GUIDELINES", "MEMORY", "MODELS",
@@ -61,8 +61,6 @@ def check(files):
     documents = {PACKAGE / name: data.decode() for name, data in files.items() if name.endswith(".md")}
     link_errors, links = check_links(documents, PACKAGE)
     errors.extend(link_errors)
-    if not re.fullmatch(rb"\d+\.\d+\.\d+\n?", files.get("VERSION", b"")):
-        errors.append("Invalid package VERSION; expected MAJOR.MINOR.PATCH")
     shared = files.get("AGENTS.md", b"").decode()
     for role in ROLES:
         if f"](roles/{role}.md)" not in shared:

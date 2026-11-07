@@ -47,7 +47,7 @@ capabilities under [model routing](policies/MODELS.md) and [Checks](policies/CHE
 
 ## Update the package
 
-- Context: use the shipped [VERSION](VERSION) and the ownership boundary below.
+- Context: use the ownership boundary below.
 - Inputs: replacement package and installed optional wrappers.
 - Effects: replace `agentic-workflow/` in full, refresh each installed skill wrapper and check the root block.
 - Outputs: updated package and wrappers, preserving project-owned customizations and execution records.
@@ -58,7 +58,7 @@ capabilities under [model routing](policies/MODELS.md) and [Checks](policies/CHE
 Apply when installing, customizing or updating the package.
 
 - Keep customizations in project-owned files outside the package, using the locations below.
-- Keep `AGENTS.md`, `WORKFLOW.md`, `README.md` and `VERSION` at the package root; use `roles/` for local role procedures, `policies/` for shared rules and `guides/` for operations. Retain `templates/`, `helpers/` and `tests/`.
+- Keep `AGENTS.md`, `WORKFLOW.md` and `README.md` at the package root; use `roles/` for local role procedures, `policies/` for shared rules and `guides/` for operations. Retain `templates/`, `helpers/` and `tests/`.
 - Preserve historical artifacts. Provide no old-name aliases, record conversion or legacy assignment-tag readers.
 
 | Location | Owner and purpose |
