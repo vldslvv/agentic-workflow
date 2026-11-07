@@ -1,37 +1,27 @@
 # TODO list
 
-A small, single-user TODO app with JSON persistence and no runtime dependencies.
-Install Python 3.11 or newer and uv, then run from this directory:
+Requires Python 3.11 or newer and uv. From the repository root:
 
 ```sh
+cd apps/todolist
 uv sync
-uv run python -m todolist help
-uv run python -m todolist add "Buy milk"
-uv run python -m todolist add "Walk the dog"
-uv run python -m todolist list
-uv run python -m todolist complete 1
-uv run python -m todolist delete 2
+uv run todolist help
+uv run todolist add "Buy café beans"
+uv run todolist add "Read a book"
+uv run todolist list
+uv run todolist complete 1
+uv run todolist delete 2
+uv run todolist --help
 ```
 
-`list` shows each task's ID, title, and `pending` or `completed` status. Use the
-IDs shown by `list` for `complete` and `delete`. Quote multiword titles. `help`,
-`--help`, or no command displays usage; each command also accepts `--help`.
-Successful changes print a confirmation. Invalid arguments, unknown IDs, blank
-titles, unreadable files, and corrupt storage report errors on stderr and exit
-with a nonzero status.
+Quote titles containing spaces. `add` prints the new task's ID; use the IDs
+shown by `list` for `complete` and `delete`. Listing shows each task as
+`ID [pending] TITLE` or `ID [complete] TITLE`. Completing a task again is safe.
+Use `uv run todolist COMMAND --help` for a command's arguments.
 
-Tasks are saved in `tasks.json` in this application directory, regardless of the
-working directory. The file is created on the first successful change. To run
-from another directory, use `uv run --directory /absolute/path/to/apps/todolist
-python -m todolist list` (as one shell command).
+Tasks persist in `apps/todolist/tasks.json` (the application root), even when
+the installed `.venv/bin/todolist` executable is run from another directory.
+Help and listing an empty application do not create this file. Invalid input
+or unreadable storage produces an error and a nonzero exit status.
 
-New IDs are one greater than the largest existing ID, starting at 1 for an empty
-list. Deleted IDs can therefore be reused. Titles are trimmed, and completing an
-already completed task is harmless. This app is intended for one user running
-one command at a time; concurrent writes are not supported.
-
-Run the regression tests from this directory:
-
-```sh
-uv run python -m unittest discover -s tests -v
-```
+Run the tests from `apps/todolist` with `uv run pytest -q`.

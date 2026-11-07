@@ -1,6 +1,0 @@
-interface:
-  display_name: "Define specifications"
-  short_description: "Author and review behavior and acceptance together"
-  default_prompt: "Use $spec-define for the project scope and inputs I provide."
-policy:
-  allow_implicit_invocation: false

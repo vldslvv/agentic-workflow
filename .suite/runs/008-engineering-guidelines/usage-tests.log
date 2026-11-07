@@ -1,4 +1,0 @@
-Command: python -m unittest discover -s spec-source-suite/tests -v
-Working directory: /home/vv/ccode/generate-prototype
-Exit: 0
-Observed result: Ran 7 tests in 0.108s; OK. All seven retained UsageReportTests passed.

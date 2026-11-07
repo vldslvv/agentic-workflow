@@ -1,8 +1,0 @@
-{
-  "valid_root_index": "PASS",
-  "broken_root_index_rejected": "PASS",
-  "failure": [
-    "Broken link in ../AGENTS.md: spec-source-suite/missing-role.md"
-  ],
-  "harness_correction": "Removed incorrect hardcoded link-count assertion from initial verification; observed validation success and exact broken-link failure are the contract."
-}

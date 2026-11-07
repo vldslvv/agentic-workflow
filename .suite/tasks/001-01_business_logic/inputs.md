@@ -1,5 +1,0 @@
-# Execution inputs
-Bundle: specs/todolist. Generated project root: apps/todolist. Evidence root: .suite/runs/001-01_business_logic (second task evidence remains a subdirectory of this run).
-Selected tasks: 01_business_logic, 02_cli, ordered serially. Acceptance for first: .suite/tasks/001-01_business_logic/acceptance.md; second prepared only after first accepted.
-Target: local Python >=3.11, uv; no runtime third-party dependencies. Default tasks.json under generated project root; entry command planned as `uv run --project apps/todolist todo`.
-Protected: specs/todolist/**, spec-source-suite/**, AGENTS.md, .suite/tasks/** and frozen checks. Implementer may write assigned app files and own attempt logs only; reviewer may write own review results only. No retained assets, memory or service credentials. Normative identities, baseline and authorization: approval.json. Checks and manifests: frozen-v1.json. Final subprocess scenario exercises installed console command with persistence and cwd independence on a disposable copy. Manual source inspection by independent reviewer; no user-only gate.
