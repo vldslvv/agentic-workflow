@@ -1,0 +1,46 @@
+{
+  "package": "Spec Source Suite",
+  "version": "0.6-draft",
+  "checked_date": "2026-11-06",
+  "status": "STRUCTURAL_CHECKS_PASSED",
+  "scope": "Model routing and Markdown indexing, with concise fallback clarification in MODELS.md. Documentation walkthroughs only; no live model switching.",
+  "base_commit": "0d6dabf7203c05254632ddfd103225e91cb58b42",
+  "checks": {
+    "package_inventory": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/001-model-routing/fallback/package-check.json",
+      "local_links_including_root": 42
+    },
+    "usage_tests": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/001-model-routing/usage-tests.log",
+      "count": 7
+    },
+    "instruction_scenarios": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/001-model-routing/walkthroughs.md",
+      "count": 25,
+      "method": "Manual documentation walkthrough; not live model-routing execution"
+    },
+    "workflow_maintenance": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/001-model-routing/fallback/results.md",
+      "structural_report": "../.suite/runs/001-model-routing/fallback/package-check.json",
+      "command": "python spec-source-suite/helpers/check_package.py --base 0d6dabf7203c05254632ddfd103225e91cb58b42"
+    },
+    "fallback_clarification": {
+      "result": "PASS",
+      "evidence": "../.suite/runs/001-model-routing/fallback/results.md",
+      "method": "Manual documentation walkthrough and byte comparison of restored shared guidance"
+    }
+  },
+  "evidence": "../.suite/runs/001-model-routing/",
+  "previous_package_checks": "../.suite/runs/001-model-routing/fallback/package-checks-before.json",
+  "not_executed": [
+    "Live provider switching or authentication",
+    "Live retained-worker setting changes",
+    "Live app generation or reconstruction",
+    "Automated runner execution",
+    "Enforced filesystem isolation"
+  ]
+}

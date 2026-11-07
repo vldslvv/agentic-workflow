@@ -11,3 +11,8 @@ These links locate this maintenance task's records; use only inputs allowed for 
 - [Fallback acceptance](tasks/001-model-routing/acceptance-fallback.md): clarification requirements supplementing original acceptance.
 - [Fallback results](runs/001-model-routing/fallback/results.md): current clarification checks and walkthroughs; supersedes the earlier candidate's results.
 - [Fallback review](runs/001-model-routing/fallback/review.md): fresh independent review of the clarified candidate.
+- [Merge plan](001_model-routing-merge/tasks/merge/plan.md): main integration approach; excluded from independent review.
+- [Merge acceptance](001_model-routing-merge/tasks/merge/acceptance.md): preservation, integration and review requirements.
+- [Merge results](001_model-routing-merge/runs/merge/root/results.md): integrated checks and delivery outcome.
+- [Merge standards review](001_model-routing-merge/runs/merge/standards/review.md): fresh standards assessment.
+- [Merge spec review](001_model-routing-merge/runs/merge/spec/review.md): fresh requirement-preservation assessment.

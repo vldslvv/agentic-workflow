@@ -1,46 +1,107 @@
 {
   "package": "Spec Source Suite",
-  "version": "0.6-draft",
+  "version": "0.9-draft",
   "checked_date": "2026-11-06",
-  "status": "STRUCTURAL_CHECKS_PASSED",
-  "scope": "Model routing and Markdown indexing, with concise fallback clarification in MODELS.md. Documentation walkthroughs only; no live model switching.",
-  "base_commit": "0d6dabf7203c05254632ddfd103225e91cb58b42",
+  "status": "CHECKS_PASSED_WITH_DISCLOSED_VALIDATION_GAP",
+  "scope": "Implementation-scoped records, portable Codex/OpenCode import, downstream accounting and Perfetto export. One idempotent make trace command refreshes and opens agent insights with names/purposes and task/model/effort/tool groups; Perfetto is linked with named lanes. No runner or legacy migration. Adds model routing, concise host-default fallbacks and Markdown indexing; tracing implementation is unchanged by integration.",
   "checks": {
-    "package_inventory": {
+    "tests": {
       "result": "PASS",
-      "evidence": "../.suite/runs/001-model-routing/fallback/package-check.json",
-      "local_links_including_root": 42
+      "count": 28,
+      "evidence": "../.suite/001_model-routing-merge/runs/merge/root/tests.log",
+      "command": "PERFETTO_TRACE_PROCESSOR=/tmp/suite-trace-processor-shell python -m unittest discover -s spec-source-suite/tests -v",
+      "scope": "Merged candidate: all retained tests including real Perfetto parser and Make/HTTP lifecycle; no skips."
     },
-    "usage_tests": {
+    "package_structure": {
       "result": "PASS",
-      "evidence": "../.suite/runs/001-model-routing/usage-tests.log",
-      "count": 7
+      "evidence": "../.suite/001_model-routing-merge/runs/merge/root/package-check.json",
+      "local_links": 46
     },
-    "instruction_scenarios": {
+    "codex_live_import": {
       "result": "PASS",
-      "evidence": "../.suite/runs/001-model-routing/walkthroughs.md",
-      "count": 25,
-      "method": "Manual documentation walkthrough; not live model-routing execution"
+      "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/root/codex-smoke-final.json",
+      "native_version": "0.167.0"
     },
-    "workflow_maintenance": {
-      "result": "PASS",
-      "evidence": "../.suite/runs/001-model-routing/fallback/results.md",
-      "structural_report": "../.suite/runs/001-model-routing/fallback/package-check.json",
-      "command": "python spec-source-suite/helpers/check_package.py --base 0d6dabf7203c05254632ddfd103225e91cb58b42"
+    "opencode_live_import": {
+      "result": "NOT_RUN",
+      "reason": "OpenCode executable unavailable; no live capture claimed. Synthetic fixtures target export schema 1.2.27."
     },
-    "fallback_clarification": {
+    "perfetto_parser": {
       "result": "PASS",
-      "evidence": "../.suite/runs/001-model-routing/fallback/results.md",
-      "method": "Manual documentation walkthrough and byte comparison of restored shared guidance"
+      "version": "59.1",
+      "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/reviewer-3/perfetto.log",
+      "scope": "No parser error/data-loss statistics; correct synthetic and native spawn associations."
+    },
+    "perfetto_visual": {
+      "result": "PASS",
+      "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/root/perfetto-visual.md",
+      "screenshot": "../.suite/001_portable_tracing/runs/portable-tracing/root/perfetto-visual-final.png",
+      "browser": "Firefox 159.0",
+      "ui_version": "59.1-79997ada9"
+    },
+    "independent_review": {
+      "result": "PASS_WITH_DISCLOSED_VALIDATION_GAPS",
+      "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/reviewer-3/review.md",
+      "note": "No actionable findings. Subsequent Firefox inspection closes the visual gap without changing reviewed code; OpenCode live gap remains."
+    },
+    "maintenance_review": {
+      "result": "PASS",
+      "evidence": "../.suite/001_model-routing-merge/runs/merge/root/results.md",
+      "files": 29,
+      "directories": 11,
+      "instruction_words": 6844,
+      "shared_plus_role_words": {
+        "SUPERVISOR": 2897,
+        "PLANNER": 2757,
+        "IMPLEMENTER": 2570,
+        "REVIEWER": 2519,
+        "VALIDATOR": 2681
+      }
+    },
+    "checksums": {
+      "result": "PASS",
+      "method": "SHA256SUMS covers all package files except itself and Python caches; verified after metadata update."
+    },
+    "trace_command": {
+      "result": "PASS",
+      "evidence": "../.suite/001_portable_tracing/runs/trace-command/root/results.md",
+      "browser_evidence": "../.suite/001_portable_tracing/runs/trace-command/root/browser-result.json",
+      "screenshot": "../.suite/001_portable_tracing/runs/trace-command/root/perfetto-make.png",
+      "independent_review": "../.suite/001_portable_tracing/runs/trace-command/reviewer-1/review.md",
+      "limits": "Local-device permission may be required by the browser; tab reuse is browser-dependent. Port 9001 must be available or owned by this implementation viewer."
+    },
+    "trace_insights": {
+      "result": "PASS",
+      "evidence": "../.suite/001_portable_tracing/runs/trace-insights/root/results.md",
+      "browser_evidence": "../.suite/001_portable_tracing/runs/trace-insights/root/browser-result.json",
+      "screenshots": [
+        "../.suite/001_portable_tracing/runs/trace-insights/root/dashboard.png",
+        "../.suite/001_portable_tracing/runs/trace-insights/root/agents.png",
+        "../.suite/001_portable_tracing/runs/trace-insights/root/tools.png",
+        "../.suite/001_portable_tracing/runs/trace-insights/root/perfetto-names.png"
+      ],
+      "independent_review": "../.suite/001_portable_tracing/runs/trace-insights/reviewer-1/review.md",
+      "limits": "Historical purposes use explicit role/task fallback; missing effort stays unavailable. Native exec wrappers do not establish nested operation details. Current turn remains partial until completion and refresh."
+    },
+    "model_routing": {
+      "result": "PASS",
+      "evidence": "../.suite/001_model-routing-merge/runs/merge/root/results.md",
+      "scope": "Preservation of reviewed configuration, concise fallback and shared routing/index rules alongside main tracing guidance; documentation inspection only."
     }
   },
-  "evidence": "../.suite/runs/001-model-routing/",
-  "previous_package_checks": "../.suite/runs/001-model-routing/fallback/package-checks-before.json",
+  "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/root/",
+  "previous_package_checks": "../.suite/001_model-routing-merge/runs/merge/root/package-checks-main.json",
   "not_executed": [
-    "Live provider switching or authentication",
-    "Live retained-worker setting changes",
+    "Real OpenCode capture/import (executable unavailable)",
     "Live app generation or reconstruction",
-    "Automated runner execution",
-    "Enforced filesystem isolation"
-  ]
+    "Automated runner execution"
+  ],
+  "limitations": [
+    "Pinned source profiles, not universal harness-version support.",
+    "Native sources remain local read-only references; active turns yield partial usage.",
+    "Optional real-parser test is explicitly skipped unless PERFETTO_TRACE_PROCESSOR is configured.",
+    "Historical tracing evidence paths are inherited from main and absent in this checkout; archived metadata preserves those claims. Current integration checks are separately identified."
+  ],
+  "base_commit": "535edd6096d9d344f5d5d57fb4b00cd52c4b8c49",
+  "routing_package_checks": "../.suite/001_model-routing-merge/runs/merge/root/package-checks-routing.json"
 }

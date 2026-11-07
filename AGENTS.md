@@ -16,6 +16,7 @@ Use the paths below directly and batch independent reads. Search for paths only 
 | Assigned final validation | [spec-source-suite/VALIDATOR.md](spec-source-suite/VALIDATOR.md) |
 | Authoring project inputs | [project](spec-source-suite/templates/project.md), [task order](spec-source-suite/templates/task_order.md), [task](spec-source-suite/templates/tasks/task.md), [verification](spec-source-suite/templates/verification.md) |
 | Checking suite changes | [spec-source-suite/helpers/check_package.py](spec-source-suite/helpers/check_package.py) |
+| Allocating implementations or binding native sessions | [records helper](spec-source-suite/helpers/records.py) |
 | Aggregating execution usage | [spec-source-suite/helpers/usage_report.py](spec-source-suite/helpers/usage_report.py) |
 | Requested automated-runner work only | [spec-source-suite/RUNNER.md](spec-source-suite/RUNNER.md) |
 | Locating identified maintenance task records, subject to role context limits | [Suite records](.suite/index.md) |
@@ -23,7 +24,7 @@ Use the paths below directly and batch independent reads. Search for paths only 
 Apply the engineering guidelines and include their resolved paths in delegated work; shared rules govern source resolution and handoff.
 
 - Fresh work uses the current brief or selected bundle. Ordinary planners may consult [project memory](spec-source-suite/AGENTS.md#project-memory), without searching earlier tasks or conversations.
-- Continuing work uses identified task paths or execution references. Resolve a bare task ID by immediate `.suite/tasks/` directory suffix; ask if absent, ambiguous, or continuation itself is unclear. Stop discovery when authority is resolved.
+- Continuing work uses identified task paths or execution references. Resolve a bare task ID only under the identified `.suite/<NNN>_<name>/tasks/`; ask if the implementation or task is absent, ambiguous, or continuation itself is unclear. Stop discovery when authority is resolved.
 - Advice/tooling work uses requested files and relevant references, without task-history discovery.
 
 For app work read shared rules and your role routine. Use the selected [Markdown bundle](spec-source-suite/AGENTS.md#markdown-bundle); otherwise look outside the suite for its four file types and ask if multiple bundles are plausible. New authorized authoring uses `specs/` and the bundle templates. Missing required inputs block generation; no project intent yields NO_PROJECT.
