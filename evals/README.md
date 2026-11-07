@@ -4,20 +4,40 @@
 
 - Context: use [Workflow review](../agentic-workflow/guides/WORKFLOW_REVIEW.md) to judge document agreement with [WORKFLOW.md](../agentic-workflow/WORKFLOW.md), the fixed source of truth.
 - Inputs: current package files, root `AGENTS.md`, installed `.agents/skills/agentic-workflow-*` wrappers, Python 3.10+, and an authenticated local Codex CLI on POSIX. Uncommitted changes are included.
-- Effects: run `make validate-workflow`. The launcher snapshots these inputs and starts one fresh, read-only LLM judge pass. It disables subagents, automatic project instructions and memory injection so candidate instructions can be read as evidence. It does not run the app workflow, retry, or correct findings. Keep files stable while the initial snapshot is copied.
-- Outputs: the console verdict and a unique `.evals/workflow/review-*/` directory containing `inputs/`, the prompt and output schema, `run.json`, `events.jsonl`, `agent.stderr`, `judgment.json`, `result.json` and the rendered `report.md` when judging succeeds. Partial evidence remains available on errors or interruption. These are advisory findings about document agreement, not proof of agent behavior.
+- Effects: run `make eval-workflow`. The launcher snapshots these inputs and starts one fresh, read-only LLM judge pass. When that review fails without uncertainty, a separate editor automatically attempts one repair directly in the working Markdown files, preserving existing work and the fixed source contract. The launcher then runs the package checker with integration checks and compares `WORKFLOW.md` with the original snapshot. Both LLM invocations disable subagents, automatic project instructions and memory injection. There is no retry or second LLM review. Repairs remain uncommitted and are not rolled back, including on failure or interruption. Avoid concurrent edits throughout the command.
+- Outputs: the console verdict and a unique `.evals/workflow/review-*/` directory containing `inputs/`, the review prompt and schema, `run.json`, `events.jsonl`, `agent.stderr`, `judgment.json`, `result.json` and the rendered initial `report.md` when judging succeeds. A repair adds `repair/` with its own prompt, schema, `run.json`, `events.jsonl`, `agent.stderr`, editor `output.json`, and `checks.stdout`/`checks.stderr` when checks run. The initial review remains intact; `result.json` records the final outcome and available repair evidence. Partial evidence and partial edits remain available on errors or interruption. These are advisory findings about document agreement, not proof of agent behavior.
 
 The judge follows the guide across the whole package and its entry points. Its
 table covers each workflow step and linked contract, with source locations,
 reading paths, omissions and corrective guidance. The launcher derives the
-overall verdict from those rows: any `FAIL`, otherwise any `UNCLEAR`, otherwise
-`PASS`. Only `PASS` exits successfully; missing or malformed judge output also
-fails. A valid `FAIL` or `UNCLEAR` report is a completed review.
+initial review verdict from those rows: any `FAIL`, otherwise any `UNCLEAR`,
+otherwise `PASS`. A valid `FAIL` or `UNCLEAR` report is a completed review.
+The final command outcome also accounts for uncertainty and repairs:
 
-The Reviewer default route comes from `.agentic-workflow/MODELS.md` when present,
-otherwise [the packaged model policy](../agentic-workflow/policies/MODELS.md).
-The existing eval routing reader applies that route without merging defaults.
+| Review or repair outcome | Command behavior |
+|---|---|
+| Review `PASS` | Exit successfully without launching an editor or changing project files. |
+| Any review `UNCLEAR` row, including alongside `FAIL` | Return `UNCLEAR` without repairs. |
+| Review `FAIL` with no uncertainty | Launch one editor with the findings and original snapshot. |
+| Editor reports all findings resolved; checks pass; source contract unchanged | Return `FIXED`. No independent re-review occurred. |
+| Editor reports unresolved findings | Return `UNCLEAR`; retain any edits. |
+| Editor/check failure, malformed output, changed contract, or interruption | Return nonzero; partial edits may remain. |
+
+Both review and repair default to `gpt-6-astra` with `medium` reasoning. Set
+`WORKFLOW_MODEL` and optionally `WORKFLOW_REASONING` to select settings for both:
+
+```sh
+make eval-workflow WORKFLOW_MODEL=gpt-6.1-sol WORKFLOW_REASONING=high
+```
+
+The Python runner accepts the same settings through `--model` and `--reasoning`,
+with the same defaults. This command takes its launch settings from these
+options; model policy files remain review inputs and do not select the model.
 Requested settings are recorded separately from unavailable observed settings.
+The reviewer runs read-only in the snapshot; the editor runs with workspace-write
+permissions in the project root. It is instructed to make
+only necessary corrections to reviewed Markdown files and return `UNCLEAR` if
+any finding remains unresolved.
 The CLI uses local authentication and configuration. Its
 [structured-output options](https://learn.chatgpt.com/docs/non-interactive-mode)
 provide the machine-readable judgment; semantic coverage is assessed by the LLM.
@@ -25,17 +45,21 @@ Input selection and the prompt exclude history and app artifacts; this is not a
 filesystem read-isolation guarantee.
 
 Override the 1,800-second limit with
-`make validate-workflow WORKFLOW_TIMEOUT=900`, or run
+`make eval-workflow WORKFLOW_TIMEOUT=900`, or run
 `python3 evals/workflow.py --timeout 900` from the repository root.
-The Python runner exits `0` for `PASS`, `1` for `FAIL`/`UNCLEAR`, `2` for launcher
-or judge errors, `124` for timeout, and `128 + signal` for interruption. Make
-returns a nonzero status for any unsuccessful outcome. Timeout and interruption
-terminate the judge process group and retain evidence. Each invocation makes
-at most one judge attempt; setup failures make none.
+The limit applies separately to each LLM invocation and to the mechanical check
+command. The Python runner exits `0` for `PASS`/`FIXED`, `1` for failed checks or
+`UNCLEAR`, `2` for launcher, judge or editor errors, `124` for timeout, and
+`128 + signal` for interruption. Make returns a nonzero status for any unsuccessful
+outcome. Timeout and interruption terminate the active process group and retain
+evidence. Each invocation makes at most one judge attempt and one repair attempt;
+a setup failure skips the affected LLM launch. `FIXED` records the editor's
+resolution claim and passing mechanical checks, without an independent judgment
+of the edited documents.
 
 Run `python3 -m unittest discover -s evals/tests -v` for the subprocess fixture
 checks. Those verify the launcher contract without spending model calls; they do
-not measure the quality of the judge's conclusions.
+not measure the quality of the judge's conclusions or the editor's corrections.
 
 ## Todolist end-to-end eval
 

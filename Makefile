@@ -10,12 +10,16 @@ export IMPL TRACE_INTERVAL
 EVAL_AGENT_TIMEOUT ?= 1800
 EVAL_COMMAND_TIMEOUT ?= 60
 WORKFLOW_TIMEOUT ?= 1800
+WORKFLOW_MODEL ?= gpt-6-astra
+WORKFLOW_REASONING ?= medium
 
-.PHONY: help eval validate-workflow trace cleanup clean clean-runs clean-tasks
+.PHONY: help eval eval-workflow trace cleanup clean clean-runs clean-tasks
 
 help:
 	@echo "make eval         Evaluate HEAD in a clean temporary worktree; retain reports under .evals/todolist-worktrees/"
-	@echo "make validate-workflow  Review workflow documents against WORKFLOW.md with one LLM judge pass"
+	@echo "make eval-workflow  Review workflow documents once; automatically attempt one repair in working files"
+	@echo "                       WORKFLOW_MODEL=gpt-6-astra WORKFLOW_REASONING=medium WORKFLOW_TIMEOUT=1800 (defaults)"
+	@echo "                       FIXED means mechanical checks passed without independent re-review; partial edits may remain on failure"
 	@echo "make trace        Live agent insights until Ctrl+C (IMPL=path required; optional TRACE_INTERVAL=5; restart to change interval)"
 	@echo "make cleanup      Remove numbered execution records; retain project settings"
 	@echo "make clean        Remove numbered execution records; retain project settings"
@@ -25,8 +29,8 @@ help:
 eval:
 	@cd "$(REPO_ROOT)" && python3 -B evals/worktree.py --agent-timeout "$(EVAL_AGENT_TIMEOUT)" --command-timeout "$(EVAL_COMMAND_TIMEOUT)"
 
-validate-workflow:
-	@cd "$(REPO_ROOT)" && python3 -B evals/workflow.py --timeout "$(WORKFLOW_TIMEOUT)"
+eval-workflow:
+	@cd "$(REPO_ROOT)" && python3 -B evals/workflow.py --timeout "$(WORKFLOW_TIMEOUT)" --model "$(WORKFLOW_MODEL)" --reasoning "$(WORKFLOW_REASONING)"
 
 trace:
 	@cd "$(REPO_ROOT)" && python3 agentic-workflow/helpers/trace_view.py "$${IMPL:?Set IMPL to an implementation directory}" "--interval=$$TRACE_INTERVAL"
