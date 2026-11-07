@@ -1,7 +1,7 @@
 {
   "package": "Spec Source Suite",
   "version": "0.9-draft",
-  "checked_date": "2026-11-06",
+  "checked_date": "2026-11-07",
   "status": "CHECKS_PASSED_WITH_DISCLOSED_VALIDATION_GAP",
   "scope": "Implementation-scoped records, portable Codex/OpenCode import, downstream accounting and Perfetto export. One idempotent make trace command refreshes and opens agent insights with names/purposes and task/model/effort/tool groups; Perfetto is linked with named lanes. No runner or legacy migration. Adds model routing, concise host-default fallbacks and Markdown indexing; tracing implementation is unchanged by integration.",
   "checks": {
@@ -105,6 +105,150 @@
       },
       "review": "One shared indexing rule replaces the broader rule; no duplication or new role dependencies. Shared guidance plus each role routine remains sufficient. Package file and directory counts unchanged; instruction words decrease by one.",
       "limits": "Documentation and package validation only; historical execution claims above were not rerun."
+    },
+    "spec_workflow_routing": {
+      "result": "PASS",
+      "scope": "Documentation routing: every spec implementation uses the full project workflow; task implementers assess difficulty and select full for complex tasks or optionally lightweight for simple tasks, retaining project records, dependency gates and final independent validation.",
+      "base_commit": "336fc4c01f6d97dee026d966b1245ee285fb9f93",
+      "package_structure": {
+        "status": "PASS",
+        "base_commit": "336fc4c01f6d97dee026d966b1245ee285fb9f93",
+        "errors": [],
+        "local_links_checked": 48,
+        "method": "All package files excluding Python caches; directories exclude root; whitespace words in all Markdown, including skills/templates/runner.",
+        "before": {
+          "files": 29,
+          "directories": 11,
+          "instruction_words": 6843,
+          "shared_plus_role_words": {
+            "SUPERVISOR": 2896,
+            "PLANNER": 2756,
+            "IMPLEMENTER": 2569,
+            "REVIEWER": 2518,
+            "VALIDATOR": 2680
+          }
+        },
+        "after": {
+          "files": 29,
+          "directories": 11,
+          "instruction_words": 6718,
+          "shared_plus_role_words": {
+            "SUPERVISOR": 2912,
+            "PLANNER": 2949,
+            "IMPLEMENTER": 2698,
+            "REVIEWER": 2701,
+            "VALIDATOR": 2824
+          }
+        },
+        "delta": {
+          "files": 0,
+          "directories": 0,
+          "instruction_words": -125,
+          "shared_plus_role_words": {
+            "SUPERVISOR": 16,
+            "PLANNER": 193,
+            "IMPLEMENTER": 129,
+            "REVIEWER": 183,
+            "VALIDATOR": 144
+          }
+        },
+        "added_files": [],
+        "removed_files": [],
+        "review_signals": [
+          "Explain file or instruction growth in the maintenance review."
+        ],
+        "manual_review_required": "Assess behavior added, duplication, role placement and shared-plus-role sufficiency; structural PASS does not establish these."
+      },
+      "manual_review": {
+        "method": "Author inspection of the complete documentation diff and branch walkthroughs; not an independent review or live generation experiment.",
+        "scenarios": [
+          "Implement specs/todolist without a named skill routes to Supervisor and allocation before task work.",
+          "Ordinary non-spec edits retain direct implementation; plan-only and document-only requests stop before execution.",
+          "A full task gets a separate fresh planner, retained implementer and required fresh independent reviewer.",
+          "A lightweight task prepares its own plan and separate acceptance, retains source task identity and check evidence, and reports optional review honestly.",
+          "Explicit approval/review requirements override lightweight defaults; missing required review blocks acceptance.",
+          "Escalation to full preserves existing records and obtains planner preparation and required review.",
+          "Mixed task modes preserve prerequisite gates and final independent validation; repairs re-enter task selection and subsequent validation.",
+          "Planning defects return to the retained planner or to the lightweight implementer; validation remains independent.",
+          "Difficulty: a complex task with fully understood requirements and solution requires full mode; only simple tasks qualify for lightweight mode.",
+          "Uncertainty: unresolved requirements block implementation in either mode rather than determine the workflow; changed implementation demands trigger a new difficulty assessment."
+        ],
+        "instruction_review": "Shared rules own difficulty-based task selection, mode differences, planning ownership, acceptance and artifact policy. Role routines keep dispatch and repair actions, referencing shared gates instead of restating them. The root routing pointer remains explicit. Each role operates with shared rules, its own routine and MODELS.md; no new files or procedure dependencies.",
+        "growth_reason": "Compared with the starting commit, total instruction words decrease by 125. Shared-plus-role loads remain higher because shared guidance now defines task-level workflow selection; duplicate role instructions were removed while preserving the new policy.",
+        "tightening": {
+          "before": {
+            "suite": {
+              "files": 29,
+              "directories": 11,
+              "instruction_words": 7343,
+              "shared_plus_role_words": {
+                "SUPERVISOR": 3275,
+                "PLANNER": 3108,
+                "IMPLEMENTER": 2967,
+                "REVIEWER": 2866,
+                "VALIDATOR": 3038
+              }
+            },
+            "root_words": 491
+          },
+          "after": {
+            "suite": {
+              "files": 29,
+              "directories": 11,
+              "instruction_words": 6718,
+              "shared_plus_role_words": {
+                "SUPERVISOR": 2912,
+                "PLANNER": 2949,
+                "IMPLEMENTER": 2698,
+                "REVIEWER": 2701,
+                "VALIDATOR": 2824
+              }
+            },
+            "root_words": 459
+          },
+          "decisions_preserved": [
+            "Spec implementation always routes to the full project workflow without requiring a named skill.",
+            "Implementers assess difficulty; complex tasks require full mode regardless of certainty, and only simple tasks qualify for lightweight.",
+            "Mode selection is separate from model routing; unresolved requirements block either mode.",
+            "Both modes retain source task IDs, plans, acceptance, evidence, bindings, usage and dependency gates.",
+            "Full mode requires separate fresh planning and independent review; lightweight uses its implementer as planning owner unless a planner is assigned.",
+            "Explicit review/approval requirements remain binding; omitted optional review is never reported as PASS.",
+            "Complexity escalation preserves records and completes full-mode gates; planning corrections return to the defined planning owner.",
+            "Independent final validation, repair scheduling, fresh revalidation, resume behavior and historical preservation remain required."
+          ],
+          "validation": "Author diff inspection and documentation walkthroughs; package structure, links, skill entry points, whitespace and checksums. No live app workflow or independent review claimed."
+        }
+      },
+      "limits": "Documentation/package validation only. No app workflow was executed, prior .suite artifacts were not repaired, and historical runtime validation claims were not rerun."
+    },
+    "agent_model_effort_display": {
+      "result": "PASS",
+      "base_commit": "336fc4c01f6d97dee026d966b1245ee285fb9f93",
+      "scope": "Observed model/effort pairs in agent assignment table, Perfetto lane names and agent turn labels; preserves settings changes, missing values and requested-versus-observed distinction.",
+      "evidence": "../.suite/001_todolist/reports/agent-model-display/",
+      "tests": {
+        "count": 28,
+        "skipped": 0,
+        "result": "PASS",
+        "command": "PERFETTO_TRACE_PROCESSOR=/tmp/suite-trace-processor-shell python -m unittest discover -s spec-source-suite/tests -v"
+      },
+      "live_http": "PASS: served dashboard rows and timeline labels match all four todolist agents.",
+      "perfetto_parser": "PASS: actual todolist export has four named model/effort lanes and no error/data-loss statistics.",
+      "package_structure": {
+        "files": 29,
+        "directories": 11,
+        "instruction_words": 6740,
+        "shared_plus_role_words": {
+          "SUPERVISOR": 2912,
+          "PLANNER": 2949,
+          "IMPLEMENTER": 2698,
+          "REVIEWER": 2701,
+          "VALIDATOR": 2824
+        }
+      },
+      "local_links": 48,
+      "maintenance_review": "No role instructions, new files or dependencies added. Existing tracing reference updated to explain the requested display (+22 words from working baseline). Shared-plus-role context sizes unchanged by this change; differences against HEAD belong to preexisting staged workflow edits. All roles retain their existing guidance boundary.",
+      "limits": "HTTP content and actual Perfetto parsing checked; no new visual browser screenshot or independent review claimed."
     }
   },
   "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/root/",

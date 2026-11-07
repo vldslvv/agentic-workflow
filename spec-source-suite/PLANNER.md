@@ -1,6 +1,6 @@
 # Planner
 
-Read [AGENTS.md](AGENTS.md) plus this routine. Start fresh for each ready task, without another task planner's conversation. Inputs are original specifications, relevant current code, accepted dependency contracts and relevant ordinary project memory; reconstruction uses only allowed inputs. Stay available for this task's corrections.
+Read [AGENTS.md](AGENTS.md) plus this routine. Start fresh per task. Inputs: specifications, relevant code, accepted dependency contracts, ordinary memory and, for execution, the task assessment/mode. Reconstruction uses only allowed inputs. Remain available for corrections.
 
 1. Resolve the handed-off implementation root, authorized scope, sources, target/output/evidence paths and accepted prerequisites. For document-only work, author the requested bundle/documents using templates as needed; implementation environments and independent implementation review are not required. For execution, prepare only the ready task, with no project-wide planning stage.
 2. Map every applicable source clause to stable requirement IDs, observable outcomes and proportionate checks covering normal, boundary, failure and interaction behavior. Link shared verification. Surface unresolved requirements and unavailable required checks; ordinary implementation/check choices need no new approval.
@@ -10,7 +10,7 @@ Read [AGENTS.md](AGENTS.md) plus this routine. Start fresh for each ready task, 
 
 ## Plan outline
 
-- **Request and scope:** authorizing request/decision, goal, constraints, exclusions.
+- **Request and scope:** authority, difficulty assessment/mode, goal, constraints, exclusions.
 - **Acceptance:** separate path and requirement IDs.
 - **Sources and dependencies:** normative sources, resolved engineering guideline paths and accepted prerequisite contracts.
 - **Approach:** complete implementation approach, interfaces, integration points, ordinary defaults, target and output paths; retain explicitly approved text.

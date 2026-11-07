@@ -163,21 +163,33 @@ def assignments(events):
     rows = {}
     for e in events:
         key = (e['agent_id'], e.get('binding_id'))
-        row = rows.setdefault(key, dict({k: e.get(k) for k in fields}, turns=set(), outcomes=set()))
+        row = rows.setdefault(key, dict({k: e.get(k) for k in fields}, turns=set(), outcomes=set(), observed_settings=set()))
         row['turns'].add(e.get('turn_id'))
+        settings = (e.get('model'), e.get('reasoning_effort'))
+        if any(value is not None for value in settings):
+            row['observed_settings'].add(settings)
         if e['kind'] == 'agent':
             row['outcomes'].add(e.get('outcome') or 'unfinished')
-    return [dict(row, turns=sorted(t for t in row['turns'] if t), outcomes=sorted(row['outcomes']))
+    return [dict(row, turns=sorted(t for t in row['turns'] if t), outcomes=sorted(row['outcomes']),
+                 observed_settings=[dict(model=model, reasoning_effort=effort) for model, effort in
+                                    sorted(row['observed_settings'], key=lambda pair: tuple(v or '' for v in pair))])
             for _, row in sorted(rows.items(), key=lambda item: str(item[0]))]
+
+
+def format_settings(settings):
+    """Keep observed model/effort pairs together, without filling gaps from requests."""
+    return '; '.join(f'{s.get("model") or "unavailable"} / {s.get("reasoning_effort") or "unavailable"}'
+                     for s in settings) or 'unavailable'
 
 
 def timeline(events):
     lanes = {agent: i + 1 for i, agent in enumerate(sorted({e['agent_id'] for e in events}))}
     labels = defaultdict(set)
-    for e in events:
-        context = ' / '.join(v for v in (e.get('role'), e.get('task_id')) if v)
-        label = e.get('agent_name') or e['agent_id']
-        labels[e['agent_id']].add(f'{label} · {context}' if context else label)
+    for assignment in assignments(events):
+        context = ' / '.join(v for v in (assignment.get('role'), assignment.get('task_id')) if v)
+        label = assignment.get('agent_name') or assignment['agent_id']
+        label = f'{label} · {context}' if context else label
+        labels[assignment['agent_id']].add(f'{label} · {format_settings(assignment["observed_settings"])}')
     output = [dict(ph='M', name='thread_name', pid=1, tid=tid, args={'name': '; '.join(sorted(labels[agent]))})
               for agent, tid in lanes.items()]
     omitted, flows = [], set()
@@ -187,6 +199,7 @@ def timeline(events):
         label = e.get('name') or (e.get('agent_name') if e['kind'] == 'agent' else None) or e['kind']
         if e['kind'] == 'agent':
             label += ' · ' + (e.get('purpose') or ' / '.join(v for v in (e.get('role'), e.get('task_id')) if v) or 'assignment unavailable')
+            label += ' · ' + format_settings([e])
         base = dict(name=label, cat=e['kind'], pid=1, tid=lanes[e['agent_id']],
                     args={k: e.get(k) for k in ('event_id', 'task_id', 'role', 'agent_run_id', 'agent_id',
                                                'agent_name', 'native_agent_name', 'native_agent_path', 'purpose',

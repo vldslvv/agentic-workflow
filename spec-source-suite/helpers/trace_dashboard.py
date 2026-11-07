@@ -1,5 +1,6 @@
 """Pure presentation of normalized accounting; no native reads or token arithmetic."""
 from html import escape
+from usage_report import format_settings
 
 GROUPS = {
     'task': 'Task', 'agent_run': 'Agent run', 'role': 'Role', 'model': 'Model',
@@ -98,10 +99,12 @@ def render(report, perfetto_url):
               'by the native source; missing parent-call relationships cannot prove that no nested work occurred.</p></section>',
               '<section><h2>Agents and assignments</h2><p class="hint">Names come from native metadata or workflow bindings. '
               'When a purpose was not recorded, the role and task are shown explicitly as assignment context. '
-              'A reused agent can have multiple assignments.</p>']
+              'A reused agent can have multiple assignments. Model / effort lists observed native settings; '
+              'multiple pairs indicate settings changes, and unavailable values are not inferred from requests.</p>']
     assignments = report['assignments']
-    parts.append(table(['Agent', 'Purpose / assignment', 'Task', 'Role', 'Run', 'Observed status', 'Native path'],
-                       [[a['agent_name'], a['purpose'] or f'Assignment: {a["role"] or "unavailable role"} / {a["task_id"] or "unavailable task"}',
+    parts.append(table(['Agent', 'Observed model / effort', 'Purpose / assignment', 'Task', 'Role', 'Run', 'Observed status', 'Native path'],
+                       [[a['agent_name'], format_settings(a.get('observed_settings', [])),
+                         a['purpose'] or f'Assignment: {a["role"] or "unavailable role"} / {a["task_id"] or "unavailable task"}',
                          a['task_id'], a['role'], a['agent_run_id'], ', '.join(a['outcomes']) or 'Unavailable',
                          a['native_agent_path']] for a in assignments], id='assignments'))
     names = {a['agent_id']: f'{a["agent_name"] or a["agent_id"]} [{a["agent_run_id"] or "unassigned"}]' for a in assignments}

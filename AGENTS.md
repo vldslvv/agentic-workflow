@@ -2,9 +2,9 @@
 
 `spec-source-suite/` is reusable guidance; change it only for requested workflow/tooling work. Keep app inputs, code and evidence outside it.
 
-For ordinary top-level work, implement directly or make a short conversational plan first, then implement. Follow engineering guidelines, run relevant checks, inspect the diff and report results. No formal acceptance documents, `.suite` allocation, role handoffs, mandatory independent review, final validator or usage reports are required unless requested. Plan-only requests stop at the plan; honor explicit review and approval requirements.
+Spec implementation (for example, `Implement specs/todolist`) always uses the full project workflow: read [shared rules](spec-source-suite/AGENTS.md) and act as [Supervisor](spec-source-suite/SUPERVISOR.md), even without a named skill. Individual [task modes](spec-source-suite/AGENTS.md#task-workflows) operate within that workflow.
 
-This lightweight routine applies only to top-level work. Project implementation through the suite, explicit suite skills/roles and work inside `spec-source-suite/` follow the suite's existing guidance.
+For other ordinary work, implement directly or briefly plan first; follow engineering guidelines, run relevant checks, inspect the diff and report results. Formal workflow artifacts and roles are optional unless requested. Plan-only requests stop at the plan; honor explicit review/approval requirements. Explicit suite skills/roles and suite maintenance follow the suite's applicable guidance.
 
 Use the paths below directly and batch independent reads. Search for paths only when the request, this map or the handoff leaves them unresolved. Read only entries applicable to the work.
 
@@ -14,7 +14,7 @@ Use the paths below directly and batch independent reads. Search for paths only 
 | Suite app work or suite maintenance: shared rules | [spec-source-suite/AGENTS.md](spec-source-suite/AGENTS.md) |
 | Entering a role or selecting settings for a worker | [spec-source-suite/MODELS.md](spec-source-suite/MODELS.md) |
 | Full-workflow document authoring or assigned suite planning | [spec-source-suite/PLANNER.md](spec-source-suite/PLANNER.md) |
-| Full-workflow task implementation or app generation: orchestration | [spec-source-suite/SUPERVISOR.md](spec-source-suite/SUPERVISOR.md) |
+| Any spec implementation or app generation: orchestration | [spec-source-suite/SUPERVISOR.md](spec-source-suite/SUPERVISOR.md) |
 | Assigned suite implementation | [spec-source-suite/IMPLEMENTER.md](spec-source-suite/IMPLEMENTER.md) |
 | Assigned suite independent review | [spec-source-suite/REVIEWER.md](spec-source-suite/REVIEWER.md) |
 | Assigned suite final validation | [spec-source-suite/VALIDATOR.md](spec-source-suite/VALIDATOR.md) |
@@ -30,7 +30,7 @@ Apply the engineering guidelines and include their resolved paths in delegated w
 - Continuing work uses identified task paths or execution references. Resolve a bare task ID only under the identified `.suite/<NNN>_<name>/tasks/`; ask if the implementation or task is absent, ambiguous, or continuation itself is unclear. Stop discovery when authority is resolved.
 - Advice/tooling work uses requested files and relevant references, without task-history discovery.
 
-For full-workflow app work read shared rules and your role routine. Use the selected [Markdown bundle](spec-source-suite/AGENTS.md#markdown-bundle); otherwise look outside the suite for its four file types and ask if multiple bundles are plausible. New authorized authoring uses `specs/` and the bundle templates. Missing required inputs block generation; no project intent yields NO_PROJECT.
+For spec implementation use the selected [Markdown bundle](spec-source-suite/AGENTS.md#markdown-bundle); otherwise look outside the suite for its four file types and ask if multiple bundles are plausible. New authorized authoring uses `specs/` and the bundle templates. Missing required inputs block generation; no project intent yields NO_PROJECT.
 
 The explicit suite skills are `spec-planner` and `spec-supervisor`. A direct implementation request authorizes derived plans and acceptance without routine reapproval. Preserve explicit requirements, approved text and historical records. [Records](spec-source-suite/AGENTS.md#records) describes task storage and recovery.
 

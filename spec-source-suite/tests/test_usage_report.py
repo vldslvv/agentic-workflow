@@ -21,6 +21,7 @@ FIXTURES = Path(__file__).parent / 'fixtures'
 sys.path.insert(0, str(HELPERS))
 import records
 import usage_report as usage
+from trace_dashboard import render
 
 
 class TraceTests(unittest.TestCase):
@@ -129,20 +130,27 @@ class TraceTests(unittest.TestCase):
         self.assertEqual({e['variant'] for e in models}, {'high', 'low'})
         self.assertTrue(all(e['reasoning_effort'] is None for e in models))
         self.assertTrue(all(e['requested']['model'] == 'requested-model' for e in models))
-        report = usage.build_report(events, gaps)
+        report = usage.refresh(self.root)
         self.assertEqual(report['summary']['tokens']['total_tokens']['total'], 200)
         self.assertEqual(report['groups']['model_effort'], [])
         self.assertEqual(len(report['attribution_omissions']['model_effort']['event_ids']), 2)
         self.assertEqual([(r['key']['model'], r['summary']['tokens']['total_tokens']['total'])
                           for r in report['groups']['model']], [('model-a', 130), ('model-b', 70)])
         self.assertEqual(report['groups']['effort'], [])
+        dashboard = render(report, 'https://ui.perfetto.dev')
+        agent_table = dashboard.split('id="assignments"', 1)[1].split('</table>', 1)[0]
+        self.assertIn('model-a / unavailable; model-b / unavailable', agent_table)
+        self.assertNotIn('requested-model', agent_table)
 
     def test_codex_model_effort_changes_are_grouped_downstream(self):
         self.source()
-        events, gaps = self.evidence()
-        rows = usage.build_report(events, gaps)['groups']['model_effort']
+        report = usage.refresh(self.root)
+        rows = report['groups']['model_effort']
         self.assertEqual([(r['key'], r['summary']['tokens']['total_tokens']['total']) for r in rows],
                          [({'model':'model-a','reasoning_effort':'high'},130), ({'model':'model-b','reasoning_effort':'low'},70)])
+        dashboard = render(report, 'https://ui.perfetto.dev')
+        agent_table = dashboard.split('id="assignments"', 1)[1].split('</table>', 1)[0]
+        self.assertIn('model-a / high; model-b / low', agent_table)
 
     def test_named_assignments_and_task_model_tool_breakdowns_survive_session_reuse(self):
         path, source = self.source(bind=False)
@@ -172,8 +180,19 @@ class TraceTests(unittest.TestCase):
         self.assertAlmostEqual(tools['exec_command']['observed_operation_seconds'], 1)
         trace = json.loads((self.root / 'reports/timeline.json').read_text())['traceEvents']
         lane = next(e for e in trace if e['ph'] == 'M')['args']['name']
-        self.assertIn('Ada · implementer / build', lane)
-        self.assertIn('Ada · reviewer / repair', lane)
+        self.assertIn('Ada · implementer / build · model-a / high', lane)
+        self.assertIn('Ada · reviewer / repair · model-b / low', lane)
+        agent_slices = [e for e in trace if e.get('cat') == 'agent' and e['ph'] == 'X']
+        self.assertTrue(any('model-a / high' in e['name'] for e in agent_slices))
+        self.assertTrue(any('model-b / low' in e['name'] for e in agent_slices))
+        dashboard = render(report, 'https://ui.perfetto.dev')
+        agent_table = dashboard.split('id="assignments"', 1)[1].split('</table>', 1)[0]
+        self.assertIn('Observed model / effort', agent_table)
+        for task, expected, other in [('build', 'model-a / high', 'model-b / low'),
+                                     ('repair', 'model-b / low', 'model-a / high')]:
+            row = next(row for row in agent_table.split('<tr>') if f'<td>{task}</td>' in row)
+            self.assertIn(expected, row)
+            self.assertNotIn(other, row)
         self.assertTrue(any(e['args'].get('purpose') == 'Implement editor' for e in trace if 'args' in e))
         self.assertTrue(any(e['args'].get('tokens.total_tokens') == 130 for e in trace if 'args' in e))
 
@@ -441,7 +460,7 @@ class TraceTests(unittest.TestCase):
                       'JOIN slice AS s1 ON flow.slice_out=s1.id JOIN thread_track AS t1 ON s1.track_id=t1.id '
                       'JOIN thread AS outgoing ON t1.utid=outgoing.utid JOIN slice AS s2 ON flow.slice_in=s2.id '
                       'JOIN thread_track AS t2 ON s2.track_id=t2.id JOIN thread AS incoming ON t2.utid=incoming.utid')
-        self.assertEqual(edges, [{'parent':'codex:parent','child':'codex:child'}])
+        self.assertEqual(edges, [{'parent':'codex:parent · unavailable','child':'codex:child · unavailable'}])
 
     def test_accounting_ignores_harness_identity_for_identical_normalized_evidence(self):
         self.source()
