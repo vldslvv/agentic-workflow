@@ -10,15 +10,15 @@ This package supplies instructions, blank templates and a usage helper, not a se
 | Reviewer | [REVIEWER.md](REVIEWER.md) | Independently check one candidate |
 | Validator | [VALIDATOR.md](VALIDATOR.md) | Independently check the assembled app and specify repairs |
 
-Spec implementation always uses the Supervisor's full project workflow, including single-task selections. Load roles directly; named skills are optional. Explicit `spec-planner` and `spec-supervisor` invocations use `.agents/skills/`. Document-only work uses the Planner and stops before execution. Only requested automated-runner work reads [RUNNER.md](RUNNER.md). Suite maintenance follows user acceptance and checks links, metadata and retained tests. Documentation walkthroughs are not live app experiments. When adopting these procedures, merge repository instructions and verify worker capabilities; CLI flags and isolation are host-dependent.
+Spec implementation always uses the Supervisor's full project workflow, including single-task selections. Load roles directly; named skills are optional. Explicit `spec-planner` and `spec-supervisor` invocations use `.agents/skills/`. Document-only work uses the Planner and stops before execution. Only requested automated-runner work reads [RUNNER.md](RUNNER.md). Suite maintenance follows user acceptance and checks links, entry points and relevant tests. Documentation walkthroughs are not live app experiments. When adopting these procedures, merge repository instructions and verify worker capabilities; CLI flags and isolation are host-dependent.
 
 ## Workflow maintenance
 
 For suite changes, keep operative guidance in this file plus one routine per role. Put common rules here and role-specific procedures with their role. Give each rule one authoritative home; reference it instead of repeating it. Prefer replacing or removing instructions when adding guidance. Add a file only when existing boundaries cannot accommodate its responsibility, and explain why.
 
-Before completion, run `python spec-source-suite/helpers/check_package.py --base <starting-commit>` from the repository root. Check layout, links and skill entry points; report file/directory counts, instruction words and shared-plus-role context sizes. Explain increases as review signals, not automatic failures or reasons to weaken requirements. Update package metadata and checksums after validation.
+Before completion, run `python spec-source-suite/helpers/check_package.py` from the repository root to check required guidance/templates, skill entry points/policies and local links/anchors. Additional valid files are allowed; no Git history is required. Legacy `--base VALUE` is accepted with a removal notice and performs no baseline comparison.
 
-Review each added instruction: does it change behavior, duplicate a rule, or force a role to load supporting procedure files? Confirm each role can operate with shared guidance, its own routine and the routing configuration below. Record the answers and any justified growth in the change's results.
+Review changed instructions for behavior, duplication and role placement. Confirm each role can operate with shared guidance, its own routine and routing configuration; record material exceptions in the result.
 
 Index only persistent Markdown documentation, with explicit relative-path links and short purposes or read conditions. Update the applicable index when documentation is added, moved, renamed, or removed. Exclude transient task plans, acceptance records, run artifacts and review reports from indexes.
 
@@ -54,7 +54,7 @@ Before implementation, the implementer assesses logic, component interactions, c
 | Mode | Planning owner | Task review |
 |---|---|---|
 | `full` | Separate fresh planner; full plan and acceptance | Fresh independent review required |
-| `lightweight` | Implementer; concise plan and separate acceptance, unless a planner is assigned | Optional unless explicitly required; omission is not a review PASS |
+| `lightweight` | Implementer; concise plan and separate acceptance, unless a planner is assigned | Optional unless explicitly required; a chosen optional review needs a concrete reason; omission is not a review PASS |
 
 The planning owner handles planning/acceptance corrections. Both modes follow all shared acceptance, engineering, record and usage rules. Concise plans retain authority, sources, prerequisites, approach, target and evidence paths; acceptance maps every requirement to checks/pass rules, including shared verification and coverage limits. Reassess changed scope or implementation demands; complexity requires escalation to full, preserving records and completing its gates. Explicit approval/review requirements remain binding.
 
@@ -83,7 +83,7 @@ Keep shared constraints in `project.md` and shared/final scenarios in `verificat
 
 ## Records
 
-One implementation owns `.suite/<NNN>_<name>/`: `native/<session-id>/<turn-id>.jsonl`, `tasks/<task-id>/{plan,acceptance}.md`, `runs/<task-id>/<agent-run-id>/` and `reports/`. Allocate before task work with `python spec-source-suite/helpers/records.py allocate NAME` (serialized locally). Fresh implementations receive new numbers; resumes and repairs reuse their root. Keep new records there, using source filename stems as task IDs in documents, assignments and run paths. Preserve approved originals and history in place. Reserve `orchestration` for supervisor activity and `validation` for final validation, not planning stages. Task documents identify authority, sources, prerequisites, target and destinations.
+One implementation owns `.suite/<NNN>_<name>/`: `native/<session-id>/<turn-id>.jsonl`, `tasks/<task-id>/{plan,acceptance}.md`, `runs/<task-id>/<agent-run-id>/` and `reports/`. Allocate before task work with `python spec-source-suite/helpers/records.py allocate NAME` (serialized locally by locking the suite directory). Fresh implementations receive new numbers; resumes and repairs reuse their root. Keep new records there, using source filename stems as task IDs in documents, assignments and run paths. Preserve approved originals and history in place. Reserve `orchestration` for supervisor activity and `validation` for final validation, not planning stages. Task documents identify authority, sources, prerequisites, target and destinations.
 
 Allocation saves the current session metadata and active native turn; on resume, run `python spec-source-suite/helpers/records.py resolve IMPLEMENTATION TASK` to resolve the task and save that turn. Pass the implementation root through every handoff and include one structured line, substituting its implementation name, source task ID and recipient role:
 
@@ -99,6 +99,16 @@ Resume from complete identified records, findings and current artifacts. Reasses
 
 Handoffs include the implementation root and supply exact paths, absolute or relative to an explicit root, for the recipient's shared/role guidance and allowed specifications, acceptance, candidate and evidence. Include plans and memory only for permitted roles. Recipients read supplied paths directly; discover only unresolved inputs under the selection/recovery rules above. Paths identify inputs; their contents still must be read.
 
+## Coordination and checking
+
+Use native waits and completion notifications, choosing the longest wait allowed by host limits and required user-update intervals. A timeout alone calls for continued waiting, not worker prompting or escalation. Routine status prompts, short polling loops, sleep-based monitoring and repeated agent-list checks are excluded. Use a runtime status snapshot only to resolve concrete uncertainty, such as a failed operation or missing completion notification. Host scheduling may still wake the parent.
+
+Send worker messages for inputs, decisions, assignment changes, blockers and repairs. Workers report blockers and required decisions promptly; report completion once with the result path. Keep required user updates brief and based on known information.
+
+Batch independent reads and commands; print only needed matches, fields and tool descriptions. Pass paths instead of copied documents. Supervisors consume concise results; workers read their allowed sources directly. Run each role's required checks together; repeat successful checks only after relevant changes, failures, new concerns or a required independent check. Reviewers and validators still perform their own independent inspections and executions.
+
+Keep the candidate unchanged during review and validation, identified by location and revision when available. Changes invalidate affected results under the acceptance rules. Use existing version information without forcing commits or adding a locking service.
+
 ## Project memory
 
 Ordinary planners and implementers read `<project-root>/.agents/memory/index.md` and only relevant `entries/*.md`; missing memory means no notes yet. Use short retrieval hints and ordinary Markdown lessons with source pointers, without a required metadata schema. Requirements and current repository facts outrank advice; verify stale advice without searching unrelated history. At completion or a blocked stop save supported useful lessons, merge duplicates and correct stale advice. Initialize only for a useful lesson; omit transcripts, progress logs, speculation, secrets and copied configuration. Pass relevant paths to later ordinary task workers. Supervisors relay paths without loading detailed notes. Reviewers, validators and all reconstruction workers exclude memory and copies.
@@ -113,8 +123,9 @@ Inspect exports and report actual separation across filesystem access, parent in
 
 ## Results and usage references
 
-Roles link derived usage reports and coverage limitations, including repairs and blocked work. Native records supply execution details; adapters calculate usage. Keep review/validation inputs independent of conversations; the supervisor uses reports, not raw logs. Missing telemetry is a reporting limitation, never an app acceptance blocker; unknown measurements remain unavailable.
-Use this common result outline, omitting inapplicable fields. Keep review/validation inputs free of plans, conversations and memory even when forwarding results.
+Keep separate plan/acceptance documents and one concise result per role/run using the outline below; save extra logs and explanations when useful, preserving repair history and failures. Routine candidate manifests, checksum lists, duplicate check summaries and repeated hash sweeps are excluded; functional identity, deduplication and regression hashes remain valid.
+
+Roles link derived usage reports and coverage limitations, including repairs and blocked work, without maintaining token totals. The supervisor generates aggregate reports at overall completion or a blocked stop; earlier refreshes are on request. Native capture and assignment handling continue throughout; adapters calculate usage. Missing telemetry is a reporting limitation, never an app acceptance blocker; unknown measurements remain unavailable. Omit inapplicable outline fields and keep forwarded review/validation results free of plans, conversations and memory.
 
 - **Scope and candidate:** source/acceptance paths, implementation location/revision, dependencies.
 - **Role and status:** PASS, FAIL, BLOCKED or NOT_RUN; rationale and unfinished work.
@@ -124,7 +135,7 @@ Use this common result outline, omitting inapplicable fields. Keep review/valida
 - **Coverage and blockers:** substitutes, skipped checks, remaining gaps and required decisions.
 - **Independent review/validation:** fresh session/result paths, prior findings resolved; review findings remain distinct from the supervisor's acceptance decision.
 - **Assembled app:** final execution evidence or why incomplete; omit for task-only/document results.
-- **Usage:** source references/report links, known totals and per-role/session breakdowns, missing counters and limits.
+- **Usage:** aggregate report references when available, missing counters and coverage limits.
 - **Reconstruction:** allowed/retained inputs, target changes, actual isolation controls, exclusions/leakage and limits.
 
 Document-only results describe document validation, not app execution. Historical records remain intact; new results identify the candidate actually checked.

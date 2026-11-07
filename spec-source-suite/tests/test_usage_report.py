@@ -113,6 +113,7 @@ class TraceTests(unittest.TestCase):
         with ThreadPoolExecutor(max_workers=6) as pool:
             roots = list(pool.map(allocate, range(8)))
         self.assertEqual({int(p.name.split('_')[0]) for p in roots}, set(range(2, 10)))
+        self.assertFalse((self.suite / '.allocation.lock').exists())
         for task in ('work', 'repair-001'):
             (self.root / 'tasks' / task).mkdir()
             result = self.cli('records.py', 'resolve', self.root, task)

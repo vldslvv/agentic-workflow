@@ -1,6 +1,6 @@
 # Native trace analysis
 
-`records.py` allocates implementations and resolves tasks. `native_traces.py` collects native files and resolves assignments; `trace_adapters.py` parses measurements; `usage_report.py` accounts for them. The collection boundary is separate so harness discovery never changes token accounting. All use Python's standard library on a local POSIX filesystem. `flock` serializes allocation and each implementation's capture/collection/report refresh; distributed locking is outside the contract. Interrupted allocations remain reserved.
+`records.py` allocates implementations and resolves tasks. `native_traces.py` collects native files and resolves assignments; `trace_adapters.py` parses measurements; `usage_report.py` accounts for them. The collection boundary is separate so harness discovery never changes token accounting. All use Python's standard library on a local POSIX filesystem. `flock` on the suite directory serializes allocation; each implementation's `.records.lock` serializes its capture/collection/report refresh. Distributed locking is outside the contract. Interrupted allocations remain reserved.
 
 ## Capture and collection
 

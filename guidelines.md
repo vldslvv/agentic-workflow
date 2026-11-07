@@ -9,3 +9,5 @@
 - Test observable behavior through public interfaces; tests should survive internal refactoring.
 - Prefer real implementations and isolated, disposable infrastructure in tests. Use test doubles when real dependencies are costly, destructive, unreliable, or impractical; document meaningful coverage limits.
 - Treat these as design defaults. Explain material departures with a concrete benefit or constraint.
+- Do not create unnecessary validations, locks, checksums and manifests unless explicitly requested.
+- Do not created backwards-compatible functionality unless explicitly requested.

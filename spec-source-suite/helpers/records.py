@@ -24,9 +24,13 @@ def identifier(value):
 @contextmanager
 def locked(path):
     """Serialize allocation/native capture/report refresh; locks release on process exit."""
-    with Path(path).open('a') as stream:
-        fcntl.flock(stream, fcntl.LOCK_EX)
+    flags = os.O_RDONLY if Path(path).is_dir() else os.O_WRONLY | os.O_CREAT
+    descriptor = os.open(path, flags, 0o666)
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX)
         yield
+    finally:
+        os.close(descriptor)
 
 
 def write_atomic(path, data):
@@ -48,7 +52,7 @@ def allocate(suite, name):
     identifier(name)
     suite = Path(suite)
     suite.mkdir(parents=True, exist_ok=True)
-    with locked(suite / '.allocation.lock'):
+    with locked(suite):
         numbers = [int(match[1]) for p in suite.iterdir()
                    if p.is_dir() and (match := re.fullmatch(r'(\d{3,})_.+', p.name))]
         root = suite / f'{max(numbers, default=0) + 1:03d}_{name}'
