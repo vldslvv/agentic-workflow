@@ -1,31 +1,28 @@
-# Agentic Workflow entry points
+# Agentic Workflow
 
-- Agentic Workflow provides reusable instructions, templates and local helpers. Keep app inputs, code, memory and evidence outside it; no app or automated runner is selected by installing it.
-- For any role, read [engineering guidelines](GUIDELINES.md), resolve model routing under [Models](MODELS.md#routing-source), and read the role below. Follow its linked references when their stated conditions apply.
-- For specification implementation, including one task, read [Workflow](WORKFLOW.md) and enter through [Supervisor](SUPERVISOR.md). Every implementation role follows that contract. For document-only work or workflow maintenance, use [Planner](PLANNER.md).
-- Load role files directly. The explicit `agentic-workflow-planner`, `agentic-workflow-supervisor` and `agentic-workflow-acceptance` skills in the project's `.agents/skills/` are optional entry points; installation is described in [README](README.md).
-- When adopting the workflow, merge repository instructions and verify host capabilities. Worker flags, setting controls and isolation depend on the host.
+Read the context for your action:
 
-| Read when | Document |
+| Action | Context |
 |---|---|
-| Installing, updating or checking the package | [Installation and portable commands](README.md) |
-| Entering a role or selecting worker settings | [Model routing](MODELS.md) |
-| Implementing specifications or changing the implementation workflow | [Workflow contract](WORKFLOW.md) |
-| Asked to review documents against the workflow | [Workflow document review](WORKFLOW_REVIEW.md) |
-| Coordinating implementation | [Supervisor](SUPERVISOR.md) |
-| Authoring or maintaining documents | [Planner](PLANNER.md) |
-| Executing an assigned task | [Implementer](IMPLEMENTER.md) |
-| Independently reviewing a task | [Reviewer](REVIEWER.md) |
-| Independently validating the assembled app | [Validator](VALIDATOR.md) |
-| Resolving specification inputs | [Bundle](BUNDLE.md) |
-| Preparing, running or assessing checks | [Checks and acceptance](CHECKS.md) |
-| Saving, handing off or resuming work | [Records](RECORDS.md) |
-| Ordinary planning or implementation | [Project memory](MEMORY.md) |
-| Rebuilding without prior implementation | [Reconstruction](RECONSTRUCTION.md) |
-| Implementing a requested automated runner | [Future runner](RUNNER.md) |
-| Operating or troubleshooting tracing | [Native trace reference](helpers/TRACING.md) |
-| Authoring project inputs | [Project](templates/project.md), [task order](templates/task_order.md), [task](templates/tasks/task.md), [verification](templates/verification.md) |
-| Authoring task records | [Plan](templates/plan.md), [acceptance](templates/acceptance.md), [result](templates/result.md) |
-| Checking package changes | [Package checker](helpers/check_package.py) |
-| Allocating implementations or resuming tasks | [Records helper](helpers/records.py) |
-| Aggregating execution usage | [Usage helper](helpers/usage_report.py) |
+| Implement specifications, including one task | [WORKFLOW.md](WORKFLOW.md), enter as Supervisor |
+| Coordinate tasks | [SUPERVISOR.md](SUPERVISOR.md) |
+| Plan or edit documents/workflow | [PLANNER.md](PLANNER.md) |
+| Implement a task | [IMPLEMENTER.md](IMPLEMENTER.md) |
+| Review a task | [REVIEWER.md](REVIEWER.md) |
+| Validate the app | [VALIDATOR.md](VALIDATOR.md) |
+| Resolve project files | [BUNDLE.md](BUNDLE.md) |
+| Define or assess checks | [CHECKS.md](CHECKS.md) |
+| Hand off, save or resume work | [RECORDS.md](RECORDS.md) |
+| Ordinary planning/implementation | [MEMORY.md](MEMORY.md) |
+| Rebuild without prior implementation | [RECONSTRUCTION.md](RECONSTRUCTION.md), before any role starts |
+| Review workflow documents | [WORKFLOW_REVIEW.md](WORKFLOW_REVIEW.md) |
+| Implement an automated runner | [RUNNER.md](RUNNER.md) |
+| Install or check the package/optional skills | [README.md](README.md) |
+| Inspect traces or usage | [helpers/TRACING.md](helpers/TRACING.md) |
+
+Every role reads [GUIDELINES.md](GUIDELINES.md), resolves [MODELS.md](MODELS.md#routing-source),
+and applies its context documents. Follow conditional references when applicable.
+Keep project inputs, code, memory and execution evidence outside this package.
+
+Templates: [project inputs](BUNDLE.md), [plan](templates/plan.md),
+[acceptance](templates/acceptance.md), [result](templates/result.md).

@@ -8,3 +8,4 @@ flow for new feature/change
 reorg md structure -- too flat, hard to navigate
 shorten workflow -- word salad
 
+remove VERSION

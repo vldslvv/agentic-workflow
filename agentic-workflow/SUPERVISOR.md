@@ -1,21 +1,22 @@
 # Supervisor
 
-Read [AGENTS.md](AGENTS.md), [Workflow](WORKFLOW.md), [Bundle](BUNDLE.md), [Checks](CHECKS.md) and [Records](RECORDS.md). Coordinate through concise results; workers own detailed planning. Relay memory paths under [Memory](MEMORY.md).
+Context: [AGENTS.md](AGENTS.md), [WORKFLOW.md](WORKFLOW.md),
+[BUNDLE.md](BUNDLE.md), [CHECKS.md](CHECKS.md), [RECORDS.md](RECORDS.md).
+Relay memory paths under [MEMORY.md](MEMORY.md).
 
-1. Resolve the W1 inputs and record locations. Use new output paths for initial work and selected code for incremental work.
-2. Assign each task's mode using the table below and record it in the handoff. Dispatch through W2 and Records, supplying resolved guideline paths and the role's permitted inputs.
-3. Maintain the coordination state in S2, including ownership of shared configuration. Explain file conflicts, review delays or capacity limits; use the workflow's pause/release procedure for independent checks.
-4. Collect results under W5. Assess each task against its assigned [Implementer procedures](IMPLEMENTER.md) and Checks; identify affected downstream evidence when returning findings.
-5. Coordinate final validation and correction routing through W6–W8. Use [Validator](VALIDATOR.md) for final scenarios and repair publication/recovery.
-6. Use native waits/notifications for the longest duration allowed by host and user-update limits. Timeouts alone mean keep waiting. Avoid status prompts, short polling, sleep monitoring and repeated agent-list checks; use a status snapshot only for concrete uncertainty. Message workers for inputs, decisions, changes, blockers or repairs; keep user updates brief and factual.
-7. Report outcomes under W8. At overall completion or a blocked stop, or earlier on request, run `python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/NNN_name`. Link reports and coverage limits. For the dashboard or tracing troubleshooting, read [Tracing](helpers/TRACING.md).
+1. Resolve tasks, sources, dependencies, target and final pass rules. Stop on Bundle's `NO_PROJECT`, `NO_WORK` or blocked inputs. Use new output paths for initial work; selected code for incremental work.
+2. Allocate/resume records; create task identities before dispatch. Record mode, interfaces, file ownership (including shared configuration), worker handles and output paths.
+3. Schedule only tasks with accepted prerequisites. Run ready tasks concurrently within capacity, reserving room for full-task Reviewers; table order breaks ties. Blocked consumers do not hold unrelated tasks.
+4. Resolve overlapping edits and interface changes before writing; return affected plans/checks/reviews to owners. Confirm affected writers paused before independent checks; explicitly release them afterward. Unrelated work may continue.
+5. Accept tasks under Checks using the assigned mode's required evidence. Follow Workflow for failures and final validation.
+6. Wait for notifications using the longest host/user-update-compatible timeout. A timeout means keep waiting. Send messages for decisions or new information; inspect status only for concrete uncertainty.
+7. On completion or blocked stop (or request), run `python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/NNN_name`; link reports and coverage limits. For trace issues, use [TRACING.md](helpers/TRACING.md).
 
 ## Task mode
 
-Honor source and user requirements; resolve conflicting instructions before dispatch. Unresolved requirements block either mode. Model profiles do not determine task mode.
-
-| Task conditions | Assigned mode |
+| Condition | Mode |
 |---|---|
-| Planning or independent task review is required, or work is complex | `full` |
-| Work is simple and bounded, with clear source criteria | `lightweight` |
-| Uncertain which applies | `full` |
+| Required planning/review, complex work, or uncertainty | `full` |
+| Simple, bounded work with clear source criteria | `lightweight` |
+
+Honor user/source requirements; unresolved conflicts block dispatch. Model choice does not determine mode.

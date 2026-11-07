@@ -10,8 +10,8 @@
 |---|---|
 | AGENTIC_WORKFLOW-001 | Empty installation has no selected app/stack; no intent returns `NO_PROJECT`. |
 | AGENTIC_WORKFLOW-002 | Read [Bundle](BUNDLE.md); report missing files, duplicate IDs, unknown references, cycles and missing required acceptance mappings. |
-| AGENTIC_WORKFLOW-003 | Schedule through Workflow W2 using [Supervisor](SUPERVISOR.md) task-mode decisions. |
-| AGENTIC_WORKFLOW-004 | Follow Workflow W3 and [Implementer](IMPLEMENTER.md) procedures for the assigned mode, preserving explicit requirements and approved text while resolving ordinary choices autonomously. |
+| AGENTIC_WORKFLOW-003 | Schedule tasks using [Supervisor](SUPERVISOR.md) prerequisites, capacity and mode rules. |
+| AGENTIC_WORKFLOW-004 | Execute [Workflow task steps](WORKFLOW.md#spawn-implementer--per-task) and [Implementer](IMPLEMENTER.md) procedures for the assigned mode, preserving explicit requirements and approved text while resolving ordinary choices autonomously. |
 | AGENTIC_WORKFLOW-005 | Dispatch and retain role contexts through Workflow; keep document-only work with [Planner](PLANNER.md). Verify required independent checks under [Checks](CHECKS.md). |
 | AGENTIC_WORKFLOW-006 | Apply Checks using actual outcomes, adequate coverage, required manual checks and explicit unavailable capabilities. |
 | AGENTIC_WORKFLOW-007 | Resume from [Records](RECORDS.md); preserve history and reassess evidence after relevant changes. |

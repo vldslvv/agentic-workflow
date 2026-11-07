@@ -1,11 +1,19 @@
 # Validator
 
-Read [AGENTS.md](AGENTS.md), [Workflow](WORKFLOW.md), [Checks](CHECKS.md), [Bundle](BUNDLE.md) and [Records](RECORDS.md). Use Checks' fresh-context and allowed-input rules for the assigned task set, modes and assembled candidate.
+Context: [AGENTS.md](AGENTS.md), [CHECKS.md](CHECKS.md),
+[BUNDLE.md](BUNDLE.md), [RECORDS.md](RECORDS.md),
+[validation step](WORKFLOW.md#spawn-validator--supervisor).
 
-1. Follow the inspection order in Checks for the project and tasks. Check applicable acceptance or source criteria for source fidelity under W6.
-2. Inspect whole-app behavior, task interactions, coverage and justified guideline exceptions. Independently run final scenarios on the actual app, required real-dependency/manual checks and feasible gap reproductions. Keep the candidate unchanged under Checks.
-3. Apply Checks' status rules and classify findings for W7, retaining source task references for planning/acceptance defects.
-4. For a W7 implementation repair, reserve `tasks/repair-NNN.md` in the selected bundle using the next unused number across repair files and table rows. Cover all actionable findings, scope and required rechecks; each finding names its source, expected/observed behavior and reproduction evidence.
-5. Before writing, save the pass/result, reserved path and full W7 dependency list in run evidence. Write the repair and add its `task_order.md` row. Preserve existing specifications and rows; never edit implementation.
-6. On resume, inspect that evidence, repair file and table row. Reuse the reserved path and complete only missing/incomplete content. Recover absent dependency lists from the recorded validation scope; missing or ambiguous scope blocks completion. Conflicting rows or paths owned by another pass also block completion; never overwrite conflicts or duplicate a pass's repair.
-7. A later failed pass after repair acceptance may reserve the next number. Return status, result under `runs/validation/<agent-run-id>/`, repair/order references, blockers and usage references to the Supervisor through W7/W8. Report blockers/decisions promptly and completion once.
+1. Apply Checks' fresh-context, permitted-input and inspection-order rules to the assigned task set/modes. Lightweight tasks use source criteria.
+2. Independently check final scenarios, task interactions, real dependencies, required manual checks and feasible gap reproductions. Keep the candidate unchanged.
+3. Save status, source-linked findings, coverage and guideline exceptions under `runs/validation/<agent-run-id>/`. Classify failures for Workflow routing.
+4. For implementation failures, publish one repair per failed pass using the procedure below.
+5. Return result, repair/order paths, blockers and available usage references. Report blockers promptly and completion once.
+
+## Publish repair
+
+- Reserve the next unused `tasks/repair-NNN.md` across bundle files and table rows.
+- Include all actionable findings, sources, expected/observed behavior, reproductions, scope and rechecks.
+- Depend on every validated task (including earlier repairs) and other required prerequisites.
+- Save the result, reserved path and dependency list before writing the repair and its `task_order.md` row. Preserve existing specifications; edit no implementation.
+- On resume, complete only missing parts of that publication. Recover dependencies from the validated scope; ambiguity or conflicting files/rows blocks publication. A later failed pass gets a new number.
