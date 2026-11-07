@@ -1,6 +1,0 @@
-interface:
-  display_name: "Spec Supervisor"
-  short_description: "Orchestrate task implementation and app generation"
-  default_prompt: "Use $spec-supervisor for the project scope and inputs I provide."
-policy:
-  allow_implicit_invocation: false

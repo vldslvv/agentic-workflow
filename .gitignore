@@ -27,5 +27,5 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
-# Keep .suite/ task documents and run evidence versioned.
+# Keep .agentic-workflow/ task documents and run evidence versioned.
 # Do not ignore logs globally: they may be required execution evidence.

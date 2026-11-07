@@ -123,9 +123,9 @@ def preflight(root, allow_dirty):
     )
     if auth.returncode:
         raise RunnerError("Codex is not authenticated; run codex login first")
-    return git(root, "rev-parse", "HEAD").strip(), supervisor_settings(
-        root / "spec-source-suite/MODELS.md"
-    ), dirty
+    override = root / ".agentic-workflow/MODELS.md"
+    routing = override if override.exists() else root / "agentic-workflow/MODELS.md"
+    return git(root, "rev-parse", "HEAD").strip(), supervisor_settings(routing), dirty
 
 
 def terminate_group(process):
@@ -175,21 +175,21 @@ def execute(command, cwd, timeout, stdout, stderr):
     return outcome
 
 
-def suite_entries(root):
-    suite = safe_path(root, Path(".suite"))
-    return {p.name: p for p in suite.iterdir()} if suite.exists() else {}
+def records_entries(root):
+    records = safe_path(root, Path(".agentic-workflow"))
+    return {p.name: p for p in records.iterdir()} if records.exists() else {}
 
 
 def new_implementations(root, before):
-    return sorted(name for name, path in suite_entries(root).items()
+    return sorted(name for name, path in records_entries(root).items()
                   if name not in before and path.is_dir() and not path.is_symlink())
 
 
 def artifact_grade(root, created):
-    implementations = [root / ".suite" / name for name in created]
+    implementations = [root / ".agentic-workflow" / name for name in created]
     grade = {"status": "FAIL", "implementations": [p.name for p in implementations], "missing": []}
     if len(implementations) != 1:
-        grade["error"] = "Expected one new implementation directory under .suite"
+        grade["error"] = "Expected one new implementation directory under .agentic-workflow"
         return grade
     implementation = implementations[0]
     for name in ("usage.json", "usage.md", "timeline.json"):
@@ -243,7 +243,7 @@ def cli_grade(root, results, timeout):
 
 def run(root, agent_timeout, command_timeout, allow_dirty):
     commit, settings, dirty = preflight(root, allow_dirty)
-    before = sorted(suite_entries(root))
+    before = sorted(records_entries(root))
     results = root / RESULTS
     command = ["codex", "exec", "--json", "--color", "never", "--sandbox", "workspace-write",
                "--enable", "multi_agent", "-c", 'approval_policy="never"',
@@ -258,7 +258,7 @@ def run(root, agent_timeout, command_timeout, allow_dirty):
         "prompt": PROMPT, "command": command, "supervisor": settings,
         "agent_timeout_seconds": agent_timeout, "command_timeout_seconds": command_timeout,
         "persistent_sessions": True, "started_at_unix": time.time(),
-        "suite_entries_before": before,
+        "records_entries_before": before,
         "allow_dirty": allow_dirty, "git_status_before": dirty,
     })
     started = time.monotonic()
@@ -267,9 +267,9 @@ def run(root, agent_timeout, command_timeout, allow_dirty):
     try:
         print(f"Launching one Codex trial ({settings['model']}, {settings['reasoning']}); logs: {results}", flush=True)
         report["agent"] = execute(command, root, agent_timeout, results / "events.jsonl", results / "agent.stderr")
-        report["suite_created"] = new_implementations(root, before)
+        report["records_created"] = new_implementations(root, before)
         # These checks never synthesize or repair traces after Codex exits.
-        for name, check in (("artifacts", lambda: artifact_grade(root, report["suite_created"])),
+        for name, check in (("artifacts", lambda: artifact_grade(root, report["records_created"])),
                             ("cli", lambda: cli_grade(root, results, command_timeout))):
             if report["agent"]["status"] == "INTERRUPTED" and name == "cli":
                 continue
@@ -289,13 +289,13 @@ def run(root, agent_timeout, command_timeout, allow_dirty):
     finally:
         report["elapsed_seconds"] = time.monotonic() - started
         try:
-            if "suite_created" not in report:
-                report["suite_created"] = new_implementations(root, before)
+            if "records_created" not in report:
+                report["records_created"] = new_implementations(root, before)
             report["git_status"] = git(root, "status", "--porcelain=v1", "--untracked-files=all")
             report["unexpected_changes"] = git(
                 root, "status", "--porcelain=v1", "--untracked-files=all", "--", ".",
                 *(f":(exclude,literal){p}" for p in OUTPUTS),
-                *(f":(exclude,literal).suite/{name}" for name in report["suite_created"]),
+                *(f":(exclude,literal).agentic-workflow/{name}" for name in report["records_created"]),
             )
         except (OSError, RunnerError, subprocess.SubprocessError) as exc:
             report.update(overall="RUNNER_ERROR", error=str(exc))
@@ -321,15 +321,15 @@ def clean(root):
         raise RunnerError("Eval run marker does not identify this checkout")
     result_path = safe_path(root, RESULTS / "result.json")
     if not real_file(result_path):
-        raise RunnerError("No completed eval inventory; preserve suite records and handle cleanup manually")
+        raise RunnerError("No completed eval inventory; preserve execution records and handle cleanup manually")
     report = json.loads(result_path.read_text())
-    before = metadata.get("suite_entries_before")
-    created = report.get("suite_created") if isinstance(report, dict) else None
+    before = metadata.get("records_entries_before")
+    created = report.get("records_created") if isinstance(report, dict) else None
     if (not isinstance(before, list) or not isinstance(created, list)
             or any(not isinstance(name, str) or not name or name in (".", "..")
                    or Path(name).name != name or name in before for name in created)):
-        raise RunnerError("Invalid eval suite inventory; refusing cleanup")
-    owned = (APP, *(Path(".suite") / name for name in created), RESULTS)
+        raise RunnerError("Invalid eval records inventory; refusing cleanup")
+    owned = (APP, *(Path(".agentic-workflow") / name for name in created), RESULTS)
     paths = [safe_path(root, p) for p in owned]
     # Include HEAD so staging a deletion cannot make tracked data eligible for removal.
     pathspecs = [f":(literal){p}" for p in owned]
@@ -342,7 +342,7 @@ def clean(root):
             shutil.rmtree(path)
         elif path.exists():
             path.unlink()
-    print("Removed apps/todolist, this eval's suite directories, and .evals/todolist.")
+    print("Removed apps/todolist, this eval's records directories, and .evals/todolist.")
     remaining = git(root, "status", "--porcelain=v1", "--untracked-files=all")
     if remaining:
         print(f"Unexpected changes retained for manual handling:\n{remaining}")

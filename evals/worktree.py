@@ -25,12 +25,12 @@ def archive_evidence(worktree, destination):
     result_path = todolist.safe_path(destination, Path("result.json"))
     if result_path.is_file():
         report = json.loads(result_path.read_text())
-        for name in report.get("suite_created", []):
+        for name in report.get("records_created", []):
             if not isinstance(name, str) or name in ("", ".", "..") or Path(name).name != name:
-                raise todolist.RunnerError("Invalid suite path in eval result")
-            source = todolist.safe_path(worktree, Path(".suite") / name)
+                raise todolist.RunnerError("Invalid records path in eval result")
+            source = todolist.safe_path(worktree, Path(".agentic-workflow") / name)
             if source.is_dir():
-                shutil.copytree(source, destination / "suite" / name, symlinks=True)
+                shutil.copytree(source, destination / "records" / name, symlinks=True)
 
 
 def evaluate(root, agent_timeout, command_timeout):

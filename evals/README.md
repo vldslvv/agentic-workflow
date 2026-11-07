@@ -16,7 +16,7 @@ worktree starts clean, so no reset or deletion in your current checkout is neede
 The command prints the agent, CLI, artifact, and overall outcomes, returning a
 nonzero Make exit status on failure. It saves logs, `result.json`, `worktree.json`,
 the generated app (excluding its virtual environment and bytecode), and the new
-suite evidence under `.evals/todolist-worktrees/<unique-run>/` before removing
+execution evidence (under `records/`) under `.evals/todolist-worktrees/<unique-run>/` before removing
 the worktree, including after a failed eval. If preserving evidence or removing
 the worktree fails, it reports the retained location for recovery. Runs do not
 overwrite previous reports.
@@ -36,13 +36,16 @@ or non-ignored untracked changes before running. Pass `run --allow-dirty` to
 evaluate uncommitted inputs instead; `run.json` records the initial Git status,
 and `source_commit` identifies the base commit rather than all evaluated inputs.
 This option does not commit, stash, or reset anything. `apps/todolist`
-and `.evals/todolist` must be absent, even if ignored. Existing `.suite` records
+and `.evals/todolist` must be absent, even if ignored. Existing `.agentic-workflow` records
 are allowed under the selected checkout policy. The runner rejects
 an unsuitable checkout before creating files. It never stashes or resets changes.
 
 `run` launches one `codex exec` with the exact prompt `Implement specs/todolist`.
 It resolves the Supervisor default profile from
-[MODELS.md](../spec-source-suite/MODELS.md), enables subagents, requests the
+`<project-root>/.agentic-workflow/MODELS.md` when present, otherwise
+[the packaged defaults](../agentic-workflow/MODELS.md#routing-source). An override
+is a complete replacement; malformed configuration fails without falling back.
+The launcher enables subagents, requests the
 workspace-write sandbox and outbound network access for dependencies, and sets
 approval policy to `never`. Native session persistence stays enabled. The CLI
 uses local authentication/configuration; unsupported settings or host restrictions
@@ -62,8 +65,8 @@ tasks creates the file again. Expected output is owned by the evaluator. Raw
 stdout is compared byte-for-byte, including trailing newlines; stderr is retained
 but does not affect the CLI grade.
 
-The runner records existing `.suite` entry names before launch and identifies new
-implementation directories after Codex exits. Run without concurrent suite work
+The runner records existing `.agentic-workflow` entry names before launch and identifies new
+implementation directories after Codex exits. Run without concurrent workflow work
 so those new directories can be attributed to this eval.
 The artifact grade requires a single new implementation directory with
 regular files `reports/usage.json`, `reports/usage.md`, `reports/timeline.json`,
@@ -72,7 +75,7 @@ counts, task documents, and workflow compliance are not graded. The evaluator
 never produces or repairs these artifacts.
 
 `.evals/todolist/` contains `run.json` (launch settings, source commit, and existing
-suite entry names),
+records entry names),
 `events.jsonl`, `agent.stderr`, Codex's `final-response.txt` when available,
 per-command raw stdout/stderr, and `result.json`. The result reports agent
 execution, CLI behavior, and artifact presence separately, with observed output,
@@ -83,11 +86,11 @@ for timeout, and `128 + signal` for interruption. An interruption skips any
 remaining CLI commands.
 
 Generated files remain available for inspection. `clean` requires this checkout's
-eval run marker and the completed run's suite inventory in `result.json`. It checks
+eval run marker and the completed run's records inventory in `result.json`. It checks
 removal paths against the Git index and HEAD before deleting anything and refuses
 symlinked removal paths. It removes only `apps/todolist`, the implementation
 directories recorded as created by this eval, and `.evals/todolist`. Existing
-suite entries, directories added after the eval, and the shared `.suite` directory
+records entries, directories added after the eval, and the shared `.agentic-workflow` directory
 remain. Other repository changes are reported for manual handling. A missing
 inventory requires manual cleanup. Local Codex session history remains intact.
 

@@ -1,5 +1,10 @@
 Add spec verification -- consider something like OpenSpec
 Generate make commands for app manipulation in specs
 Loop tasks without having a supervisor -- less context?
-Rename spec-source-suite
+
+flow for interrupted/resume
+flow for new feature/change
+
+reorg md structure -- too flat, hard to navigate
+shorten workflow -- word salad
 
