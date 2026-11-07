@@ -1,0 +1,30 @@
+Command: ['cargo', 'run', '--offline', '--manifest-path', '/tmp/todo-review-kunj4a0o/app/Cargo.toml', '--example', 'lifecycle']
+Working directory: /tmp/todo-review-kunj4a0o
+Exit: 0
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.27
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling libc v0.2.191
+   Compiling rustix v1.1.6
+   Compiling zmij v1.0.23
+   Compiling getrandom v0.4.3
+   Compiling serde v1.0.229
+   Compiling bitflags v2.13.2
+   Compiling linux-raw-sys v0.12.1
+   Compiling serde_json v1.0.154
+   Compiling cfg-if v1.0.5
+   Compiling once_cell v1.21.4
+   Compiling fastrand v2.5.0
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling syn v3.0.9
+   Compiling tempfile v3.27.0
+   Compiling serde_derive v1.0.229
+   Compiling todolist_rust v0.1.0 (/tmp/todo-review-kunj4a0o/app)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.70s
+     Running `app/target/debug/examples/lifecycle`
+PASS: default project-root tasks.json lifecycle, including fresh reloads
+
+Independent check: default file exists only at copied Cargo manifest root; lifecycle ended empty with next_id=3.
+Saved data: {'next_id': 3, 'tasks': []}

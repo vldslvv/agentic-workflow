@@ -1,0 +1,95 @@
+Final candidate README invocation: COMPOSE_PROJECT_NAME=todo-manual-e53218e144, TODO_DB_PORT=53423
+$ docker compose up -d --wait db
+ Network todo-manual-e53218e144_default Creating 
+ Network todo-manual-e53218e144_default Creating 
+ Volume todo-manual-e53218e144_todo_data Creating 
+ Volume todo-manual-e53218e144_todo_data Creating 
+ Volume todo-manual-e53218e144_todo_data Created 
+ Volume todo-manual-e53218e144_todo_data Created 
+ Network todo-manual-e53218e144_default Created 
+ Network todo-manual-e53218e144_default Created 
+ Container todo-manual-e53218e144-db-1 Creating 
+ Container todo-manual-e53218e144-db-1 Created 
+ Container todo-manual-e53218e144-db-1 Starting 
+ Container todo-manual-e53218e144-db-1 Started 
+ Container todo-manual-e53218e144-db-1 Waiting 
+ Container todo-manual-e53218e144-db-1 Healthy 
+$ docker compose ps
+NAME                          IMAGE         COMMAND                  SERVICE   CREATED         STATUS                   PORTS
+todo-manual-e53218e144-db-1   postgres:18   "docker-entrypoint.s…"   db        3 seconds ago   Up 2 seconds (healthy)   127.0.0.1:53423->5432/tcp
+$ cargo run -- help
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running `target/debug/todolist_rust help`
+TODO commands:
+  add <description>  Add one task; quote descriptions: add "Buy milk"
+  delete <id>        Delete a task
+  complete <id>      Mark a task complete
+  list               List tasks: [ ] incomplete, [x] complete
+  help               Show this help (also -h, --help, or no arguments)
+
+Storage: PostgreSQL must be alive for every invocation. Configure DATABASE_URL.
+IDs are decimal integers from 0 to 2147483647 (stored IDs start at 1). Empty descriptions are allowed: add "".
+$ cargo run -- add Buy milk
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running `target/debug/todolist_rust add 'Buy milk'`
+Added task 1
+$ cargo run -- list
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running `target/debug/todolist_rust list`
+1 [ ] Buy milk
+$ cargo run -- complete 1
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running `target/debug/todolist_rust complete 1`
+Completed task 1
+$ cargo run -- delete 1
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running `target/debug/todolist_rust delete 1`
+Deleted task 1
+$ cargo run -- list
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running `target/debug/todolist_rust list`
+No tasks.
+$ docker compose exec -T db psql -U todo -d todo -c SELECT * FROM tasks ORDER BY id
+ id | description |            added             |            update             | status  
+----+-------------+------------------------------+-------------------------------+---------
+  1 | Buy milk    | 2026-11-07 16:42:03.63714+00 | 2026-11-07 16:42:03.805868+00 | Deleted
+(1 row)
+
+$ docker compose down
+ Container todo-manual-e53218e144-db-1 Stopping 
+ Container todo-manual-e53218e144-db-1 Stopped 
+ Container todo-manual-e53218e144-db-1 Removing 
+ Container todo-manual-e53218e144-db-1 Removed 
+ Network todo-manual-e53218e144_default Removing 
+ Network todo-manual-e53218e144_default Removed 
+$ docker compose up -d --wait db
+ Network todo-manual-e53218e144_default Creating 
+ Network todo-manual-e53218e144_default Creating 
+ Network todo-manual-e53218e144_default Created 
+ Network todo-manual-e53218e144_default Created 
+ Container todo-manual-e53218e144-db-1 Creating 
+ Container todo-manual-e53218e144-db-1 Created 
+ Container todo-manual-e53218e144-db-1 Starting 
+ Container todo-manual-e53218e144-db-1 Started 
+ Container todo-manual-e53218e144-db-1 Waiting 
+ Container todo-manual-e53218e144-db-1 Healthy 
+$ docker compose exec -T db psql -U todo -d todo -c SELECT * FROM tasks ORDER BY id
+ id | description |            added             |            update             | status  
+----+-------------+------------------------------+-------------------------------+---------
+  1 | Buy milk    | 2026-11-07 16:42:03.63714+00 | 2026-11-07 16:42:03.805868+00 | Deleted
+(1 row)
+
+$ cargo run -- add Retained volume
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running `target/debug/todolist_rust add 'Retained volume'`
+Added task 2
+PASS: repaired candidate README startup/help/CRUD/down/up, retained volume and next ID=2
+$ docker compose down -v
+ Container todo-manual-e53218e144-db-1 Stopping 
+ Container todo-manual-e53218e144-db-1 Stopped 
+ Container todo-manual-e53218e144-db-1 Removing 
+ Container todo-manual-e53218e144-db-1 Removed 
+ Volume todo-manual-e53218e144_todo_data Removing 
+ Network todo-manual-e53218e144_default Removing 
+ Volume todo-manual-e53218e144_todo_data Removed 
+ Network todo-manual-e53218e144_default Removed 

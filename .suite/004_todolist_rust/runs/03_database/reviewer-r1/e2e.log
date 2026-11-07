@@ -1,0 +1,170 @@
+ Volume todo-test-e93d09091562_todo_data Creating 
+ Volume todo-test-e93d09091562_todo_data Creating 
+ Network todo-test-e93d09091562_default Creating 
+ Network todo-test-e93d09091562_default Creating 
+ Volume todo-test-e93d09091562_todo_data Created 
+ Volume todo-test-e93d09091562_todo_data Created 
+ Network todo-test-e93d09091562_default Created 
+ Network todo-test-e93d09091562_default Created 
+ Container todo-test-e93d09091562-db-1 Creating 
+ Container todo-test-e93d09091562-db-1 Created 
+ Container todo-test-e93d09091562-db-1 Starting 
+ Container todo-test-e93d09091562-db-1 Started 
+ Container todo-test-e93d09091562-db-1 Waiting 
+ Container todo-test-e93d09091562-db-1 Healthy 
+Ready: owned compose project todo-test-e93d09091562, port 42135
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running unittests src/lib.rs (/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/deps/todolist_rust-822c337421c4747c)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/deps/todolist_rust-2d96059e10080eba)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/business.rs (/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/deps/business-de77dbe7b5639124)
+
+running 1 test
+test public_api_state_and_connection_lifetime ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+   Doc-tests todolist_rust
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running `/home/vv/ccode/generate-prototype/apps/todolist_rust/target/debug/examples/lifecycle`
+PASS: PostgreSQL lifecycle, including fresh connection and soft deletion
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.01s
+['list']: exit 0; 'No tasks.'
+Schema: [{'column_name': 'id', 'data_type': 'integer', 'is_nullable': 'NO', 'is_identity': 'YES', 'ordinal_position': 1}, {'column_name': 'description', 'data_type': 'text', 'is_nullable': 'NO', 'is_identity': 'NO', 'ordinal_position': 2}, {'column_name': 'added', 'data_type': 'timestamp with time zone', 'is_nullable': 'NO', 'is_identity': 'NO', 'ordinal_position': 3}, {'column_name': 'update', 'data_type': 'timestamp with time zone', 'is_nullable': 'NO', 'is_identity': 'NO', 'ordinal_position': 4}, {'column_name': 'status', 'data_type': 'USER-DEFINED', 'is_nullable': 'NO', 'is_identity': 'NO', 'ordinal_position': 5}] enum=Completed,New,Deleted; primary key present
+['add', 'Buy milk']: exit 0; 'Added task 1'
+['add', '-urgent']: exit 0; 'Added task 2'
+['list']: exit 0; '1 [ ] Buy milk\n2 [ ] -urgent'
+['complete', '1']: exit 0; 'Completed task 1'
+['list']: exit 0; '1 [x] Buy milk\n2 [ ] -urgent'
+['complete', '1']: exit 0; 'Completed task 1'
+['delete', '2']: exit 0; 'Deleted task 2'
+['list']: exit 0; '1 [x] Buy milk'
+['delete', '1']: exit 0; 'Deleted task 1'
+['list']: exit 0; 'No tasks.'
+['add', 'C']: exit 0; 'Added task 3'
+['add', '']: exit 0; 'Added task 4'
+['add', '  spaced  ']: exit 0; 'Added task 5'
+['add', 'Quoted "café"']: exit 0; 'Added task 6'
+['list']: exit 0; '3 [ ] C\n4 [ ] \n5 [ ]   spaced  \n6 [ ] Quoted "café"'
+[]: exit 0; 'TODO commands:\n  add <description>  Add one task; quote descriptions: add "Buy milk"\n  delete <id>        Delete a task\n  complete <id>      Mark a task complete\n  list               List tasks: [ ] incomplete, [x] complete\n  help               Show this help (also -h, --help, or no arguments)\n\nStorage: PostgreSQL must be alive for every invocation. Configure DATABASE_URL.\nIDs are decimal integers from 0 to 2147483647 (stored IDs start at 1). Empty descriptions are allowed: add "".'
+['help']: exit 0; 'TODO commands:\n  add <description>  Add one task; quote descriptions: add "Buy milk"\n  delete <id>        Delete a task\n  complete <id>      Mark a task complete\n  list               List tasks: [ ] incomplete, [x] complete\n  help               Show this help (also -h, --help, or no arguments)\n\nStorage: PostgreSQL must be alive for every invocation. Configure DATABASE_URL.\nIDs are decimal integers from 0 to 2147483647 (stored IDs start at 1). Empty descriptions are allowed: add "".'
+['-h']: exit 0; 'TODO commands:\n  add <description>  Add one task; quote descriptions: add "Buy milk"\n  delete <id>        Delete a task\n  complete <id>      Mark a task complete\n  list               List tasks: [ ] incomplete, [x] complete\n  help               Show this help (also -h, --help, or no arguments)\n\nStorage: PostgreSQL must be alive for every invocation. Configure DATABASE_URL.\nIDs are decimal integers from 0 to 2147483647 (stored IDs start at 1). Empty descriptions are allowed: add "".'
+['--help']: exit 0; 'TODO commands:\n  add <description>  Add one task; quote descriptions: add "Buy milk"\n  delete <id>        Delete a task\n  complete <id>      Mark a task complete\n  list               List tasks: [ ] incomplete, [x] complete\n  help               Show this help (also -h, --help, or no arguments)\n\nStorage: PostgreSQL must be alive for every invocation. Configure DATABASE_URL.\nIDs are decimal integers from 0 to 2147483647 (stored IDs start at 1). Empty descriptions are allowed: add "".'
+['unknown']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['--unknown']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['add']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['add', 'a', 'b']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['list', 'extra']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['help', 'extra']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['-h', 'extra']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['--help', 'extra']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['complete']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['complete', '1', '2']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['complete', '']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['complete', '-1']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['complete', '+1']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['complete', '1a']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['complete', '1.0']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['complete', ' 1']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['complete', '١']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['complete', '2147483648']: exit 2; "ID is too large for PostgreSQL integer. Run 'todolist_rust help' for usage."
+['delete']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['delete', '1', '2']: exit 2; "unknown command or incorrect number of arguments. Run 'todolist_rust help' for usage."
+['delete', '']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['delete', '-1']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['delete', '+1']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['delete', '1a']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['delete', '1.0']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['delete', ' 1']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['delete', '١']: exit 2; "ID must be an unsigned decimal integer. Run 'todolist_rust help' for usage."
+['delete', '2147483648']: exit 2; "ID is too large for PostgreSQL integer. Run 'todolist_rust help' for usage."
+[b'\xff']: exit 2; "arguments must be UTF-8. Run 'todolist_rust help' for usage."
+['add', b'\xff']: exit 2; "arguments must be UTF-8. Run 'todolist_rust help' for usage."
+['complete', '0']: exit 1; 'task 0 does not exist'
+['complete', '999']: exit 1; 'task 999 does not exist'
+['complete', '2147483647']: exit 1; 'task 2147483647 does not exist'
+['complete', '1']: exit 1; 'task 1 does not exist'
+['complete', '2']: exit 1; 'task 2 does not exist'
+['delete', '0']: exit 1; 'task 0 does not exist'
+['delete', '999']: exit 1; 'task 999 does not exist'
+['delete', '2147483647']: exit 1; 'task 2147483647 does not exist'
+['delete', '1']: exit 1; 'task 1 does not exist'
+['delete', '2']: exit 1; 'task 2 does not exist'
+['complete', '0003']: exit 0; 'Completed task 3'
+Pre-outage snapshot: ([{'id': 1, 'description': 'Buy milk', 'added': '2026-11-07T16:43:08.737098+00:00', 'update': '2026-11-07T16:43:09.307044+00:00', 'status': 'Deleted'}, {'id': 2, 'description': '-urgent', 'added': '2026-11-07T16:43:08.774968+00:00', 'update': '2026-11-07T16:43:09.16228+00:00', 'status': 'Deleted'}, {'id': 3, 'description': 'C', 'added': '2026-11-07T16:43:09.431495+00:00', 'update': '2026-11-07T16:43:11.369628+00:00', 'status': 'Completed'}, {'id': 4, 'description': '', 'added': '2026-11-07T16:43:09.468206+00:00', 'update': '2026-11-07T16:43:09.468206+00:00', 'status': 'New'}, {'id': 5, 'description': '  spaced  ', 'added': '2026-11-07T16:43:09.502995+00:00', 'update': '2026-11-07T16:43:09.502995+00:00', 'status': 'New'}, {'id': 6, 'description': 'Quoted "café"', 'added': '2026-11-07T16:43:09.540526+00:00', 'update': '2026-11-07T16:43:09.540526+00:00', 'status': 'New'}], '6|t')
+ Container todo-test-e93d09091562-db-1 Stopping 
+ Container todo-test-e93d09091562-db-1 Stopped 
+['add', 'must not save']: exit 1; 'database: error connecting to server'
+['list']: exit 1; 'database: error connecting to server'
+['complete', '3']: exit 1; 'database: error connecting to server'
+['delete', '3']: exit 1; 'database: error connecting to server'
+[]: exit 1; 'database: error connecting to server'
+['help']: exit 1; 'database: error connecting to server'
+['-h']: exit 1; 'database: error connecting to server'
+['--help']: exit 1; 'database: error connecting to server'
+['unknown']: exit 1; 'database: error connecting to server'
+['--unknown']: exit 1; 'database: error connecting to server'
+['add']: exit 1; 'database: error connecting to server'
+['add', 'a', 'b']: exit 1; 'database: error connecting to server'
+['list', 'extra']: exit 1; 'database: error connecting to server'
+['help', 'extra']: exit 1; 'database: error connecting to server'
+['-h', 'extra']: exit 1; 'database: error connecting to server'
+['--help', 'extra']: exit 1; 'database: error connecting to server'
+['complete']: exit 1; 'database: error connecting to server'
+['complete', '1', '2']: exit 1; 'database: error connecting to server'
+['complete', '']: exit 1; 'database: error connecting to server'
+['complete', '-1']: exit 1; 'database: error connecting to server'
+['complete', '+1']: exit 1; 'database: error connecting to server'
+['complete', '1a']: exit 1; 'database: error connecting to server'
+['complete', '1.0']: exit 1; 'database: error connecting to server'
+['complete', ' 1']: exit 1; 'database: error connecting to server'
+['complete', '١']: exit 1; 'database: error connecting to server'
+['complete', '2147483648']: exit 1; 'database: error connecting to server'
+['delete']: exit 1; 'database: error connecting to server'
+['delete', '1', '2']: exit 1; 'database: error connecting to server'
+['delete', '']: exit 1; 'database: error connecting to server'
+['delete', '-1']: exit 1; 'database: error connecting to server'
+['delete', '+1']: exit 1; 'database: error connecting to server'
+['delete', '1a']: exit 1; 'database: error connecting to server'
+['delete', '1.0']: exit 1; 'database: error connecting to server'
+['delete', ' 1']: exit 1; 'database: error connecting to server'
+['delete', '١']: exit 1; 'database: error connecting to server'
+['delete', '2147483648']: exit 1; 'database: error connecting to server'
+[b'\xff']: exit 1; 'database: error connecting to server'
+['add', b'\xff']: exit 1; 'database: error connecting to server'
+['help']: exit 1; 'database: error connecting to server'
+ Container todo-test-e93d09091562-db-1 Starting 
+ Container todo-test-e93d09091562-db-1 Started 
+ Container todo-test-e93d09091562-db-1 Waiting 
+ Container todo-test-e93d09091562-db-1 Healthy 
+['list']: exit 0; '3 [x] C\n4 [ ] \n5 [ ]   spaced  \n6 [ ] Quoted "café"'
+['complete', '4']: exit 0; 'Completed task 4'
+['add', 'After restart']: exit 0; 'Added task 7'
+Restart retained rows/timestamps/sequence; next ID=7
+['help']: exit 1; 'database: incompatible tasks schema'
+['help']: exit 1; 'database: incompatible tasks schema'
+['add', 'must not write']: exit 1; 'database: incompatible tasks schema'
+PASS: real API, example, CLI lifecycle/schema/timestamps/errors/outage/restart; incompatible data preserved
+ Container todo-test-e93d09091562-db-1 Stopping 
+ Container todo-test-e93d09091562-db-1 Stopped 
+ Container todo-test-e93d09091562-db-1 Removing 
+ Container todo-test-e93d09091562-db-1 Removed 
+ Volume todo-test-e93d09091562_todo_data Removing 
+ Network todo-test-e93d09091562_default Removing 
+ Volume todo-test-e93d09091562_todo_data Removed 
+ Network todo-test-e93d09091562_default Removed 
+Cleaned only owned project todo-test-e93d09091562

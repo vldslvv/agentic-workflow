@@ -16,6 +16,9 @@ Desktop.ini
 /temp/
 .cache/
 
+# Local end-to-end eval logs and results
+/.evals/
+
 # Python environments and caches
 .venv/
 __pycache__/

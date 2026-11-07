@@ -1,0 +1,255 @@
+"""Public runner contract tests; fixtures isolate the costly model/uv boundary."""
+
+import json
+import os
+from pathlib import Path
+import shutil
+import signal
+import subprocess
+import sys
+import tempfile
+import time
+import unittest
+
+
+EVALS = Path(__file__).resolve().parents[1]
+
+
+class TodolistEvalTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.base = Path(self.temp.name)
+        self.root = self.base / "repo"
+        self.root.mkdir()
+        self.bin = self.base / "bin"
+        self.bin.mkdir()
+        for name in ("codex", "uv"):
+            path = self.bin / name
+            path.write_text(f"#!{sys.executable}\n" + (EVALS / "tests/fixtures/tool.py").read_text())
+            path.chmod(0o755)
+        shutil.copyfile(EVALS / "tests/fixtures/todo.py", self.bin / "todo.py")
+        self.env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}")
+        (self.root / "evals").mkdir()
+        shutil.copyfile(EVALS / "todolist.py", self.root / "evals/todolist.py")
+        (self.root / "spec-source-suite").mkdir()
+        (self.root / "spec-source-suite/MODELS.md").write_text(
+            "## Profiles\n| Profile | Model | Reasoning |\n|---|---|---|\n"
+            "| coordinator | fixture-model | high |\n"
+            "## Role routes\n| Role | Default | Demanding work |\n|---|---|---|\n"
+            "| Supervisor | coordinator | coordinator |\n"
+        )
+        (self.root / ".gitignore").write_text("/.evals/\n/ignored\n")
+        (self.root / "source.txt").write_text("original\n")
+        self.git("init", "-q")
+        self.git("add", ".")
+        self.git("-c", "user.name=Eval Test", "-c", "user.email=eval@example.invalid", "commit", "-qm", "fixture")
+        self.results = self.root / ".evals/todolist"
+
+    def git(self, *args):
+        return subprocess.run(["git", "-C", str(self.root), *args], check=True,
+                              capture_output=True, text=True).stdout
+
+    def invoke(self, action="run", *args, mode="pass"):
+        return subprocess.run([sys.executable, "evals/todolist.py", action, *args],
+                              cwd=self.root, env=dict(self.env, EVAL_FIXTURE=mode),
+                              capture_output=True, text=True, timeout=15)
+
+    def report(self):
+        return json.loads((self.results / "result.json").read_text())
+
+    def test_success_preserves_evidence_and_empty_artifacts_pass(self):
+        (self.root / "ignored").touch()
+        result = self.invoke()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        report = self.report()
+        self.assertEqual([report[k]["status"] for k in ("agent", "cli", "artifacts")], ["PASS"] * 3)
+        self.assertEqual(len(report["cli"]["commands"]), 11)
+        self.assertEqual(json.loads((self.results / "cli.json").read_text())["status"], "PASS")
+        self.assertEqual((self.results / "generation-tasks.json").read_text(), "generation data to preserve\n")
+        self.assertEqual((self.results / "final-response.txt").read_text(), "fixture final response\n")
+        self.assertIn("agent event", (self.results / "events.jsonl").read_text())
+        self.assertIn("fixture stderr", (self.results / "agent.stderr").read_text())
+        self.assertTrue((self.root / "apps/todolist/tasks.json").is_file())
+        launch = json.loads((self.results / "run.json").read_text())
+        received = json.loads((self.results / "received.json").read_text())
+        self.assertEqual(launch["source_commit"], self.git("rev-parse", "HEAD").strip())
+        self.assertEqual(received[-1], "Implement specs/todolist")
+        for flag, value in (("--model", "fixture-model"), ("--sandbox", "workspace-write"),
+                            ("--enable", "multi_agent")):
+            self.assertEqual(received[received.index(flag) + 1], value)
+        for setting in ('approval_policy="never"', 'model_reasoning_effort="high"',
+                        "sandbox_workspace_write.network_access=true"):
+            self.assertIn(setting, received)
+        self.assertNotIn("--ephemeral", received)
+
+    def test_dirty_checkout_rejected_before_creating_results(self):
+        for kind in ("unstaged", "staged", "untracked"):
+            with self.subTest(kind=kind):
+                path = self.root / ("new.txt" if kind == "untracked" else "source.txt")
+                path.write_text("changed\n")
+                if kind == "staged":
+                    self.git("add", "source.txt")
+                result = self.invoke()
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("Clean checkout required", result.stderr)
+                self.assertFalse(self.results.exists())
+                self.assertEqual(path.read_text(), "changed\n")
+                # Reset only this disposable fixture to prepare the next case.
+                if kind == "untracked":
+                    path.unlink()
+                else:
+                    path.write_text("original\n")
+                    self.git("add", "source.txt")
+
+    def test_existing_ignored_output_paths_rejected(self):
+        with (self.root / ".git/info/exclude").open("a") as f:
+            f.write("\n/apps/todolist/\n/.suite/\n")
+        for name in ("apps/todolist", ".suite", ".evals/todolist"):
+            with self.subTest(path=name):
+                path = self.root / name
+                path.mkdir(parents=True)
+                result = self.invoke()
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("Required absent path", result.stderr)
+                self.assertFalse((self.results / "run.json").exists())
+                path.rmdir()
+
+    def test_unauthenticated_launch_rejected_before_creating_results(self):
+        result = self.invoke(mode="unauthenticated")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("not authenticated", result.stderr)
+        self.assertFalse(self.results.exists())
+
+    def test_launch_error_is_distinct_from_failed_assertion(self):
+        # Exclude the host's real Codex so the disappeared fixture cannot fall back.
+        self.env["PATH"] = str(self.bin)
+        (self.bin / "git").symlink_to(shutil.which("git"))
+        result = self.invoke(mode="launch_error")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(self.report()["overall"], "RUNNER_ERROR")
+        self.assertEqual(self.report()["agent"]["status"], "RUNNER_ERROR")
+        self.assertTrue((self.results / "run.json").is_file())
+
+    def test_cli_negative_controls(self):
+        for mode in ("wrong_output", "no_newline", "crlf", "cli_nonzero", "wrong_storage"):
+            with self.subTest(mode=mode):
+                result = self.invoke(mode=mode)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                report = self.report()
+                self.assertEqual(report["cli"]["status"], "FAIL")
+                self.assertEqual(report["agent"]["status"], "PASS")
+                self.assertEqual(report["artifacts"]["status"], "PASS")
+                self.assertTrue((self.results / "cli-01.stdout").is_file())
+                self.assertEqual(self.invoke("clean").returncode, 0)
+
+    def test_artifact_negative_controls(self):
+        for mode in ("missing_artifacts", "artifact_directory", "multiple_implementations"):
+            with self.subTest(mode=mode):
+                result = self.invoke(mode=mode)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                report = self.report()
+                self.assertEqual(report["artifacts"]["status"], "FAIL")
+                self.assertEqual(report["cli"]["status"], "PASS")
+                if mode == "missing_artifacts":
+                    self.assertEqual(len(report["artifacts"]["missing"]), 4)
+                    self.assertFalse((self.root / ".suite/001_todolist/reports/usage.json").exists())
+                self.assertEqual(self.invoke("clean").returncode, 0)
+
+    def test_nonzero_agent_exit_fails_independently(self):
+        result = self.invoke(mode="agent_nonzero")
+        self.assertEqual(result.returncode, 1)
+        report = self.report()
+        self.assertEqual(report["agent"]["returncode"], 9)
+        self.assertEqual(report["cli"]["status"], "PASS")
+        self.assertEqual(report["artifacts"]["status"], "PASS")
+
+    def test_timeouts_kill_descendants_and_preserve_results(self):
+        for mode, flag, grade in (("agent_timeout", "--agent-timeout", "agent"),
+                                  ("cli_timeout", "--command-timeout", "cli")):
+            with self.subTest(mode=mode):
+                result = self.invoke("run", flag, "0.5", mode=mode)
+                self.assertEqual(result.returncode, 124, result.stdout + result.stderr)
+                self.assertEqual(self.report()[grade]["status"], "TIMEOUT")
+                self.assertTrue((self.results / "ready").exists())
+                time.sleep(1.6)
+                self.assertFalse((self.results / "leaked-child").exists())
+                self.assertEqual(self.invoke("clean").returncode, 0)
+
+    def test_interrupts_kill_group_and_save_partial_evidence(self):
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            with self.subTest(signal=sig):
+                process = subprocess.Popen([sys.executable, "evals/todolist.py", "run"],
+                                           cwd=self.root, env=dict(self.env, EVAL_FIXTURE="interrupt"),
+                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                try:
+                    deadline = time.monotonic() + 5
+                    while not (self.results / "ready").exists() and time.monotonic() < deadline:
+                        time.sleep(0.01)
+                    self.assertTrue((self.results / "ready").exists())
+                    process.send_signal(sig)
+                    out, err = process.communicate(timeout=5)
+                    self.assertEqual(process.returncode, 128 + sig, out + err)
+                    self.assertEqual(self.report()["agent"]["status"], "INTERRUPTED")
+                    self.assertEqual(self.report()["cli"]["status"], "NOT_RUN")
+                    time.sleep(1.6)
+                    self.assertFalse((self.results / "leaked-child").exists())
+                finally:
+                    if process.poll() is None:
+                        process.kill()
+                        process.communicate()
+                self.assertEqual(self.invoke("clean").returncode, 0)
+
+    def test_cleanup_requires_run_and_leaves_unexpected_changes(self):
+        self.assertEqual(self.invoke("clean").returncode, 2)
+        run = self.invoke(mode="unexpected_changes")
+        self.assertEqual(run.returncode, 0)
+        self.assertIn("Unexpected changes retained", run.stdout)
+        self.assertIn("source.txt", self.report()["unexpected_changes"])
+        self.assertNotIn("apps/todolist", self.report()["unexpected_changes"])
+        result = self.invoke("clean")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Unexpected changes retained", result.stdout)
+        self.assertEqual((self.root / "source.txt").read_text(), "unexpected tracked modification\n")
+        self.assertTrue((self.root / "unrelated").exists())
+        for path in ("apps/todolist", ".suite", ".evals/todolist"):
+            self.assertFalse((self.root / path).exists())
+
+    def test_cleanup_refuses_any_tracked_output_before_deleting(self):
+        self.assertEqual(self.invoke().returncode, 0)
+        for name in ("apps/todolist/todo.py", ".suite/001_todolist/reports/usage.json", ".evals/todolist/run.json"):
+            with self.subTest(path=name):
+                self.git("add", "-f", name)
+                result = self.invoke("clean")
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("tracked files", result.stderr)
+                self.assertTrue((self.results / "run.json").is_file())
+                self.assertTrue((self.root / "apps/todolist").is_dir())
+                self.git("rm", "--cached", "--", name)
+
+    def test_cleanup_protects_head_files_even_when_staged_for_deletion(self):
+        self.assertEqual(self.invoke().returncode, 0)
+        name = "apps/todolist/todo.py"
+        self.git("add", name)
+        self.git("-c", "user.name=Eval Test", "-c", "user.email=eval@example.invalid",
+                 "commit", "-qm", "track app")
+        self.git("rm", "--cached", "--", name)
+        result = self.invoke("clean")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("tracked files", result.stderr)
+        self.assertTrue((self.root / name).is_file())
+        self.assertTrue(self.results.exists())
+
+    def test_cleanup_does_not_follow_symlinked_parent(self):
+        self.assertEqual(self.invoke().returncode, 0)
+        (self.root / "apps").rename(self.base / "external-apps")
+        (self.root / "apps").symlink_to(self.base / "external-apps", target_is_directory=True)
+        result = self.invoke("clean")
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("symlink", result.stderr)
+        self.assertTrue((self.base / "external-apps/todolist/todo.py").is_file())
+        self.assertTrue(self.results.exists())
+
+
+if __name__ == "__main__":
+    unittest.main()
