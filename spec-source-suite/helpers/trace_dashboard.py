@@ -43,10 +43,18 @@ def render(report, perfetto_url):
              '<title>Agent trace insights</title><style>', CSS, '</style><body><main>',
              '<header><div><p class="eyebrow">LOCAL EXECUTION EVIDENCE</p><h1>Agent trace insights</h1>',
              f'<p>{text(report["implementation_id"])}</p></div><nav>',
-             f'<a class="button" id="perfetto" href="{text(perfetto_url)}" target="_blank" rel="noreferrer">Open timeline in Perfetto ↗</a>',
+             (f'<a class="button" id="perfetto" href="{text(perfetto_url)}" target="_blank" rel="noreferrer">Open timeline in Perfetto ↗</a>'
+              if perfetto_url else '<span id="timeline-empty">No timeline events to display</span>'),
              '<a href="usage.json">Download report JSON</a></nav></header>',
-             '<p class="notice">Scope: selected sessions and turns only. Rerun <code>make trace</code> to import new evidence. '
-             'Known subtotals exclude missing measurements; unavailable is never zero.</p><div class="cards">']
+             '<p class="notice">Scope: saved native turns and proven dispatch descendants. Reinvoke make trace to collect and refresh. '
+             'Known subtotals exclude missing measurements; unavailable is never zero.</p>']
+    if not summary['observed_model_measurements'] and not summary['observed_tool_calls']:
+        parts += ['<section role="status"><h2>No imported execution observations</h2>'
+                  '<p>This report contains no model usage or tool observations. Missing observations do not mean '
+                  'the work did not run. The viewer cannot reconstruct missing native evidence.</p>'
+                  '<p>Check the implementation’s saved native files and coverage diagnostics. '
+                  'Allocation and task resolution capture the active native turn; make trace refreshes it.</p></section>']
+    parts.append('<div class="cards">')
     for label, key in [('Total tokens', 'total_tokens'), ('Input tokens', 'input_tokens'),
                        ('Cached input', 'cached_input_tokens'), ('Output tokens', 'output_tokens'),
                        ('Reasoning output', 'reasoning_output_tokens')]:
@@ -97,16 +105,17 @@ def render(report, perfetto_url):
     parts += ['<p class="hint">Tool durations sum observed endpoints and may overlap; they are not wall-clock time. '
               '“Returned” means a result was received, not confirmed success. Wrapper calls may contain operations not exposed '
               'by the native source; missing parent-call relationships cannot prove that no nested work occurred.</p></section>',
-              '<section><h2>Agents and assignments</h2><p class="hint">Names come from native metadata or workflow bindings. '
+              '<section><h2>Agents and assignments</h2><p class="hint">Names come from native metadata or structured SUITE assignments. '
+              'Assignment source distinguishes native tags from explicit recovery annotations. '
               'When a purpose was not recorded, the role and task are shown explicitly as assignment context. '
               'A reused agent can have multiple assignments. Model / effort lists observed native settings; '
               'multiple pairs indicate settings changes, and unavailable values are not inferred from requests.</p>']
     assignments = report['assignments']
-    parts.append(table(['Agent', 'Observed model / effort', 'Purpose / assignment', 'Task', 'Role', 'Run', 'Observed status', 'Native path'],
+    parts.append(table(['Agent', 'Observed model / effort', 'Purpose / assignment', 'Task', 'Role', 'Run', 'Observed status', 'Native path', 'Assignment source'],
                        [[a['agent_name'], format_settings(a.get('observed_settings', [])),
                          a['purpose'] or f'Assignment: {a["role"] or "unavailable role"} / {a["task_id"] or "unavailable task"}',
                          a['task_id'], a['role'], a['agent_run_id'], ', '.join(a['outcomes']) or 'Unavailable',
-                         a['native_agent_path']] for a in assignments], id='assignments'))
+                         a['native_agent_path'], a.get('assignment_source')] for a in assignments], id='assignments'))
     names = {a['agent_id']: f'{a["agent_name"] or a["agent_id"]} [{a["agent_run_id"] or "unassigned"}]' for a in assignments}
     parts += ['<details><summary>Native lineage and identities</summary>',
               table(['Parent', 'Relationship', 'Child'],

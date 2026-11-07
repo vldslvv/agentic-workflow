@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Refresh one implementation and open its agent insights dashboard.
+"""Collect native evidence, analyze it and open one implementation's agent insights.
 
 The foreground viewer serves normalized reports on loopback port 9001
 (the port allowed by Perfetto's CSP). Repeated invocations reuse a compatible
-viewer for the same implementation. No source discovery or background daemon.
+viewer for the same implementation. Each invocation refreshes reports first.
 """
 import argparse
+from contextlib import ExitStack
 import errno
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -14,18 +15,19 @@ from pathlib import Path
 import re
 import secrets
 import signal
+import stat
 import threading
 import time
 from urllib.parse import quote
 from urllib.request import ProxyHandler, build_opener
 import webbrowser
 
-from usage_report import refresh
 from trace_dashboard import render
+from usage_report import refresh
 
 HOST, PORT = '127.0.0.1', 9001
 ORIGIN = 'https://ui.perfetto.dev'
-SERVICE = 'suite-insights-v2'
+SERVICE = 'suite-insights-v3'
 # /status belongs to Perfetto's native RPC probe; it must remain a 404 here.
 STATUS_PATH = '/__suite_trace_viewer__'
 
@@ -37,6 +39,25 @@ def viewer_url(token):
 def perfetto_url(token):
     source = f'http://{HOST}:{PORT}/{token}/timeline.json'
     return f'{ORIGIN}/#!/?url={quote(source, safe="")}&referrer=spec-source-suite'
+
+
+def read_report(root, filename):
+    """Read only regular, unaliased reports, including after viewer startup.
+
+    Directory descriptors and O_NOFOLLOW keep the opened boundary stable if a
+    report directory is replaced between validation and reading.
+    """
+    with ExitStack() as resources:
+        parent = None
+        for path in (root, 'reports'):
+            parent = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+            resources.callback(os.close, parent)
+        descriptor = os.open(filename, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+        stream = resources.enter_context(os.fdopen(descriptor, 'rb'))
+        metadata = os.fstat(stream.fileno())
+        if not stat.S_ISREG(metadata.st_mode) or metadata.st_nlink != 1:
+            raise ValueError('report aliases another file or is not regular')
+        return stream.read()
 
 
 class Viewer(ThreadingHTTPServer):
@@ -82,18 +103,21 @@ class Handler(BaseHTTPRequestHandler):
                            f'/{self.server.token}/timeline.json'):
             dashboard = self.path.endswith('/')
             filename = 'usage.json' if dashboard else self.path.rsplit('/', 1)[1]
-            path = self.server.root / 'reports' / filename
-            if path.is_symlink() or not path.resolve().is_relative_to(self.server.root):
-                self.reply(403)
-                return
             try:
-                data = path.read_bytes()
+                data = read_report(self.server.root, filename)
                 if dashboard:
-                    self.reply(200, render(json.loads(data), perfetto_url(self.server.token)).encode(), 'text/html; charset=utf-8')
+                    try:
+                        timeline = read_report(self.server.root, 'timeline.json')
+                    except FileNotFoundError:
+                        timeline = b'{"traceEvents":[]}'
+                    available = any(e.get('ph') != 'M' for e in json.loads(timeline).get('traceEvents', []))
+                    self.reply(200, render(json.loads(data), perfetto_url(self.server.token) if available else None).encode(), 'text/html; charset=utf-8')
                 else:
                     self.reply(200, data)
             except FileNotFoundError:
                 self.reply(404)
+            except (OSError, ValueError):
+                self.reply(403)
         else:
             self.reply(404)
 
@@ -129,6 +153,8 @@ def run(root):
     root = Path(root).resolve()
     report = refresh(root)
     print(f'Refreshed {report["implementation_id"]}: {root / "reports"}', flush=True)
+    if not report['summary']['observed_model_measurements'] and not report['summary']['observed_tool_calls']:
+        print('No imported execution observations in this report; the viewer cannot reconstruct missing native evidence.', flush=True)
     if report['summary']['coverage']:
         print('Coverage: ' + json.dumps(report['summary']['coverage'], sort_keys=True), flush=True)
     try:

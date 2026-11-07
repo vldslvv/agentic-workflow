@@ -20,7 +20,7 @@ Use the paths below directly and batch independent reads. Search for paths only 
 | Assigned suite final validation | [spec-source-suite/VALIDATOR.md](spec-source-suite/VALIDATOR.md) |
 | Authoring project inputs | [project](spec-source-suite/templates/project.md), [task order](spec-source-suite/templates/task_order.md), [task](spec-source-suite/templates/tasks/task.md), [verification](spec-source-suite/templates/verification.md) |
 | Checking suite changes | [spec-source-suite/helpers/check_package.py](spec-source-suite/helpers/check_package.py) |
-| Allocating implementations or binding native sessions | [records helper](spec-source-suite/helpers/records.py) |
+| Allocating implementations or resuming tasks | [records helper](spec-source-suite/helpers/records.py) |
 | Aggregating execution usage | [spec-source-suite/helpers/usage_report.py](spec-source-suite/helpers/usage_report.py) |
 | Requested automated-runner work only | [spec-source-suite/RUNNER.md](spec-source-suite/RUNNER.md) |
 

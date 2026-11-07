@@ -1,8 +1,7 @@
-"""Public contracts for implementation records, native import and reporting.
+"""Public contracts for native evidence, accounting and reports.
 
-Synthetic, version-pinned fixtures protect parsing; they do not establish live
-harness support. Legacy v1 API tests are replaced by v2 CLI/public-contract
-coverage for the same deduplication, scope, partial-usage and read-only behaviors.
+Synthetic fixtures protect pinned parsing and expected totals. Collection tests
+exercise real disposable native indexes; no live OpenCode capture is claimed.
 """
 from concurrent.futures import ThreadPoolExecutor
 import copy
@@ -15,6 +14,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 HELPERS = Path(__file__).resolve().parents[1] / 'helpers'
 FIXTURES = Path(__file__).parent / 'fixtures'
@@ -28,6 +28,13 @@ class TraceTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
+        self.addCleanup(patch.stopall)
+        patch.dict(os.environ, CODEX_HOME=self.temp.name, CODEX_THREAD_ID='').start()
+        import sqlite3
+        c = sqlite3.connect(str(Path(self.temp.name) / 'state_5.sqlite'))
+        c.execute('CREATE TABLE threads (id TEXT, rollout_path TEXT, source TEXT)')
+        c.commit()
+        c.close()
         self.suite = Path(self.temp.name) / '.suite'
         self.root = records.allocate(self.suite, 'test')
 
@@ -51,20 +58,48 @@ class TraceTests(unittest.TestCase):
                     part['sessionID'] = sid
             data = json.dumps(data)
             version, suffix = 'opencode-export-1.2.27', '.json'
-        path = self.root / (source_id + suffix)
+        path = self.root / 'native' / (source_id + suffix)
+        path.parent.mkdir(exist_ok=True)
+        if adapter == 'codex':
+            selected, active = [rows[0]], None
+            for row in rows[1:]:
+                p = row['payload']
+                active = p.get('turn_id') or active
+                if active in turns:
+                    selected.append(row)
+                    if bind and row['type'] == 'turn_context':
+                        selected.append(dict(timestamp=row['timestamp'], type='response_item', payload=dict(
+                            type='message', role='user', content=[dict(type='input_text', text='SUITE ' + json.dumps(
+                                dict(implementation=self.root.name, task=task, role=role)))])))
+            data = ''.join(json.dumps(r) + '\n' for r in selected)
+        elif bind:
+            value = json.loads(data)
+            value['messages'] = [m for m in value['messages'] if m['info']['id'] in turns or m['info'].get('parentID') in turns]
+            for m in value['messages']:
+                if m['info']['role'] == 'user':
+                    m['parts'].append(dict(type='text', text='SUITE ' + json.dumps(
+                        dict(implementation=self.root.name, task=task, role=role))))
+            data = json.dumps(value)
+        else:
+            value = json.loads(data)
+            value['messages'] = [m for m in value['messages'] if m['info']['id'] in turns or m['info'].get('parentID') in turns]
+            data = json.dumps(value)
         path.write_text(data)
-        source = dict(id=source_id, adapter=adapter, source_version=version, path=path.name, session_id=sid, turn_ids=turns)
-        records.add_source(self.root, source)
-        if bind:
-            records.bind(self.root, dict(id='binding-' + source_id, source_id=source_id, turn_ids=turns,
-                                         task_id=task, role=role, agent_run_id=sid + '-run'))
-        return path, source
-
-    def manifest(self):
-        return json.loads((self.root / 'implementation.json').read_text())
+        return path, dict(id=source_id, session_id=sid, turn_ids=turns)
 
     def evidence(self):
-        return usage.import_evidence(self.manifest(), self.root)
+        return usage.import_evidence(self.root)
+
+    def tag(self, path, assignments):
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        output = []
+        for row in rows:
+            output.append(row)
+            if row['type'] == 'turn_context' and row['payload']['turn_id'] in assignments:
+                value = dict(implementation=self.root.name, **assignments[row['payload']['turn_id']])
+                output.append(dict(timestamp=row['timestamp'], type='response_item', payload=dict(
+                    type='message', role='user', content=[dict(type='input_text', text='SUITE ' + json.dumps(value))])))
+        path.write_text(''.join(json.dumps(r) + '\n' for r in output))
 
     def cli(self, script, *args):
         return subprocess.run([sys.executable, str(HELPERS / script), *map(str, args)], text=True, capture_output=True)
@@ -87,28 +122,6 @@ class TraceTests(unittest.TestCase):
         self.assertNotEqual(self.cli('records.py', 'resolve', roots[0], 'work').returncode, 0)
         self.assertNotEqual(self.cli('records.py', 'resolve', self.root, '../work').returncode, 0)
 
-    def test_binding_history_session_reuse_and_replacement_identity(self):
-        _, source = self.source(bind=False)
-        first = dict(id='a', source_id=source['id'], turn_ids=['turn-1'], task_id='first', role='implementer', agent_run_id='stable')
-        second = dict(first, id='b', turn_ids=['turn-2'], task_id='repair', role='reviewer')
-        records.bind(self.root, first)
-        records.bind(self.root, second)
-        before = (self.root / 'implementation.json').read_bytes()
-        records.bind(self.root, first)
-        self.assertEqual((self.root / 'implementation.json').read_bytes(), before)
-        with self.assertRaisesRegex(ValueError, 'already bound'):
-            records.bind(self.root, dict(first, id='c'))
-        _, replacement = self.source(sid='replacement', bind=False)
-        with self.assertRaisesRegex(ValueError, 'distinct'):
-            records.bind(self.root, dict(first, id='new', source_id=replacement['id']))
-        records.bind(self.root, dict(first, id='new', source_id=replacement['id'], agent_run_id='replacement'))
-        report = usage.refresh(self.root)
-        tasks = {r['key']['task_id']: r['summary'] for r in report['groups']['task']}
-        self.assertEqual(tasks['repair']['tokens']['total_tokens']['total'], 70)
-        self.assertEqual(tasks['first']['tokens']['total_tokens']['total'], 260)
-        self.assertEqual(len(self.manifest()['bindings']), 3)
-        self.assertTrue((self.root / 'runs/repair/stable/trace.jsonl').is_file())
-
     def test_both_adapters_normalize_tokens_without_aggregate_double_counting(self):
         expected = dict(input_tokens=150, cached_input_tokens=70, cache_write_input_tokens=10,
                         uncached_input_tokens=80, output_tokens=50, reasoning_output_tokens=15, total_tokens=200)
@@ -123,13 +136,12 @@ class TraceTests(unittest.TestCase):
 
     def test_requested_and_observed_settings_do_not_infer_effort_from_variant(self):
         _, source = self.source('opencode', bind=False)
-        records.bind(self.root, dict(id='binding', source_id=source['id'], turn_ids=source['turn_ids'], task_id='work', role='implementer', agent_run_id='run', requested={'model':'requested-model', 'reasoning_effort':'high'}))
         events, gaps = self.evidence()
         models = [e for e in events if e['kind'] == 'model']
         self.assertEqual({e['model'] for e in models}, {'model-a', 'model-b'})
         self.assertEqual({e['variant'] for e in models}, {'high', 'low'})
         self.assertTrue(all(e['reasoning_effort'] is None for e in models))
-        self.assertTrue(all(e['requested']['model'] == 'requested-model' for e in models))
+        self.assertTrue(all(not e['requested'] for e in models))
         report = usage.refresh(self.root)
         self.assertEqual(report['summary']['tokens']['total_tokens']['total'], 200)
         self.assertEqual(report['groups']['model_effort'], [])
@@ -157,10 +169,8 @@ class TraceTests(unittest.TestCase):
         rows = [json.loads(r) for r in path.read_text().splitlines()]
         rows[0]['payload'].update(agent_nickname='Ada', agent_path='/root/builder')
         path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
-        for turn, task, role, purpose in [('turn-1', 'build', 'implementer', 'Implement editor'),
-                                          ('turn-2', 'repair', 'reviewer', 'Check correction')]:
-            records.bind(self.root, dict(id=task, source_id=source['id'], turn_ids=[turn],
-                                         task_id=task, role=role, agent_run_id='stable', purpose=purpose))
+        self.tag(path, {'turn-1': dict(task='build', role='implementer', purpose='Implement editor'),
+                        'turn-2': dict(task='repair', role='reviewer', purpose='Check correction')})
         report = usage.refresh(self.root)
         assignments = report['assignments']
         self.assertEqual({a['agent_name'] for a in assignments}, {'Ada'})
@@ -236,19 +246,9 @@ class TraceTests(unittest.TestCase):
         self.assertEqual(report['summary']['tokens']['cached_input_tokens'], dict(total=None, known_subtotal=10, measured_records=1, missing_records=1))
         self.assertEqual(report['groups']['task'], [])
         self.assertGreater(len(report['attribution_omissions']['task']['event_ids']), 0)
-        self.assertTrue(list(self.root.glob('runs/_unassigned/*/trace.jsonl')))
+        self.assertFalse(list(self.root.glob('runs/*/*/trace.jsonl')))
 
-    def test_missing_selected_source_or_turn_never_claims_complete_totals(self):
-        self.source()
-        path, _ = self.source(sid='missing')
-        path.unlink()
-        report = usage.refresh(self.root)
-        self.assertIsNone(report['summary']['tokens']['input_tokens']['total'])
-        self.assertEqual(report['summary']['tokens']['input_tokens']['known_subtotal'], 150)
-        self.assertIn('source_unavailable', report['summary']['coverage'])
-        self.assertEqual((self.root / 'runs/orchestration/missing-run/trace.jsonl').read_text(), '')
-
-    def test_legacy_snapshots_unidentified_usage_and_truncated_capture_are_omissions(self):
+    def test_aggregate_snapshots_and_truncated_capture_are_omissions(self):
         path, _ = self.source(turns=['turn-1'])
         rows = [json.loads(r) for r in path.read_text().splitlines()]
         rows = [r for r in rows if r['type'] != 'token_usage_record']
@@ -277,10 +277,10 @@ class TraceTests(unittest.TestCase):
     def test_opencode_unfinished_zero_initialized_aggregate_is_not_measurement(self):
         path, _ = self.source('opencode', turns=['turn-2'])
         data = json.loads(path.read_text())
-        data['messages'][3]['parts'] = []
-        data['messages'][3]['info']['time'].pop('completed')
-        data['messages'][3]['info'].pop('finish')
-        data['messages'][3]['info']['tokens'] = {'input':0,'output':0,'reasoning':0,'cache':{'read':0,'write':0}}
+        data['messages'][1]['parts'] = []
+        data['messages'][1]['info']['time'].pop('completed')
+        data['messages'][1]['info'].pop('finish')
+        data['messages'][1]['info']['tokens'] = {'input':0,'output':0,'reasoning':0,'cache':{'read':0,'write':0}}
         path.write_text(json.dumps(data))
         report = usage.refresh(self.root)
         self.assertIsNone(report['summary']['tokens']['total_tokens']['known_subtotal'])
@@ -315,35 +315,32 @@ class TraceTests(unittest.TestCase):
         self.assertTrue(all('dur' not in r for r in rows if r['ph'] != 'X'))
         self.assertTrue(trace['metadata']['timing_omissions'])
 
-    def test_native_identity_and_source_version_guards(self):
+    def test_native_source_version_is_derived_and_unverified_versions_are_disclosed(self):
         path, _ = self.source()
-        rows = [json.loads(r) for r in path.read_text().splitlines()]
-        rows[0]['payload']['id'] = 'wrong-session'
-        path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
-        with self.assertRaisesRegex(ValueError, 'identity mismatch'):
-            usage.refresh(self.root)
-        manifest = self.manifest()
-        manifest['sources'][0]['source_version'] = 'unknown'
-        records.save_manifest(self.root, manifest)
-        with self.assertRaisesRegex(ValueError, 'unsupported'):
-            usage.refresh(self.root)
+        path.write_text(path.read_text().replace('0.167.0', 'unknown'))
+        report = usage.refresh(self.root)
+        self.assertIn('unverified_native_version', report['summary']['coverage'])
+        self.assertEqual(report['summary']['tokens']['total_tokens']['known_subtotal'], 200)
 
     def test_output_aliases_and_directory_escapes_cannot_overwrite_native_logs(self):
-        for alias in ('same', 'symlink', 'hardlink', 'directory'):
+        for alias in ('symlink', 'hardlink', 'directory', 'internal-directory', 'native-directory'):
             with self.subTest(alias=alias):
                 self.root = records.allocate(self.suite, alias)
-                path, _ = self.source()
+                path, _ = self.source('opencode' if alias in ('internal-directory', 'native-directory') else 'codex')
                 output = self.root / 'reports/usage.json'
-                if alias == 'same':
-                    path.replace(output)
-                    manifest = self.manifest()
-                    manifest['sources'][0]['path'] = 'reports/usage.json'
-                    records.save_manifest(self.root, manifest)
-                    path = output
-                elif alias == 'symlink':
+                if alias == 'symlink':
                     output.symlink_to(path)
                 elif alias == 'hardlink':
                     output.hardlink_to(path)
+                elif alias == 'internal-directory':
+                    path = path.rename(self.root / 'native/usage.json')
+                    (self.root / 'reports').rmdir()
+                    (self.root / 'reports').symlink_to(self.root / 'native', target_is_directory=True)
+                elif alias == 'native-directory':
+                    path.rename(output)
+                    (self.root / 'native').rmdir()
+                    (self.root / 'native').symlink_to(self.root / 'reports', target_is_directory=True)
+                    path = self.root / 'native/usage.json'
                 else:
                     (self.root / 'reports').rmdir()
                     (self.root / 'reports').symlink_to(Path(self.temp.name))
@@ -351,17 +348,6 @@ class TraceTests(unittest.TestCase):
                 result = self.cli('usage_report.py', self.root)
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
                 self.assertEqual(path.read_bytes(), before)
-
-    def test_binding_previously_unassigned_turns_rebuilds_old_trace_without_duplicates(self):
-        _, source = self.source(bind=False)
-        usage.refresh(self.root)
-        old = next(self.root.glob('runs/_unassigned/*/trace.jsonl'))
-        self.assertTrue(old.read_text())
-        records.bind(self.root, dict(id='late', source_id=source['id'], turn_ids=source['turn_ids'], task_id='work', role='implementer', agent_run_id='run'))
-        report = usage.refresh(self.root)
-        self.assertEqual(old.read_text(), '')
-        self.assertEqual(report['summary']['tokens']['total_tokens']['total'], 200)
-        self.assertTrue((self.root / 'runs/work/run/trace.jsonl').read_text())
 
     def test_opencode_multiple_steps_count_components_once_and_normalize_failure(self):
         path, _ = self.source('opencode', turns=['turn-1'])
@@ -389,7 +375,7 @@ class TraceTests(unittest.TestCase):
     def test_completed_opencode_failure_has_no_measurement_but_retains_completed_steps(self):
         path, _ = self.source('opencode', turns=['turn-2'])
         data = json.loads(path.read_text())
-        message = data['messages'][3]
+        message = data['messages'][1]
         message['info'].pop('finish')
         message['info']['error'] = {'name':'APIError','data':{'message':'PRIVATE_ERROR'}}
         message['info']['tokens'] = {'input':0,'output':0,'reasoning':0,'cache':{'read':0,'write':0}}
@@ -426,8 +412,8 @@ class TraceTests(unittest.TestCase):
 
     def test_source_wide_gaps_propagate_to_each_affected_assignment_and_model(self):
         path, source = self.source(bind=False)
-        for turn, task in [('turn-1','first'),('turn-2','second')]:
-            records.bind(self.root, dict(id=task,source_id=source['id'],turn_ids=[turn],task_id=task,role='implementer',agent_run_id='run'))
+        self.tag(path, {'turn-1': dict(task='first', role='implementer'),
+                        'turn-2': dict(task='second', role='implementer')})
         with path.open('a') as stream:
             stream.write('{"truncated":')
         report = usage.refresh(self.root)

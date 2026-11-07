@@ -28,6 +28,8 @@ ROOT = Path(__file__).resolve().parents[2]
 HELPERS = ROOT / 'spec-source-suite/helpers'
 sys.path.insert(0, str(HELPERS))
 import records
+from usage_report import refresh
+from unittest.mock import patch
 
 
 class ViewerTests(unittest.TestCase):
@@ -45,6 +47,14 @@ class ViewerTests(unittest.TestCase):
             pass
         else:
             self.fail('Port 9001 is occupied; stop the local viewer before running tests.')
+        self.environment = patch.dict(os.environ, CODEX_HOME=str(self.base), CODEX_THREAD_ID='')
+        self.environment.start()
+        self.addCleanup(self.environment.stop)
+        import sqlite3
+        c = sqlite3.connect(str(self.base / 'state_5.sqlite'))
+        c.execute('CREATE TABLE threads (id TEXT, rollout_path TEXT, source TEXT)')
+        c.commit()
+        c.close()
         self.root = self.implementation('demo')
         self.browser_log = self.base / 'browser.jsonl'
         browser = self.base / 'browser.py'
@@ -56,13 +66,39 @@ class ViewerTests(unittest.TestCase):
 
     def implementation(self, name):
         root = records.allocate(self.base / '.suite', name)
-        (root / 'native.jsonl').write_bytes((ROOT / 'spec-source-suite/tests/fixtures/codex-0.167.0.jsonl').read_bytes())
-        records.add_source(root, dict(id='native', adapter='codex', source_version='codex-rollout-0.167.0',
-                                     path='native.jsonl', session_id='supervisor', turn_ids=['turn-1','turn-2']))
-        records.bind(root, dict(id='work', source_id='native', turn_ids=['turn-1','turn-2'],
-                               task_id='work', role='implementer', agent_run_id='worker',
-                               agent_name='Builder <one>', purpose='Implement <script>alert(1)</script>'))
+        path = root / 'native' / 'capture.jsonl'
+        path.parent.mkdir()
+        rows = [json.loads(line) for line in (ROOT / 'spec-source-suite/tests/fixtures/codex-0.167.0.jsonl').read_text().splitlines()]
+        rows[0]['payload']['agent_nickname'] = 'Builder <one>'
+        selected = []
+        active = None
+        for row in rows:
+            active = row['payload'].get('turn_id') or active
+            if active == 'unselected':
+                continue
+            selected.append(row)
+            if row['type'] == 'turn_context':
+                tag = dict(implementation=root.name, task='work', role='implementer', purpose='Implement <script>alert(1)</script>')
+                selected.append(dict(timestamp=row['timestamp'], type='response_item', payload=dict(
+                    type='message', role='user', content=[dict(type='input_text', text='SUITE ' + json.dumps(tag))])))
+        path.write_text(''.join(json.dumps(r) + '\n' for r in selected))
+        refresh(root)
         return root
+
+    def test_empty_recording_is_explained_after_refresh(self):
+        self.root = records.allocate(self.base / '.suite', 'empty')
+        refresh(self.root)
+        before = {str(p): p.read_bytes()
+                  for p in self.root.rglob('*') if p.is_file()}
+        self.launch()
+        _, urls = self.ready()
+        with self.http.open(urls[0]) as response:
+            dashboard = response.read().decode()
+        self.assertIn('No imported execution observations', dashboard)
+        self.assertIn('No timeline events to display', dashboard)
+        self.assertNotIn('id="perfetto" href=', dashboard)
+        self.assertEqual(before, {str(p): p.read_bytes()
+                                 for p in self.root.rglob('*') if p.is_file()})
 
     def command(self, root=None):
         # Run from another cwd and pass a path with spaces through the real Makefile.
@@ -103,8 +139,8 @@ class ViewerTests(unittest.TestCase):
             time.sleep(.05)
         self.fail('Viewer/browser did not become ready')
 
-    def test_make_refreshes_opens_reuses_and_serves_only_normalized_insights(self):
-        native = self.root / 'native.jsonl'
+    def test_make_refreshes_reuses_and_serves_only_reports(self):
+        native = self.root / 'native/capture.jsonl'
         original = native.read_bytes()
         self.launch()
         status, urls = self.ready()
@@ -135,7 +171,8 @@ class ViewerTests(unittest.TestCase):
         self.assertEqual(reports, {p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (self.root/'reports').iterdir()})
         self.assertEqual(native.read_bytes(), original)
         self.assertEqual(self.ready(2)[1], [urls[0], urls[0]])
-        for path in ('/', '/status', '/implementation.json', '/native.jsonl', '/../native.jsonl'):
+        for path in ('/', '/status', '/implementation.json', '/native.jsonl', '/../native.jsonl', f'/{status["token"]}/../native/capture.jsonl',
+                     f'/{status["token"]}/native/capture.jsonl'):
             with self.subTest(path=path), self.assertRaises(HTTPError) as failure:
                 self.http.open('http://127.0.0.1:9001'+path)
             self.assertEqual(failure.exception.code, 404)
@@ -144,7 +181,7 @@ class ViewerTests(unittest.TestCase):
             self.http.open(Request(trace_url, headers={'Origin':'https://unrelated.invalid'}))
         self.assertEqual(failure.exception.code, 403)
         failure.exception.close()
-        # Refresh must be visible through the already-running server.
+        # Reinvoking make refreshes analysis and the existing server sees it.
         native.write_text(original.decode().replace('model-a', 'updated-model'))
         repeat = subprocess.run(self.command(), cwd=self.base, env=self.env, capture_output=True, text=True, timeout=8)
         self.assertEqual(repeat.returncode, 0, repeat.stderr)
@@ -160,6 +197,47 @@ class ViewerTests(unittest.TestCase):
         self.assertNotEqual(rejected.returncode, 0)
         self.assertIn('occupied', rejected.stderr)
         self.assertEqual(self.status()['pid'], status['pid'])
+
+    def test_running_viewer_rejects_aliased_report_storage(self):
+        self.launch()
+        _, urls = self.ready()
+        reports = self.root / 'reports'
+        parked = self.root / 'parked-reports'
+        private = b'{"private_prompt":"SYNTHETIC_PRIVATE_NATIVE"}'
+        for filename in ('usage.json', 'timeline.json'):
+            (self.root / 'native' / filename).write_bytes(private)
+        # A running server must recheck storage on every request, including
+        # report changes after the valid startup and refresh.
+        reports.rename(parked)
+        reports.symlink_to(self.root / 'native', target_is_directory=True)
+        try:
+            for endpoint in ('usage.json', 'timeline.json', ''):
+                with self.subTest(alias='directory', endpoint=endpoint):
+                    with self.assertRaises(HTTPError) as failure:
+                        self.http.open(urls[0] + endpoint)
+                    self.assertEqual(failure.exception.code, 403)
+                    failure.exception.close()
+        finally:
+            reports.unlink()
+            parked.rename(reports)
+        for filename in ('usage.json', 'timeline.json'):
+            output = reports / filename
+            original = output.read_bytes()
+            output.unlink()
+            output.hardlink_to(self.root / 'native' / filename)
+            try:
+                for endpoint in (filename, ''):
+                    with self.subTest(alias='hardlink', endpoint=endpoint):
+                        with self.assertRaises(HTTPError) as failure:
+                            self.http.open(urls[0] + endpoint)
+                        self.assertEqual(failure.exception.code, 403)
+                        failure.exception.close()
+            finally:
+                output.unlink()
+                output.write_bytes(original)
+        self.assertEqual((self.root / 'native/usage.json').read_bytes(), private)
+        with self.http.open(urls[0] + 'usage.json') as response:
+            self.assertEqual(json.load(response)['summary']['tokens']['total_tokens']['total'], 200)
 
     def test_concurrent_make_invocations_and_shutdown_restart(self):
         with ThreadPoolExecutor(max_workers=2) as pool:

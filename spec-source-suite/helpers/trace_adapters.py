@@ -12,7 +12,6 @@ import math
 
 METRICS = ('input_tokens', 'cached_input_tokens', 'cache_write_input_tokens',
            'uncached_input_tokens', 'output_tokens', 'reasoning_output_tokens', 'total_tokens')
-SUPPORTED = {'codex': {'codex-rollout-0.167.0'}, 'opencode': {'opencode-export-1.2.27'}}
 
 
 def stamp(value, milliseconds=False):
@@ -82,7 +81,7 @@ def codex(source, path):
     active, settings, meta = None, {}, {}
     contexts = {}
     declared, native_version = False, None
-    with path.open() as stream:
+    with path.open('rb') as stream:
         for line, raw in enumerate(stream, 1):
             try:
                 row = json.loads(raw)
@@ -186,7 +185,8 @@ def codex(source, path):
     events.extend(models.values())
     events.extend(calls.values())
     for item in events:
-        for field in ('native_agent_name', 'native_agent_path'):
+        for field in ('native_agent_name', 'native_agent_path', 'parent_session_id',
+                      'forked_from_id', 'continued_from_id', 'spawn_timestamp'):
             item[field] = meta.get(field)
     return events, diagnostics
 
@@ -269,8 +269,8 @@ ADAPTERS = {'codex': codex, 'opencode': opencode}
 
 def read_source(source, path):
     adapter = source['adapter']
-    if source['source_version'] not in SUPPORTED.get(adapter, set()):
-        raise ValueError(f'unsupported adapter/source version: {adapter}/{source["source_version"]}')
+    if adapter not in ADAPTERS:
+        raise ValueError(f'unsupported adapter: {adapter}')
     if not path.is_file():
         events, diagnostics = [], [diagnostic(source, 'source_unavailable')]
     else:

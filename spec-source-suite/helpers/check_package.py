@@ -38,9 +38,9 @@ def anchors(text):
 def check(files):
     expected = {"AGENTS.md", "MODELS.md", "RUNNER.md", "PACKAGE_CHECKS.json", "SHA256SUMS",
                 "helpers/usage_report.py", "helpers/check_package.py",
-                "helpers/records.py", "helpers/trace_adapters.py", "helpers/trace_view.py", "helpers/trace_dashboard.py", "helpers/TRACING.md",
+                "helpers/records.py", "helpers/native_traces.py", "helpers/trace_adapters.py", "helpers/trace_view.py", "helpers/trace_dashboard.py", "helpers/TRACING.md",
                 "tests/fixtures/codex-0.167.0.jsonl", "tests/fixtures/opencode-1.2.27.json",
-                "tests/test_usage_report.py", "tests/test_trace_view.py", "templates/project.md",
+                "tests/test_usage_report.py", "tests/test_native_collection.py", "tests/test_trace_view.py", "templates/project.md",
                 "templates/task_order.md", "templates/tasks/task.md",
                 "templates/verification.md"}
     expected.update(f"{role}.md" for role in ROLES)

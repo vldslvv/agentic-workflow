@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
-"""Import explicit native evidence and rebuild implementation reports.
+"""Collect saved native evidence and rebuild JSON, Markdown and Perfetto reports.
 
 CLI: usage_report.py IMPLEMENTATION_ROOT
-Run at task completion or explicit refresh. Reads implementation.json v2 (see
-records.py); writes runs/<task>/<agent-run>/trace.jsonl and reports/{usage.json,
-usage.md,timeline.json}. No discovery, recorder, database, services or costs.
-
-Canonical tokens: input includes cache read/write; uncached=input-cache read;
-output includes reasoning; total=input+output. Unknown measurements remain null.
-Totals are complete only for the selected evidence and its reported coverage.
-Chrome Trace uses M, X, i and s/f flow events; missing timing stays missing.
+Native discovery/parsing is separate from pure accounting. No run trace copies,
+manifest, registration, recorder, service or costs. Missing measurements stay null.
 """
 import argparse
 from collections import Counter, defaultdict
@@ -17,7 +11,8 @@ import hashlib
 import json
 from pathlib import Path
 
-from records import locked, validate_manifest, write_atomic
+from records import locked, write_atomic
+from native_traces import collect, safe_destination
 from trace_adapters import METRICS, read_source
 
 
@@ -25,25 +20,28 @@ def identity(*parts):
     return hashlib.sha256(json.dumps(parts, separators=(',', ':')).encode()).hexdigest()[:24]
 
 
-def import_evidence(manifest, root):
-    """I/O boundary; adapters supply evidence, bindings supply workflow context."""
-    sources = validate_manifest(manifest)
+def import_evidence(root):
+    """I/O boundary: native records supply both measurements and assignments."""
     root = Path(root)
-    bindings = {(b['source_id'], turn): b for b in manifest['bindings'] for turn in b['turn_ids']}
-    events, diagnostics = {}, []
-    for source in sources.values():
+    sources, assignments, requested, diagnostics = collect(root)
+    events = {}
+    for source in sources:
         native, gaps = read_source(source, root / source['path'])
         for item in [*native, *gaps]:
-            binding = bindings.get((source['id'], item.get('turn_id')), {})
-            item.update(implementation_id=manifest['implementation_id'], adapter=source['adapter'],
+            assignment = assignments.get((source['session_id'], item.get('turn_id')), {})
+            item.update(implementation_id=root.name, adapter=source['adapter'],
                         agent_id=f'{source["adapter"]}:{source["session_id"]}',
-                        task_id=binding.get('task_id'), role=binding.get('role'),
-                        agent_run_id=binding.get('agent_run_id'), binding_id=binding.get('id'))
+                        task_id=assignment.get('task'), role=assignment.get('role'),
+                        agent_run_id=f'{source["adapter"]}:{source["session_id"]}',
+                        assignment_id=identity(source['session_id'], assignment))
         for e in native:
-            binding = bindings.get((source['id'], e['turn_id']), {})
-            e['requested'] = {k: binding.get('requested', {}).get(k) for k in ('model', 'reasoning_effort')}
-            e['agent_name'] = binding.get('agent_name') or e.get('native_agent_name') or e.get('agent_run_id') or e['agent_id']
-            e['purpose'] = binding.get('purpose')
+            assignment = assignments.get((source['session_id'], e['turn_id']), {})
+            e['requested'] = requested.get((source['session_id'], e['turn_id']), {})
+            e['agent_name'] = e.get('native_agent_name') or e['agent_id']
+            e['native_agent_path'] = e.get('native_agent_path') or source.get('native_agent_path')
+            e['purpose'] = assignment.get('purpose')
+            e['assignment_source'] = assignment.get('source', 'native') if assignment else None
+            e['assignment_evidence'] = assignment.get('evidence', [])
             e['event_id'] = identity(e['implementation_id'], e['agent_id'], e['kind'], e['native_event_id'])
             old = events.get(e['event_id'])
             if old:
@@ -53,13 +51,23 @@ def import_evidence(manifest, root):
                 old['provenance'] += e['provenance']
             else:
                 events[e['event_id']] = e
+        for turn in source['turn_ids']:
+            if not assignments.get((source['session_id'], turn)):
+                gaps.append(dict(code='missing_assignment', session_id=source['session_id'],
+                                 turn_id=turn, source_id=source['id']))
         diagnostics.extend(gaps)
-    return sorted(events.values(), key=lambda e: e['event_id']), diagnostics
+    # Repeated copies can contain identical source-wide diagnostics.
+    unique = {json.dumps(d, sort_keys=True): d for d in diagnostics}
+    return sorted(events.values(), key=lambda e: e['event_id']), [unique[k] for k in sorted(unique)]
 
 
 GAP_CODES = {'missing_usage', 'unidentified_usage', 'invalid_json_line'}
 INCOMPLETE_CODES = GAP_CODES | {'source_unavailable', 'unfinished_turn', 'unverified_native_version',
-                                'missing_native_identity', 'message_only_usage', 'unmeasured_message'}
+                                'missing_native_identity', 'message_only_usage', 'unmeasured_message',
+                                'native_storage_unavailable', 'native_source_unavailable',
+                                'native_identity_unresolved', 'native_identity_mismatch',
+                                'ambiguous_native_identity', 'ambiguous_dispatch_turn', 'selected_turn_absent',
+                                'native_turn_unavailable', 'no_native_evidence'}
 
 
 def summarize(events, diagnostics):
@@ -148,29 +156,45 @@ def build_report(events, diagnostics):
         omissions[name] = dict(event_ids=omitted, diagnostics_without_attribution=unassigned_gaps)
     return dict(version=2, summary=summarize(events, diagnostics), groups=groups,
                 attribution_omissions=omissions, spawn_tree=spawn_tree(events), diagnostics=diagnostics,
-                assignments=assignments(events),
-                limitations=['Only explicit native sessions and selected turns are included.',
+                assignments=assignments(events), native_sources=native_sources(events),
+                limitations=['Only saved native turns and their proven dispatch descendants are included.',
                              'Known subtotals exclude missing measurements; totals are scoped to observed evidence.',
                              'Operation durations can overlap and are not wall-clock, CPU or billed time.',
                              'Absent parent-call relationships do not establish absence of nested operations.',
                              'Observed settings come from native context, not necessarily provider confirmation.'])
 
 
+def native_sources(events):
+    sources = {}
+    for e in events:
+        for p in e['provenance']:
+            key = (p.get('adapter'), e['session_id'], p.get('path'), p.get('source_version'))
+            sources.setdefault(key, set()).add(e['turn_id'])
+    return [dict(adapter=adapter, session_id=session, path=path, source_version=version, turn_ids=sorted(turns))
+            for (adapter, session, path, version), turns in sorted(sources.items())]
+
+
 def assignments(events):
     """Unique observed assignments, preserving session reuse and explicit context."""
     fields = ('agent_id', 'agent_run_id', 'agent_name', 'native_agent_name', 'native_agent_path',
-              'task_id', 'role', 'purpose', 'binding_id')
+              'task_id', 'role', 'purpose', 'assignment_id', 'assignment_source', 'assignment_evidence')
     rows = {}
     for e in events:
-        key = (e['agent_id'], e.get('binding_id'))
-        row = rows.setdefault(key, dict({k: e.get(k) for k in fields}, turns=set(), outcomes=set(), observed_settings=set()))
+        key = (e['agent_id'], e.get('assignment_id'))
+        row = rows.setdefault(key, dict({k: e.get(k) for k in fields}, turns=set(), outcomes=set(), observed_settings=set(), requested_settings=set()))
         row['turns'].add(e.get('turn_id'))
         settings = (e.get('model'), e.get('reasoning_effort'))
         if any(value is not None for value in settings):
             row['observed_settings'].add(settings)
+        request = e.get('requested') or {}
+        pair = (request.get('model'), request.get('reasoning_effort'))
+        if any(v is not None for v in pair):
+            row['requested_settings'].add(pair)
         if e['kind'] == 'agent':
             row['outcomes'].add(e.get('outcome') or 'unfinished')
     return [dict(row, turns=sorted(t for t in row['turns'] if t), outcomes=sorted(row['outcomes']),
+                 requested_settings=[dict(model=model, reasoning_effort=effort) for model, effort in
+                                     sorted(row['requested_settings'], key=lambda pair: tuple(v or '' for v in pair))],
                  observed_settings=[dict(model=model, reasoning_effort=effort) for model, effort in
                                     sorted(row['observed_settings'], key=lambda pair: tuple(v or '' for v in pair))])
             for _, row in sorted(rows.items(), key=lambda item: str(item[0]))]
@@ -203,6 +227,7 @@ def timeline(events):
         base = dict(name=label, cat=e['kind'], pid=1, tid=lanes[e['agent_id']],
                     args={k: e.get(k) for k in ('event_id', 'task_id', 'role', 'agent_run_id', 'agent_id',
                                                'agent_name', 'native_agent_name', 'native_agent_path', 'purpose',
+                                               'assignment_source', 'assignment_evidence',
                                                'outcome', 'model', 'reasoning_effort', 'call_id', 'parent_call_id')})
         base['args'].update({f'tokens.{k}': v for k, v in (e.get('usage') or {}).items() if v is not None})
         if start is not None and end is not None and end >= start:
@@ -266,35 +291,16 @@ def markdown(report):
 def refresh(root):
     root = Path(root).resolve()
     with locked(root / '.records.lock'):
-        manifest_path = root / 'implementation.json'
-        manifest = json.loads(manifest_path.read_text())
-        events, diagnostics = import_evidence(manifest, root)
+        events, diagnostics = import_evidence(root)
         report = build_report(events, diagnostics)
-        report['implementation_id'] = manifest['implementation_id']
-        traces = defaultdict(list)
-        for e in events:
-            task = e['task_id'] or '_unassigned'
-            run = e['agent_run_id'] or identity(e['agent_id'])
-            traces[root / 'runs' / task / run / 'trace.jsonl'].append(e)
-        outputs = {path: ''.join(json.dumps(e, sort_keys=True) + '\n' for e in values) for path, values in traces.items()}
-        outputs.update({root / 'reports' / 'usage.json': json.dumps(report, indent=2) + '\n',
-                        root / 'reports' / 'usage.md': markdown(report),
-                        root / 'reports' / 'timeline.json': json.dumps(timeline(events), indent=2) + '\n'})
-        # Clear previously generated traces for selected bindings even if sources
-        # disappeared. Never traverse/delete historical or unrelated run evidence.
-        for b in manifest['bindings']:
-            outputs.setdefault(root / 'runs' / b['task_id'] / b['agent_run_id'] / 'trace.jsonl', '')
-        for source in manifest['sources']:
-            unassigned = root / 'runs' / '_unassigned' / identity(f'{source["adapter"]}:{source["session_id"]}') / 'trace.jsonl'
-            if unassigned.exists():
-                outputs.setdefault(unassigned, '')
-        protected = [manifest_path] + [root / s['path'] for s in manifest['sources']]
+        report['implementation_id'] = root.name
+        outputs = {root / 'reports' / 'usage.json': json.dumps(report, indent=2) + '\n',
+                   root / 'reports' / 'usage.md': markdown(report),
+                   root / 'reports' / 'timeline.json': json.dumps(timeline(events), indent=2) + '\n'}
+        # Validate the whole output set before writing, including symlink/hardlink
+        # aliases. Native inputs live outside this output boundary.
         for path in outputs:
-            if not path.resolve().is_relative_to(root):
-                raise ValueError('output escapes implementation root')
-            if any(path.resolve() == source.resolve() or
-                   (path.exists() and source.exists() and path.samefile(source)) for source in protected):
-                raise ValueError('output must not overwrite a native source or manifest')
+            safe_destination(root, path)
         for path, data in outputs.items():
             write_atomic(path, data)
     return report

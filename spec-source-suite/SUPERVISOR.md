@@ -11,10 +11,6 @@ Read [AGENTS.md](AGENTS.md) plus this routine. Track task order, dependencies/co
 
 ## Native evidence and reports
 
-Keep explicit source references and task/role/selected-turn bindings in `implementation.json` using the shared record rules. On task completion and explicit report refresh, run:
+Use the shared record and structured-handoff rules. At task completion, run `python spec-source-suite/helpers/usage_report.py .suite/NNN_name` to refresh saved native evidence and rebuild usage JSON/Markdown and the Perfetto timeline under `reports/`. To collect, analyze and open the dashboard in one command, run `make trace IMPL=.suite/NNN_name`.
 
-`python spec-source-suite/helpers/usage_report.py .suite/NNN_name`
-
-The helper rebuilds normalized run traces, usage JSON/Markdown and a Chrome Trace timeline under the implementation root. Native sources stay read-only; import only selected sessions/turns and explicitly identified descendants. Do not discover other history. Follow-ups retain native identity; bind new turns when assignments change. Link reports and coverage diagnostics in results, including missing measurements and attribution. Optional Perfetto viewing uses `reports/timeline.json`; operation durations require observed endpoints.
-
-For source/binding JSON fields and CLI commands consult the [records helper](helpers/records.py); adapter versions, token semantics, limitations and refresh details are in the [tracing reference](helpers/TRACING.md). This tooling reference is needed only when configuring capture/import. No role manually logs calls or computes usage.
+Link reports and coverage diagnostics in results. Native identities retain follow-ups and distinguish replacements; ambiguous descendants or assignments remain diagnosed. Offline analysis uses saved files and discloses unavailable host storage. No role maintains trace inventories or manually calculates usage. Adapter semantics and collection limits are in the [tracing reference](helpers/TRACING.md), needed only for tracing troubleshooting.
