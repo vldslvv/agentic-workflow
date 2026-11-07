@@ -1,255 +1,303 @@
 #!/usr/bin/env python3
-"""Read explicit session/turn JSONL sources, never discover or modify logs.
+"""Import explicit native evidence and rebuild implementation reports.
 
-CLI: usage_report.py MANIFEST --root ROOT [--output FILE]
-Manifest v1: root {session_id, path, turn_ids, role?}, descendants with the same
-fields plus parent_session_id. Single turn_id is also accepted. Paths may be
-absolute for read-only Codex logs. Optional verification_subprocesses entries:
-{session_id, turn_id, call_id, count, evidence_path}; evidence is mandatory.
+CLI: usage_report.py IMPLEMENTATION_ROOT
+Run at task completion or explicit refresh. Reads implementation.json v2 (see
+records.py); writes runs/<task>/<agent-run>/trace.jsonl and reports/{usage.json,
+usage.md,timeline.json}. No discovery, recorder, database, services or costs.
 
-Understands Codex token_usage_record, turn_context, response_item tool calls,
-and normalized events {type: usage|tool_call, session_id, turn_id, response_id
-or call_id, usage or name, timestamp}. Explicit parent_call_id distinguishes
-nested operations. Never infer executed nested operations from source code.
-Unknown totals are null; known subtotals and missing-record counts stay visible.
-Reasoning is a subset of output and is never added again to total tokens.
+Canonical tokens: input includes cache read/write; uncached=input-cache read;
+output includes reasoning; total=input+output. Unknown measurements remain null.
+Totals are complete only for the selected evidence and its reported coverage.
+Chrome Trace uses M, X, i and s/f flow events; missing timing stays missing.
 """
 import argparse
 from collections import Counter, defaultdict
-from datetime import datetime
+import hashlib
 import json
 from pathlib import Path
-import sys
 
-METRICS = ('input_tokens', 'cached_input_tokens', 'uncached_input_tokens',
-           'output_tokens', 'reasoning_output_tokens', 'total_tokens')
-
-
-def _stamp(value):
-    if value is None:
-        return None
-    try:
-        return datetime.fromisoformat(value.replace('Z', '+00:00')).timestamp()
-    except (ValueError, AttributeError):
-        return None
+from records import locked, validate_manifest, write_atomic
+from trace_adapters import METRICS, read_source
 
 
-def _count(value):
-    return value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else None
+def identity(*parts):
+    return hashlib.sha256(json.dumps(parts, separators=(',', ':')).encode()).hexdigest()[:24]
 
 
-def _category(name):
-    short = name.split('.')[-1].split('__')[-1]
-    if short == 'exec':
-        return 'execution_batch'
-    if short in ('exec_command', 'write_stdin'):
-        return 'shell'
-    if short in ('spawn_agent', 'send_message', 'followup_task', 'interrupt_agent', 'list_agents', 'wait_agent'):
-        return 'agent'
-    if short in ('wait', 'sleep'):
-        return 'wait'
-    if short in ('apply_patch',):
-        return 'file_edit'
-    if 'web' in name or 'browser' in name:
-        return 'web'
-    return 'other'
+def import_evidence(manifest, root):
+    """I/O boundary; adapters supply evidence, bindings supply workflow context."""
+    sources = validate_manifest(manifest)
+    root = Path(root)
+    bindings = {(b['source_id'], turn): b for b in manifest['bindings'] for turn in b['turn_ids']}
+    events, diagnostics = {}, []
+    for source in sources.values():
+        native, gaps = read_source(source, root / source['path'])
+        for item in [*native, *gaps]:
+            binding = bindings.get((source['id'], item.get('turn_id')), {})
+            item.update(implementation_id=manifest['implementation_id'], adapter=source['adapter'],
+                        agent_id=f'{source["adapter"]}:{source["session_id"]}',
+                        task_id=binding.get('task_id'), role=binding.get('role'),
+                        agent_run_id=binding.get('agent_run_id'), binding_id=binding.get('id'))
+        for e in native:
+            binding = bindings.get((source['id'], e['turn_id']), {})
+            e['requested'] = {k: binding.get('requested', {}).get(k) for k in ('model', 'reasoning_effort')}
+            e['agent_name'] = binding.get('agent_name') or e.get('native_agent_name') or e.get('agent_run_id') or e['agent_id']
+            e['purpose'] = binding.get('purpose')
+            e['event_id'] = identity(e['implementation_id'], e['agent_id'], e['kind'], e['native_event_id'])
+            old = events.get(e['event_id'])
+            if old:
+                ignored = {'provenance'}
+                if {k: v for k, v in old.items() if k not in ignored} != {k: v for k, v in e.items() if k not in ignored}:
+                    raise ValueError('conflicting duplicate native event')
+                old['provenance'] += e['provenance']
+            else:
+                events[e['event_id']] = e
+        diagnostics.extend(gaps)
+    return sorted(events.values(), key=lambda e: e['event_id']), diagnostics
 
 
-def _read_source(ref, root):
-    sid = ref.get('session_id')
-    turns = ref.get('turn_ids', [ref.get('turn_id')] if ref.get('turn_id') else [])
-    if not isinstance(sid, str) or not sid or not turns or any(not isinstance(t, str) or not t for t in turns):
-        raise ValueError('each source needs session_id and explicit nonempty turn_ids')
-    path = root / ref['path']
-    records = []
-    active_turn, declared_sid = None, None
-    with path.open() as stream:
-        for number, line in enumerate(stream, 1):
-            try:
-                event = json.loads(line)
-            except ValueError as exc:
-                raise ValueError(f'invalid JSON: {path}:{number}') from exc
-            payload = event.get('payload', {})
-            if not isinstance(payload, dict):
-                payload = {}
-            kind = event.get('type')
-            if kind == 'session_meta':
-                declared_sid = payload.get('id', payload.get('session_id'))
-                if declared_sid != sid:
-                    raise ValueError(f'session identity mismatch: {path}')
-            if kind == 'turn_context':
-                active_turn = payload.get('turn_id')
-            if kind == 'event_msg' and payload.get('type') == 'task_started':
-                active_turn = payload.get('turn_id', active_turn)
-            metadata = payload.get('internal_chat_message_metadata_passthrough', {})
-            turn = payload.get('turn_id', event.get('turn_id', metadata.get('turn_id', active_turn)))
-            record_sid = payload.get('thread_id', event.get('session_id', sid))
-            if record_sid != sid or turn not in turns:
-                continue
-            records.append((event, payload, turn))
-    return records
+GAP_CODES = {'missing_usage', 'unidentified_usage', 'invalid_json_line'}
+INCOMPLETE_CODES = GAP_CODES | {'source_unavailable', 'unfinished_turn', 'unverified_native_version',
+                                'missing_native_identity', 'message_only_usage', 'unmeasured_message'}
 
 
-def _summary(usages, calls, stamps, unidentified_usage=0, unidentified_calls=0):
-    counts = {}
+def summarize(events, diagnostics):
+    models = [e for e in events if e['kind'] == 'model']
+    calls = [e for e in events if e['kind'] == 'tool']
+    unknown = sum(d['code'] in GAP_CODES for d in diagnostics)
+    incomplete = any(d['code'] in INCOMPLETE_CODES for d in diagnostics)
+    metrics = {}
     for metric in METRICS:
-        values = [usage.get(metric) for usage in usages]
-        missing = sum(v is None for v in values) + unidentified_usage
-        known = sum(v for v in values if v is not None)
-        counts[metric] = {'total': known if values and not missing else None,
-                          'known_subtotal': known, 'missing_records': missing}
-    categories = Counter(call['category'] for call in calls)
-    nested = [call for call in calls if call.get('parent_call_id')]
-    times = [s for s in stamps if s is not None]
-    return {'tokens': counts,
-            'model_responses': len(usages) if not unidentified_usage else None,
-            'identified_model_responses': len(usages), 'unidentified_usage_records': unidentified_usage,
-            'tool_calls': len(calls) if not unidentified_calls else None,
-            'identified_tool_calls': len(calls), 'unidentified_tool_records': unidentified_calls,
-            'tool_categories': dict(sorted(categories.items())),
-            'execution_batches': categories['execution_batch'],
-            'observed_nested_operations': len(nested) if nested else None,
-            'nested_operation_measurement': 'explicit parent_call_id records only; unavailable otherwise',
-            'elapsed_seconds': max(times) - min(times) if len(times) >= 2 else None,
-            'elapsed_measurement': 'selected event timestamp span; not CPU or billed time'}
+        values = [(e.get('usage') or {}).get(metric) for e in models]
+        measured = [v for v in values if v is not None]
+        missing = len(values) - len(measured) + unknown
+        metrics[metric] = dict(total=sum(measured) if measured and not missing and not incomplete else None,
+                               known_subtotal=sum(measured) if measured else None,
+                               measured_records=len(measured), missing_records=missing)
+    durations = [e['end'] - e['start'] for e in events
+                 if e.get('start') is not None and e.get('end') is not None and e['end'] >= e['start']]
+    return dict(tokens=metrics, observed_model_measurements=len(models),
+                observed_tool_calls=len(calls),
+                wrapper_calls=sum(e.get('name') in ('functions.exec', 'exec') for e in calls),
+                observed_nested_operations=sum(bool(e.get('parent_call_id')) for e in calls),
+                missing_parent_call_relationships=sum(not e.get('parent_call_id') for e in calls),
+                outcomes=dict(sorted(Counter(e['outcome'] or 'unknown' for e in calls).items())),
+                observed_operation_seconds=sum(durations) if durations else None,
+                timed_operations=len(durations), untimed_operations=len(events) - len(durations),
+                coverage=dict(sorted(Counter(d['code'] for d in diagnostics).items())))
 
 
-def build_report(manifest, root):
+def spawn_tree(events):
+    nodes = {}
+    relations = set()
+    for e in events:
+        node = nodes.setdefault(e['agent_id'], dict(agent_id=e['agent_id'], session_id=e['session_id'],
+                                                   agent_run_ids=set(), turns=set()))
+        if e.get('agent_run_id'):
+            node['agent_run_ids'].add(e['agent_run_id'])
+        node['turns'].add(e['turn_id'])
+        for field, kind in [('parent_session_id', 'spawn'), ('forked_from_id', 'fork'), ('continued_from_id', 'continuation')]:
+            if e.get(field):
+                relations.add((f'{e["adapter"]}:{e[field]}', e['agent_id'], kind))
+    return dict(nodes=[dict(n, agent_run_ids=sorted(n['agent_run_ids']), turns=sorted(n['turns']))
+                       for _, n in sorted(nodes.items())],
+                edges=[dict(parent=p, child=c, relationship=k, parent_in_selection=p in nodes)
+                       for p, c, k in sorted(relations)])
+
+
+def build_report(events, diagnostics):
+    """Pure accounting. No harness-specific parsing or grouping in adapters."""
+    groups, omissions = {}, {}
+    for name, fields in [('task', ('task_id',)), ('agent_run', ('agent_run_id',)),
+                         ('role', ('role',)), ('model', ('model',)), ('effort', ('reasoning_effort',)),
+                         ('model_effort', ('model', 'reasoning_effort')),
+                         ('task_model_effort', ('task_id', 'model', 'reasoning_effort')),
+                         ('tool', ('name',)), ('task_tool', ('task_id', 'name'))]:
+        grouped, gaps = defaultdict(list), defaultdict(list)
+        omitted = []
+        for e in events:
+            if name in ('model', 'effort', 'model_effort', 'task_model_effort') and e['kind'] != 'model':
+                continue
+            if name in ('tool', 'task_tool') and e['kind'] != 'tool':
+                continue
+            key = tuple(e.get(k) for k in fields)
+            if any(v is None for v in key):
+                omitted.append(e['event_id'])
+            else:
+                grouped[key].append(e)
+        unassigned_gaps = 0
+        for d in diagnostics:
+            key = tuple(d.get(k) for k in fields)
+            if all(v is not None for v in key):
+                gaps[key].append(d)
+                continue
+            unassigned_gaps += 1
+            # Preserve diagnostic scope across grouping. A source-wide gap can
+            # affect several assignments; a turn gap can affect multiple models.
+            affected = {tuple(e.get(k) for k in fields) for e in events
+                        if any(p.get('source_id') == d.get('source_id') for p in e['provenance'])
+                        and (d.get('turn_id') is None or e['turn_id'] == d['turn_id'])}
+            affected = {key for key in affected if all(v is not None for v in key)}
+            if not affected and d['code'] in INCOMPLETE_CODES:
+                affected = set(grouped)  # Unknown attribution cannot prove completeness.
+            for key in affected:
+                gaps[key].append(d)
+        groups[name] = [dict(key=dict(zip(fields, key)), summary=summarize(grouped[key], gaps[key]))
+                        for key in sorted(grouped.keys() | gaps.keys())]
+        omissions[name] = dict(event_ids=omitted, diagnostics_without_attribution=unassigned_gaps)
+    return dict(version=2, summary=summarize(events, diagnostics), groups=groups,
+                attribution_omissions=omissions, spawn_tree=spawn_tree(events), diagnostics=diagnostics,
+                assignments=assignments(events),
+                limitations=['Only explicit native sessions and selected turns are included.',
+                             'Known subtotals exclude missing measurements; totals are scoped to observed evidence.',
+                             'Operation durations can overlap and are not wall-clock, CPU or billed time.',
+                             'Absent parent-call relationships do not establish absence of nested operations.',
+                             'Observed settings come from native context, not necessarily provider confirmation.'])
+
+
+def assignments(events):
+    """Unique observed assignments, preserving session reuse and explicit context."""
+    fields = ('agent_id', 'agent_run_id', 'agent_name', 'native_agent_name', 'native_agent_path',
+              'task_id', 'role', 'purpose', 'binding_id')
+    rows = {}
+    for e in events:
+        key = (e['agent_id'], e.get('binding_id'))
+        row = rows.setdefault(key, dict({k: e.get(k) for k in fields}, turns=set(), outcomes=set()))
+        row['turns'].add(e.get('turn_id'))
+        if e['kind'] == 'agent':
+            row['outcomes'].add(e.get('outcome') or 'unfinished')
+    return [dict(row, turns=sorted(t for t in row['turns'] if t), outcomes=sorted(row['outcomes']))
+            for _, row in sorted(rows.items(), key=lambda item: str(item[0]))]
+
+
+def timeline(events):
+    lanes = {agent: i + 1 for i, agent in enumerate(sorted({e['agent_id'] for e in events}))}
+    labels = defaultdict(set)
+    for e in events:
+        context = ' / '.join(v for v in (e.get('role'), e.get('task_id')) if v)
+        label = e.get('agent_name') or e['agent_id']
+        labels[e['agent_id']].add(f'{label} · {context}' if context else label)
+    output = [dict(ph='M', name='thread_name', pid=1, tid=tid, args={'name': '; '.join(sorted(labels[agent]))})
+              for agent, tid in lanes.items()]
+    omitted, flows = [], set()
+    for e in events:
+        start, end = e.get('start'), e.get('end')
+        point = e.get('timestamp')
+        label = e.get('name') or (e.get('agent_name') if e['kind'] == 'agent' else None) or e['kind']
+        if e['kind'] == 'agent':
+            label += ' · ' + (e.get('purpose') or ' / '.join(v for v in (e.get('role'), e.get('task_id')) if v) or 'assignment unavailable')
+        base = dict(name=label, cat=e['kind'], pid=1, tid=lanes[e['agent_id']],
+                    args={k: e.get(k) for k in ('event_id', 'task_id', 'role', 'agent_run_id', 'agent_id',
+                                               'agent_name', 'native_agent_name', 'native_agent_path', 'purpose',
+                                               'outcome', 'model', 'reasoning_effort', 'call_id', 'parent_call_id')})
+        base['args'].update({f'tokens.{k}': v for k, v in (e.get('usage') or {}).items() if v is not None})
+        if start is not None and end is not None and end >= start:
+            output.append(dict(base, ph='X', ts=start * 1_000_000, dur=(end - start) * 1_000_000))
+        elif start is not None or end is not None or point is not None:
+            observed = start if start is not None else end if end is not None else point
+            output.append(dict(base, ph='i', s='t', ts=observed * 1_000_000))
+            omitted.append(dict(event_id=e['event_id'], reason='duration_unavailable'))
+        else:
+            omitted.append(dict(event_id=e['event_id'], reason='timing_unavailable'))
+        parent = f'{e["adapter"]}:{e.get("parent_session_id")}'
+        spawn = e.get('spawn_timestamp')
+        if parent in lanes and spawn is not None and e['agent_id'] not in flows:
+            flows.add(e['agent_id'])
+            fid = lanes[e['agent_id']]  # Chrome/Perfetto IDs are numeric (not arbitrary hash strings).
+            for phase, agent in [('s', parent), ('f', e['agent_id'])]:
+                # Bind each endpoint to an explicit observed creation instant.
+                # Without anchors Perfetto can attach to unrelated enclosing
+                # slices and reverse a flow when one lane has only instants.
+                output.append(dict(name='native spawn', cat='agent', ph='i', s='t',
+                                   pid=1, tid=lanes[agent], ts=spawn * 1_000_000))
+                output.append(dict(name='spawn', cat='agent', ph=phase, id=fid, pid=1,
+                                   tid=lanes[agent], ts=spawn * 1_000_000, **({'bp': 'e'} if phase == 'f' else {})))
+    return dict(traceEvents=output, displayTimeUnit='ms', metadata=dict(timing_omissions=omitted))
+
+
+def markdown(report):
+    lines = ['# Selected implementation usage', '',
+             'Null means unavailable. Known subtotals exclude missing measurements. Scope and omissions are in usage.json.', '',
+             '| Metric | Total | Known subtotal | Measured records | Missing records |',
+             '|---|---:|---:|---:|---:|']
+    def cell(value):
+        return str(value).replace('|', '\\|').replace('\n', ' ') if value is not None else 'unavailable'
+    for metric, values in report['summary']['tokens'].items():
+        lines.append('| ' + ' | '.join(map(cell, [metric, *values.values()])) + ' |')
+    for name, rows in report['groups'].items():
+        tools = name in ('tool', 'task_tool')
+        models = name in ('model', 'effort', 'model_effort', 'task_model_effort')
+        headers = (['Group', 'Observed calls', 'Outcomes', 'Observed seconds', 'Untimed'] if tools else
+                   ['Group', 'Total tokens', 'Known subtotal', 'Missing records'] + ([] if models else ['Tools']))
+        lines += ['', f'## By {name}', '', '| ' + ' | '.join(headers) + ' |',
+                  '| ' + ' | '.join('---' for _ in headers) + ' |']
+        for row in rows:
+            s = row['summary']
+            tokens = s['tokens']['total_tokens']
+            values = ([s['observed_tool_calls'], s['outcomes'], s['observed_operation_seconds'], s['untimed_operations']]
+                      if tools else [tokens['total'], tokens['known_subtotal'], tokens['missing_records']]
+                      + ([] if models else [s['observed_tool_calls']]))
+            lines.append('| ' + ' | '.join(map(cell, [', '.join(row['key'].values()), *values])) + ' |')
+        omission = report['attribution_omissions'][name]
+        lines += ['', f'Attribution omissions: {len(omission["event_ids"])} events; {omission["diagnostics_without_attribution"]} diagnostics.']
+    lines += ['', '## Native lineage', '']
+    for edge in report['spawn_tree']['edges']:
+        lines.append(f'- {edge["parent"]} → {edge["child"]} ({edge["relationship"]})')
+    lines += ['', '## Coverage diagnostics', '']
+    for code, n in report['summary']['coverage'].items():
+        lines.append(f'- {code}: {n}')
+    return '\n'.join(lines) + '\n'
+
+
+def refresh(root):
     root = Path(root).resolve()
-    if manifest.get('version') != 1 or not isinstance(manifest.get('root'), dict):
-        raise ValueError('version 1 and explicit root source are required')
-    sources = [manifest['root']] + manifest.get('descendants', [])
-    by_sid = {}
-    for ref in sources:
-        sid = ref.get('session_id')
-        if sid in by_sid:
-            raise ValueError(f'duplicate session reference: {sid}')
-        by_sid[sid] = ref
-    root_sid = sources[0].get('session_id')
-    for ref in sources[1:]:
-        seen, cursor = set(), ref
-        while cursor.get('session_id') != root_sid:
-            sid = cursor.get('session_id')
-            if sid in seen or cursor.get('parent_session_id') not in by_sid:
-                raise ValueError(f'descendant is not connected to root: {sid}')
-            seen.add(sid)
-            cursor = by_sid[cursor['parent_session_id']]
-    usage_by_key, calls_by_key = {}, {}
-    stamps, session_stamps = [], defaultdict(list)
-    unknown_usage, unknown_calls = Counter(), Counter()
-    observed_usage_turns = defaultdict(set)
-    selected_turns = {}
-    for ref in sources:
-        sid = ref['session_id']
-        selected_turns[sid] = set(ref.get('turn_ids', [ref.get('turn_id')]))
-        for event, payload, turn in _read_source(ref, root):
-            kind = event.get('type')
-            stamp = _stamp(event.get('timestamp'))
-            stamps.append(stamp)
-            session_stamps[sid].append(stamp)
-            if kind in ('token_usage_record', 'usage'):
-                record = payload if kind == 'token_usage_record' else event
-                observed_usage_turns[sid].add(turn)
-                rid = record.get('response_id')
-                if not rid:
-                    unknown_usage[sid] += 1
-                    continue
-                usage = record.get('usage') or {}
-                values = {metric: _count(usage.get(metric)) for metric in METRICS}
-                if values['input_tokens'] is not None and values['cached_input_tokens'] is not None:
-                    if values['cached_input_tokens'] > values['input_tokens']:
-                        raise ValueError(f'cached tokens exceed input: {sid}/{rid}')
-                    values['uncached_input_tokens'] = values['input_tokens'] - values['cached_input_tokens']
-                if values['input_tokens'] is not None and values['output_tokens'] is not None:
-                    values['total_tokens'] = values['input_tokens'] + values['output_tokens']
-                if values['reasoning_output_tokens'] is not None and values['output_tokens'] is not None and values['reasoning_output_tokens'] > values['output_tokens']:
-                    raise ValueError(f'reasoning tokens exceed output: {sid}/{rid}')
-                key = (sid, rid)
-                if key in usage_by_key and usage_by_key[key] != values:
-                    raise ValueError(f'conflicting duplicate usage: {sid}/{rid}')
-                usage_by_key[key] = values
-            elif kind == 'tool_call' or (kind == 'response_item' and payload.get('type') in ('function_call', 'custom_tool_call')):
-                record = event if kind == 'tool_call' else payload
-                cid = record.get('call_id')
-                if not cid:
-                    unknown_calls[sid] += 1
-                    continue
-                name = record.get('name', 'unknown')
-                call = {'name': name, 'category': _category(name),
-                        'parent_call_id': record.get('parent_call_id'), 'turn_id': turn}
-                key = (sid, cid)
-                if key in calls_by_key and calls_by_key[key] != call:
-                    raise ValueError(f'conflicting duplicate tool call: {sid}/{cid}')
-                calls_by_key[key] = call
-    # Legacy snapshots mirror token_usage_record in current Codex. Without a
-    # response ID they cannot safely supply deduplicated response accounting.
-    for sid, turns in selected_turns.items():
-        # A selected turn without response-identified usage is unmeasured,
-        # whether a legacy snapshot or no usage event was emitted.
-        unknown_usage[sid] += len(turns - observed_usage_turns[sid])
-    result = _summary(list(usage_by_key.values()), list(calls_by_key.values()), stamps,
-                      sum(unknown_usage.values()), sum(unknown_calls.values()))
-    result.update({'version': 1, 'root_session_id': root_sid, 'sessions': {}, 'roles': {}})
-    grouped_roles = defaultdict(list)
-    for ref in sources:
-        sid = ref['session_id']
-        summary = _summary([v for k, v in usage_by_key.items() if k[0] == sid],
-                           [v for k, v in calls_by_key.items() if k[0] == sid], session_stamps[sid],
-                           unknown_usage[sid], unknown_calls[sid])
-        summary['role'] = ref.get('role', 'unspecified')
-        summary['turn_ids'] = ref.get('turn_ids', [ref.get('turn_id')])
-        result['sessions'][sid] = summary
-        grouped_roles[summary['role']].append(sid)
-    for role, sids in grouped_roles.items():
-        result['roles'][role] = _summary([v for k, v in usage_by_key.items() if k[0] in sids],
-                                       [v for k, v in calls_by_key.items() if k[0] in sids],
-                                       [s for sid in sids for s in session_stamps[sid]],
-                                       sum(unknown_usage[sid] for sid in sids), sum(unknown_calls[sid] for sid in sids))
-    verification, evidence_keys = 0, set()
-    for evidence in manifest.get('verification_subprocesses', []):
-        sid, cid = evidence.get('session_id'), evidence.get('call_id')
-        key = (sid, cid)
-        if key not in calls_by_key or calls_by_key[key]['turn_id'] != evidence.get('turn_id'):
-            raise ValueError('verification evidence must reference an included tool call and turn')
-        count = _count(evidence.get('count'))
-        if count is None or not (root / evidence.get('evidence_path', '')).is_file():
-            raise ValueError('verification subprocess count needs an explicit count and existing evidence')
-        if key in evidence_keys:
-            raise ValueError('duplicate verification subprocess evidence')
-        evidence_keys.add(key)
-        verification += count
-    result['verification_subprocesses'] = verification if evidence_keys else None
-    result['limitations'] = ['Only explicitly selected sessions and turns are included.',
-                            'Nested execution is unavailable unless explicit parent call IDs were logged.',
-                            'Legacy token_count snapshots lack response IDs and cannot establish deduplicated totals.']
-    return result
+    with locked(root / '.records.lock'):
+        manifest_path = root / 'implementation.json'
+        manifest = json.loads(manifest_path.read_text())
+        events, diagnostics = import_evidence(manifest, root)
+        report = build_report(events, diagnostics)
+        report['implementation_id'] = manifest['implementation_id']
+        traces = defaultdict(list)
+        for e in events:
+            task = e['task_id'] or '_unassigned'
+            run = e['agent_run_id'] or identity(e['agent_id'])
+            traces[root / 'runs' / task / run / 'trace.jsonl'].append(e)
+        outputs = {path: ''.join(json.dumps(e, sort_keys=True) + '\n' for e in values) for path, values in traces.items()}
+        outputs.update({root / 'reports' / 'usage.json': json.dumps(report, indent=2) + '\n',
+                        root / 'reports' / 'usage.md': markdown(report),
+                        root / 'reports' / 'timeline.json': json.dumps(timeline(events), indent=2) + '\n'})
+        # Clear previously generated traces for selected bindings even if sources
+        # disappeared. Never traverse/delete historical or unrelated run evidence.
+        for b in manifest['bindings']:
+            outputs.setdefault(root / 'runs' / b['task_id'] / b['agent_run_id'] / 'trace.jsonl', '')
+        for source in manifest['sources']:
+            unassigned = root / 'runs' / '_unassigned' / identity(f'{source["adapter"]}:{source["session_id"]}') / 'trace.jsonl'
+            if unassigned.exists():
+                outputs.setdefault(unassigned, '')
+        protected = [manifest_path] + [root / s['path'] for s in manifest['sources']]
+        for path in outputs:
+            if not path.resolve().is_relative_to(root):
+                raise ValueError('output escapes implementation root')
+            if any(path.resolve() == source.resolve() or
+                   (path.exists() and source.exists() and path.samefile(source)) for source in protected):
+                raise ValueError('output must not overwrite a native source or manifest')
+        for path, data in outputs.items():
+            write_atomic(path, data)
+    return report
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('manifest', type=Path)
-    parser.add_argument('--root', type=Path, required=True)
-    parser.add_argument('--output', type=Path)
+    parser.add_argument('implementation', type=Path)
     args = parser.parse_args()
     try:
-        manifest = json.loads(args.manifest.read_text())
-        if args.output:
-            sources = [manifest.get('root', {})] + manifest.get('descendants', [])
-            if any(args.output.resolve() == (args.root / ref['path']).resolve()
-                   or (args.output.exists() and args.output.samefile(args.root / ref['path']))
-                   for ref in sources if 'path' in ref):
-                raise ValueError('output must not overwrite a source log')
-        report = build_report(manifest, args.root)
-        rendered = json.dumps(report, indent=2) + '\n'
-        if args.output:
-            args.output.write_text(rendered)
-        else:
-            print(rendered, end='')
-    except (ValueError, TypeError, KeyError, OSError) as exc:
-        print(f'usage-report: {exc}', file=sys.stderr)
-        return 2
-    return 0
+        report = refresh(args.implementation)
+        print(json.dumps({'implementation_id': report['implementation_id'], 'reports': str(args.implementation / 'reports'),
+                          'coverage': report['summary']['coverage']}))
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        parser.exit(2, f'usage-report: {exc}\n')
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()

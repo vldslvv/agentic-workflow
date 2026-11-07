@@ -1,60 +1,99 @@
 {
   "package": "Spec Source Suite",
-  "version": "0.5-draft",
+  "version": "0.8-draft",
   "checked_date": "2026-11-06",
-  "status": "STRUCTURAL_CHECKS_PASSED",
-  "scope": "Engineering guideline integration: root router, shared rules, five role routines, project template, both entry paths, package inventory/checksums and retained usage tests. Documentation walkthroughs only; no live agent or app execution.",
+  "status": "CHECKS_PASSED_WITH_DISCLOSED_VALIDATION_GAP",
+  "scope": "Implementation-scoped records, portable Codex/OpenCode import, downstream accounting and Perfetto export. One idempotent make trace command refreshes and opens agent insights with names/purposes and task/model/effort/tool groups; Perfetto is linked with named lanes. No runner or legacy migration.",
   "checks": {
-    "local_links": {
+    "tests": {
       "result": "PASS",
-      "evidence": "../.suite/runs/008-engineering-guidelines/links.json",
-      "count": 29
+      "count": 28,
+      "evidence": "../.suite/001_portable_tracing/runs/trace-insights/root/tests.log",
+      "command": "PERFETTO_TRACE_PROCESSOR=/tmp/suite-trace-processor-shell python -m unittest discover -s spec-source-suite/tests -v",
+      "scope": "Pinned native fixtures, normalized grouping and identities, real Make/HTTP lifecycle, and configured real Perfetto parser."
     },
-    "usage_tests": {
+    "package_structure": {
       "result": "PASS",
-      "evidence": "../.suite/runs/008-engineering-guidelines/usage-tests.log",
-      "count": 7
+      "evidence": "../.suite/001_portable_tracing/runs/trace-insights/root/package-check.json",
+      "local_links": 42
     },
-    "instruction_scenarios": {
+    "codex_live_import": {
       "result": "PASS",
-      "evidence": "../.suite/runs/008-engineering-guidelines/walkthroughs.md",
-      "count": 8,
-      "method": "Manual documentation walkthrough; not live agent execution"
+      "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/root/codex-smoke-final.json",
+      "native_version": "0.167.0"
     },
-    "package_inventory": {
-      "result": "PASS",
-      "evidence": "../.suite/runs/008-engineering-guidelines/package-validation.json"
+    "opencode_live_import": {
+      "result": "NOT_RUN",
+      "reason": "OpenCode executable unavailable; no live capture claimed. Synthetic fixtures target export schema 1.2.27."
     },
-    "scope_preservation": {
+    "perfetto_parser": {
       "result": "PASS",
-      "evidence": "../.suite/runs/008-engineering-guidelines/results.md"
+      "version": "59.1",
+      "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/reviewer-3/perfetto.log",
+      "scope": "No parser error/data-loss statistics; correct synthetic and native spawn associations."
     },
-    "maintenance_structure": {
+    "perfetto_visual": {
       "result": "PASS",
-      "evidence": "../.suite/runs/008-engineering-guidelines/maintenance-check.json",
-      "scope": "Current tree, including concurrently added maintenance instructions and checker"
+      "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/root/perfetto-visual.md",
+      "screenshot": "../.suite/001_portable_tracing/runs/portable-tracing/root/perfetto-visual-final.png",
+      "browser": "Firefox 159.0",
+      "ui_version": "59.1-79997ada9"
     },
-    "workflow_maintenance": {
-      "result": "PASS",
-      "evidence": "../.suite/runs/007-agent-role-structure/maintenance/result.md",
-      "command": "python spec-source-suite/helpers/check_package.py --base <starting-commit>",
-      "structural_report": "../.suite/runs/007-agent-role-structure/maintenance/package-check.json",
-      "cli_scenarios": 9,
-      "manual_review": "Behavior, duplication, role placement and growth reviewed; see result evidence."
+    "independent_review": {
+      "result": "PASS_WITH_DISCLOSED_VALIDATION_GAPS",
+      "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/reviewer-3/review.md",
+      "note": "No actionable findings. Subsequent Firefox inspection closes the visual gap without changing reviewed code; OpenCode live gap remains."
     },
-    "direct_path_routing": {
+    "maintenance_review": {
       "result": "PASS",
-      "evidence": "../.suite/runs/007-agent-role-structure/path-index/result.md",
-      "structural_report": "../.suite/runs/007-agent-role-structure/path-index/package-check.json",
-      "local_links_including_root": 38
+      "evidence": "../.suite/001_portable_tracing/runs/trace-insights/root/results.md",
+      "files": 28,
+      "directories": 11,
+      "instruction_words": 6320,
+      "shared_plus_role_words": {
+        "SUPERVISOR": 2585,
+        "PLANNER": 2445,
+        "IMPLEMENTER": 2258,
+        "REVIEWER": 2207,
+        "VALIDATOR": 2369
+      }
+    },
+    "checksums": {
+      "result": "PASS",
+      "method": "SHA256SUMS covers all package files except itself and Python caches; verified after metadata update."
+    },
+    "trace_command": {
+      "result": "PASS",
+      "evidence": "../.suite/001_portable_tracing/runs/trace-command/root/results.md",
+      "browser_evidence": "../.suite/001_portable_tracing/runs/trace-command/root/browser-result.json",
+      "screenshot": "../.suite/001_portable_tracing/runs/trace-command/root/perfetto-make.png",
+      "independent_review": "../.suite/001_portable_tracing/runs/trace-command/reviewer-1/review.md",
+      "limits": "Local-device permission may be required by the browser; tab reuse is browser-dependent. Port 9001 must be available or owned by this implementation viewer."
+    },
+    "trace_insights": {
+      "result": "PASS",
+      "evidence": "../.suite/001_portable_tracing/runs/trace-insights/root/results.md",
+      "browser_evidence": "../.suite/001_portable_tracing/runs/trace-insights/root/browser-result.json",
+      "screenshots": [
+        "../.suite/001_portable_tracing/runs/trace-insights/root/dashboard.png",
+        "../.suite/001_portable_tracing/runs/trace-insights/root/agents.png",
+        "../.suite/001_portable_tracing/runs/trace-insights/root/tools.png",
+        "../.suite/001_portable_tracing/runs/trace-insights/root/perfetto-names.png"
+      ],
+      "independent_review": "../.suite/001_portable_tracing/runs/trace-insights/reviewer-1/review.md",
+      "limits": "Historical purposes use explicit role/task fallback; missing effort stays unavailable. Native exec wrappers do not establish nested operation details. Current turn remains partial until completion and refresh."
     }
   },
-  "evidence": "../.suite/runs/008-engineering-guidelines/",
-  "previous_package_checks": "../.suite/runs/008-engineering-guidelines/package-checks-before.json",
+  "evidence": "../.suite/001_portable_tracing/runs/portable-tracing/root/",
+  "previous_package_checks": "../.suite/001_portable_tracing/runs/trace-insights/root/package-checks-before.json",
   "not_executed": [
-    "Live multi-agent guideline adherence",
+    "Real OpenCode capture/import (executable unavailable)",
     "Live app generation or reconstruction",
-    "Automated runner execution",
-    "Enforced filesystem isolation"
+    "Automated runner execution"
+  ],
+  "limitations": [
+    "Pinned source profiles, not universal harness-version support.",
+    "Native sources remain local read-only references; active turns yield partial usage.",
+    "Optional real-parser test is explicitly skipped unless PERFETTO_TRACE_PROCESSOR is configured."
   ]
 }

@@ -3,17 +3,25 @@
 # Resolve paths relative to this Makefile, including when invoked with make -f.
 REPO_ROOT := $(shell dirname -- "$(MAKEFILE_LIST)")
 
-.PHONY: help clean clean-runs clean-tasks
+# Default to this repository's identified tracing implementation; override explicitly.
+IMPL ?= .suite/001_portable_tracing
+export IMPL
+
+.PHONY: help trace clean clean-runs clean-tasks
 
 help:
-	@echo "make clean        Remove run evidence and task records"
-	@echo "make clean-runs   Remove .suite/runs/"
-	@echo "make clean-tasks  Remove .suite/tasks/"
+	@echo "make trace        Refresh agent insights with a Perfetto link (optional IMPL=path)"
+	@echo "make clean        Remove run evidence and task records (optional IMPL=path)"
+	@echo "make clean-runs   Remove runs/ under IMPL"
+	@echo "make clean-tasks  Remove tasks/ under IMPL"
+
+trace:
+	@cd "$(REPO_ROOT)" && python3 spec-source-suite/helpers/trace_view.py "$$IMPL"
 
 clean: clean-runs clean-tasks
 
 clean-runs:
-	rm -rf -- "$(REPO_ROOT)/.suite/runs"
+	@cd "$(REPO_ROOT)" && rm -rf -- "$${IMPL:?IMPL must identify an implementation directory}/runs"
 
 clean-tasks:
-	rm -rf -- "$(REPO_ROOT)/.suite/tasks"
+	@cd "$(REPO_ROOT)" && rm -rf -- "$${IMPL:?IMPL must identify an implementation directory}/tasks"

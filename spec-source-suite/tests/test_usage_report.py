@@ -1,5 +1,14 @@
-"""AC-6: known totals, deduplication, scope, and unavailable counters."""
-import importlib.util
+"""Public contracts for implementation records, native import and reporting.
+
+Synthetic, version-pinned fixtures protect parsing; they do not establish live
+harness support. Legacy v1 API tests are replaced by v2 CLI/public-contract
+coverage for the same deduplication, scope, partial-usage and read-only behaviors.
+"""
+from concurrent.futures import ThreadPoolExecutor
+import copy
+import csv
+import io
+import os
 import json
 from pathlib import Path
 import subprocess
@@ -7,126 +16,441 @@ import sys
 import tempfile
 import unittest
 
-MODULE = Path(__file__).resolve().parents[1] / 'helpers' / 'usage_report.py'
-spec = importlib.util.spec_from_file_location('usage_report', MODULE)
-usage = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(usage)
+HELPERS = Path(__file__).resolve().parents[1] / 'helpers'
+FIXTURES = Path(__file__).parent / 'fixtures'
+sys.path.insert(0, str(HELPERS))
+import records
+import usage_report as usage
 
 
-class UsageReportTests(unittest.TestCase):
+class TraceTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
-        self.manifest = {'version': 1,
-                         'root': {'session_id': 'root', 'path': 'root.jsonl', 'turn_ids': ['selected'], 'role': 'supervisor'},
-                         'descendants': [{'session_id': 'child', 'path': 'child.jsonl', 'turn_ids': ['work'], 'parent_session_id': 'root', 'role': 'reviewer'}]}
+        self.suite = Path(self.temp.name) / '.suite'
+        self.root = records.allocate(self.suite, 'test')
 
-    def write(self, name, events):
-        (self.root / name).write_text(''.join(json.dumps(e) + '\n' for e in events))
+    def source(self, adapter='codex', sid='supervisor', turns=None, parent=None, fork=None, bind=True, role='supervisor', task='orchestration'):
+        turns = turns or ['turn-1', 'turn-2']
+        source_id = sid + '-' + adapter
+        if adapter == 'codex':
+            rows = [json.loads(line) for line in (FIXTURES / 'codex-0.167.0.jsonl').read_text().splitlines()]
+            rows[0]['payload'].update(id=sid, parent_thread_id=parent, forked_from_id=fork)
+            for row in rows:
+                if 'thread_id' in row['payload']:
+                    row['payload']['thread_id'] = sid
+            data = ''.join(json.dumps(row) + '\n' for row in rows)
+            version, suffix = 'codex-rollout-0.167.0', '.jsonl'
+        else:
+            data = json.loads((FIXTURES / 'opencode-1.2.27.json').read_text())
+            data['info'].update(id=sid, parentID=parent)
+            for msg in data['messages']:
+                msg['info']['sessionID'] = sid
+                for part in msg['parts']:
+                    part['sessionID'] = sid
+            data = json.dumps(data)
+            version, suffix = 'opencode-export-1.2.27', '.json'
+        path = self.root / (source_id + suffix)
+        path.write_text(data)
+        source = dict(id=source_id, adapter=adapter, source_version=version, path=path.name, session_id=sid, turn_ids=turns)
+        records.add_source(self.root, source)
+        if bind:
+            records.bind(self.root, dict(id='binding-' + source_id, source_id=source_id, turn_ids=turns,
+                                         task_id=task, role=role, agent_run_id=sid + '-run'))
+        return path, source
 
-    def event(self, sid, turn, rid, tokens, timestamp='2026-01-01T00:00:00Z'):
-        return {'type': 'usage', 'session_id': sid, 'turn_id': turn, 'response_id': rid,
-                'timestamp': timestamp, 'usage': tokens}
+    def manifest(self):
+        return json.loads((self.root / 'implementation.json').read_text())
 
-    def test_known_totals_dedup_scope_descendants_and_batch_nested_counts(self):
-        root = self.event('root', 'selected', 'response-1', {'input_tokens': 100, 'cached_input_tokens': 60, 'output_tokens': 30, 'reasoning_output_tokens': 10})
-        child = self.event('child', 'work', 'response-1', {'input_tokens': 50, 'cached_input_tokens': 10, 'output_tokens': 20, 'reasoning_output_tokens': 5}, '2026-01-01T00:00:10Z')
-        batch = {'type': 'tool_call', 'session_id': 'root', 'turn_id': 'selected', 'call_id': 'batch', 'name': 'functions.exec'}
-        nested = {'type': 'tool_call', 'session_id': 'root', 'turn_id': 'selected', 'call_id': 'nested', 'name': 'exec_command', 'parent_call_id': 'batch'}
-        self.write('root.jsonl', [root, root, batch, batch, nested,
-                                 self.event('root', 'other', 'excluded', {'input_tokens': 999}),
-                                 self.event('unrelated', 'selected', 'excluded2', {'input_tokens': 999})])
-        self.write('child.jsonl', [child, child])
-        (self.root / 'verification.json').write_text('{}')
-        self.manifest['verification_subprocesses'] = [{'session_id': 'root', 'turn_id': 'selected', 'call_id': 'nested', 'count': 2, 'evidence_path': 'verification.json'}]
-        result = usage.build_report(self.manifest, self.root)
-        self.assertEqual({k: v['total'] for k, v in result['tokens'].items()},
-                         {'input_tokens': 150, 'cached_input_tokens': 70, 'uncached_input_tokens': 80,
-                          'output_tokens': 50, 'reasoning_output_tokens': 15, 'total_tokens': 200})
-        self.assertEqual(result['model_responses'], 2)
-        self.assertEqual(result['tool_calls'], 2)
-        self.assertEqual(result['execution_batches'], 1)
-        self.assertEqual(result['observed_nested_operations'], 1)
-        self.assertEqual(result['verification_subprocesses'], 2)
-        self.assertEqual(result['elapsed_seconds'], 10)
-        self.assertEqual(result['roles']['reviewer']['tokens']['input_tokens']['total'], 50)
+    def evidence(self):
+        return usage.import_evidence(self.manifest(), self.root)
 
-    def test_missing_counters_remain_unavailable_with_known_subtotals(self):
-        self.write('root.jsonl', [self.event('root', 'selected', 'a', {'input_tokens': 10, 'output_tokens': 2})])
-        self.write('child.jsonl', [self.event('child', 'work', 'b', {'input_tokens': 20, 'cached_input_tokens': 5, 'output_tokens': 3, 'reasoning_output_tokens': 1})])
-        result = usage.build_report(self.manifest, self.root)
-        self.assertEqual(result['tokens']['input_tokens']['total'], 30)
-        self.assertEqual(result['tokens']['cached_input_tokens'], {'total': None, 'known_subtotal': 5, 'missing_records': 1})
-        self.assertEqual(result['tokens']['uncached_input_tokens']['total'], None)
-        self.assertIsNone(result['observed_nested_operations'])
-        self.assertIsNone(result['verification_subprocesses'])
+    def cli(self, script, *args):
+        return subprocess.run([sys.executable, str(HELPERS / script), *map(str, args)], text=True, capture_output=True)
 
-    def test_codex_records_use_thread_identity_and_response_ids_without_snapshot_double_count(self):
-        events = [
-            {'type': 'session_meta', 'payload': {'id': 'root', 'session_id': 'different-global-id'}},
-            {'type': 'turn_context', 'timestamp': '2026-01-01T00:00:00Z', 'payload': {'turn_id': 'selected'}},
-            {'type': 'token_usage_record', 'payload': {'thread_id': 'root', 'turn_id': 'selected', 'session_id': 'different-global-id', 'response_id': 'a', 'usage': {'input_tokens': 10, 'cached_input_tokens': 4, 'output_tokens': 2, 'reasoning_output_tokens': 1}}},
-            {'type': 'event_msg', 'payload': {'type': 'token_count', 'info': {'last_token_usage': {'input_tokens': 10}}}},
-            {'type': 'response_item', 'payload': {'type': 'custom_tool_call', 'call_id': 'c', 'name': 'exec'}},
-            {'type': 'turn_context', 'payload': {'turn_id': 'unrelated'}},
-            {'type': 'response_item', 'payload': {'type': 'function_call', 'call_id': 'ignored', 'name': 'exec_command'}},
-        ]
-        self.write('root.jsonl', events)
-        self.manifest['descendants'] = []
-        before = (self.root / 'root.jsonl').read_bytes()
-        result = usage.build_report(self.manifest, self.root)
-        self.assertEqual(result['model_responses'], 1)
-        self.assertEqual(result['tokens']['total_tokens']['total'], 12)
-        self.assertEqual(result['tool_calls'], 1)
-        self.assertEqual((self.root / 'root.jsonl').read_bytes(), before)
+    def test_concurrent_allocations_resume_repair_and_scoped_resolution(self):
+        # Real processes contend on the same lock, with different names.
+        def allocate(i):
+            result = self.cli('records.py', 'allocate', f'app-{i}', '--suite', self.suite)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return Path(result.stdout.strip())
+        with ThreadPoolExecutor(max_workers=6) as pool:
+            roots = list(pool.map(allocate, range(8)))
+        self.assertEqual({int(p.name.split('_')[0]) for p in roots}, set(range(2, 10)))
+        for task in ('work', 'repair-001'):
+            (self.root / 'tasks' / task).mkdir()
+            result = self.cli('records.py', 'resolve', self.root, task)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(Path(result.stdout.strip()), self.root / 'tasks' / task)
+        self.assertEqual(len(list(self.suite.glob('[0-9]*_*'))), 9)
+        self.assertNotEqual(self.cli('records.py', 'resolve', roots[0], 'work').returncode, 0)
+        self.assertNotEqual(self.cli('records.py', 'resolve', self.root, '../work').returncode, 0)
 
-    def test_unidentified_usage_and_legacy_snapshots_cannot_claim_zero(self):
-        self.write('root.jsonl', [{'type': 'turn_context', 'payload': {'turn_id': 'selected'}}, {'type': 'event_msg', 'payload': {'type': 'token_count', 'info': {'last_token_usage': {'input_tokens': 123}}}}])
-        self.manifest['descendants'] = []
-        result = usage.build_report(self.manifest, self.root)
-        self.assertIsNone(result['tokens']['input_tokens']['total'])
-        self.assertIsNone(result['model_responses'])
-        self.assertEqual(result['unidentified_usage_records'], 1)
+    def test_binding_history_session_reuse_and_replacement_identity(self):
+        _, source = self.source(bind=False)
+        first = dict(id='a', source_id=source['id'], turn_ids=['turn-1'], task_id='first', role='implementer', agent_run_id='stable')
+        second = dict(first, id='b', turn_ids=['turn-2'], task_id='repair', role='reviewer')
+        records.bind(self.root, first)
+        records.bind(self.root, second)
+        before = (self.root / 'implementation.json').read_bytes()
+        records.bind(self.root, first)
+        self.assertEqual((self.root / 'implementation.json').read_bytes(), before)
+        with self.assertRaisesRegex(ValueError, 'already bound'):
+            records.bind(self.root, dict(first, id='c'))
+        _, replacement = self.source(sid='replacement', bind=False)
+        with self.assertRaisesRegex(ValueError, 'distinct'):
+            records.bind(self.root, dict(first, id='new', source_id=replacement['id']))
+        records.bind(self.root, dict(first, id='new', source_id=replacement['id'], agent_run_id='replacement'))
+        report = usage.refresh(self.root)
+        tasks = {r['key']['task_id']: r['summary'] for r in report['groups']['task']}
+        self.assertEqual(tasks['repair']['tokens']['total_tokens']['total'], 70)
+        self.assertEqual(tasks['first']['tokens']['total_tokens']['total'], 260)
+        self.assertEqual(len(self.manifest()['bindings']), 3)
+        self.assertTrue((self.root / 'runs/repair/stable/trace.jsonl').is_file())
 
-    def test_selected_turn_without_usage_cannot_disappear_from_totals(self):
-        self.write('root.jsonl', [self.event('root', 'selected', 'a', {'input_tokens': 10})])
-        self.write('child.jsonl', [])
-        result = usage.build_report(self.manifest, self.root)
-        self.assertIsNone(result['tokens']['input_tokens']['total'])
-        self.assertEqual(result['tokens']['input_tokens']['known_subtotal'], 10)
-        self.assertIsNone(result['model_responses'])
+    def test_both_adapters_normalize_tokens_without_aggregate_double_counting(self):
+        expected = dict(input_tokens=150, cached_input_tokens=70, cache_write_input_tokens=10,
+                        uncached_input_tokens=80, output_tokens=50, reasoning_output_tokens=15, total_tokens=200)
+        for adapter in ('codex', 'opencode'):
+            with self.subTest(adapter=adapter):
+                self.root = records.allocate(self.suite, adapter)
+                self.source(adapter)
+                report = usage.refresh(self.root)
+                self.assertEqual({k: v['total'] for k, v in report['summary']['tokens'].items()}, expected)
+                self.assertEqual(report['summary']['observed_model_measurements'], 2)
+                self.assertEqual(report['groups']['task'][0]['summary']['tokens']['total_tokens']['total'], 200)
 
-    def test_disconnected_descendant_and_conflicting_duplicate_are_errors(self):
-        self.manifest['descendants'][0]['parent_session_id'] = 'outside'
-        with self.assertRaisesRegex(ValueError, 'connected'):
-            usage.build_report(self.manifest, self.root)
-        self.manifest['descendants'] = []
-        self.write('root.jsonl', [self.event('root', 'selected', 'a', {'input_tokens': 10}), self.event('root', 'selected', 'a', {'input_tokens': 11})])
+    def test_requested_and_observed_settings_do_not_infer_effort_from_variant(self):
+        _, source = self.source('opencode', bind=False)
+        records.bind(self.root, dict(id='binding', source_id=source['id'], turn_ids=source['turn_ids'], task_id='work', role='implementer', agent_run_id='run', requested={'model':'requested-model', 'reasoning_effort':'high'}))
+        events, gaps = self.evidence()
+        models = [e for e in events if e['kind'] == 'model']
+        self.assertEqual({e['model'] for e in models}, {'model-a', 'model-b'})
+        self.assertEqual({e['variant'] for e in models}, {'high', 'low'})
+        self.assertTrue(all(e['reasoning_effort'] is None for e in models))
+        self.assertTrue(all(e['requested']['model'] == 'requested-model' for e in models))
+        report = usage.build_report(events, gaps)
+        self.assertEqual(report['summary']['tokens']['total_tokens']['total'], 200)
+        self.assertEqual(report['groups']['model_effort'], [])
+        self.assertEqual(len(report['attribution_omissions']['model_effort']['event_ids']), 2)
+        self.assertEqual([(r['key']['model'], r['summary']['tokens']['total_tokens']['total'])
+                          for r in report['groups']['model']], [('model-a', 130), ('model-b', 70)])
+        self.assertEqual(report['groups']['effort'], [])
+
+    def test_codex_model_effort_changes_are_grouped_downstream(self):
+        self.source()
+        events, gaps = self.evidence()
+        rows = usage.build_report(events, gaps)['groups']['model_effort']
+        self.assertEqual([(r['key'], r['summary']['tokens']['total_tokens']['total']) for r in rows],
+                         [({'model':'model-a','reasoning_effort':'high'},130), ({'model':'model-b','reasoning_effort':'low'},70)])
+
+    def test_named_assignments_and_task_model_tool_breakdowns_survive_session_reuse(self):
+        path, source = self.source(bind=False)
+        rows = [json.loads(r) for r in path.read_text().splitlines()]
+        rows[0]['payload'].update(agent_nickname='Ada', agent_path='/root/builder')
+        path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        for turn, task, role, purpose in [('turn-1', 'build', 'implementer', 'Implement editor'),
+                                          ('turn-2', 'repair', 'reviewer', 'Check correction')]:
+            records.bind(self.root, dict(id=task, source_id=source['id'], turn_ids=[turn],
+                                         task_id=task, role=role, agent_run_id='stable', purpose=purpose))
+        report = usage.refresh(self.root)
+        assignments = report['assignments']
+        self.assertEqual({a['agent_name'] for a in assignments}, {'Ada'})
+        self.assertEqual({a['native_agent_path'] for a in assignments}, {'/root/builder'})
+        self.assertEqual({(a['task_id'], a['purpose']) for a in assignments},
+                         {('build', 'Implement editor'), ('repair', 'Check correction')})
+        self.assertEqual(len(report['spawn_tree']['nodes']), 1)
+        self.assertEqual([(r['key'], r['summary']['tokens']['total_tokens']['total'])
+                          for r in report['groups']['task_model_effort']],
+                         [({'task_id':'build', 'model':'model-a', 'reasoning_effort':'high'},130),
+                          ({'task_id':'repair', 'model':'model-b', 'reasoning_effort':'low'},70)])
+        tools = {r['key']['name']: r['summary'] for r in report['groups']['tool']}
+        self.assertEqual(tools['functions.exec']['observed_tool_calls'], 1)
+        self.assertEqual(tools['functions.exec']['wrapper_calls'], 1)
+        self.assertEqual(tools['exec_command']['outcomes'], {'failed':1})
+        self.assertEqual(tools['exec_command']['observed_nested_operations'], 1)
+        self.assertAlmostEqual(tools['exec_command']['observed_operation_seconds'], 1)
+        trace = json.loads((self.root / 'reports/timeline.json').read_text())['traceEvents']
+        lane = next(e for e in trace if e['ph'] == 'M')['args']['name']
+        self.assertIn('Ada · implementer / build', lane)
+        self.assertIn('Ada · reviewer / repair', lane)
+        self.assertTrue(any(e['args'].get('purpose') == 'Implement editor' for e in trace if 'args' in e))
+        self.assertTrue(any(e['args'].get('tokens.total_tokens') == 130 for e in trace if 'args' in e))
+
+    def test_repeated_imports_preserve_native_bytes_and_content_free_stable_outputs(self):
+        path, _ = self.source()
+        before = path.read_bytes()
+        first = self.cli('usage_report.py', self.root)
+        self.assertEqual(first.returncode, 0, first.stderr)
+        outputs = {p: p.read_bytes() for p in [*self.root.glob('reports/*'), *self.root.glob('runs/*/*/trace.jsonl')]}
+        second = self.cli('usage_report.py', self.root)
+        self.assertEqual(second.returncode, 0, second.stderr)
+        self.assertEqual({p:p.read_bytes() for p in outputs}, outputs)
+        self.assertEqual(path.read_bytes(), before)
+        self.assertNotIn(b'PRIVATE_', b''.join(outputs.values()))
+        events, _ = self.evidence()
+        self.assertTrue(all(e['event_id'] and e['native_event_id'] and e['provenance'] for e in events))
+
+    def test_response_dedup_and_conflicting_native_measurements(self):
+        path, _ = self.source()
+        rows = path.read_text().splitlines()
+        duplicate = next(row for row in rows if 'token_usage_record' in row)
+        path.write_text('\n'.join(rows + [duplicate]) + '\n')
+        report = usage.refresh(self.root)
+        self.assertEqual(report['summary']['tokens']['total_tokens']['total'], 200)
+        changed = json.loads(duplicate)
+        changed['payload']['usage']['input_tokens'] = 101
+        with path.open('a') as stream:
+            stream.write(json.dumps(changed) + '\n')
         with self.assertRaisesRegex(ValueError, 'conflicting duplicate'):
-            usage.build_report(self.manifest, self.root)
+            usage.refresh(self.root)
 
-    def test_cli_output_aliases_cannot_modify_input_logs(self):
-        self.manifest['descendants'] = []
-        manifest = self.root / 'sessions.json'
-        manifest.write_text(json.dumps(self.manifest))
-        source = self.root / 'root.jsonl'
-        for alias_kind in ('same', 'symlink', 'hardlink'):
-            with self.subTest(alias=alias_kind):
-                self.write('root.jsonl', [self.event('root', 'selected', 'a', {'input_tokens': 10})])
-                before = source.read_bytes()
-                output = self.root / (alias_kind + '.json')
-                if alias_kind == 'same':
-                    output = source
-                elif alias_kind == 'symlink':
-                    output.symlink_to(source)
+    def test_missing_counters_and_partial_attribution_preserve_known_usage(self):
+        path, _ = self.source(bind=False)
+        rows = [json.loads(r) for r in path.read_text().splitlines()]
+        for row in rows:
+            if row['type'] == 'token_usage_record' and row['payload']['response_id'] == 'response-1':
+                del row['payload']['usage']['cached_input_tokens']
+        path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        report = usage.refresh(self.root)
+        self.assertEqual(report['summary']['tokens']['input_tokens']['total'], 150)
+        self.assertEqual(report['summary']['tokens']['cached_input_tokens'], dict(total=None, known_subtotal=10, measured_records=1, missing_records=1))
+        self.assertEqual(report['groups']['task'], [])
+        self.assertGreater(len(report['attribution_omissions']['task']['event_ids']), 0)
+        self.assertTrue(list(self.root.glob('runs/_unassigned/*/trace.jsonl')))
+
+    def test_missing_selected_source_or_turn_never_claims_complete_totals(self):
+        self.source()
+        path, _ = self.source(sid='missing')
+        path.unlink()
+        report = usage.refresh(self.root)
+        self.assertIsNone(report['summary']['tokens']['input_tokens']['total'])
+        self.assertEqual(report['summary']['tokens']['input_tokens']['known_subtotal'], 150)
+        self.assertIn('source_unavailable', report['summary']['coverage'])
+        self.assertEqual((self.root / 'runs/orchestration/missing-run/trace.jsonl').read_text(), '')
+
+    def test_legacy_snapshots_unidentified_usage_and_truncated_capture_are_omissions(self):
+        path, _ = self.source(turns=['turn-1'])
+        rows = [json.loads(r) for r in path.read_text().splitlines()]
+        rows = [r for r in rows if r['type'] != 'token_usage_record']
+        path.write_text(''.join(json.dumps(r) + '\n' for r in rows) + '{"truncated":')
+        report = usage.refresh(self.root)
+        self.assertIsNone(report['summary']['tokens']['total_tokens']['known_subtotal'])
+        self.assertIn('missing_usage', report['summary']['coverage'])
+        self.assertIn('invalid_json_line', report['summary']['coverage'])
+        self.assertIsNone(report['groups']['task'][0]['summary']['tokens']['total_tokens']['total'])
+
+    def test_failed_tools_unfinished_runs_and_wrapper_nested_relationships(self):
+        path, _ = self.source(turns=['turn-1'])
+        rows = [json.loads(r) for r in path.read_text().splitlines()]
+        rows = [r for r in rows if r['payload'].get('type') != 'task_complete']
+        path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        events, gaps = self.evidence()
+        report = usage.build_report(events, gaps)
+        self.assertEqual(report['summary']['outcomes'], {'failed':1, 'returned':1})
+        self.assertEqual(report['summary']['wrapper_calls'], 1)
+        self.assertEqual(report['summary']['observed_nested_operations'], 1)
+        self.assertIn('unfinished_turn', report['summary']['coverage'])
+        self.assertIsNone(report['summary']['tokens']['input_tokens']['total'])
+        self.assertEqual(report['summary']['tokens']['input_tokens']['known_subtotal'], 100)
+        self.assertIsNone(report['groups']['model_effort'][0]['summary']['tokens']['total_tokens']['total'])
+
+    def test_opencode_unfinished_zero_initialized_aggregate_is_not_measurement(self):
+        path, _ = self.source('opencode', turns=['turn-2'])
+        data = json.loads(path.read_text())
+        data['messages'][3]['parts'] = []
+        data['messages'][3]['info']['time'].pop('completed')
+        data['messages'][3]['info'].pop('finish')
+        data['messages'][3]['info']['tokens'] = {'input':0,'output':0,'reasoning':0,'cache':{'read':0,'write':0}}
+        path.write_text(json.dumps(data))
+        report = usage.refresh(self.root)
+        self.assertIsNone(report['summary']['tokens']['total_tokens']['known_subtotal'])
+        self.assertIn('unfinished_turn', report['summary']['coverage'])
+
+    def test_native_lineage_parallel_children_forks_and_perfetto_subset(self):
+        self.source()
+        self.source(sid='implementer', parent='supervisor', role='implementer', task='work')
+        self.source(sid='reviewer', parent='implementer', role='reviewer', task='work')
+        self.source(sid='parallel', parent='supervisor', fork='implementer', role='validator', task='validation')
+        events, gaps = self.evidence()
+        tree = usage.build_report(events, gaps)['spawn_tree']
+        self.assertEqual({(e['parent'],e['child'],e['relationship']) for e in tree['edges']},
+                         {('codex:supervisor','codex:implementer','spawn'), ('codex:implementer','codex:reviewer','spawn'),
+                          ('codex:supervisor','codex:parallel','spawn'), ('codex:implementer','codex:parallel','fork')})
+        trace = usage.timeline(events)
+        rows = trace['traceEvents']
+        self.assertEqual(sum(r['ph'] == 'M' for r in rows), 4)
+        self.assertEqual(sum(r['ph'] == 's' for r in rows), 3)
+        self.assertEqual(sum(r['ph'] == 'f' for r in rows), 3)
+        # Guard the Chrome Trace numeric/hex-ID contract caught by real Perfetto.
+        for flow in (r for r in rows if r['ph'] in ('s', 'f')):
+            fid = flow['id']
+            if isinstance(fid, str):
+                self.assertRegex(fid, r'^0x[0-9a-fA-F]{1,16}$')
+            else:
+                self.assertIsInstance(fid, int)
+                self.assertTrue(0 <= fid < 2**53)
+        self.assertTrue(all(r['ph'] in ('M','X','i','s','f') for r in rows))
+        tool = next(r for r in rows if r['ph'] == 'X' and r['name'] == 'exec_command')
+        self.assertEqual(tool['dur'], 1_000_000)
+        self.assertTrue(all('dur' not in r for r in rows if r['ph'] != 'X'))
+        self.assertTrue(trace['metadata']['timing_omissions'])
+
+    def test_native_identity_and_source_version_guards(self):
+        path, _ = self.source()
+        rows = [json.loads(r) for r in path.read_text().splitlines()]
+        rows[0]['payload']['id'] = 'wrong-session'
+        path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+        with self.assertRaisesRegex(ValueError, 'identity mismatch'):
+            usage.refresh(self.root)
+        manifest = self.manifest()
+        manifest['sources'][0]['source_version'] = 'unknown'
+        records.save_manifest(self.root, manifest)
+        with self.assertRaisesRegex(ValueError, 'unsupported'):
+            usage.refresh(self.root)
+
+    def test_output_aliases_and_directory_escapes_cannot_overwrite_native_logs(self):
+        for alias in ('same', 'symlink', 'hardlink', 'directory'):
+            with self.subTest(alias=alias):
+                self.root = records.allocate(self.suite, alias)
+                path, _ = self.source()
+                output = self.root / 'reports/usage.json'
+                if alias == 'same':
+                    path.replace(output)
+                    manifest = self.manifest()
+                    manifest['sources'][0]['path'] = 'reports/usage.json'
+                    records.save_manifest(self.root, manifest)
+                    path = output
+                elif alias == 'symlink':
+                    output.symlink_to(path)
+                elif alias == 'hardlink':
+                    output.hardlink_to(path)
                 else:
-                    output.hardlink_to(source)
-                result = subprocess.run([sys.executable, str(MODULE), str(manifest),
-                                         '--root', str(self.root), '--output', str(output)],
-                                        capture_output=True, text=True)
+                    (self.root / 'reports').rmdir()
+                    (self.root / 'reports').symlink_to(Path(self.temp.name))
+                before = path.read_bytes()
+                result = self.cli('usage_report.py', self.root)
                 self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-                self.assertEqual(source.read_bytes(), before)
+                self.assertEqual(path.read_bytes(), before)
+
+    def test_binding_previously_unassigned_turns_rebuilds_old_trace_without_duplicates(self):
+        _, source = self.source(bind=False)
+        usage.refresh(self.root)
+        old = next(self.root.glob('runs/_unassigned/*/trace.jsonl'))
+        self.assertTrue(old.read_text())
+        records.bind(self.root, dict(id='late', source_id=source['id'], turn_ids=source['turn_ids'], task_id='work', role='implementer', agent_run_id='run'))
+        report = usage.refresh(self.root)
+        self.assertEqual(old.read_text(), '')
+        self.assertEqual(report['summary']['tokens']['total_tokens']['total'], 200)
+        self.assertTrue((self.root / 'runs/work/run/trace.jsonl').read_text())
+
+    def test_opencode_multiple_steps_count_components_once_and_normalize_failure(self):
+        path, _ = self.source('opencode', turns=['turn-1'])
+        data = json.loads(path.read_text())
+        message = data['messages'][1]
+        message['parts'].insert(1, dict(message['parts'][0], id='step-2'))
+        # Native message tokens repeat the latest step, not the sum.
+        path.write_text(json.dumps(data))
+        report = usage.refresh(self.root)
+        self.assertEqual(report['summary']['tokens']['total_tokens']['total'], 260)
+        self.assertEqual(report['summary']['observed_model_measurements'], 2)
+        self.assertEqual(report['summary']['outcomes'], {'failed':1})
+
+    def test_inconsistent_native_counters_are_rejected(self):
+        for metric, invalid in [('cached_input_tokens',101), ('reasoning_output_tokens',31)]:
+            with self.subTest(metric=metric):
+                self.root = records.allocate(self.suite, 'invalid')
+                path, _ = self.source()
+                rows = [json.loads(r) for r in path.read_text().splitlines()]
+                next(r for r in rows if r['type'] == 'token_usage_record')['payload']['usage'][metric] = invalid
+                path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+                with self.assertRaisesRegex(ValueError, 'exceed'):
+                    usage.refresh(self.root)
+
+    def test_completed_opencode_failure_has_no_measurement_but_retains_completed_steps(self):
+        path, _ = self.source('opencode', turns=['turn-2'])
+        data = json.loads(path.read_text())
+        message = data['messages'][3]
+        message['info'].pop('finish')
+        message['info']['error'] = {'name':'APIError','data':{'message':'PRIVATE_ERROR'}}
+        message['info']['tokens'] = {'input':0,'output':0,'reasoning':0,'cache':{'read':0,'write':0}}
+        step = message['parts'].pop()
+        path.write_text(json.dumps(data))
+        report = usage.refresh(self.root)
+        tokens = report['summary']['tokens']['total_tokens']
+        self.assertIsNone(tokens['total'])
+        self.assertIsNone(tokens['known_subtotal'])
+        self.assertEqual(tokens['missing_records'], 1)
+        self.assertIn('unmeasured_message', report['summary']['coverage'])
+        message['parts'].append(step)
+        path.write_text(json.dumps(data))
+        report = usage.refresh(self.root)
+        self.assertEqual(report['summary']['tokens']['total_tokens']['known_subtotal'], 70)
+
+    def test_native_mcp_transport_tool_failure_success_and_unknown_status(self):
+        for result, expected in [({'Err':'PRIVATE_ERROR'},'failed'), ({'Ok':{'isError':True}},'failed'),
+                                 ({'Ok':{'isError':False}},'completed'), ({},'returned')]:
+            with self.subTest(result=result):
+                self.root = records.allocate(self.suite, 'mcp')
+                path, _ = self.source(turns=['turn-1'])
+                rows = [json.loads(r) for r in path.read_text().splitlines()]
+                for row in rows:
+                    p = row['payload']
+                    if p.get('type') == 'exec_command_end':
+                        p.pop('exit_code')
+                        p.update(type='mcp_tool_call_end',result=result)
+                path.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+                events, _ = self.evidence()
+                tool = next(e for e in events if e.get('call_id') == 'nested')
+                self.assertEqual(tool['outcome'], expected)
+                self.assertNotIn('PRIVATE_ERROR', json.dumps(events))
+
+    def test_source_wide_gaps_propagate_to_each_affected_assignment_and_model(self):
+        path, source = self.source(bind=False)
+        for turn, task in [('turn-1','first'),('turn-2','second')]:
+            records.bind(self.root, dict(id=task,source_id=source['id'],turn_ids=[turn],task_id=task,role='implementer',agent_run_id='run'))
+        with path.open('a') as stream:
+            stream.write('{"truncated":')
+        report = usage.refresh(self.root)
+        for name in ('task','agent_run','role','model_effort'):
+            with self.subTest(group=name):
+                self.assertTrue(report['groups'][name])
+                for row in report['groups'][name]:
+                    self.assertIsNone(row['summary']['tokens']['total_tokens']['total'])
+                    self.assertGreater(row['summary']['tokens']['total_tokens']['known_subtotal'], 0)
+                    self.assertIn('invalid_json_line', row['summary']['coverage'])
+
+    @unittest.skipUnless(os.environ.get('PERFETTO_TRACE_PROCESSOR'), 'optional real Perfetto parser unavailable')
+    def test_real_perfetto_preserves_spawn_direction_without_enclosing_parent_slice(self):
+        # Reduced metadata-only case from real capture: parent has an instant,
+        # child has a running slice, and native creation is between operations.
+        base = dict(kind='agent', adapter='codex', timestamp=None, parent_session_id=None,
+                    event_id='parent', agent_id='codex:parent', start=100, end=None)
+        events = [base, dict(base,event_id='child',agent_id='codex:child',parent_session_id='parent',
+                            start=101,end=105,spawn_timestamp=101.5),
+                  dict(base,kind='model',event_id='model',start=None,end=101.4,timestamp=101.4)]
+        trace = self.root / 'timeline.json'
+        trace.write_text(json.dumps(usage.timeline(events)))
+        def query(sql):
+            result = subprocess.run([os.environ['PERFETTO_TRACE_PROCESSOR'], 'query', '--format', 'csv', str(trace), sql],
+                                    text=True, capture_output=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return list(csv.DictReader(io.StringIO(result.stdout)))
+        self.assertEqual(query("SELECT name,value FROM stats WHERE value != 0 AND severity IN ('error','data_loss')"), [])
+        edges = query('SELECT outgoing.name AS parent, incoming.name AS child FROM flow '
+                      'JOIN slice AS s1 ON flow.slice_out=s1.id JOIN thread_track AS t1 ON s1.track_id=t1.id '
+                      'JOIN thread AS outgoing ON t1.utid=outgoing.utid JOIN slice AS s2 ON flow.slice_in=s2.id '
+                      'JOIN thread_track AS t2 ON s2.track_id=t2.id JOIN thread AS incoming ON t2.utid=incoming.utid')
+        self.assertEqual(edges, [{'parent':'codex:parent','child':'codex:child'}])
+
+    def test_accounting_ignores_harness_identity_for_identical_normalized_evidence(self):
+        self.source()
+        events, diagnostics = self.evidence()
+        other = copy.deepcopy(events)
+        for event in other:
+            event['adapter'] = 'another-adapter'
+            event['provenance'] = [{'adapter':'another-adapter'}]
+        self.assertEqual(usage.summarize(events, diagnostics), usage.summarize(other, diagnostics))
 
 
 if __name__ == '__main__':
