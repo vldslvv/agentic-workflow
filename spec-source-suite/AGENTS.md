@@ -73,11 +73,15 @@ Use the selected bundle. Otherwise look outside the suite for these four file ty
 | File | Content | Blank template |
 |---|---|---|
 | `project.md` | Intent, shared constraints, target and output paths | [project](templates/project.md) |
-| `task_order.md` | Ordered task filenames | [task order](templates/task_order.md) |
-| `tasks/*.md` | Observable required behavior and additional prerequisites | [task](templates/tasks/task.md) |
+| `task_order.md` | Task filenames and scheduling dependencies | [task order](templates/task_order.md) |
+| `tasks/*.md` | Observable required behavior and interface contracts | [task](templates/tasks/task.md) |
 | `verification.md` | Shared checks and assembled-app scenarios | [verification](templates/verification.md) |
 
-Ordinary Markdown needs no frontmatter. Resolve bare filenames under `tasks/`, explicit relative task paths from the bundle root, and normative references from the containing document. Require each listed file once and unique filename stems as task IDs. Only listed tasks are selected; include referenced prerequisites and normative inputs. Each task waits for the preceding listed task's acceptance plus explicit prerequisites. Reject unknown references and cycles; do not infer dependencies from names. Partial scope cannot bypass prerequisites; an empty selection is NO_WORK. Tasks are serial by default; parallel execution needs explicit authorization and coordinated ownership/interfaces.
+Use ordinary Markdown without required frontmatter. `task_order.md` contains a `Task | Depends on` table: one task per row, with `None` or comma-separated task filenames as dependencies. Only this table declares scheduling dependencies; plans, acceptance and handoffs reference it.
+
+Resolve bare task filenames under `tasks/`, relative task paths and task links from the bundle root, and normative references from their containing document. List each task once; use unique filename stems as task IDs. Reject missing files, unlisted dependencies, unknown references and cycles, including self-dependencies.
+
+Select only listed tasks, including their prerequisites and normative inputs. A task is ready when all dependencies have passed acceptance; `None` is ready immediately. Names and row order add no dependencies. Partial selections must include unmet prerequisites or remain blocked; accepted prerequisites need valid evidence. An empty selection is NO_WORK. The Supervisor schedules ready tasks.
 
 Keep shared constraints in `project.md` and shared/final scenarios in `verification.md`. Clarify broad scenarios' pass rules before execution without changing requirements. Checks may be developed during implementation without frozen inventories or approval receipts. Repository-relative output paths resolve from the repository root; material ambiguity blocks execution. Format validity and app acceptance are separate conclusions.
 
@@ -107,7 +111,9 @@ Send worker messages for inputs, decisions, assignment changes, blockers and rep
 
 Batch independent reads and commands; print only needed matches, fields and tool descriptions. Pass paths instead of copied documents. Supervisors consume concise results; workers read their allowed sources directly. Run each role's required checks together; repeat successful checks only after relevant changes, failures, new concerns or a required independent check. Reviewers and validators still perform their own independent inspections and executions.
 
-Keep the candidate unchanged during review and validation, identified by location and revision when available. Changes invalidate affected results under the acceptance rules. Use existing version information without forcing commits or adding a locking service.
+Workers share a workspace. Follow the Supervisor's agreed interfaces and file ownership, including shared configuration. Coordinate interface changes and overlapping edits with the Supervisor before editing; reassess affected work under the acceptance rules.
+
+Keep review and validation candidates unchanged, including relevant dependencies, shared configuration and check inputs. Identify candidates by location and revision when available. The Supervisor pauses affected writers; work outside that boundary may continue. Changes invalidate affected results. Use existing version information without requiring commits or a locking service.
 
 ## Project memory
 

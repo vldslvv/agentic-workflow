@@ -1,5 +1,4 @@
-Now instead of text file, use a docker container that spawns Postgres database.
-When executing the CLI, you have to ensure that the database connection is alive, otherwise fail.
+Implement Postgres storage against the business layer's accepted storage interface, providing the same operations, data and error behavior as the initial JSON implementation. Supply a Docker setup that starts the Postgres database. Verify storage behavior against that real database without requiring CLI changes; [integration](04_integration.md) makes Postgres the CLI's storage backend.
 
 The schema should be the following:
 id: int -- unique and sequential
