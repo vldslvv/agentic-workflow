@@ -40,6 +40,47 @@ Review and repair share these settings, independently of model policy files:
 make eval-workflow WORKFLOW_MODEL=gpt-6.1-sol WORKFLOW_REASONING=high WORKFLOW_TIMEOUT=900
 ```
 
+## Review specification bundles
+
+Review current bundle files, including uncommitted changes, against the current
+[bundle templates and policies](../agentic-workflow/policies/BUNDLE.md):
+
+```sh
+make eval-specs
+make eval-specs SPEC_BUNDLE=specs/todolist
+```
+
+The default scope is every bundle directory directly under `specs/`. Each run
+uses one fresh, read-only model invocation and reports findings and suggested
+corrections without repairs. The snapshot preserves relative paths for selected
+bundles, templates, applicable policies and linked repository source documents,
+including interface definitions. Application outputs, project memory and execution
+history are excluded; unavailable and excluded references are recorded explicitly.
+Unavailable required references prevent a clean pass. Invalid or empty selections
+return a runner error without invoking the model.
+
+Inspect `.agentic-workflow/evals/specs/review-*/` for the input snapshot, prompt,
+schema, settings, model output, Markdown report and final `result.json`.
+Each finding must cite the template or policy clause, affected spec location and
+suggested correction. `FAIL` takes precedence over `UNCLEAR`, then `PASS`.
+Exit codes are `0` for `PASS`, `1` for findings or uncertainty, `2` for runner
+errors, `124` for timeout and `128 + signal` for interruption.
+
+| Setting | Default |
+|---|---|
+| `SPECS_MODEL` | `gpt-6-astra` |
+| `SPECS_REASONING` | `medium` |
+| `SPECS_TIMEOUT` | 1,800 seconds |
+
+Equivalent CLI options are available directly:
+
+```sh
+python3 -B evals/specs.py --bundle specs/todolist --model gpt-6-astra --reasoning medium --timeout 1800
+```
+
+Fixture checks establish runner behavior; use a separate live eval to judge
+specification quality. Workflow review retains its automatic repair behavior.
+
 ## Todolist end-to-end eval
 
 ```sh

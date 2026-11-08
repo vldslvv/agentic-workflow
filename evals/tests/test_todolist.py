@@ -33,6 +33,7 @@ class TodolistEvalTests(unittest.TestCase):
         (self.root / "evals").mkdir()
         shutil.copyfile(EVALS / "todolist.py", self.root / "evals/todolist.py")
         shutil.copyfile(EVALS / "worktree.py", self.root / "evals/worktree.py")
+        shutil.copyfile(EVALS / "runtime.py", self.root / "evals/runtime.py")
         shutil.copyfile(EVALS.parent / "Makefile", self.root / "Makefile")
         (self.root / "agentic-workflow/policies").mkdir(parents=True)
         (self.root / "agentic-workflow/policies/MODELS.md").write_text(
@@ -42,7 +43,7 @@ class TodolistEvalTests(unittest.TestCase):
             "| Supervisor | coordinator | coordinator |\n"
         )
         (self.root / ".gitignore").write_text(
-            "/.agentic-workflow/evals/\n/.agentic-workflow/tmp/worktrees/\n/ignored\n")
+            "/.agentic-workflow/evals/\n/.agentic-workflow/tmp/worktrees/\n/ignored\n__pycache__/\n")
         (self.root / "source.txt").write_text("original\n")
         self.git("init", "-q")
         self.git("add", ".")

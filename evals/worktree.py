@@ -11,6 +11,7 @@ import subprocess
 import sys
 import tempfile
 
+import runtime
 import todolist
 
 
@@ -27,7 +28,7 @@ def archive_evidence(worktree, destination):
         report = json.loads(result_path.read_text())
         for name in report.get("records_created", []):
             if not isinstance(name, str) or name in ("", ".", "..") or Path(name).name != name:
-                raise todolist.RunnerError("Invalid records path in eval result")
+                raise runtime.RunnerError("Invalid records path in eval result")
             source = todolist.safe_path(worktree, Path(".agentic-workflow/records") / name)
             if source.is_dir():
                 shutil.copytree(source, destination / "records" / name, symlinks=True)
@@ -49,14 +50,14 @@ def evaluate(root, agent_timeout, command_timeout):
         todolist.git(root, "worktree", "add", "--detach", str(worktree), commit)
         dirty = todolist.git(worktree, "status", "--porcelain=v1", "--untracked-files=all")
         if dirty:
-            raise todolist.RunnerError(f"New worktree is not clean:\n{dirty}")
+            raise runtime.RunnerError(f"New worktree is not clean:\n{dirty}")
         print(f"Evaluating committed HEAD {commit} in clean worktree {worktree}", flush=True)
         code = todolist.run(worktree, agent_timeout, command_timeout, allow_dirty=False)
         summary.update(exit_code=code, status={0: "PASS", 1: "FAIL", 2: "RUNNER_ERROR",
                                              124: "TIMEOUT"}.get(code, "INTERRUPTED"))
-    except todolist.Interrupted as exc:
+    except runtime.Interrupted as exc:
         summary.update(status="INTERRUPTED", exit_code=128 + exc.signum)
-    except (OSError, ValueError, todolist.RunnerError, subprocess.SubprocessError) as exc:
+    except (OSError, ValueError, runtime.RunnerError, subprocess.SubprocessError) as exc:
         summary["error"] = str(exc)
     finally:
         # Finish evidence preservation and removal even if another interrupt arrives.
@@ -68,10 +69,10 @@ def evaluate(root, agent_timeout, command_timeout):
                 todolist.git(root, "worktree", "remove", "--force", str(worktree))
             temporary.rmdir()
             summary["worktree_removed"] = True
-        except (OSError, ValueError, todolist.RunnerError, subprocess.SubprocessError) as exc:
+        except (OSError, ValueError, runtime.RunnerError, subprocess.SubprocessError) as exc:
             summary.update(status="RUNNER_ERROR", exit_code=2, cleanup_error=str(exc))
         finally:
-            todolist.write_json(destination / "worktree.json", summary)
+            runtime.write_json(destination / "worktree.json", summary)
             for sig, handler in previous.items():
                 signal.signal(sig, handler)
     print(f"Eval: {summary['status']}")
@@ -88,19 +89,19 @@ def evaluate(root, agent_timeout, command_timeout):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--agent-timeout", type=todolist.positive_seconds, default=1800)
-    parser.add_argument("--command-timeout", type=todolist.positive_seconds, default=60)
+    parser.add_argument("--agent-timeout", type=runtime.positive_seconds, default=1800)
+    parser.add_argument("--command-timeout", type=runtime.positive_seconds, default=60)
     args = parser.parse_args()
     for sig in (signal.SIGINT, signal.SIGTERM):
-        signal.signal(sig, todolist.interrupt)
+        signal.signal(sig, runtime.interrupt)
     try:
         if sys.platform == "win32":
-            raise todolist.RunnerError("This local runner requires POSIX process groups")
+            raise runtime.RunnerError("This local runner requires POSIX process groups")
         root = Path(todolist.git(Path.cwd(), "rev-parse", "--show-toplevel").strip()).resolve()
         return evaluate(root, args.agent_timeout, args.command_timeout)
-    except todolist.Interrupted as exc:
+    except runtime.Interrupted as exc:
         return 128 + exc.signum
-    except (OSError, ValueError, todolist.RunnerError, subprocess.SubprocessError) as exc:
+    except (OSError, ValueError, runtime.RunnerError, subprocess.SubprocessError) as exc:
         print(f"RUNNER_ERROR: {exc}", file=sys.stderr)
         return 2
 

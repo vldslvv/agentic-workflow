@@ -9,13 +9,20 @@ TRACE_INTERVAL ?= 5
 export IMPL TRACE_INTERVAL
 EVAL_AGENT_TIMEOUT ?= 1800
 EVAL_COMMAND_TIMEOUT ?= 60
+SPEC_BUNDLE ?=
+SPECS_MODEL ?= gpt-6-astra
+SPECS_REASONING ?= medium
+SPECS_TIMEOUT ?= 1800
 WORKFLOW_TIMEOUT ?= 1800
 WORKFLOW_MODEL ?= gpt-6-astra
 WORKFLOW_REASONING ?= medium
 
-.PHONY: help eval eval-workflow trace cleanup clean clean-runs clean-tasks
+.PHONY: help eval eval-workflow eval-specs trace cleanup clean clean-runs clean-tasks
 
 help:
+	@echo "make eval-specs    Report on current specs against bundle templates; no repairs"
+	@echo "                       SPEC_BUNDLE=specs/todolist (default: all bundles)"
+	@echo "                       SPECS_MODEL=gpt-6-astra SPECS_REASONING=medium SPECS_TIMEOUT=1800 (defaults)"
 	@echo "make eval         Evaluate HEAD in a clean temporary worktree; retain reports under .agentic-workflow/evals/todolist-worktrees/"
 	@echo "make eval-workflow  Review workflow documents once; automatically attempt one repair in working files"
 	@echo "                       WORKFLOW_MODEL=gpt-6-astra WORKFLOW_REASONING=medium WORKFLOW_TIMEOUT=1800 (defaults)"
@@ -31,6 +38,9 @@ eval:
 
 eval-workflow:
 	@cd "$(REPO_ROOT)" && python3 -B evals/workflow.py --timeout "$(WORKFLOW_TIMEOUT)" --model "$(WORKFLOW_MODEL)" --reasoning "$(WORKFLOW_REASONING)"
+
+eval-specs:
+	@cd "$(REPO_ROOT)" && python3 -B evals/specs.py $(if $(SPEC_BUNDLE),--bundle "$(SPEC_BUNDLE)") --timeout "$(SPECS_TIMEOUT)" --model "$(SPECS_MODEL)" --reasoning "$(SPECS_REASONING)"
 
 trace:
 	@cd "$(REPO_ROOT)" && python3 agentic-workflow/helpers/trace_view.py "$${IMPL:?Set IMPL to an implementation directory}" "--interval=$$TRACE_INTERVAL"
