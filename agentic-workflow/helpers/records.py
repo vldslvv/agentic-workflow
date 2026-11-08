@@ -14,7 +14,7 @@ Retain the returned path for later commands.
 
 Examples:
   python3 agentic-workflow/helpers/records.py allocate example
-  python3 agentic-workflow/helpers/records.py resolve .agentic-workflow/001_example 01_task
+  python3 agentic-workflow/helpers/records.py resolve .agentic-workflow/records/001_example 01_task
 """
 import argparse
 from contextlib import contextmanager
@@ -98,7 +98,7 @@ def main():
 name.
 
 name starts with an ASCII letter/digit and contains only ASCII letters, digits,
-_, . or -; --records-root defaults to .agentic-workflow in the cwd.
+_, . or -; --records-root defaults to .agentic-workflow/records in the cwd.
 
 Creates --records-root/<NNN>_<name>/ with tasks/, runs/, reports/ and
 .records.lock; NNN is the next numeric prefix (at least three digits). Attempts
@@ -115,8 +115,8 @@ to resume an existing task instead of allocating again.
 Example: python3 agentic-workflow/helpers/records.py allocate example
 """)
     allocate_parser.add_argument('name', help='implementation name (safe identifier)')
-    allocate_parser.add_argument('--records-root', type=Path, default=Path('.agentic-workflow'),
-                                 help='records directory (default: .agentic-workflow)')
+    allocate_parser.add_argument('--records-root', type=Path, default=Path('.agentic-workflow/records'),
+                                 help='records directory (default: .agentic-workflow/records)')
     resolve_parser = commands.add_parser('resolve',
         formatter_class=argparse.RawDescriptionHelpFormatter, description="""Resume a known task in an existing implementation.
 
@@ -135,7 +135,7 @@ input, absent task or an operation error (stderr).
 
 Use the returned task path and retain implementation for reports/repairs.
 
-Example: python3 agentic-workflow/helpers/records.py resolve .agentic-workflow/001_example 01_task
+Example: python3 agentic-workflow/helpers/records.py resolve .agentic-workflow/records/001_example 01_task
 """)
     resolve_parser.add_argument('implementation', type=Path, help='existing implementation directory')
     resolve_parser.add_argument('task', help='existing task directory name (safe identifier)')

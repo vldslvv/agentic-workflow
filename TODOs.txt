@@ -4,4 +4,5 @@ Loop tasks without having a supervisor -- less context?
 
 Consolidate where temp artifacts are created.
 Reduce templates to reduce the data flow/token usage -- run trace first
+Understand traces better
 

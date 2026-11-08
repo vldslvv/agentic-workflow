@@ -28,18 +28,20 @@ def archive_evidence(worktree, destination):
         for name in report.get("records_created", []):
             if not isinstance(name, str) or name in ("", ".", "..") or Path(name).name != name:
                 raise todolist.RunnerError("Invalid records path in eval result")
-            source = todolist.safe_path(worktree, Path(".agentic-workflow") / name)
+            source = todolist.safe_path(worktree, Path(".agentic-workflow/records") / name)
             if source.is_dir():
                 shutil.copytree(source, destination / "records" / name, symlinks=True)
 
 
 def evaluate(root, agent_timeout, command_timeout):
     commit = todolist.git(root, "rev-parse", "HEAD").strip()
-    archive_root = todolist.safe_path(root, Path(".evals/todolist-worktrees"))
+    archive_root = todolist.safe_path(root, Path(".agentic-workflow/evals/todolist-worktrees"))
     archive_root.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ-")
     destination = Path(tempfile.mkdtemp(prefix=stamp, dir=archive_root))
-    temporary = Path(tempfile.mkdtemp(prefix="todolist-eval-"))
+    worktrees = todolist.safe_path(root, Path(".agentic-workflow/tmp/worktrees"))
+    worktrees.mkdir(parents=True, exist_ok=True)
+    temporary = Path(tempfile.mkdtemp(prefix="todolist-eval-", dir=worktrees))
     worktree = temporary / "checkout"
     summary = {"source_commit": commit, "source_root": str(root), "worktree": str(worktree),
                "status": "RUNNER_ERROR", "exit_code": 2, "worktree_removed": False}

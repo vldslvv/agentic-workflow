@@ -58,9 +58,9 @@ Keep customizations outside the package:
 | Root `AGENTS.md` | Project instructions and entry-point block |
 | `specs/` | Project specification bundles |
 | Application directories | Project code and dependencies |
-| `.agents/memory/` | Project lessons under [Memory](policies/MEMORY.md) |
-| `.agentic-workflow/MODELS.md` | Complete project routing override |
-| `.agentic-workflow/NNN_name/` | Tasks, runs, native traces and reports |
+| `.agentic-workflow/memory/` | Project lessons under [Memory](policies/MEMORY.md) |
+| `.agentic-workflow/config/MODELS.md` | Complete project routing override |
+| `.agentic-workflow/records/NNN_name/` | Tasks, runs, native traces and reports |
 
 For routing overrides, copy [MODELS.md](policies/MODELS.md) to the path above and
 edit the complete policy under its [routing-source rules](policies/MODELS.md#routing-source).
@@ -89,8 +89,8 @@ python3 agentic-workflow/helpers/check_package.py
 python3 agentic-workflow/helpers/check_package.py --integration-root .
 python3 -m unittest discover -s agentic-workflow/tests -v
 python3 agentic-workflow/helpers/records.py allocate example
-python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/001_example
-python3 agentic-workflow/helpers/trace_view.py .agentic-workflow/001_example --interval 5
+python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/records/001_example
+python3 agentic-workflow/helpers/trace_view.py .agentic-workflow/records/001_example --interval 5
 ```
 
 Use the actual path printed by allocation; each call advances the numeric prefix.

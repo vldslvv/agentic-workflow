@@ -16,7 +16,7 @@ WORKFLOW_REASONING ?= medium
 .PHONY: help eval eval-workflow trace cleanup clean clean-runs clean-tasks
 
 help:
-	@echo "make eval         Evaluate HEAD in a clean temporary worktree; retain reports under .evals/todolist-worktrees/"
+	@echo "make eval         Evaluate HEAD in a clean temporary worktree; retain reports under .agentic-workflow/evals/todolist-worktrees/"
 	@echo "make eval-workflow  Review workflow documents once; automatically attempt one repair in working files"
 	@echo "                       WORKFLOW_MODEL=gpt-6-astra WORKFLOW_REASONING=medium WORKFLOW_TIMEOUT=1800 (defaults)"
 	@echo "                       FIXED means mechanical checks passed without independent re-review; partial edits may remain on failure"
@@ -36,7 +36,7 @@ trace:
 	@cd "$(REPO_ROOT)" && python3 agentic-workflow/helpers/trace_view.py "$${IMPL:?Set IMPL to an implementation directory}" "--interval=$$TRACE_INTERVAL"
 
 cleanup:
-	@cd "$(REPO_ROOT)" && rm -rf -- .agentic-workflow/[0-9]*_*
+	@cd "$(REPO_ROOT)" && rm -rf -- .agentic-workflow/records/[0-9]*_*
 
 clean: cleanup
 

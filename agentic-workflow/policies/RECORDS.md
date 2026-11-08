@@ -16,7 +16,7 @@
 - Outputs: implementation root and task ID.
 - Next: reuse the root for resumed work and repairs.
 
-`allocate` reserves `.agentic-workflow/<NNN>_<name>/` under a local directory lock.
+`allocate` reserves `.agentic-workflow/records/<NNN>_<name>/` under a local directory lock.
 It captures session metadata and the current native turn.
 `resolve` finds the task and captures the current turn.
 

@@ -55,18 +55,18 @@ class WorkflowReviewTests(unittest.TestCase):
                               capture_output=True, text=True, timeout=15)
 
     def reports(self):
-        return sorted((self.root / ".evals/workflow").glob("review-*"))
+        return sorted((self.root / ".agentic-workflow/evals/workflow").glob("review-*"))
 
     def project_files(self):
         return {str(path.relative_to(self.root)): path.read_bytes()
                 for path in self.root.rglob("*")
-                if path.is_file() and ".evals" not in path.relative_to(self.root).parts}
+                if path.is_file() and not path.is_relative_to(self.root / ".agentic-workflow/evals")}
 
     def test_make_runs_one_read_only_pass_on_current_inputs_and_retains_report(self):
         contract = self.root / "agentic-workflow/WORKFLOW.md"
         contract.write_text(contract.read_text() + "\nUncommitted requirement.\n")
         before = contract.read_bytes()
-        for relative in (".agents/memory/index.md", ".agentic-workflow/001_old/result.md", "apps/app.py"):
+        for relative in (".agentic-workflow/memory/index.md", ".agentic-workflow/records/001_old/result.md", "apps/app.py"):
             path = self.root / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text("Excluded input")
@@ -91,8 +91,8 @@ class WorkflowReviewTests(unittest.TestCase):
         self.assertEqual((inputs / "agentic-workflow/WORKFLOW.md").read_bytes(), before)
         self.assertEqual(contract.read_bytes(), before)
         self.assertTrue((inputs / ".agents/skills/agentic-workflow-planner/SKILL.md").is_file())
-        self.assertFalse((inputs / ".agents/memory").exists())
-        self.assertFalse((inputs / ".agentic-workflow/001_old").exists())
+        self.assertFalse((inputs / ".agentic-workflow/memory").exists())
+        self.assertFalse((inputs / ".agentic-workflow/records/001_old").exists())
         self.assertFalse((inputs / "apps").exists())
         self.assertIn("Workflow review: PASS", result.stdout)
         report = (directory / "report.md").read_text()
@@ -146,8 +146,8 @@ class WorkflowReviewTests(unittest.TestCase):
                     self.assertIn("partial edits may remain", result.stdout)
 
     def test_failed_review_repairs_working_files_once_and_checks_integration(self):
-        override = self.root / ".agentic-workflow/MODELS.md"
-        override.parent.mkdir()
+        override = self.root / ".agentic-workflow/config/MODELS.md"
+        override.parent.mkdir(parents=True)
         override.write_text("## Profiles\n| judge | judge-model | medium |\n"
                             "| editor | editor-model | high |\n"
                             "## Role routes\n| Reviewer | judge | judge |\n| Planner | editor | editor |\n")
@@ -228,8 +228,8 @@ class WorkflowReviewTests(unittest.TestCase):
                     shutil.copyfile(SOURCE / relative, self.root / relative)
 
     def test_command_model_settings_apply_to_both_calls_and_evidence(self):
-        override = self.root / ".agentic-workflow/MODELS.md"
-        override.parent.mkdir()
+        override = self.root / ".agentic-workflow/config/MODELS.md"
+        override.parent.mkdir(parents=True)
         override.write_text("Invalid routing remains a review input, not launch configuration.\n")
         cases = ((False, [], "gpt-6-astra", "medium"),
                  (True, ["WORKFLOW_MODEL=chosen-model", "WORKFLOW_REASONING=high"], "chosen-model", "high"),

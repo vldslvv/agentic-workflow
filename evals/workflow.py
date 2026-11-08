@@ -68,7 +68,7 @@ def copy_inputs(root, destination):
     """Preserve current candidate files without copying project execution history."""
     shutil.copytree(root / "agentic-workflow", destination / "agentic-workflow",
                     ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
-    for relative in ("AGENTS.md", ".agentic-workflow/MODELS.md"):
+    for relative in ("AGENTS.md", ".agentic-workflow/config/MODELS.md"):
         source = root / relative
         if source.is_file():
             target = destination / relative
@@ -172,7 +172,7 @@ only if all findings are resolved; otherwise UNCLEAR and explain what remains.
 
 
 def run(root, timeout, settings):
-    reports = root / ".evals/workflow"
+    reports = root / ".agentic-workflow/evals/workflow"
     reports.mkdir(parents=True, exist_ok=True)
     results = Path(tempfile.mkdtemp(prefix="review-", dir=reports))
     print(f"Workflow review evidence: {results}", flush=True)

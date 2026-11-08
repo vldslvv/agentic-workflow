@@ -41,12 +41,13 @@ class TodolistEvalTests(unittest.TestCase):
             "## Role routes\n| Role | Default | Demanding work |\n|---|---|---|\n"
             "| Supervisor | coordinator | coordinator |\n"
         )
-        (self.root / ".gitignore").write_text("/.evals/\n/ignored\n")
+        (self.root / ".gitignore").write_text(
+            "/.agentic-workflow/evals/\n/.agentic-workflow/tmp/worktrees/\n/ignored\n")
         (self.root / "source.txt").write_text("original\n")
         self.git("init", "-q")
         self.git("add", ".")
         self.git("-c", "user.name=Eval Test", "-c", "user.email=eval@example.invalid", "commit", "-qm", "fixture")
-        self.results = self.root / ".evals/todolist"
+        self.results = self.root / ".agentic-workflow/evals/todolist"
 
     def git(self, *args):
         return subprocess.run(["git", "-C", str(self.root), *args], check=True,
@@ -105,8 +106,8 @@ class TodolistEvalTests(unittest.TestCase):
                     self.git("add", "source.txt")
 
     def test_project_routing_replaces_defaults_and_survives_cleanup(self):
-        override = self.root / ".agentic-workflow/MODELS.md"
-        override.parent.mkdir()
+        override = self.root / ".agentic-workflow/config/MODELS.md"
+        override.parent.mkdir(parents=True)
         source = (self.root / "agentic-workflow/policies/MODELS.md").read_text()
         content = source.replace("fixture-model", "project-model").replace("high", "default")
         override.write_text(content)
@@ -127,7 +128,7 @@ class TodolistEvalTests(unittest.TestCase):
     def test_existing_ignored_output_paths_rejected(self):
         with (self.root / ".git/info/exclude").open("a") as f:
             f.write("\n/apps/todolist/\n")
-        for name in ("apps/todolist", ".evals/todolist"):
+        for name in ("apps/todolist", ".agentic-workflow/evals/todolist"):
             with self.subTest(path=name):
                 path = self.root / name
                 path.mkdir(parents=True)
@@ -158,23 +159,23 @@ class TodolistEvalTests(unittest.TestCase):
         self.assertEqual(self.git("diff", "--cached"), index_before)
 
     def test_existing_execution_records_are_excluded_from_grading_and_cleanup(self):
-        old = self.root / ".agentic-workflow/000_previous"
+        old = self.root / ".agentic-workflow/records/000_previous"
         old.mkdir(parents=True)
         (old / "keep.txt").write_text("existing evidence\n")
         self.git("add", ".agentic-workflow")
         self.git("-c", "user.name=Eval Test", "-c", "user.email=eval@example.invalid",
                  "commit", "-qm", "existing execution records")
         # Old records need no traces and may coexist with ignored local records.
-        ignored = self.root / ".agentic-workflow/ignored"
+        ignored = self.root / ".agentic-workflow/records/ignored"
         ignored.mkdir()
         (ignored / "keep.txt").write_text("ignored evidence\n")
         with (self.root / ".git/info/exclude").open("a") as f:
-            f.write("\n/.agentic-workflow/ignored/\n")
+            f.write("\n/.agentic-workflow/records/ignored/\n")
         result = self.invoke()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(self.report()["artifacts"]["implementations"], ["001_todolist"])
         # A directory added after the trial also does not belong to its cleanup.
-        later = self.root / ".agentic-workflow/002_later"
+        later = self.root / ".agentic-workflow/records/002_later"
         later.mkdir()
         (later / "keep.txt").write_text("later evidence\n")
         result = self.invoke("clean")
@@ -182,7 +183,7 @@ class TodolistEvalTests(unittest.TestCase):
         for directory, text in ((old, "existing evidence\n"), (ignored, "ignored evidence\n"),
                                 (later, "later evidence\n")):
             self.assertEqual((directory / "keep.txt").read_text(), text)
-        self.assertFalse((self.root / ".agentic-workflow/001_todolist").exists())
+        self.assertFalse((self.root / ".agentic-workflow/records/001_todolist").exists())
         self.assertFalse(self.results.exists())
 
     def test_unauthenticated_launch_rejected_before_creating_results(self):
@@ -192,13 +193,13 @@ class TodolistEvalTests(unittest.TestCase):
         self.assertFalse(self.results.exists())
 
     def test_existing_traces_cannot_satisfy_missing_new_implementation(self):
-        old = self.root / ".agentic-workflow/000_previous"
+        old = self.root / ".agentic-workflow/records/000_previous"
         (old / "reports").mkdir(parents=True)
         (old / "native/session").mkdir(parents=True)
         for name in ("reports/usage.json", "reports/usage.md", "reports/timeline.json", "native/session/turn.jsonl"):
             (old / name).touch()
         with (self.root / ".git/info/exclude").open("a") as f:
-            f.write("\n/.agentic-workflow/000_previous/\n")
+            f.write("\n/.agentic-workflow/records/000_previous/\n")
         result = self.invoke(mode="no_implementation")
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertEqual(self.report()["artifacts"]["status"], "FAIL")
@@ -238,7 +239,7 @@ class TodolistEvalTests(unittest.TestCase):
                 self.assertEqual(report["cli"]["status"], "PASS")
                 if mode == "missing_artifacts":
                     self.assertEqual(len(report["artifacts"]["missing"]), 4)
-                    self.assertFalse((self.root / ".agentic-workflow/001_todolist/reports/usage.json").exists())
+                    self.assertFalse((self.root / ".agentic-workflow/records/001_todolist/reports/usage.json").exists())
                 self.assertEqual(self.invoke("clean").returncode, 0)
 
     def test_nonzero_agent_exit_fails_independently(self):
@@ -297,12 +298,12 @@ class TodolistEvalTests(unittest.TestCase):
         self.assertIn("Unexpected changes retained", result.stdout)
         self.assertEqual((self.root / "source.txt").read_text(), "unexpected tracked modification\n")
         self.assertTrue((self.root / "unrelated").exists())
-        for path in ("apps/todolist", ".agentic-workflow/001_todolist", ".evals/todolist"):
+        for path in ("apps/todolist", ".agentic-workflow/records/001_todolist", ".agentic-workflow/evals/todolist"):
             self.assertFalse((self.root / path).exists())
 
     def test_cleanup_refuses_any_tracked_output_before_deleting(self):
         self.assertEqual(self.invoke().returncode, 0)
-        for name in ("apps/todolist/todo.py", ".agentic-workflow/001_todolist/reports/usage.json", ".evals/todolist/run.json"):
+        for name in ("apps/todolist/todo.py", ".agentic-workflow/records/001_todolist/reports/usage.json", ".agentic-workflow/evals/todolist/run.json"):
             with self.subTest(path=name):
                 self.git("add", "-f", name)
                 result = self.invoke("clean")
@@ -350,10 +351,11 @@ class TodolistEvalTests(unittest.TestCase):
                                 capture_output=True, text=True, timeout=15)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("Eval: PASS", result.stdout)
-        archived, = (self.root / ".evals/todolist-worktrees").iterdir()
+        archived, = (self.root / ".agentic-workflow/evals/todolist-worktrees").iterdir()
         summary = json.loads((archived / "worktree.json").read_text())
         launch = json.loads((archived / "run.json").read_text())
         self.assertTrue(summary["worktree_removed"])
+        self.assertTrue(Path(summary["worktree"]).is_relative_to(self.root / ".agentic-workflow/tmp/worktrees"))
         self.assertFalse(Path(summary["worktree"]).exists())
         self.assertEqual(launch["git_status_before"], "")
         self.assertFalse(launch["allow_dirty"])
@@ -370,7 +372,7 @@ class TodolistEvalTests(unittest.TestCase):
         for mode, status, code in (("wrong_output", "FAIL", 1), ("unauthenticated", "RUNNER_ERROR", 2),
                                    ("agent_timeout", "TIMEOUT", 124)):
             with self.subTest(mode=mode):
-                archive_root = self.root / ".evals/todolist-worktrees"
+                archive_root = self.root / ".agentic-workflow/evals/todolist-worktrees"
                 before = set(archive_root.iterdir()) if archive_root.exists() else set()
                 result = subprocess.run(["make", "eval", "EVAL_AGENT_TIMEOUT=0.5"], cwd=self.root,
                                         env=dict(self.env, EVAL_FIXTURE=mode),

@@ -35,7 +35,7 @@ class TraceTests(unittest.TestCase):
         c.execute('CREATE TABLE threads (id TEXT, rollout_path TEXT, source TEXT)')
         c.commit()
         c.close()
-        self.records_root = Path(self.temp.name) / '.agentic-workflow'
+        self.records_root = Path(self.temp.name) / '.agentic-workflow/records'
         self.root = records.allocate(self.records_root, 'test')
 
     def source(self, adapter='codex', sid='supervisor', turns=None, parent=None, fork=None, bind=True, role='supervisor', task='orchestration'):

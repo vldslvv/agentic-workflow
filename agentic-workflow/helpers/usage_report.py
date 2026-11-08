@@ -16,7 +16,7 @@ input or an operation error (stderr).
 
 Rerun after more evidence is saved, or use trace_view.py for live capture.
 
-Example: python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/001_example
+Example: python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/records/001_example
 """
 import argparse
 from collections import Counter, defaultdict

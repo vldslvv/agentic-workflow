@@ -2,7 +2,7 @@
 
 Apply during ordinary planning, implementation and memory handoffs.
 
-- For ordinary work, read `<project-root>/.agents/memory/index.md`, then only relevant `entries/*.md`.
+- For ordinary work, read `<project-root>/.agentic-workflow/memory/index.md`, then only relevant `entries/*.md`.
 - Treat a missing index as no saved notes.
 - Follow current requirements and repository facts over conflicting memory.
 - Check advice that may be outdated.

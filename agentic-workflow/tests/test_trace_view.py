@@ -64,7 +64,7 @@ class ViewerTests(unittest.TestCase):
         self.addCleanup(self.stop_all)
 
     def implementation(self, name):
-        root = records.allocate(self.base / '.agentic-workflow', name)
+        root = records.allocate(self.base / '.agentic-workflow/records', name)
         path = root / 'native' / 'capture.jsonl'
         path.parent.mkdir()
         rows = [json.loads(line) for line in (PACKAGE / 'tests/fixtures/codex-0.167.0.jsonl').read_text().splitlines()]
@@ -239,7 +239,7 @@ class ViewerTests(unittest.TestCase):
         for empty in (False, True):
             with self.subTest(empty=empty):
                 if empty:
-                    self.root = records.allocate(self.base / '.agentic-workflow', 'empty')
+                    self.root = records.allocate(self.base / '.agentic-workflow/records', 'empty')
                 self.launch()
                 status, urls = self.ready()
                 self.assertEqual(status['interval'], 5)

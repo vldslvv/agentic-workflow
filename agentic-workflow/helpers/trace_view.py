@@ -24,7 +24,7 @@ viewer, not complete telemetry.
 Retain the owner's shell session while capturing; it runs until Ctrl+C or
 SIGTERM. Stop it after capture. Restart the owner to change --interval.
 
-Example: python3 agentic-workflow/helpers/trace_view.py .agentic-workflow/001_example --interval 5
+Example: python3 agentic-workflow/helpers/trace_view.py .agentic-workflow/records/001_example --interval 5
 """
 import argparse
 from dataclasses import dataclass

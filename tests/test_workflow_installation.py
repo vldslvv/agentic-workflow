@@ -73,23 +73,25 @@ class InstallationTests(unittest.TestCase):
 
     def test_development_cleanup_retains_project_settings(self):
         shutil.copyfile(SOURCE / 'Makefile', self.root / 'Makefile')
-        records = self.root / '.agentic-workflow'
+        records = self.root / '.agentic-workflow/records'
         for name in ('001_example', '1000_example'):
             (records / name / 'runs').mkdir(parents=True)
-        override = records / 'MODELS.md'
+        override = self.root / '.agentic-workflow/config/MODELS.md'
+        override.parent.mkdir(parents=True)
         override.write_text('Project-owned routing\n')
         process = subprocess.run(['make', 'cleanup'], cwd=self.root,
                                  capture_output=True, text=True, timeout=15)
         self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
         self.assertEqual(override.read_text(), 'Project-owned routing\n')
-        self.assertEqual(list(records.iterdir()), [override])
+        self.assertEqual(list(records.iterdir()), [])
 
     def test_copy_operations_and_package_replacement_preserve_project_data(self):
-        records = self.root / '.agentic-workflow'
-        records.mkdir()
-        override = records / 'MODELS.md'
+        records = self.root / '.agentic-workflow/records'
+        records.mkdir(parents=True)
+        override = self.root / '.agentic-workflow/config/MODELS.md'
+        override.parent.mkdir(parents=True)
         override.write_text('Project-owned routing\n')
-        for relative in ('specs/example/project.md', '.agents/memory/index.md', 'app/main.py'):
+        for relative in ('specs/example/project.md', '.agentic-workflow/memory/index.md', 'app/main.py'):
             path = self.root / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text('Project-owned content\n')
@@ -109,7 +111,7 @@ class InstallationTests(unittest.TestCase):
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
         self.assertEqual(override.read_text(), 'Project-owned routing\n')
         self.assertTrue((records / '001_example/tasks/one').is_dir())
-        for relative in ('specs/example/project.md', '.agents/memory/index.md', 'app/main.py'):
+        for relative in ('specs/example/project.md', '.agentic-workflow/memory/index.md', 'app/main.py'):
             self.assertEqual((self.root / relative).read_text(), 'Project-owned content\n')
         self.assertEqual(self.check()['errors'], [])
 

@@ -17,7 +17,8 @@ Desktop.ini
 .cache/
 
 # Local end-to-end eval logs and results
-/.evals/
+/.agentic-workflow/evals/
+/.agentic-workflow/tmp/worktrees/
 
 # Python environments and caches
 .venv/
@@ -27,5 +28,5 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
-# Keep .agentic-workflow/ task documents and run evidence versioned.
+# Keep .agentic-workflow/records/ task documents and run evidence versioned.
 # Do not ignore logs globally: they may be required execution evidence.

@@ -18,7 +18,7 @@ if tool == "codex" and sys.argv[1:] == ["login", "status"]:
         Path(sys.argv[0]).unlink()
     sys.exit(1 if mode == "unauthenticated" else 0)
 root = Path.cwd() if tool == "codex" else Path.cwd().parents[1]
-results = root / ".evals/todolist"
+results = root / ".agentic-workflow/evals/todolist"
 
 
 def hang():
@@ -56,7 +56,7 @@ app = root / "apps/todolist"
 app.mkdir(parents=True)
 shutil.copyfile(Path(__file__).with_name("todo.py"), app / "todo.py")
 (app / "tasks.json").write_text("generation data to preserve\n")
-implementation = root / ".agentic-workflow/001_todolist"
+implementation = root / ".agentic-workflow/records/001_todolist"
 reports = implementation / "reports"
 reports.mkdir(parents=True)
 for name in ("usage.json", "usage.md", "timeline.json"):
@@ -70,7 +70,7 @@ if mode == "artifact_directory":
     (reports / "usage.json").unlink()
     (reports / "usage.json").mkdir()
 if mode == "multiple_implementations":
-    (root / ".agentic-workflow/002_other").mkdir()
+    (root / ".agentic-workflow/records/002_other").mkdir()
 if mode == "no_implementation":
     shutil.rmtree(implementation)
 if mode == "unexpected_changes":

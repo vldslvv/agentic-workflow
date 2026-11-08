@@ -54,7 +54,7 @@ class CollectionTests(unittest.TestCase):
         self.environment = patch.dict(os.environ, CODEX_HOME=str(self.host), CODEX_THREAD_ID='root')
         self.environment.start()
         self.addCleanup(self.environment.stop)
-        self.root = self.base / '.agentic-workflow/001_demo'
+        self.root = self.base / '.agentic-workflow/records/001_demo'
 
     def tag(self, task='work', role='implementer', **extra):
         return 'AGENTIC_WORKFLOW ' + json.dumps(dict(implementation='001_demo', task=task, role=role, **extra))
@@ -75,7 +75,7 @@ class CollectionTests(unittest.TestCase):
         return subprocess.run([sys.executable, str(HELPERS / script), *map(str, args)], capture_output=True, text=True)
 
     def allocate(self):
-        result = self.cli('records.py', 'allocate', 'demo', '--records-root', self.base / '.agentic-workflow')
+        result = self.cli('records.py', 'allocate', 'demo', '--records-root', self.base / '.agentic-workflow/records')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(Path(result.stdout.strip()), self.root)
         self.assertFalse((self.root / 'implementation.json').exists())

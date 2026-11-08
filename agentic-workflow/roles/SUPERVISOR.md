@@ -40,7 +40,7 @@
   - Stop when all remaining tasks are blocked.
   - After all selected tasks pass, validate the assembled app below.
   - Validate in either task mode.
-  - Run `python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/NNN_name` when finished, blocked or requested.
+  - Run `python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/records/NNN_name` when finished, blocked or requested.
   - Use [Tracing](../guides/TRACING.md) for trace issues.
 - Outputs:
   - Acceptance decisions or blockers, usage links and coverage limits.

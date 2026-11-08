@@ -16,7 +16,7 @@ import time
 
 PROMPT = "Implement specs/todolist"
 APP = Path("apps/todolist")
-RESULTS = Path(".evals/todolist")
+RESULTS = Path(".agentic-workflow/evals/todolist")
 OUTPUTS = (APP, RESULTS)
 CLI_CASES = (
     (("list",), "No tasks.\n"),
@@ -113,7 +113,7 @@ def preflight(root, allow_dirty):
         ["git", "-C", str(root), "check-ignore", "-q", str(RESULTS / "run.json")],
         stdin=subprocess.DEVNULL, timeout=60,
     ).returncode != 0:
-        raise RunnerError(".evals/todolist/ must be ignored by Git")
+        raise RunnerError(".agentic-workflow/evals/todolist/ must be ignored by Git")
     for name in ("uv", "codex"):
         if not shutil.which(name):
             raise RunnerError(f"Required executable unavailable: {name}")
@@ -123,7 +123,7 @@ def preflight(root, allow_dirty):
     )
     if auth.returncode:
         raise RunnerError("Codex is not authenticated; run codex login first")
-    override = root / ".agentic-workflow/MODELS.md"
+    override = root / ".agentic-workflow/config/MODELS.md"
     routing = override if override.exists() else root / "agentic-workflow/policies/MODELS.md"
     return git(root, "rev-parse", "HEAD").strip(), role_settings(routing, "Supervisor"), dirty
 
@@ -176,7 +176,7 @@ def execute(command, cwd, timeout, stdout, stderr):
 
 
 def records_entries(root):
-    records = safe_path(root, Path(".agentic-workflow"))
+    records = safe_path(root, Path(".agentic-workflow/records"))
     return {p.name: p for p in records.iterdir()} if records.exists() else {}
 
 
@@ -186,10 +186,10 @@ def new_implementations(root, before):
 
 
 def artifact_grade(root, created):
-    implementations = [root / ".agentic-workflow" / name for name in created]
+    implementations = [root / ".agentic-workflow/records" / name for name in created]
     grade = {"status": "FAIL", "implementations": [p.name for p in implementations], "missing": []}
     if len(implementations) != 1:
-        grade["error"] = "Expected one new implementation directory under .agentic-workflow"
+        grade["error"] = "Expected one new implementation directory under .agentic-workflow/records"
         return grade
     implementation = implementations[0]
     for name in ("usage.json", "usage.md", "timeline.json"):
@@ -295,7 +295,7 @@ def run(root, agent_timeout, command_timeout, allow_dirty):
             report["unexpected_changes"] = git(
                 root, "status", "--porcelain=v1", "--untracked-files=all", "--", ".",
                 *(f":(exclude,literal){p}" for p in OUTPUTS),
-                *(f":(exclude,literal).agentic-workflow/{name}" for name in report["records_created"]),
+                *(f":(exclude,literal).agentic-workflow/records/{name}" for name in report["records_created"]),
             )
         except (OSError, RunnerError, subprocess.SubprocessError) as exc:
             report.update(overall="RUNNER_ERROR", error=str(exc))
@@ -329,7 +329,7 @@ def clean(root):
             or any(not isinstance(name, str) or not name or name in (".", "..")
                    or Path(name).name != name or name in before for name in created)):
         raise RunnerError("Invalid eval records inventory; refusing cleanup")
-    owned = (APP, *(Path(".agentic-workflow") / name for name in created), RESULTS)
+    owned = (APP, *(Path(".agentic-workflow/records") / name for name in created), RESULTS)
     paths = [safe_path(root, p) for p in owned]
     # Include HEAD so staging a deletion cannot make tracked data eligible for removal.
     pathspecs = [f":(literal){p}" for p in owned]
@@ -342,7 +342,7 @@ def clean(root):
             shutil.rmtree(path)
         elif path.exists():
             path.unlink()
-    print("Removed apps/todolist, this eval's records directories, and .evals/todolist.")
+    print("Removed apps/todolist, this eval's records directories, and .agentic-workflow/evals/todolist.")
     remaining = git(root, "status", "--porcelain=v1", "--untracked-files=all")
     if remaining:
         print(f"Unexpected changes retained for manual handling:\n{remaining}")

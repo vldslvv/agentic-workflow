@@ -5,7 +5,7 @@ Read on role entry and before launching workers.
 ## Routing source
 
 - Context: choose routing on role entry and before launching workers.
-- Inputs: assigned workspace and optional `<project-root>/.agentic-workflow/MODELS.md`.
+- Inputs: assigned workspace and optional `<project-root>/.agentic-workflow/config/MODELS.md`.
 - Effects:
   1. Find the project root from the assigned workspace.
   2. Use the project file if present, otherwise this file.
