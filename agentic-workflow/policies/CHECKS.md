@@ -1,6 +1,9 @@
 # Checks and acceptance
 
-Read when preparing checks, reviewing work or deciding whether it passes. Use [Bundle](BUNDLE.md) to resolve requirements and [Guidelines](GUIDELINES.md) for engineering rules.
+Read when preparing checks, reviewing work or deciding whether it passes.
+
+- Resolve requirements through [Bundle](BUNDLE.md).
+- Apply engineering rules from [Guidelines](GUIDELINES.md).
 
 ## Prepare checks
 
@@ -25,10 +28,8 @@ Apply before coding and when updating acceptance criteria.
 - Include relevant regression tests.
 - Run required manual checks.
 - Run required checks against real dependencies.
-- Reuse useful tests.
 - Cover test gaps through public interfaces.
-- Explain mock use in check evidence.
-- State why mocks fit, what they replace and what remains untested.
+- Record why mocks fit, what they replace and what remains untested in check evidence.
 - Assess internal tests and mocks by the failures they can detect.
 - Consider isolation, cost and realism.
 - Require meaningful assertions about the code under test.
@@ -38,13 +39,12 @@ Apply before coding and when updating acceptance criteria.
 
 Apply when reporting checks or accepting work.
 
-- Use `PASS` only when required checks pass, requirements are adequately covered and no findings remain that require action.
+- Use `PASS` only with passing required checks, adequate requirement coverage and no actionable findings.
 - Check coverage separately from test success.
 - Use `FAIL` when the work breaks a requirement or an applicable rule.
-- Use `BLOCKED` when required tools or capabilities are unavailable, or requirements remain unresolved.
+- Use `BLOCKED` for unavailable required tools or capabilities, or unresolved requirements.
 - Mark skipped checks `NOT_RUN`, or `BLOCKED` when their absence prevents acceptance.
-- Use `INDEPENDENT_REVIEW_NOT_RUN` when a required fresh review has not run.
-- Block acceptance when required fresh review has not run.
+- Block acceptance with `INDEPENDENT_REVIEW_NOT_RUN` when a required fresh review has not run.
 - Report substitute checks and coverage gaps without lowering the requirements.
 - Save evidence using the [result template](../templates/result.md).
 - For manual judgments, name the rule and the item inspected.
@@ -55,8 +55,8 @@ Apply when reporting checks or accepting work.
 Apply to independent review and validation.
 
 - Start with a fresh context and no inherited conversation.
-- Use original requirements and guidelines to decide what to check before reading acceptance criteria or code.
-- Use only requirements, applicable acceptance criteria, the work being checked, factual check results, contracts, justified guideline exceptions and prior findings.
+- Choose checks from original requirements and guidelines before reading acceptance or code.
+- Limit inputs to requirements, applicable acceptance, candidate work, factual results, contracts, justified guideline exceptions and prior findings.
 - Allow focused mock justifications as review inputs.
 - Assess mock justifications independently.
 - Exclude plans, conversations, project memory, other design explanations and the author's claims of correctness.
@@ -76,7 +76,6 @@ Apply to independent review and validation.
 Apply while running checks and when stopping work.
 
 - Batch reads and commands that do not depend on each other.
-- Print only useful output.
-- Repeat successful checks only after relevant changes, failures, new concerns or when an independent check is required.
+- Repeat successful checks only for relevant changes, failures, new concerns or required independent checks.
 - Reassess affected results when requirements, guidelines, dependencies or implementation change.
 - Save unfinished work and blockers when cancelled or stopped by a limit.

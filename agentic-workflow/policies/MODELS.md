@@ -4,38 +4,51 @@ Read on role entry and before launching workers.
 
 ## Routing source
 
-- Context: choose the routing policy when starting a role and before launching workers.
+- Context: choose routing on role entry and before launching workers.
 - Inputs: assigned workspace and optional `<project-root>/.agentic-workflow/MODELS.md`.
 - Effects:
   1. Find the project root from the assigned workspace.
-  2. Use the project file if it exists; otherwise use this file. The project file replaces the whole policy and all tables. Do not merge in defaults.
-  3. Correct missing or invalid routes in the project file instead of falling back to this file.
-- Outputs: the chosen policy path. Pass it in handoffs and reread it before launching more workers. The eval launcher follows the same rule for the Supervisor's default route.
+  2. Use the project file if present, otherwise this file.
+  3. Correct missing or invalid project routes without falling back to this file.
+- Outputs: chosen policy path.
+- Next:
+  - Pass the chosen policy path in handoffs.
+  - Reread the chosen policy before launching more workers.
+
+The project file replaces this entire policy, including all tables.
+The eval launcher uses the same selection rule for the Supervisor's default route.
 
 To customize routing, copy this file to the project path and edit it there.
 
 ## Select settings
 
-- Context: read the chosen policy and its tables, including edits made before launching another worker.
+- Context: read the latest chosen policy and its tables before launching workers.
 - Inputs: role, task conditions, profiles and role routes.
 - Effects:
-  1. Check that routes are valid and refer to defined profiles. Correct errors before choosing a route.
-  2. Select the first matching route below.
-  3. Request its settings through controls the host supports.
-- Outputs: record the profile and reason in the role's result. Record requested and observed settings separately; leave unknown observations unavailable.
+  1. Check that routes are valid and refer to defined profiles.
+  2. Correct errors before choosing a route.
+  3. Select the first matching route below.
+  4. Request its settings through controls the host supports.
+- Outputs:
+  - Record the profile and reason in the role's result.
+  - Record requested and observed settings separately.
+  - Leave unknown observations unavailable.
 
 ## Routing guidelines
 
 Apply when requesting or changing worker settings.
 
-- Use host defaults when a setting is unsupported and report the fallback. Do not guess a replacement.
-- Keep missing infrastructure, credentials and unresolved requirements as blockers.
-- Change an existing worker's settings only through supported controls. Preserve its context and the rules for fresh reviews.
-- Keep current settings when the session has no controls to change them. In that case, use top-level routing only as guidance when launching a session.
+- Use host defaults for unsupported settings.
+- Report fallbacks.
+- Change existing worker settings only through supported controls.
+- Preserve worker context and fresh-review requirements when changing settings.
+- Keep current settings when the session cannot change them.
+- Without session controls, use top-level routing only to guide session launches.
 - Report known differences between requested and actual settings.
-- Keep model names and supported reasoning values in this policy. Use model identifiers exactly as supplied, including provider prefixes.
+- Keep model names and supported reasoning values in this policy.
+- Use exact model identifiers, including provider prefixes.
 - Use `default` to keep the host setting.
-- Update model names and values when the provider changes them. Keep authentication and connections in the host configuration.
+- Keep authentication and connections in the host configuration.
 - Do not add a dispatcher, adapters or a Markdown parser to apply these tables.
 
 ## Route selection

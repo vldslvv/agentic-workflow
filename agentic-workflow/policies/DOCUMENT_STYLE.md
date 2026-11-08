@@ -1,20 +1,16 @@
 # Document style
 
-Apply in every role when authoring or editing documents, including specifications, plans, acceptance criteria, results, instructions, guides and skills.
+Apply in every role when writing or editing any document.
 
 - Describe workflows in this order: Context → Inputs → Effects → Outputs → Next.
 - Omit Next when unnecessary.
-- Write guideline sections like [Engineering guidelines](GUIDELINES.md): a short title, an applicability sentence and flat imperative bullets.
-- Write one short rule per list item.
-- Use one sentence per rule.
-- Use numbered lists only for action sequences.
-- Use bullet lists for rules.
+- Format guideline sections like [Engineering guidelines](GUIDELINES.md): short title, applicability sentence and flat imperative bullets.
+- Write one short, single-sentence rule per list item.
+- Keep related details together when the rule remains short.
+- Use bullets for rules and numbered lists only for action sequences.
 - Separate procedural sections from guideline sections.
-- Keep configuration tables and artifact templates where appropriate.
-- Give each shared policy rule one authoritative home.
-- Link to it instead of repeating it.
+- Link to each shared policy rule's authoritative home instead of repeating it.
 - Treat [WORKFLOW.md](../WORKFLOW.md) as the upstream design contract.
 - Derive complete execution duties in role documents from it.
 - Keep those documents free of references back to the contract.
 - Reconcile role procedures with the contract when changing the workflow.
-- Check new and edited documents against these conventions before completion.

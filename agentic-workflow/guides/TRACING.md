@@ -17,6 +17,10 @@ Read for tracing operation or troubleshooting.
 
 Apply to capture, refresh and offline analysis.
 
+- Keep native capture running throughout the work.
+- Use adapters to calculate usage.
+- Do not create trace inventories or count tokens manually.
+- When assignment tags are missing, leave task and role unavailable but keep measured usage.
 - Refresh saved selected turns, follow selected spawn/follow-up/message dispatches and save proven descendants. Native parent metadata corroborates returned agent paths; known IDs resolve through the index. Workspace/recency never establish inclusion. Fork history and unrelated turns remain excluded.
 - Resolve follow-ups using returned turn/message IDs or delivered-message matches. A unique new turn within the dispatch interval can resolve an already proven identity; multiple candidates produce coverage diagnostics. Sources supply versions, session identities, selected turns and stable agent runs; dispatches supply requested settings, native turn context supplies observed settings.
 - Keep native bytes, including partial active tails; host storage stays read-only. Copies/reports are replaced atomically per file, not as one transaction. Repeated collection deduplicates measurements. Offline analysis uses saved files and reports unavailable host storage; ambiguity, missing versions/measurements, unfinished turns and malformed tails remain diagnosed.

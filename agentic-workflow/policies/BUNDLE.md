@@ -1,18 +1,25 @@
 # Specification bundle
 
-Apply when finding or writing project specifications and selecting tasks. A bundle is the set of project files listed below.
+Apply when finding or writing specifications or selecting tasks.
 
-- Use the selected bundle. If none is selected, look outside the package for these files. Ask when more than one bundle fits.
-- Put new specifications in `specs/` when authoring is authorized. Keep existing specifications in their current locations.
-- Return `NO_PROJECT` when no project has been requested. Block generation when required inputs are missing.
-- Treat a compatibility assessment as a request to assess, not permission to generate an app.
-- Follow the bundle and the requirements it links to when they disagree with plans or memory.
+A bundle contains the project files listed below.
+
+- Use the selected bundle.
+- Without a selected bundle, look for these files outside the package.
+- Ask when more than one bundle fits.
+- Put authorized new specifications in `specs/`.
+- Keep existing specifications in their current locations.
+- Return `NO_PROJECT` when no project has been requested.
+- Block generation when required inputs are missing.
+- Do not generate apps from compatibility assessment requests.
+- Follow the bundle and linked requirements over conflicting plans or memory.
 - Preserve explicit requirements, the full approved text and its history.
-- Make ordinary implementation choices and create needed records when the user requests implementation.
-- Ask the user to resolve significant requirement conflicts or authorize changes to required behaviour.
-- Require permission to implement; approval of a document alone does not provide it.
-- Use ordinary Markdown. No frontmatter is required.
-- Keep shared constraints in `project.md`, shared and final scenarios in `verification.md`, and task behaviour and interfaces in task files.
+- Make ordinary implementation choices when implementation is requested.
+- Create needed records for requested implementation.
+- Ask the user to resolve significant requirement conflicts.
+- Get user approval before changing required behaviour.
+- Require implementation permission beyond document approval.
+- Use ordinary Markdown without requiring frontmatter.
 
 | File | Purpose | Template |
 |---|---|---|
@@ -23,17 +30,24 @@ Apply when finding or writing project specifications and selecting tasks. A bund
 
 ## Select tasks and resolve paths
 
-Apply before scheduling work. The [Supervisor](../roles/SUPERVISOR.md) schedules the selected tasks.
+Apply before the [Supervisor](../roles/SUPERVISOR.md) schedules selected tasks.
 
 - Declare dependencies only in the `Task | Depends on` table in `task_order.md`.
-- List each task once. Use `None` or comma-separated task filenames for dependencies. Do not infer dependencies from names or row order.
+- List each task once.
+- Use `None` or comma-separated task filenames for dependencies.
+- Do not infer dependencies from names or row order.
 - Use unique filenames without extensions as task IDs.
-- Resolve bare task filenames under `tasks/` and task paths or links from the bundle root. Resolve links to requirements from the document containing the link.
-- Reject missing files, unlisted dependencies, unknown references and dependency cycles, including tasks that depend on themselves.
+- Resolve bare task filenames under `tasks/`.
+- Resolve task paths or links from the bundle root.
+- Resolve requirement links from the containing document.
+- Reject missing files, unlisted dependencies, unknown references and dependency cycles, including self-dependencies.
 - Select listed tasks together with their prerequisites and required source documents.
-- Include unfinished prerequisites in the selection or leave it blocked. Require valid evidence for prerequisites already accepted.
+- Block selections that exclude unfinished prerequisites.
+- Require valid evidence for accepted prerequisites.
 - Return `NO_WORK` for an empty selection.
-- Resolve repository-relative output paths from the repository root. Stop execution when ambiguity could affect the work.
-- Clarify how broad scenarios pass before execution, without changing their requirements.
-- Allow checks to develop during implementation. Do not require a fixed check inventory or approval receipt.
-- Report valid document format separately from whether the app meets its requirements.
+- Resolve repository-relative output paths from the repository root.
+- Stop execution when ambiguity could affect the work.
+- Clarify broad scenarios' pass criteria before execution without changing requirements.
+- Allow checks to develop during implementation.
+- Do not require a fixed check inventory or approval receipt.
+- Report document validity separately from app conformance.
