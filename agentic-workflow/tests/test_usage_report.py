@@ -200,6 +200,38 @@ class TraceTests(unittest.TestCase):
         self.assertTrue(any(e['args'].get('purpose') == 'Implement editor' for e in trace if 'args' in e))
         self.assertTrue(any(e['args'].get('tokens.total_tokens') == 130 for e in trace if 'args' in e))
 
+    def test_task_dashboard_shows_recorded_roles_and_explicit_unknowns(self):
+        self.source(task='work')
+        self.source(sid='other', task='other', role='validator')
+        report = usage.refresh(self.root).usage
+        assignment = next(a for a in report['assignments'] if a['task_id'] == 'work')
+        other = next(a for a in report['assignments'] if a['task_id'] == 'other')
+        for roles, expected in [([], 'Unknown'), ([None], 'Unknown'),
+                                (['implementer'], 'implementer'),
+                                (['reviewer', 'implementer', 'implementer'], 'implementer, reviewer'),
+                                (['implementer', None], 'Unknown, implementer'),
+                                (['<reviewer>'], '&lt;reviewer&gt;')]:
+            with self.subTest(roles=roles):
+                report['assignments'] = [other, *(dict(assignment, role=role) for role in roles)]
+                dashboard = render(report, None)
+                task_table = dashboard.split('id="group-task"', 1)[1].split('</table>', 1)[0]
+                self.assertIn('<th scope="col">Role</th>', task_table)
+                self.assertIn(f'<td>work</td><td>{expected}</td><td>200</td>', task_table)
+                self.assertIn('<td>other</td><td>validator</td><td>200</td>', task_table)
+                self.assertEqual(task_table.count('<tr>'), 3)
+
+    def test_task_dashboard_keeps_usage_without_an_assignment(self):
+        self.source(task='work', role='implementer')
+        self.source(sid='unassigned', bind=False)
+        report = usage.refresh(self.root).usage
+        dashboard = render(report, None)
+        task_table = dashboard.split('id="group-task"', 1)[1].split('</table>', 1)[0]
+        self.assertIn('<td>Unknown</td><td>Unknown</td><td>200</td>', task_table)
+        self.assertIn('<td>work</td><td>implementer</td><td>200</td>', task_table)
+        self.assertEqual(report['attribution_omissions']['task']['event_ids'], [])
+        self.assertEqual(sum(row['summary']['tokens']['total_tokens']['known_subtotal']
+                             for row in report['groups']['task']), 400)
+
     def test_repeated_imports_preserve_native_bytes_and_separate_content_from_usage(self):
         path, _ = self.source()
         before = path.read_bytes()
@@ -339,8 +371,9 @@ class TraceTests(unittest.TestCase):
         report = usage.refresh(self.root).usage
         self.assertEqual(report['summary']['tokens']['input_tokens']['total'], 150)
         self.assertEqual(report['summary']['tokens']['cached_input_tokens'], dict(total=None, known_subtotal=10, measured_records=1, missing_records=1))
-        self.assertEqual(report['groups']['task'], [])
-        self.assertGreater(len(report['attribution_omissions']['task']['event_ids']), 0)
+        self.assertEqual([row['key'] for row in report['groups']['task']], [{'task_id': None}])
+        self.assertEqual(report['groups']['task'][0]['summary']['tokens'], report['summary']['tokens'])
+        self.assertEqual(report['attribution_omissions']['task']['event_ids'], [])
 
     def test_aggregate_snapshots_and_truncated_capture_are_omissions(self):
         path, _ = self.source(turns=['turn-1'])

@@ -39,6 +39,10 @@ def table(headers, rows, **attrs):
 
 def render(report, perfetto_url, *, interval=5, refreshed=None, error=None, content=None):
     summary = report['summary']
+    assignments = report['assignments']
+    task_roles = {}
+    for assignment in assignments:
+        task_roles.setdefault(assignment['task_id'], set()).add(assignment['role'] or 'Unknown')
     parts = ['<!doctype html><html lang="en"><meta charset="utf-8">',
              '<meta name="viewport" content="width=device-width,initial-scale=1">',
              '<title>Agent trace insights</title><style>', CSS, '</style><body>',
@@ -87,6 +91,8 @@ def render(report, perfetto_url, *, interval=5, refreshed=None, error=None, cont
         rows = report['groups'][name]
         fields = list(rows[0]['key']) if rows else []
         headers = [f.replace('_', ' ').title() for f in fields]
+        if name == 'task':
+            headers += ['Role']
         values = []
         if name in TOOL_GROUPS:
             headers += ['Observed calls', 'Outcomes', 'Wrapper calls', 'Parented nested', 'Observed duration (s)', 'Timed / untimed']
@@ -106,7 +112,11 @@ def render(report, perfetto_url, *, interval=5, refreshed=None, error=None, cont
                 headers += ['Observed tools']
             for row in rows:
                 s = row['summary']
-                values.append([*row['key'].values(), *(measurement(s['tokens'][m]) for m in metrics),
+                labels = list(row['key'].values())
+                if name == 'task':
+                    labels = [label if label is not None else 'Unknown' for label in labels]
+                    labels.append(', '.join(sorted(task_roles.get(row['key']['task_id'], {'Unknown'}))))
+                values.append([*labels, *(measurement(s['tokens'][m]) for m in metrics),
                                s['observed_model_measurements'],
                                *([] if name in MODEL_GROUPS else [s['observed_tool_calls']])])
         omitted = report['attribution_omissions'][name]
@@ -123,7 +133,6 @@ def render(report, perfetto_url, *, interval=5, refreshed=None, error=None, cont
               'When a purpose was not recorded, the role and task are shown explicitly as assignment context. '
               'A reused agent can have multiple assignments. Model / effort lists observed native settings; '
               'multiple pairs indicate settings changes, and unavailable values are not inferred from requests.</p>']
-    assignments = report['assignments']
     parts.append(table(['Agent', 'Observed model / effort', 'Purpose / assignment', 'Task', 'Role', 'Run', 'Observed status', 'Native path', 'Assignment source'],
                        [[a['agent_name'], format_settings(a.get('observed_settings', [])),
                          a['purpose'] or f'Assignment: {a["role"] or "unavailable role"} / {a["task_id"] or "unavailable task"}',

@@ -181,7 +181,7 @@ def build_report(events, diagnostics):
             if name in ('tool', 'task_tool') and e['kind'] != 'tool':
                 continue
             key = tuple(e.get(k) for k in fields)
-            if any(v is None for v in key):
+            if name != 'task' and any(v is None for v in key):
                 omitted.append(e['event_id'])
             else:
                 grouped[key].append(e)
@@ -197,13 +197,13 @@ def build_report(events, diagnostics):
             affected = {tuple(e.get(k) for k in fields) for e in events
                         if any(p.get('source_id') == d.get('source_id') for p in e['provenance'])
                         and (d.get('turn_id') is None or e['turn_id'] == d['turn_id'])}
-            affected = {key for key in affected if all(v is not None for v in key)}
+            affected = {key for key in affected if name == 'task' or all(v is not None for v in key)}
             if not affected and d['code'] in INCOMPLETE_CODES:
                 affected = set(grouped)  # Unknown attribution cannot prove completeness.
             for key in affected:
                 gaps[key].append(d)
         groups[name] = [dict(key=dict(zip(fields, key)), summary=summarize(grouped[key], gaps[key]))
-                        for key in sorted(grouped.keys() | gaps.keys())]
+                        for key in sorted(grouped.keys() | gaps.keys(), key=lambda key: tuple(v or '' for v in key))]
         omissions[name] = dict(event_ids=omitted, diagnostics_without_attribution=unassigned_gaps)
     return dict(version=2, summary=summarize(events, diagnostics), groups=groups,
                 attribution_omissions=omissions, spawn_tree=spawn_tree(events), diagnostics=diagnostics,
@@ -340,7 +340,8 @@ def markdown(report):
             values = ([s['observed_tool_calls'], s['outcomes'], s['observed_operation_seconds'], s['untimed_operations']]
                       if tools else [tokens['total'], tokens['known_subtotal'], tokens['missing_records']]
                       + ([] if models else [s['observed_tool_calls']]))
-            lines.append('| ' + ' | '.join(map(cell, [', '.join(row['key'].values()), *values])) + ' |')
+            label = ', '.join(v if v is not None else 'unavailable' for v in row['key'].values())
+            lines.append('| ' + ' | '.join(map(cell, [label, *values])) + ' |')
         omission = report['attribution_omissions'][name]
         lines += ['', f'Attribution omissions: {len(omission["event_ids"])} events; {omission["diagnostics_without_attribution"]} diagnostics.']
     lines += ['', '## Native lineage', '']
