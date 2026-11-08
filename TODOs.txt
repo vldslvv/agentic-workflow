@@ -5,3 +5,5 @@ Loop tasks without having a supervisor -- less context?
 flow for interrupted/resume
 flow for new feature/change
 
+Per project memory, not global
+
