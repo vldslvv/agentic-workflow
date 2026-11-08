@@ -5,9 +5,9 @@ Read when preparing checks, reviewing work or deciding whether it passes.
 - Resolve requirements through [Bundle](BUNDLE.md).
 - Apply engineering rules from [Guidelines](GUIDELINES.md).
 
-## Prepare checks
+## Prepare acceptance
 
-Apply before coding and when updating acceptance criteria.
+Apply before coding in full mode and when authoring or updating requested acceptance documents.
 
 - Write acceptance criteria from the original requirements.
 - Cover normal use, boundary cases, failures and interactions.
@@ -19,11 +19,17 @@ Apply before coding and when updating acceptance criteria.
 - Choose unit or integration tests for each scenario.
 - Use both test layers where they cover distinct risks.
 - Keep internal design choices in the plan unless the requirements specify them.
-- Treat a missing requirement as a defect, even if all listed checks pass.
 - Correct incomplete acceptance criteria against the original requirements.
 - Preserve approved history during acceptance corrections.
 - Rerun checks affected by acceptance corrections.
 - Repeat required independent review after acceptance corrections.
+
+## Prepare checks
+
+Apply before coding and when updating checks in either mode.
+
+- Use source criteria directly for lightweight tasks without writing separate acceptance.
+- Treat a missing requirement as a defect, even if all listed checks pass.
 - Choose checks that fit the change and test observable behaviour.
 - Include relevant regression tests.
 - Run required manual checks.
