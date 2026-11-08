@@ -4,7 +4,7 @@
 
 - Context: [PLANNER.md](roles/PLANNER.md), authorized brief and sources.
 - Inputs: requested documents, target paths, relevant code and accepted contracts.
-- Effects: Planner writes and checks documents. For workflow changes, check behavior, role reading paths and package validity. Preserve approved history.
+- Effects: Planner writes and checks documents. Acceptance includes public API contracts and expected test scenarios under [Checks](policies/CHECKS.md). For workflow changes, check behavior, role reading paths and package validity. Preserve approved history.
 - Outputs: document paths, blockers and check gaps. Report document validity and generation readiness separately.
 - Next: stop before execution. App setup and review are not prerequisites. Implementation needs authorization under [BUNDLE.md](policies/BUNDLE.md).
 
@@ -26,7 +26,7 @@
 - Effects:
   1. Supervisor spawns Implementer in a fresh session. Use handoff rules in [RECORDS.md](policies/RECORDS.md).
   2. Implementer reads inputs and agrees on concurrent edits with Supervisor, including scope and file ownership. Supervisor resolves overlaps and interface changes before edits. Return affected plans/checks/reviews to owners.
-  3. Full: write plan and source-linked acceptance before code. Lightweight: use source criteria; skip plan, separate acceptance and review. Keep the assigned mode.
+  3. Full: write plan and source-linked acceptance before code. Include public API contracts and expected test scenarios under [Checks](policies/CHECKS.md). Lightweight: use source criteria; skip plan, separate acceptance and review. Keep the assigned mode.
   4. Implement, check requirements and regressions, and inspect the diff. Fix defects and rerun affected checks. Preserve approved originals.
 - Outputs: candidate, evidence, task result; full mode adds plan and acceptance.
 - Next: full → review; lightweight → accept.
@@ -35,7 +35,7 @@
 
 - Context: [REVIEWER.md](roles/REVIEWER.md), requirements, acceptance, candidate, factual evidence. Apply independent-check rules in [CHECKS.md](policies/CHECKS.md).
 - Inputs: checked candidate and agreed review boundary. Supervisor confirms affected writers paused.
-- Effects: Implementer launches fresh Reviewer. Reviewer checks code against acceptance criteria and both against requirements. Check test quality and prior fixes. Run relevant checks and feasible reproductions. Keep requirements and code unchanged. Report candidate changes to Implementer and Supervisor; apply Checks' recheck rules.
+- Effects: Implementer launches fresh Reviewer. Reviewer checks code against acceptance criteria and both against requirements. Focus on public API contracts and their unit/integration tests. Check expected scenario coverage, test quality and prior fixes. Run relevant checks and feasible reproductions. Keep requirements and code unchanged. Report candidate changes to Implementer and Supervisor; apply Checks' recheck rules.
 - Outputs: result, source-linked findings, reproductions, verified fixes and coverage gaps.
 - Next: Implementer reports review completion. Wait for Supervisor's explicit release before writing. Findings → same Implementer fixes, rechecks and repeats fresh review. Pass → task result and acceptance.
 

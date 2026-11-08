@@ -7,6 +7,8 @@ Read when preparing checks, reviewing work or deciding whether it passes. Use [B
 Apply before coding and when updating acceptance criteria.
 
 - Write acceptance criteria from the original requirements. Cover normal use, boundary cases, failures and interactions.
+- State public API contracts in acceptance. Include inputs, outputs, errors and observable side effects. Link contracts to source requirements.
+- Provide expected test scenarios for each contract. State setup, action and expected outcome. Choose unit or integration tests for each scenario. Use both where they cover distinct risks.
 - Keep internal design choices in the plan unless the requirements specify them.
 - Treat a missing requirement as a defect, even if all listed checks pass.
 - Correct incomplete acceptance criteria against the original requirements. Keep approved history, rerun affected checks and repeat independent review when required.

@@ -6,6 +6,7 @@
 - Inputs: brief, scope, sources, target paths, relevant code and accepted contracts.
 - Effects:
   1. Resolve inputs and write authorized documents. Use applicable [bundle](../policies/BUNDLE.md), [plan](../templates/plan.md) or [acceptance](../templates/acceptance.md) templates.
+     When writing acceptance, include public API contracts and expected test scenarios under Checks.
   2. Check source coverage, consistency, links and dependencies. Check that pass rules are observable.
   3. Report unresolved requirements and unavailable checks.
   4. Save results, usage references and useful memory. Preserve approved history during corrections.

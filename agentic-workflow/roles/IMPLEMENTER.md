@@ -15,7 +15,7 @@
 
 | Mode | Local procedure |
 |---|---|
-| `full` | Write [plan.md](../templates/plan.md) and [acceptance.md](../templates/acceptance.md) before code. Link acceptance to sources. Implement and run checks. Spawn fresh Reviewer as described below. |
+| `full` | Write [plan.md](../templates/plan.md) and [acceptance.md](../templates/acceptance.md) before code. Link acceptance to sources. Include public API contracts and expected test scenarios under Checks. Implement and run checks. Spawn fresh Reviewer as described below. |
 | `lightweight` | Implement and run checks against source criteria. No plan, separate acceptance, task review or automatic mode change. |
 
 ## Review a full-mode task
