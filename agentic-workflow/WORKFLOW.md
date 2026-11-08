@@ -199,10 +199,10 @@ This document defines the workflow's core behavior; role documents and policies 
 
 Apply while workers are active.
 
-- Wait for notifications with the longest timeout compatible with host/user updates.
+- Use native agent waits with the longest timeout compatible with required updates.
 - Keep waiting after timeouts.
 - Message for decisions or new information.
-- Inspect status only to resolve concrete uncertainty.
+- Inspect worker status or unfinished files only to resolve actionable uncertainty.
 - Supervisor pauses affected writers before review and validation.
 - Supervisor releases writers after review and validation.
 - Unrelated work may continue.

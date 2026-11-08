@@ -128,10 +128,10 @@ Apply when reconciling state or continuing interrupted work.
 
 Apply while workers are active.
 
-- Wait for notifications with the longest timeout compatible with host/user updates.
+- Use native agent waits with the longest timeout compatible with required updates, do not sleep.
 - Keep waiting after timeouts.
 - Message for decisions or new information.
-- Inspect status only to resolve concrete uncertainty.
+- Inspect worker status or unfinished files only to resolve actionable uncertainty.
 
 ## Task mode
 
