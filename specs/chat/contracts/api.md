@@ -62,6 +62,7 @@ Apply validation before performing mutations.
 - Reject self-chat.
 - Require message text to contain at least one non-whitespace character.
 - Limit message text to 2,000 Unicode code points.
+- Reject text containing NUL (U+0000) with `422`, as approved during implementation.
 - Preserve valid text exactly, including surrounding spaces and line breaks.
 - Require JSON bodies with the declared field types and reject unexpected body fields.
 - Return errors as JSON with a `detail` field describing the failure.
