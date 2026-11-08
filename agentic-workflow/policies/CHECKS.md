@@ -7,7 +7,7 @@ Read when preparing checks, reviewing work or deciding whether it passes.
 
 ## Prepare acceptance
 
-Apply before coding in full mode and when authoring or updating requested acceptance documents.
+Apply before coding in plan-review mode and when authoring or updating requested acceptance documents.
 
 - Write acceptance criteria from the original requirements.
 - Cover normal use, boundary cases, failures and interactions.
@@ -28,7 +28,7 @@ Apply before coding in full mode and when authoring or updating requested accept
 
 Apply before coding and when updating checks in either mode.
 
-- Use source criteria directly for lightweight tasks without writing separate acceptance.
+- Use source criteria directly for direct tasks without writing separate acceptance.
 - Treat a missing requirement as a defect, even if all listed checks pass.
 - Choose checks that fit the change and test observable behaviour.
 - Include relevant regression tests.

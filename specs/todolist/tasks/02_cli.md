@@ -1,4 +1,4 @@
-Workflow: lightweight
+Workflow: direct
 
 Implement a user-facing CLI for TODO app.
 

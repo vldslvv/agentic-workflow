@@ -45,7 +45,11 @@ def render(report, perfetto_url, *, interval=5, refreshed=None, error=None, cont
              f'<main data-interval="{text(interval)}">',
              f'<p id="refresh-status" role="status" data-error="{text(error or "")}">'
              f'Last successful refresh: <time>{text(refreshed)}</time> · '
-             f'Polling every {text(interval)}s. <span id="refresh-error">{text(error or "")}</span></p>',
+             f'Polling every {text(interval)}s. Display updates pause while a dropdown has focus or text is highlighted. '
+             f'<span id="refresh-error">{text(error or "")}</span></p>',
+             '<div id="pause-notice" hidden><span role="status"><strong>Display updates paused</strong>'
+             '<br>Collection continues. Resume clears the highlight and releases the dropdown.</span>'
+             '<button id="resume-updates" type="button">Resume updates</button></div>',
              '<div id="report-content">',
              '<header><div><p class="eyebrow">LOCAL EXECUTION EVIDENCE</p><h1>Agent trace insights</h1>',
              f'<p>{text(report["implementation_id"])}</p></div><nav>',
@@ -165,6 +169,8 @@ Untimed observations appear after timed events. Encrypted, missing and upstream-
 
 CSS = '''
 :root{color-scheme:light;font-family:system-ui,sans-serif;color:#203044;background:#f3f6f9}
+#pause-notice{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:10;display:flex;align-items:center;gap:16px;width:max-content;max-width:calc(100% - 32px);padding:14px 18px;background:#fff3cd;color:#584300;border:1px solid #d4ae43;border-radius:8px;box-shadow:0 4px 16px #20304426;font-size:13px}
+#resume-updates{flex-shrink:0;padding:9px 12px;border:1px solid #806300;border-radius:5px;background:white;color:#584300;font:inherit;font-weight:600;cursor:pointer}
 .event-layout{display:grid;grid-template-columns:minmax(250px,1fr) minmax(300px,2fr);gap:20px}
 #event-list,#event-detail{max-height:650px;overflow:auto}#event-detail pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}
 #event-list button{display:block;width:100%;text-align:left;padding:12px;border:0;border-bottom:1px solid #dbe2e9;background:white;color:inherit;cursor:pointer}
@@ -298,7 +304,27 @@ eventSearch.addEventListener('input', filterEvents);
 loadEvents(JSON.parse(document.querySelector('#event-data').textContent));
 
 const interval = Number(document.querySelector('main').dataset.interval);
+const pauseNotice = document.querySelector('#pause-notice');
+let pollTimer, polling = false;
+function updatesPaused() {
+  return document.activeElement?.tagName === 'SELECT' || !window.getSelection().isCollapsed;
+}
+function showPauseNotice() {
+  // Keep the notice available until a poll resumes, including during button focus.
+  if (updatesPaused()) pauseNotice.hidden = false;
+}
+document.addEventListener('focusin', showPauseNotice);
+document.addEventListener('selectionchange', showPauseNotice);
+document.querySelector('#resume-updates').addEventListener('click', () => {
+  window.getSelection().removeAllRanges();
+  if (document.activeElement?.tagName === 'SELECT') document.activeElement.blur();
+  poll();
+});
 async function poll() {
+  if (polling) return;
+  polling = true;
+  clearTimeout(pollTimer);
+  if (!updatesPaused()) pauseNotice.hidden = true;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10000);
   try {
@@ -308,6 +334,13 @@ async function poll() {
     const status = page.querySelector('#refresh-status');
     const content = page.querySelector('#report-content');
     if (!status || !content) throw new Error('Invalid dashboard response');
+    // Moving controls or rebuilding text cancels native popups and selections.
+    // Check after fetching: the reader may have started interacting while waiting.
+    if (updatesPaused()) {
+      showPauseNotice();
+      return;
+    }
+    pauseNotice.hidden = true;
     document.querySelector('#refresh-status').replaceWith(status);
     if (!status.dataset.error) {
       const current = document.querySelector('#report-content');
@@ -335,6 +368,7 @@ async function poll() {
     refreshError.textContent = [collectionError, 'Connection failed; retrying on the next cycle.'].filter(Boolean).join(' ');
   } finally {
     clearTimeout(timeout);
+    polling = false;
     schedulePoll();
   }
 }
@@ -343,7 +377,7 @@ function schedulePoll() {
   const started = performance.now();
   function wait() {
     const remaining = interval - (performance.now() - started) / 1000;
-    if (remaining > 0) setTimeout(wait, Math.min(remaining * 1000, 2147483647));
+    if (remaining > 0) pollTimer = setTimeout(wait, Math.min(remaining * 1000, 2147483647));
     else poll();
   }
   wait();

@@ -1,4 +1,4 @@
-Workflow: full
+Workflow: plan-review
 
 Implement a business layer for a TODO app.
 

@@ -33,7 +33,7 @@
   - Accept tasks under Checks with the mode's required evidence.
   - Pass unlocks dependents.
   - Return defects to the same Implementer for correction and rechecks.
-  - Require fresh review in full mode.
+  - Require fresh review in plan-review mode.
   - Reassess affected downstream evidence.
   - Continue with ready tasks.
   - Save blockers before stopping.
@@ -139,10 +139,10 @@ Apply when assigning a task's mode.
 
 - Honor user/source requirements.
 - Block dispatch on unresolved conflicts.
-- Use the task's `Workflow: full` or `Workflow: lightweight` field when present.
+- Use the task's `Workflow: plan-review` or `Workflow: direct` field when present.
 - When the field is omitted, choose the mode below independently of model choice.
 
 | Condition | Mode |
 |---|---|
-| Required planning/review, complex work, or uncertainty | `full` |
-| Simple, bounded work with clear source criteria | `lightweight` |
+| Required planning/review, complex work, or uncertainty | `plan-review` |
+| Simple, bounded work with clear source criteria | `direct` |

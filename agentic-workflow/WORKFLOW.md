@@ -37,8 +37,8 @@ This document defines the workflow's core behavior; role documents and policies 
   - Record modes, interfaces, file owners, worker handles and output paths.
   - Include shared configuration ownership.
   - Choose modes independently of models.
-  - Use full for required planning/review, complexity or uncertainty.
-  - Use lightweight for simple, bounded tasks with clear criteria.
+  - Use plan-review for required planning/review, complexity or uncertainty.
+  - Use direct for simple, bounded tasks with clear criteria.
   - Honor user/source requirements.
   - Block on conflicts.
   - For existing-project tasks, Supervisor requires Implementers to read task-scoped code, tests and project instructions before planning or editing.
@@ -60,10 +60,10 @@ This document defines the workflow's core behavior; role documents and policies 
   - Implementer agrees on scope and file ownership with Supervisor before concurrent edits.
   - Supervisor resolves overlaps and interface changes before edits.
   - Return affected plans/checks/reviews to owners.
-  - Full: write plan and source-linked acceptance before code.
-  - Full: include public API contracts and test scenarios under [Checks](policies/CHECKS.md).
-  - Lightweight: use source criteria.
-  - Lightweight: skip plan, separate acceptance and review.
+  - Plan-review: write plan and source-linked acceptance before code.
+  - Plan-review: include public API contracts and test scenarios under [Checks](policies/CHECKS.md).
+  - Direct: use source criteria.
+  - Direct: skip plan, separate acceptance and review.
   - Keep the assigned mode.
   - Implement the task.
   - Check requirements and regressions.
@@ -74,12 +74,12 @@ This document defines the workflow's core behavior; role documents and policies 
   - Preserve approved originals.
 - Outputs:
   - Candidate, evidence, task result.
-  - Full mode adds plan and acceptance.
+  - Plan-review mode adds plan and acceptance.
 - Next:
-  - Full → review.
-  - Lightweight → accept.
+  - Plan-review → review.
+  - Direct → accept.
 
-## Spawn Reviewer — full mode
+## Spawn Reviewer — plan-review mode
 
 - Context:
   - [REVIEWER.md](roles/REVIEWER.md), requirements, acceptance, candidate, factual evidence.
@@ -139,7 +139,7 @@ This document defines the workflow's core behavior; role documents and policies 
   - Run required manual checks.
   - Reproduce gaps where feasible.
   - Keep the candidate unchanged.
-  - Use source criteria for lightweight tasks.
+  - Use source criteria for direct tasks.
 - Outputs:
   - Final result.
   - Repair task for implementation failures.

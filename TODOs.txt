@@ -2,9 +2,7 @@ Add spec verification -- consider something like OpenSpec
 Generate make commands for app manipulation in specs
 Loop tasks without having a supervisor -- less context?
 
-Consolidate where temp artifacts are created.
-Reduce templates to reduce the data flow/token usage -- run trace first
 Understand traces better
-Rename full/lightweight workflow
-Make trace page load content dynamically if possible with native python
+Each task completion is a commit
+Correction flow -- change requirements, run and align
 

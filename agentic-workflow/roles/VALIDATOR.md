@@ -7,7 +7,7 @@
 - Inputs:
   - Assigned tasks/modes, assembled candidate and permitted evidence.
   - Supervisor confirms affected writers paused.
-  - Lightweight tasks use source criteria.
+  - Direct tasks use source criteria.
 - Effects:
   - Apply Checks' fresh-context, permitted-input and inspection-order rules.
   - Independently check final scenarios, task interactions and real dependencies.

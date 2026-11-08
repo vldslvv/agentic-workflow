@@ -17,7 +17,7 @@
   - Fix defects.
   - Rerun affected checks.
   - Preserve approved originals when fixing source omissions.
-  - Full: complete review below.
+  - Plan-review: complete review below.
   - Save the [result](../templates/result.md), mode, evidence and contracts.
   - Include applicable memory/usage paths.
   - Report blockers promptly.
@@ -28,9 +28,9 @@
   - Keep this context for corrections.
   - Repeat affected task steps.
 
-## Full mode
+## Plan-review mode
 
-Apply when assigned `full` mode.
+Apply when assigned `plan-review` mode.
 
 - Write [plan.md](../templates/plan.md) before code.
 - Write [acceptance.md](../templates/acceptance.md) before code.
@@ -39,16 +39,16 @@ Apply when assigned `full` mode.
 - Include expected test scenarios under Checks.
 - Implement the task.
 
-## Lightweight mode
+## Direct mode
 
-Apply when assigned `lightweight` mode.
+Apply when assigned `direct` mode.
 
 - Implement against source criteria.
 - Run checks against source criteria.
 - Skip plan, separate acceptance and task review.
 - Keep the assigned mode.
 
-## Review a full-mode task
+## Review a plan-review task
 
 - Context: apply [Checks](../policies/CHECKS.md) and [Reviewer](REVIEWER.md).
 - Inputs: checked candidate, requirements, acceptance, factual evidence and agreed review boundary.
