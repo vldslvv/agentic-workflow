@@ -23,7 +23,7 @@
   - Pass assignment, mode, candidate and owned files.
   - For existing-project tasks, require Implementers to read task-scoped code, tests and project instructions before planning or editing.
   - Run ready tasks concurrently within capacity.
-  - Reserve room for full-task Reviewers.
+  - Reserve room for full-task Reviewers and final validation.
   - Break ties by table order.
   - Blocked tasks do not hold unrelated work.
   - Resolve overlapping edits and interface changes before writing.
@@ -147,6 +147,11 @@ Apply when reconciling state or continuing interrupted work.
 
 Apply while workers are active.
 
+- Save worker results before closing their threads.
+- Close completed worker threads through the host's close action when no further corrections are needed.
+- Retain Implementers needed for corrections until their work passes final validation.
+- Record closed worker handles in execution state.
+- Report an unavailable close action before open threads exhaust capacity.
 - Use native agent waits with the longest timeout compatible with required updates, do not sleep.
 - Keep waiting after timeouts.
 - Message for decisions or new information.

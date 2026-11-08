@@ -211,6 +211,7 @@ This document defines the workflow's core behavior; role documents and policies 
 
 Apply while workers are active.
 
+- Supervisor manages worker thread cleanup and reserves capacity for independent checks.
 - Use native agent waits with the longest timeout compatible with required updates.
 - Keep waiting after timeouts.
 - Message for decisions or new information.
