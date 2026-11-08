@@ -4,7 +4,6 @@
 
 - Context:
   - Read [AGENTS.md](../AGENTS.md), [Checks](../policies/CHECKS.md), [Bundle](../policies/BUNDLE.md) and [Records](../policies/RECORDS.md).
-  - Apply [Document style](../policies/DOCUMENT_STYLE.md) when writing documents.
 - Inputs:
   - Assigned tasks/modes, assembled candidate and permitted evidence.
   - Supervisor confirms affected writers paused.

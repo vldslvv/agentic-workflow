@@ -4,12 +4,10 @@
 
 - Context:
   - Read [AGENTS.md](../AGENTS.md), [Checks](../policies/CHECKS.md), [Records](../policies/RECORDS.md) and [Memory](../policies/MEMORY.md).
-  - Apply [Document style](../policies/DOCUMENT_STYLE.md).
 - Inputs: brief, scope, sources, target paths, relevant code and accepted contracts.
 - Effects:
   - Resolve inputs.
-  - Write authorized documents.
-  - Use applicable [bundle](../policies/BUNDLE.md), [plan](../templates/plan.md) or [acceptance](../templates/acceptance.md) templates.
+  - Write authorized documents using applicable [bundle](../policies/BUNDLE.md), [plan](../templates/plan.md) or [acceptance](../templates/acceptance.md) templates.
   - Include public API contracts in acceptance under Checks.
   - Include expected test scenarios in acceptance under Checks.
   - Check source coverage, consistency, links and dependencies.

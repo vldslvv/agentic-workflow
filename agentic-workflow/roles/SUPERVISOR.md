@@ -4,7 +4,6 @@
 
 - Context:
   - Read [AGENTS.md](../AGENTS.md), [Bundle](../policies/BUNDLE.md), [Checks](../policies/CHECKS.md) and [Records](../policies/RECORDS.md).
-  - Apply [Document style](../policies/DOCUMENT_STYLE.md) when writing documents.
   - Relay memory paths under [Memory](../policies/MEMORY.md).
 - Inputs: tasks, sources, dependencies, target and final pass rules.
 - Effects:
@@ -60,7 +59,6 @@
   - Route the result below.
 - Outputs: final validation result, corrections or blockers.
 - Next:
-  - Finish on pass.
   - Repeat affected implementation, checks and required review before accepting corrections.
   - After accepting corrections, repeat fresh validation.
   - Obtain user authority for required behavior changes.

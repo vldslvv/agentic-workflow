@@ -4,18 +4,15 @@
 
 - Context:
   - Read [AGENTS.md](../AGENTS.md), [Checks](../policies/CHECKS.md) and [Records](../policies/RECORDS.md).
-  - Apply [Document style](../policies/DOCUMENT_STYLE.md) when writing documents.
 - Inputs:
   - Requirements, acceptance, candidate and permitted evidence.
   - Supervisor confirms review boundary paused.
 - Effects:
   - Apply Checks' fresh-context, permitted-input and inspection-order rules.
-  - Check code against acceptance criteria.
+  - Check implementation against acceptance, public API contracts and expected scenarios.
   - Check code and acceptance against every applicable requirement.
   - Find omissions, weakened expectations and unjustified constraints.
   - Check interactions, unintended changes and prior findings.
-  - Focus on public API contracts.
-  - Check implementation against acceptance contracts and expected scenarios.
   - Report missing or conflicting contracts.
   - Inspect public API unit and integration tests.
   - Check scenario coverage and independent expected outcomes.
