@@ -1,50 +1,30 @@
-Workflow: direct
+# CLI — user commands
 
-Implement a user-facing CLI for TODO app.
+## Context
 
-User commands should allow to:
- - add tasks
- - delete tasks
- - complete tasks
- - list tasks
- - help
+- **Responsibility:** Expose TODO operations and help through a command-line interface.
+- **Boundary:** Own command parsing and presentation; task state and persistence belong to the business layer.
+- **Sources:** [Project requirements](../project.md).
 
-## CLI contract
+## Contracts
 
-Run each command as a separate process using `uv run todo` from `apps/todolist`.
-Each successful command exits with code `0`. Stdout must match the text below
-exactly, including one trailing newline. Stderr is not part of this contract.
+- **Provides:** The user-facing [CLI contract](../contracts/cli.md).
+- **Consumes:** The business layer's [task operations](../contracts/task_operations.md).
 
-Start with no `tasks.json` in the app directory, then run these commands in order:
+## Behavior
 
-| Arguments | Expected stdout (line breaks shown as `<br>`) |
+- **Inputs:** `add`, `delete`, `complete`, `list` and `help` command arguments.
+- **Effects:** Invoke the business layer for task operations.
+- **Outputs:** Exit statuses and exact stdout under the [CLI contract](../contracts/cli.md).
+
+## Acceptance
+
+| Scenario | Observable pass condition |
 |---|---|
-| `list` | `No tasks.` |
-| `add "Buy milk"` | `Added task 1: Buy milk` |
-| `add "Write tests"` | `Added task 2: Write tests` |
-| `list` | `1 [ ] Buy milk`<br>`2 [ ] Write tests` |
-| `complete 1` | `Completed task 1` |
-| `list` | `1 [x] Buy milk`<br>`2 [ ] Write tests` |
-| `delete 1` | `Deleted task 1` |
-| `list` | `2 [ ] Write tests` |
-| `delete 2` | `Deleted task 2` |
-| `list` | `No tasks.` |
+| Ordered task lifecycle | Separate command processes satisfy the [ordered scenario](../contracts/cli.md#ordered-scenario). |
+| Help | Exit status and stdout satisfy the [help contract](../contracts/cli.md#help). |
 
-Adding tasks creates `tasks.json` in the app directory. Each subsequent process
-must observe the persisted state from preceding commands.
+## Workflow requirements
 
-`uv run todo help` must exit with code `0` and print exactly this text, including
-the trailing newline:
-
-```text
-Usage: todo <command>
-Commands:
-  add <text>
-  list
-  complete <id>
-  delete <id>
-  help
-```
-
-Invalid-input behavior is outside this contract's v1 scope.
+Workflow: direct
 

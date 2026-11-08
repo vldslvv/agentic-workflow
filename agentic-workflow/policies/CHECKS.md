@@ -9,12 +9,13 @@ Read when preparing checks, reviewing work or deciding whether it passes.
 
 Apply before coding in plan-review mode and when authoring or updating requested acceptance documents.
 
-- Write acceptance criteria from the original requirements.
-- Cover normal use, boundary cases, failures and interactions.
-- State public API contracts in acceptance.
+- Derive acceptance criteria from original requirements, excluding advisory implementation suggestions.
+- Cover normal use, boundaries, failures, interactions and specified state or lifecycle guarantees.
+- State component contracts in acceptance or link their authoritative definitions.
 - Include inputs, outputs, errors and observable side effects in each contract.
 - Link contracts to source requirements.
-- Provide expected test scenarios for each contract.
+- Map task acceptance outcomes and contract guarantees to concrete check scenarios.
+- Link shared scenarios and add only missing task-specific checks.
 - State setup, action and expected outcome for each scenario.
 - Choose unit or integration tests for each scenario.
 - Use both test layers where they cover distinct risks.
@@ -65,7 +66,7 @@ Apply to independent review and validation.
 - Limit inputs to requirements, applicable acceptance, candidate work, factual results, contracts, justified guideline exceptions and prior findings.
 - Allow focused mock justifications as review inputs.
 - Assess mock justifications independently.
-- Exclude plans, conversations, project memory, other design explanations and the author's claims of correctness.
+- Exclude plans, implementation suggestions, conversations, project memory, design explanations and claims of correctness.
 - Exclude copies of these from other files too.
 - Keep the work being checked unchanged, including relevant dependencies, configuration and check inputs.
 - Record its location and revision when available.

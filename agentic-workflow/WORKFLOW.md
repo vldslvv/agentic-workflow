@@ -8,8 +8,9 @@ This document defines the workflow's core behavior; role documents and policies 
 - Inputs: requested documents, target paths, relevant code and accepted contracts.
 - Effects:
   - Planner writes requested documents.
+  - Planner defines component boundaries and shared interaction contracts.
   - Planner checks document validity.
-  - Acceptance includes public API contracts and expected test scenarios under [Checks](policies/CHECKS.md).
+  - Acceptance maps required behavior and contracts to concrete checks under [Checks](policies/CHECKS.md).
   - For workflow changes, check behavior, role reading paths and package validity.
   - Preserve approved history.
 - Outputs:
@@ -51,7 +52,7 @@ This document defines the workflow's core behavior; role documents and policies 
 
 ## Spawn Implementer — per task
 
-- Context: [IMPLEMENTER.md](roles/IMPLEMENTER.md), task sources, accepted dependency contracts.
+- Context: [IMPLEMENTER.md](roles/IMPLEMENTER.md), task sources, accepted contracts.
 - Inputs: assignment, mode, candidate, owned files.
 - Effects:
   - Supervisor spawns Implementer in a fresh session.

@@ -1,5 +1,8 @@
-General rules:
- - do not overengineer, keep things simple
- - use rust language
- - project should be implemented at apps/todolist_rust
+# Rust TODO CLI
+
+Build a simple command-line TODO app with initial JSON storage and an assembled Postgres backend.
+
+- Keep the implementation simple.
+- Use Rust.
+- Implement the app at `apps/todolist_rust`, relative to the repository root.
 

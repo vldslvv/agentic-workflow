@@ -25,8 +25,22 @@ A bundle contains the project files listed below.
 |---|---|---|
 | `project.md` | Intent, constraints, target and output paths | [Project](../templates/project.md) |
 | `task_order.md` | Task filenames and dependencies | [Task order](../templates/task_order.md) |
-| `tasks/*.md` | Required behavior and interface contracts | [Task](../templates/tasks/task.md) |
+| `tasks/*.md` | Component responsibilities, behavior and acceptance outcomes | [Task](../templates/tasks/task.md) |
+| `contracts/*.md` (optional) | Shared interaction contracts | [Contract](../templates/contracts/contract.md) |
 | `verification.md` | Shared checks and assembled-app scenarios | [Verification](../templates/verification.md) |
+
+## Task specifications
+
+Apply when authoring tasks and interaction contracts.
+
+- Define each ordinary task as a cohesive component or bounded component change.
+- Follow [repair scope](../roles/VALIDATOR.md#publish-repair) for cross-component validation repairs.
+- Make tasks implementable and checkable against agreed contracts and declared prerequisites.
+- Keep responsibility, boundaries, behavior and acceptance, omitting other inapplicable fields.
+- Keep shared requirements in one authoritative contract or interface definition.
+- Link shared contracts from every task that provides or consumes them.
+- Reconcile contract changes across affected tasks before implementation.
+- Put required choices in Constraints and advisory choices in Implementation suggestions.
 
 ## Select tasks and resolve paths
 
@@ -35,7 +49,7 @@ Apply before the [Supervisor](../roles/SUPERVISOR.md) schedules selected tasks.
 - Declare dependencies only in the `Task | Depends on` table in `task_order.md`.
 - List each task once.
 - Use `None` or comma-separated task filenames for dependencies.
-- Do not infer dependencies from names or row order.
+- Do not infer dependencies from runtime interactions, shared contracts, names or row order.
 - Use unique filenames without extensions as task IDs.
 - Resolve bare task filenames under `tasks/`.
 - Resolve task paths or links from the bundle root.

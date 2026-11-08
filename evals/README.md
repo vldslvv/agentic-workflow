@@ -69,7 +69,7 @@ python3 evals/todolist.py run
 
 Inspect `.agentic-workflow/evals/todolist/result.json`; the app, logs and new execution records
 remain in the checkout. Overall `PASS` requires passing agent,
-[CLI contract](../specs/todolist/tasks/02_cli.md#cli-contract) and artifact-presence
+[CLI contract](../specs/todolist/contracts/cli.md) and artifact-presence
 grades. Artifact presence does not establish trace quality or workflow compliance.
 `--agent-timeout` and `--command-timeout` override the 1,800-second and 60-second
 limits. Inspect results before requesting cleanup.

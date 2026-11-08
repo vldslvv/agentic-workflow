@@ -1,14 +1,13 @@
 # <Task ID> — acceptance
 
 - **Request, sources and scope:** <Authorizing request, exact source clauses, applicable guideline clauses, shared constraints and selected behavior.>
-- **Prerequisites:** <Task IDs from task_order.md and accepted dependency contracts.>
+- **Prerequisites:** <Link to applicable task_order.md entries.>
 - **Target and paths:** <Required target, implementation destination and evidence destination.>
-- **Public API contracts:** <Public functions, modules or endpoints with linked requirement IDs.>
-- **Contract behavior:** <Inputs, outputs, errors and observable side effects for each contract.>
+- **Contracts:** <Authoritative contract references or task-specific interface definitions under [Checks](../policies/CHECKS.md#prepare-acceptance).>
 
-| Requirement ID | Source clause and observable outcome | Expected test scenario and pass rule |
+| Requirement ID | Source / contract | Check scenario and pass rule |
 |---|---|---|
-| <Stable ID> | <Exact source reference and required result> | <Check method, public API, setup, action, expected outcome and cleanup.> |
+| <Stable ID> | <Exact source clause or contract reference> | <Method, setup, action, observable outcome and cleanup> |
 
 - **Shared/regression/final checks:** <References, including required real-dependency integration and manual criteria.>
 - **Limits and decisions:** <Unavailable checks, substitutes/fidelity, coverage gaps and material conflicts, or none.>

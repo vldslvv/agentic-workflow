@@ -8,9 +8,9 @@
 - Effects:
   - Resolve inputs.
   - Write authorized documents using applicable [bundle](../policies/BUNDLE.md), [plan](../templates/plan.md) or [acceptance](../templates/acceptance.md) templates.
-  - Include public API contracts in acceptance under Checks.
+  - Include component contracts in acceptance under Checks.
   - Include expected test scenarios in acceptance under Checks.
-  - Check source coverage, consistency, links and dependencies.
+  - Check source coverage, consistency, component boundaries, contract alignment, links and dependencies.
   - Check that pass rules are observable.
   - Report unresolved requirements and unavailable checks.
   - Save results, usage references and useful memory.
