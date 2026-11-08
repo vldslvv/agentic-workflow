@@ -42,6 +42,9 @@ isolation or settings under [model routing](policies/MODELS.md) and
 [Checks](policies/CHECKS.md). Run the [portable checks](#requirements-and-portable-commands)
 after installation.
 
+OpenCode 2.2.6 uses [native session capture](guides/TRACING.md#enable-opencode-capture)
+without a plugin; follow the update note there to remove the old V1 wrapper.
+
 ## Update the package
 
 Replace `agentic-workflow/` in full, refresh installed wrappers, check the root

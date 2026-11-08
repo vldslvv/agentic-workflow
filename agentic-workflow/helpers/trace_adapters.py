@@ -267,6 +267,9 @@ def codex(source, path):
 def opencode(source, path):
     data = json.loads(path.read_text())
     info = data['info']
+    if 'version' not in info:
+        from opencode_v2 import parse
+        return parse(source, data)
     if info.get('id') != source['session_id']:
         raise ValueError('session identity mismatch')
     diagnostics, events = [], []

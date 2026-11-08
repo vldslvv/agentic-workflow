@@ -12,6 +12,7 @@
   - Use new paths for initial work.
   - Extend selected code for incremental work.
   - Allocate or resume records before dispatch.
+  - Emit the Records assignment line for `supervisor` / `orchestration` in commentary after allocation or resume.
   - Assign task IDs before dispatch.
   - Maintain [execution state](#execution-state) throughout coordination.
   - Record mode, interfaces, file owners, worker handles and output paths.

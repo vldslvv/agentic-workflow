@@ -34,6 +34,8 @@ This document defines the workflow's core behavior; role documents and policies 
   - Extend selected code for incremental work.
   - Reconcile existing implementations against revised specifications before dispatch.
   - Allocate or resume records before dispatch.
+  - Capture native turns through explicit host identities and report unavailable telemetry.
+  - Supervisor records its own orchestration assignment before dispatch.
   - Assign task IDs before dispatch.
   - Supervisor maintains an execution state.
   - Record modes, interfaces, file owners, worker handles and output paths.

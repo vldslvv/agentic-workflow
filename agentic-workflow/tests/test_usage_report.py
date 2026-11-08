@@ -152,7 +152,7 @@ class TraceTests(unittest.TestCase):
         self.assertEqual(report['groups']['effort'], [])
         dashboard = render(report, 'https://ui.perfetto.dev')
         agent_table = dashboard.split('id="assignments"', 1)[1].split('</table>', 1)[0]
-        self.assertIn('model-a / unavailable; model-b / unavailable', agent_table)
+        self.assertIn('model-a / unavailable · variant: high; model-b / unavailable · variant: low', agent_table)
 
     def test_named_assignments_and_task_model_tool_breakdowns_survive_session_reuse(self):
         path, source = self.source(bind=False)
@@ -449,7 +449,7 @@ class TraceTests(unittest.TestCase):
                           ('codex:supervisor','codex:parallel','spawn'), ('codex:implementer','codex:parallel','fork')})
         trace = usage.timeline(events)
         rows = trace['traceEvents']
-        self.assertEqual(sum(r['ph'] == 'M' for r in rows), 4)
+        self.assertEqual(sum(r['ph'] == 'M' and r['name'] == 'thread_name' for r in rows), 4)
         self.assertEqual(sum(r['ph'] == 's' for r in rows), 3)
         self.assertEqual(sum(r['ph'] == 'f' for r in rows), 3)
         # Guard the Chrome Trace numeric/hex-ID contract caught by real Perfetto.
@@ -583,6 +583,40 @@ class TraceTests(unittest.TestCase):
                     self.assertIsNone(row['summary']['tokens']['total_tokens']['total'])
                     self.assertGreater(row['summary']['tokens']['total_tokens']['known_subtotal'], 0)
                     self.assertIn('invalid_json_line', row['summary']['coverage'])
+
+    @unittest.skipUnless(os.environ.get('PERFETTO_TRACE_PROCESSOR'), 'optional real Perfetto parser unavailable')
+    def test_real_perfetto_preserves_parallel_tools_and_chronological_session_order(self):
+        base = dict(adapter='opencode', agent_id='opencode:root', turn_id='turn',
+                    model='model-a', variant='medium', reasoning_effort=None)
+        events = [dict(base, kind='agent', event_id='agent', start=100, end=None),
+                  dict(base, kind='model', event_id='model', start=100.5, end=110),
+                  dict(base, kind='tool', event_id='tool-a', name='read-a', start=101, end=106),
+                  dict(base, kind='tool', event_id='tool-b', name='read-b', start=103, end=108),
+                  dict(base, kind='tool', event_id='tool-c', name='read-c', start=108, end=110),
+                  # The later session sorts first alphabetically and starts before
+                  # the root's parallel track. Keep that track with its session.
+                  dict(base, kind='agent', event_id='child', agent_id='opencode:aaa', start=102, end=109)]
+        trace = self.root / 'timeline.json'
+        trace.write_text(json.dumps(usage.timeline(events)))
+        def query(sql):
+            result = subprocess.run([os.environ['PERFETTO_TRACE_PROCESSOR'], 'query', '--format', 'csv', str(trace), sql],
+                                    text=True, capture_output=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return list(csv.DictReader(io.StringIO(result.stdout)))
+        self.assertEqual(query("SELECT name,value FROM stats WHERE value != 0 AND severity IN ('error','data_loss')"), [])
+        self.assertEqual(query("SELECT name,ts,dur FROM slice WHERE category='tool' ORDER BY ts"), [
+            dict(name='read-a', ts='101000000000', dur='5000000000'),
+            dict(name='read-b', ts='103000000000', dur='5000000000'),
+            dict(name='read-c', ts='108000000000', dur='2000000000')])
+        self.assertEqual(query("SELECT count(*) AS n FROM slice WHERE category='agent' AND dur=-1"), [{'n': '1'}])
+        # Perfetto's UI orders thread groups by this hint, then main-thread
+        # priority, then tid. Query imported hints, not our JSON construction.
+        ordered = query("SELECT name FROM thread WHERE name IS NOT NULL ORDER BY "
+                        "ifnull(extract_arg(arg_set_id, 'thread_sort_index_hint'), 0), "
+                        "is_main_thread DESC, tid")
+        self.assertEqual([row['name'].split(' · ')[0] for row in ordered],
+                         ['opencode:root', 'opencode:root', 'opencode:aaa'])
+        self.assertTrue(ordered[1]['name'].endswith(' · parallel 2'))
 
     @unittest.skipUnless(os.environ.get('PERFETTO_TRACE_PROCESSOR'), 'optional real Perfetto parser unavailable')
     def test_real_perfetto_retains_full_content_arguments_and_message_instants(self):

@@ -8,7 +8,8 @@ each collection attempt; it also sets the browser poll interval.
 Starts a foreground HTTP viewer on 127.0.0.1:9001 and attempts to open a
 browser. Creates/uses implementation/.records.lock; refreshes saved native
 turns and proven dispatch descendants under
-implementation/native/<session-id>/<turn-id>.jsonl; creates/overwrites implementation/reports/usage.json,
+implementation/native/<session-id>/<turn-id>.jsonl (Codex) or .json (OpenCode);
+creates/overwrites implementation/reports/usage.json,
 usage.md, events.json and timeline.json. Reuses a compatible viewer for the
 same implementation and exits; the owner's interval remains in effect. Other
 port occupants cause an error; stop the conflicting viewer or process before

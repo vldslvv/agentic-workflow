@@ -59,6 +59,17 @@ def write_atomic(path, data):
             os.unlink(temporary)
 
 
+def report_capture(diagnostics):
+    for diagnostic in diagnostics:
+        print('records: ' + diagnostic['code'], file=sys.stderr)
+        if diagnostic['code'] == 'current_session_unavailable':
+            print('records: run capture in an OpenCode agent shell with OPENCODE_SESSION_ID; see '
+                  'agentic-workflow/guides/TRACING.md#enable-opencode-capture', file=sys.stderr)
+        elif diagnostic['code'] == 'opencode_export_unavailable':
+            print('records: check opencode session export SESSION_ID and the selected session; '
+                  'saved evidence is retained', file=sys.stderr)
+
+
 def allocate(records_root, name):
     identifier(name)
     records_root = Path(records_root)
@@ -73,8 +84,7 @@ def allocate(records_root, name):
         from native_traces import capture_current
         with locked(root / '.records.lock'):
             capture_diagnostics = capture_current(root)
-        for diagnostic in capture_diagnostics:
-            print('records: ' + diagnostic['code'], file=sys.stderr)
+        report_capture(capture_diagnostics)
     return root
 
 
@@ -85,8 +95,7 @@ def resolve_task(root, task):
         raise ValueError('task absent from identified implementation')
     from native_traces import capture_current
     with locked(root / '.records.lock'):
-        for diagnostic in capture_current(root):
-            print('records: ' + diagnostic['code'], file=sys.stderr)
+        report_capture(capture_current(root))
     return target
 
 
@@ -103,7 +112,8 @@ _, . or -; --records-root defaults to .agentic-workflow/records in the cwd.
 Creates --records-root/<NNN>_<name>/ with tasks/, runs/, reports/ and
 .records.lock; NNN is the next numeric prefix (at least three digits). Attempts
 to save the current native turn and session metadata under
-<NNN>_<name>/native/<session-id>/<turn-id>.jsonl; starts no service.
+<NNN>_<name>/native/<session-id>/<turn-id>.jsonl (Codex) or .json (OpenCode);
+OpenCode 2.2.6 supplies OPENCODE_SESSION_ID in agent shells. Starts no service.
 
 Prints the implementation path. Exit 0 means allocation succeeded, not complete
 telemetry; best-effort capture diagnostics go to stderr. Exit 2 means invalid
@@ -127,7 +137,8 @@ letter/digit and contains only ASCII letters, digits, _, . or -.
 Requires implementation/tasks/<task>/ to exist within implementation; creates
 no task. Creates/uses implementation/.records.lock and attempts to save the
 current native turn and session metadata to implementation/native/<session-
-id>/<turn-id>.jsonl; starts no service.
+id>/<turn-id>.jsonl (Codex) or .json (OpenCode); OpenCode 2.2.6 supplies
+OPENCODE_SESSION_ID in agent shells. Starts no service.
 
 Prints the task path. Exit 0 means resolution succeeded, not complete
 telemetry; best-effort capture diagnostics go to stderr. Exit 2 means invalid

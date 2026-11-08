@@ -68,7 +68,7 @@ def check(files):
     expected.update(f"templates/{name}.md" for name in
                     ("project", "task_order", "tasks/task", "verification", "plan", "acceptance", "result"))
     expected.update(f"helpers/{name}.py" for name in
-                    ("check_package", "records", "native_traces", "trace_adapters",
+                    ("check_package", "records", "native_traces", "opencode_capture", "opencode_v2", "trace_adapters",
                      "usage_report", "trace_dashboard", "trace_view"))
     errors = [f"Missing package file: {p}" for p in sorted(expected - files.keys())]
     documents = {PACKAGE / name: data.decode() for name, data in files.items() if name.endswith(".md")}

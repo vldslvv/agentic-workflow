@@ -5,7 +5,7 @@ implementation is the allocated implementation directory.
 
 Creates/uses implementation/.records.lock; refreshes saved native turns and
 proven dispatch descendants under implementation/native/<session-id>/<turn-
-id>.jsonl. Creates/overwrites implementation/reports/usage.json, usage.md,
+id>.jsonl (Codex) or .json (OpenCode). Creates/overwrites implementation/reports/usage.json, usage.md,
 events.json and timeline.json; starts no viewer or continuous capture.
 
 Prints JSON with implementation_id (directory name), reports (report directory
@@ -116,7 +116,9 @@ INCOMPLETE_CODES = GAP_CODES | {'source_unavailable', 'unfinished_turn', 'unveri
                                 'native_storage_unavailable', 'native_source_unavailable',
                                 'native_identity_unresolved', 'native_identity_mismatch',
                                 'ambiguous_native_identity', 'ambiguous_dispatch_turn', 'selected_turn_absent',
-                                'native_turn_unavailable', 'no_native_evidence'}
+                                'native_turn_unavailable', 'no_native_evidence',
+                                'opencode_export_unavailable', 'opencode_turn_unavailable',
+                                'opencode_dispatch_unresolved', 'opencode_parent_mismatch'}
 
 
 def summarize(events, diagnostics):
@@ -234,7 +236,7 @@ def assignments(events):
         key = (e['agent_id'], e.get('assignment_id'))
         row = rows.setdefault(key, dict({k: e.get(k) for k in fields}, turns=set(), outcomes=set(), observed_settings=set(), requested_settings=set()))
         row['turns'].add(e.get('turn_id'))
-        settings = (e.get('model'), e.get('reasoning_effort'))
+        settings = (e.get('model'), e.get('reasoning_effort'), e.get('variant'))
         if any(value is not None for value in settings):
             row['observed_settings'].add(settings)
         request = e.get('requested') or {}
@@ -246,7 +248,8 @@ def assignments(events):
     return [dict(row, turns=sorted(t for t in row['turns'] if t), outcomes=sorted(row['outcomes']),
                  requested_settings=[dict(model=model, reasoning_effort=effort) for model, effort in
                                      sorted(row['requested_settings'], key=lambda pair: tuple(v or '' for v in pair))],
-                 observed_settings=[dict(model=model, reasoning_effort=effort) for model, effort in
+                 observed_settings=[dict(model=model, reasoning_effort=effort, **({'variant': variant} if variant is not None else {}))
+                                    for model, effort, variant in
                                     sorted(row['observed_settings'], key=lambda pair: tuple(v or '' for v in pair))])
             for _, row in sorted(rows.items(), key=lambda item: str(item[0]))]
 
@@ -254,32 +257,78 @@ def assignments(events):
 def format_settings(settings):
     """Keep observed model/effort pairs together, without filling gaps from requests."""
     return '; '.join(f'{s.get("model") or "unavailable"} / {s.get("reasoning_effort") or "unavailable"}'
+                     + (f' · variant: {s["variant"]}' if s.get('variant') is not None else '')
                      for s in settings) or 'unavailable'
 
 
+def timeline_lanes(events, lanes):
+    """Pack intervals into tracks where slices can nest without crossing."""
+    stacks = {agent: [(tid, [])] for agent, tid in lanes.items()}
+    assigned, extra = {}, []
+    next_lane = len(lanes) + 1
+    spans = [e for e in events if e.get('start') is not None and
+             ((e.get('end') is not None and e['end'] >= e['start']) or
+              (e['kind'] == 'agent' and e.get('end') is None))]
+    for e in sorted(spans, key=lambda e: (round(e['start'] * 1_000_000),
+                                          -round(e['end'] * 1_000_000) if e.get('end') is not None else -float('inf'),
+                                          e['event_id'])):
+        start = round(e['start'] * 1_000_000)
+        end = round(e['end'] * 1_000_000) if e.get('end') is not None else float('inf')
+        tracks = stacks[e['agent_id']]
+        for tid, ends in tracks:
+            while ends and ends[-1] <= start:
+                ends.pop()
+            if not ends or end <= ends[-1]:
+                break
+        else:
+            tid, ends = next_lane, []
+            next_lane += 1
+            tracks.append((tid, ends))
+            extra.append((e['agent_id'], tid, len(tracks)))
+        ends.append(end)
+        assigned[e['event_id']] = tid
+    return assigned, extra
+
+
 def timeline(events):
-    lanes = {agent: i + 1 for i, agent in enumerate(sorted({e['agent_id'] for e in events}))}
+    first_seen = {}
+    for e in events:
+        observed = next((e[key] for key in ('start', 'timestamp', 'end') if e.get(key) is not None), float('inf'))
+        first_seen[e['agent_id']] = min(first_seen.get(e['agent_id'], float('inf')), observed)
+    lanes = {agent: i + 1 for i, agent in enumerate(sorted(first_seen, key=lambda agent: (first_seen[agent], agent)))}
     labels = defaultdict(set)
     for assignment in assignments(events):
         context = ' / '.join(v for v in (assignment.get('role'), assignment.get('task_id')) if v)
         label = assignment.get('agent_name') or assignment['agent_id']
         label = f'{label} · {context}' if context else label
         labels[assignment['agent_id']].add(f'{label} · {format_settings(assignment["observed_settings"])}')
-    output = [dict(ph='M', name='thread_name', pid=1, tid=tid, args={'name': '; '.join(sorted(labels[agent]))})
-              for agent, tid in lanes.items()]
+    event_lanes, extra = timeline_lanes(events, lanes)
+    tracks = sorted([(agent, tid, 1) for agent, tid in lanes.items()] + extra,
+                    key=lambda track: (lanes[track[0]], track[2]))
+    output = []
+    for rank, (agent, tid, number) in enumerate(tracks):
+        label = '; '.join(sorted(labels[agent])) + (f' · parallel {number}' if number > 1 else '')
+        output.append(dict(ph='M', name='thread_name', pid=1, tid=tid, args={'name': label}))
+        # Perfetto otherwise applies its own thread ordering. Keep parallel
+        # tracks adjacent to their session, in session start order.
+        output.append(dict(ph='M', name='thread_sort_index', pid=1, tid=tid, args={'sort_index': rank}))
     omitted, flows = [], set()
-    for e in events:
+    ordered = sorted(events, key=lambda e: (
+        round((e.get('start') if e.get('start') is not None else e.get('timestamp') or e.get('end') or 0) * 1_000_000),
+        -round(e['end'] * 1_000_000) if e.get('end') is not None else -float('inf'),
+        e['event_id']))
+    for e in ordered:
         start, end = e.get('start'), e.get('end')
         point = e.get('timestamp')
         label = e.get('name') or (e.get('agent_name') if e['kind'] == 'agent' else None) or e['kind']
         if e['kind'] == 'agent':
             label += ' · ' + (e.get('purpose') or ' / '.join(v for v in (e.get('role'), e.get('task_id')) if v) or 'assignment unavailable')
             label += ' · ' + format_settings([e])
-        base = dict(name=label, cat=e['kind'], pid=1, tid=lanes[e['agent_id']],
+        base = dict(name=label, cat=e['kind'], pid=1, tid=event_lanes.get(e['event_id'], lanes[e['agent_id']]),
                     args={k: e.get(k) for k in ('event_id', 'task_id', 'role', 'agent_run_id', 'agent_id',
                                                'agent_name', 'native_agent_name', 'native_agent_path', 'purpose',
                                                'assignment_source', 'assignment_evidence',
-                                               'outcome', 'model', 'reasoning_effort', 'call_id', 'parent_call_id')})
+                                               'outcome', 'model', 'reasoning_effort', 'variant', 'call_id', 'parent_call_id')})
         base['args'].update({f'tokens.{k}': v for k, v in (e.get('usage') or {}).items() if v is not None})
         for key in ('native_event_id', 'session_id', 'turn_id', 'message_role', 'call_event_id',
                     'parent_event_id', 'turn_event_id', 'message_id', 'parent_message_id'):
@@ -291,13 +340,13 @@ def timeline(events):
             if key in e:
                 base['args'][key] = json.dumps(e[key], ensure_ascii=False, indent=2)
         if start is not None and end is not None and end >= start:
-            output.append(dict(base, ph='X', ts=start * 1_000_000, dur=(end - start) * 1_000_000))
+            output.append(dict(base, ph='X', ts=round(start * 1_000_000), dur=round(end * 1_000_000) - round(start * 1_000_000)))
         elif e['kind'] == 'agent' and start is not None and end is None:
-            output.append(dict(base, name=label + ' · unfinished', ph='B', ts=start * 1_000_000))
+            output.append(dict(base, name=label + ' · unfinished', ph='B', ts=round(start * 1_000_000)))
             omitted.append(dict(event_id=e['event_id'], reason='duration_unavailable'))
         elif start is not None or end is not None or point is not None:
             observed = start if start is not None else end if end is not None else point
-            output.append(dict(base, ph='i', s='t', ts=observed * 1_000_000))
+            output.append(dict(base, ph='i', s='t', ts=round(observed * 1_000_000)))
             if e['kind'] in ('agent', 'model', 'tool'):
                 omitted.append(dict(event_id=e['event_id'], reason='duration_unavailable'))
         else:
@@ -312,9 +361,9 @@ def timeline(events):
                 # Without anchors Perfetto can attach to unrelated enclosing
                 # slices and reverse a flow when one lane has only instants.
                 output.append(dict(name='native spawn', cat='agent', ph='i', s='t',
-                                   pid=1, tid=lanes[agent], ts=spawn * 1_000_000))
+                                   pid=1, tid=lanes[agent], ts=round(spawn * 1_000_000)))
                 output.append(dict(name='spawn', cat='agent', ph=phase, id=fid, pid=1,
-                                   tid=lanes[agent], ts=spawn * 1_000_000, **({'bp': 'e'} if phase == 'f' else {})))
+                                   tid=lanes[agent], ts=round(spawn * 1_000_000), **({'bp': 'e'} if phase == 'f' else {})))
     return dict(traceEvents=output, displayTimeUnit='ms', metadata=dict(timing_omissions=omitted))
 
 

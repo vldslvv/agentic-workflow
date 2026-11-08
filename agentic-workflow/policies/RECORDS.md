@@ -17,8 +17,11 @@
 - Next: reuse the root for resumed work and repairs.
 
 `allocate` reserves `.agentic-workflow/records/<NNN>_<name>/` under a local directory lock.
-It captures session metadata and the current native turn.
-`resolve` finds the task and captures the current turn.
+It attempts to capture session metadata and the current native turn.
+`resolve` finds the task and attempts the same capture.
+Codex supplies its thread identity directly; OpenCode 2.2.6 supplies
+[native shell identity](../guides/TRACING.md#enable-opencode-capture).
+Capture failures appear on stderr without blocking allocation or resolution.
 
 ## Recover originals
 
@@ -87,7 +90,7 @@ Apply to task documents, handoffs and results.
 |---|---|
 | Task IDs and documents | `tasks/<task-id>/` |
 | Results and evidence | `runs/<task-id>/<agent-run-id>/` |
-| Native turns | `native/<session-id>/<turn-id>.jsonl` |
+| Native turns | `native/<session-id>/<turn-id>.jsonl` (Codex) or `.json` (OpenCode) |
 | Reports | `reports/` |
 
 ## Assignment format
@@ -95,10 +98,12 @@ Apply to task documents, handoffs and results.
 Apply to the assignment line sent during handoff.
 
 - Fill in the implementation name, source task ID and recipient role.
+- Put the assignment marker at the start of its own line.
 - Use the optional `purpose` field to describe the assignment.
 - Keep the assignment for follow-ups unless explicitly retagged.
 - Keep replacement workers' native identities separate.
 - Use `supervisor` / `orchestration` for Supervisor turns and `validator` / `validation` for final validation.
+- Emit your own assignment line in commentary after allocation or resume.
 
 ```text
 AGENTIC_WORKFLOW {"implementation":"001_todolist","task":"01_business_logic","role":"implementer"}

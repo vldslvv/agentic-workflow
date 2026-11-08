@@ -8,5 +8,5 @@ Spec notes:
 specify dir structure and module structure
 specify using Dockerfiles explicitly
 specify separating each sub project into separate dir, don't put everything under one dir
-
-
+ask to provide make commands for app manipulation, bring up and cleanup
+describe test scenarios

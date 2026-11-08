@@ -105,11 +105,16 @@ def saved_documents(root):
         elif path.suffix == '.json':
             data = json.loads(path.read_text())
             info = data['info']
-            turns = [m['info']['id'] for m in data['messages'] if m['info']['role'] == 'user'
-                     and m['info'].get('sessionID') == info['id']]
+            legacy = 'version' in info
+            if legacy:
+                turns = [m['info']['id'] for m in data['messages'] if m['info']['role'] == 'user'
+                         and m['info'].get('sessionID') == info['id']]
+            else:
+                from opencode_capture import turns as opencode_turns
+                turns = list(opencode_turns(data))
             exports.append(dict(id=str(path.relative_to(root)), path=str(path.relative_to(root)),
                                 adapter='opencode', session_id=info['id'], turn_ids=turns,
-                                source_version='opencode-export-' + str(info.get('version'))))
+                                source_version='opencode-export-' + str(info.get('version', 'v2'))))
     return documents, exports
 
 
@@ -158,6 +163,10 @@ def save_turn(root, document, turn):
 
 
 def capture_current(root):
+    opencode_session = os.environ.get('OPENCODE_SESSION_ID')
+    if opencode_session:
+        from opencode_capture import capture_current as capture_opencode
+        return capture_opencode(root, opencode_session)
     sid = os.environ.get('CODEX_THREAD_ID')
     if not sid:
         return [gap('current_session_unavailable')]
@@ -352,10 +361,14 @@ def collect(root):
     root = Path(root)
     saved, exports = saved_documents(root)
     diagnostics, index = [], {}
-    try:
-        index = native_index()
-    except (OSError, sqlite3.Error):
-        diagnostics.append(gap('native_storage_unavailable'))
+    if exports:
+        from opencode_capture import refresh as refresh_opencode
+        diagnostics.extend(refresh_opencode(root, exports))
+    if saved or not exports:
+        try:
+            index = native_index()
+        except (OSError, sqlite3.Error):
+            diagnostics.append(gap('native_storage_unavailable'))
     documents, selected = {}, {}
     for doc in saved:
         sid = doc['session_id']
@@ -492,21 +505,32 @@ def collect(root):
         sources.append(dict(id=path, path=path, adapter='codex', session_id=doc['session_id'],
                             source_version='codex-rollout-' + str(doc['meta'].get('cli_version')), turn_ids=doc['turns'],
                             native_agent_path=paths.get(doc['session_id'])))
+    export_prompts = {}
     for source in exports:
         data = json.loads((root / source['path']).read_text())
+        if 'version' not in data['info']:
+            from opencode_capture import turns as opencode_turns
+            prompts = [(turn, messages[0]['time']['created'],
+                        '\n'.join([m.get('text', '') for m in messages if m['type'] == 'user'] +
+                                  [p.get('text', '') for m in messages if m['type'] == 'assistant'
+                                   for p in m.get('content', []) if p['type'] == 'text']))
+                       for turn, messages in opencode_turns(data).items()]
+        else:
+            prompts = [(m['info']['id'], m['info'].get('time', {}).get('created', 0),
+                        '\n'.join(p.get('text', '') for p in m['parts'] if p.get('type') == 'text'))
+                       for m in data['messages'] if m['info']['id'] in source['turn_ids']]
+        for turn, time, text in prompts:
+            export_prompts.setdefault(source['session_id'], {})[turn] = (time, text)
+    for session, prompts in export_prompts.items():
         previous = None
-        for message in data['messages']:
-            info = message['info']
-            if info['id'] not in source['turn_ids']:
-                continue
-            text = '\n'.join(p.get('text', '') for p in message['parts'] if p.get('type') == 'text')
+        for turn, (_, text) in sorted(prompts.items(), key=lambda item: item[1][0]):
             tag, ambiguous = assignment_tag(text, root.name)
             if ambiguous:
-                diagnostics.append(gap('ambiguous_assignment', source['session_id'], info['id']))
+                diagnostics.append(gap('ambiguous_assignment', session, turn))
                 previous = None
             elif tag:
                 previous = tag
-            assignments[(source['session_id'], info['id'])] = previous or {}
+            assignments[(session, turn)] = previous or {}
     # Assignment inheritance is native-session scoped, in native turn order.
     for sid in sorted({s['session_id'] for s in sources if s['adapter'] == 'codex'}):
         session_docs = [d for d in saved if d['session_id'] == sid]
