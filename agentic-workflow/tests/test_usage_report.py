@@ -368,6 +368,42 @@ class TraceTests(unittest.TestCase):
         self.assertEqual(report['summary']['tokens']['input_tokens']['known_subtotal'], 100)
         self.assertIsNone(report['groups']['model_effort'][0]['summary']['tokens']['total_tokens']['total'])
 
+    def test_unfinished_session_becomes_completed_on_refresh(self):
+        path, _ = self.source(turns=['turn-1'])
+        rows = [json.loads(r) for r in path.read_text().splitlines()]
+        completed = [r for r in rows if r['payload'].get('type') == 'task_complete']
+        path.write_text(''.join(json.dumps(r) + '\n' for r in rows if r not in completed))
+        bundle = usage.refresh(self.root)
+        agent = next(e for e in bundle.content['events'] if e['kind'] == 'agent')
+        def exported(bundle):
+            return next(e for e in json.loads(bundle.files['timeline.json'])['traceEvents']
+                        if e.get('args', {}).get('event_id') == agent['event_id'])
+        ongoing = exported(bundle)
+        self.assertEqual(ongoing['ph'], 'B')
+        self.assertNotIn('dur', ongoing)
+        self.assertIn('unfinished', ongoing['name'])
+        self.assertIsNone(agent['end'])
+        self.assertIn(dict(event_id=agent['event_id'], reason='duration_unavailable'),
+                      bundle.content['timing_omissions'])
+        with path.open('a') as stream:
+            stream.write(''.join(json.dumps(r) + '\n' for r in completed))
+        finished = usage.refresh(self.root)
+        observed = next(e for e in finished.content['events'] if e['event_id'] == agent['event_id'])
+        self.assertEqual(exported(finished)['ph'], 'X')
+        self.assertEqual(exported(finished)['dur'], (observed['end'] - observed['start']) * 1_000_000)
+        self.assertNotIn('unfinished', exported(finished)['name'])
+
+    def test_incomplete_timing_without_agent_start_remains_an_instant(self):
+        base = dict(kind='agent', adapter='codex', agent_id='a', event_id='e',
+                    start=None, end=None, timestamp=100)
+        for changes in ({}, {'end': 101}, {'start': 102, 'end': 101},
+                        {'kind': 'tool', 'start': 100}, {'kind': 'model', 'start': 100}):
+            with self.subTest(changes=changes):
+                trace = usage.timeline([dict(base, **changes)])
+                row = next(e for e in trace['traceEvents'] if e.get('args', {}).get('event_id') == 'e')
+                self.assertEqual(row['ph'], 'i')
+                self.assertNotIn('dur', row)
+
     def test_native_lineage_parallel_children_forks_and_perfetto_subset(self):
         self.source()
         self.source(sid='implementer', parent='supervisor', role='implementer', task='work')
@@ -391,7 +427,7 @@ class TraceTests(unittest.TestCase):
             else:
                 self.assertIsInstance(fid, int)
                 self.assertTrue(0 <= fid < 2**53)
-        self.assertTrue(all(r['ph'] in ('M','X','i','s','f') for r in rows))
+        self.assertTrue(all(r['ph'] in ('M','X','B','i','s','f') for r in rows))
         tool = next(r for r in rows if r['ph'] == 'X' and r['name'] == 'exec_command')
         self.assertEqual(tool['dur'], 1_000_000)
         self.assertTrue(all('dur' not in r for r in rows if r['ph'] != 'X'))
@@ -550,7 +586,7 @@ class TraceTests(unittest.TestCase):
 
     @unittest.skipUnless(os.environ.get('PERFETTO_TRACE_PROCESSOR'), 'optional real Perfetto parser unavailable')
     def test_real_perfetto_preserves_spawn_direction_without_enclosing_parent_slice(self):
-        # Reduced metadata-only case from real capture: parent has an instant,
+        # Reduced case from real capture: parent is unfinished,
         # child has a running slice, and native creation is between operations.
         base = dict(kind='agent', adapter='codex', timestamp=None, parent_session_id=None,
                     event_id='parent', agent_id='codex:parent', start=100, end=None)
@@ -565,6 +601,7 @@ class TraceTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             return list(csv.DictReader(io.StringIO(result.stdout)))
         self.assertEqual(query("SELECT name,value FROM stats WHERE value != 0 AND severity IN ('error','data_loss')"), [])
+        self.assertEqual(query("SELECT dur FROM slice WHERE EXTRACT_ARG(arg_set_id, 'args.event_id')='parent'"), [{'dur': '-1'}])
         edges = query('SELECT outgoing.name AS parent, incoming.name AS child FROM flow '
                       'JOIN slice AS s1 ON flow.slice_out=s1.id JOIN thread_track AS t1 ON s1.track_id=t1.id '
                       'JOIN thread AS outgoing ON t1.utid=outgoing.utid JOIN slice AS s2 ON flow.slice_in=s2.id '

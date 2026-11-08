@@ -292,6 +292,9 @@ def timeline(events):
                 base['args'][key] = json.dumps(e[key], ensure_ascii=False, indent=2)
         if start is not None and end is not None and end >= start:
             output.append(dict(base, ph='X', ts=start * 1_000_000, dur=(end - start) * 1_000_000))
+        elif e['kind'] == 'agent' and start is not None and end is None:
+            output.append(dict(base, name=label + ' · unfinished', ph='B', ts=start * 1_000_000))
+            omitted.append(dict(event_id=e['event_id'], reason='duration_unavailable'))
         elif start is not None or end is not None or point is not None:
             observed = start if start is not None else end if end is not None else point
             output.append(dict(base, ph='i', s='t', ts=observed * 1_000_000))

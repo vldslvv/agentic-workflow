@@ -33,6 +33,7 @@
   4. Inspect **Recorded content** for messages and tool activity.
   5. Use **Open timeline in Perfetto** when timing details are needed.
 - Outputs: execution observations and identified evidence gaps.
+- Unfinished agent bars indicate an observed start without an observed end, including interrupted captures, and do not establish process liveness or a measured duration.
 - Next:
   - Reopen Perfetto for updated timing snapshots.
   - [Recover assignments](#recover-assignments) when task or role attribution is missing.
