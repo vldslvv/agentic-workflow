@@ -51,7 +51,7 @@ def check(files):
     expected.update(f"policies/{name}.md" for name in
                     ("BUNDLE", "CHECKS", "DOCUMENT_STYLE", "GUIDELINES", "MEMORY", "MODELS",
                      "RECORDS", "RECONSTRUCTION"))
-    expected.update(f"guides/{name}.md" for name in ("WORKFLOW_REVIEW", "RUNNER", "TRACING"))
+    expected.update(f"guides/{name}.md" for name in ("WORKFLOW_REVIEW", "TRACING"))
     expected.update(f"templates/{name}.md" for name in
                     ("project", "task_order", "tasks/task", "verification", "plan", "acceptance", "result"))
     expected.update(f"helpers/{name}.py" for name in

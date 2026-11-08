@@ -16,7 +16,6 @@ Read the context for your action:
 | Ordinary planning/implementation | [MEMORY.md](policies/MEMORY.md) |
 | Rebuild without prior implementation | [RECONSTRUCTION.md](policies/RECONSTRUCTION.md), before any role starts |
 | Review workflow documents | [WORKFLOW_REVIEW.md](guides/WORKFLOW_REVIEW.md) |
-| Implement an automated runner | [RUNNER.md](guides/RUNNER.md) |
 | Install or check the package/optional skills | [README.md](README.md) |
 | Inspect traces or usage | [TRACING.md](guides/TRACING.md) |
 
