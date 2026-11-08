@@ -1,6 +1,7 @@
 # Document style
 
-Apply in every role when writing or editing any document.
+Apply in every role only when writing or editing project documents, including workflow documentation.
+Source code, code comments and docstrings are outside this policy's scope.
 
 - Describe workflows in this order: Context → Inputs → Effects → Outputs → Next.
 - Omit Next when unnecessary.

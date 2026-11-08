@@ -6,4 +6,5 @@ flow for interrupted/resume
 flow for new feature/change
 
 Per project memory, not global
+Document style is only of md files, not code
 

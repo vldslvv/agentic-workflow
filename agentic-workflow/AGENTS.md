@@ -21,7 +21,7 @@ Read the context for your action:
 
 Every role reads [GUIDELINES.md](policies/GUIDELINES.md), resolves [MODELS.md](policies/MODELS.md#routing-source),
 and applies its context documents. Follow conditional references when applicable.
-Before authoring or editing documents,
+Before authoring or editing project documents,
 read and apply [Document style](policies/DOCUMENT_STYLE.md), regardless of role.
 Keep project inputs, code, memory and execution evidence outside this package.
 
