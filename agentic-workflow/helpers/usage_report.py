@@ -1,9 +1,22 @@
 #!/usr/bin/env python3
-"""Collect saved native evidence and rebuild JSON, Markdown and Perfetto reports.
+"""Rebuild usage and trace reports once for an existing implementation.
 
-CLI: usage_report.py IMPLEMENTATION_ROOT
-Native discovery/parsing is separate from pure accounting. No run trace copies,
-manifest, registration, recorder, service or costs. Missing measurements stay null.
+implementation is the allocated implementation directory.
+
+Creates/uses implementation/.records.lock; refreshes saved native turns and
+proven dispatch descendants under implementation/native/<session-id>/<turn-
+id>.jsonl. Creates/overwrites implementation/reports/usage.json, usage.md,
+events.json and timeline.json; starts no viewer or continuous capture.
+
+Prints JSON with implementation_id (directory name), reports (report directory
+path) and coverage (diagnostic-code counts). Exit 0 means reports were written,
+not complete telemetry. Inspect coverage and usage.json diagnostics; null means
+unavailable, known_subtotal excludes missing measurements. Exit 2 means invalid
+input or an operation error (stderr).
+
+Rerun after more evidence is saved, or use trace_view.py for live capture.
+
+Example: python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/001_example
 """
 import argparse
 from collections import Counter, defaultdict
@@ -366,8 +379,8 @@ def refresh(root):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('implementation', type=Path)
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('implementation', type=Path, help='existing implementation directory')
     args = parser.parse_args()
     try:
         report = refresh(args.implementation).usage

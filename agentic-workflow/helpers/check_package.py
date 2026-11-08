@@ -1,4 +1,17 @@
-"""Read-only checks for the portable package and optional project integration."""
+"""Validate the copied package and local Markdown links before use.
+
+No arguments checks only the package containing this helper. --integration-root
+PATH also checks PATH/AGENTS.md's marked workflow block and installed optional
+workflow skills; ignores other host instructions/skills.
+
+Read-only; creates no files and starts no capture or services.
+
+Prints JSON with status (PASS/FAIL), errors and local_links_checked. Exit 0:
+checks pass; 1: validation errors; 2: invalid arguments or check could not
+complete (error on stderr).
+
+Example: python3 agentic-workflow/helpers/check_package.py --integration-root .
+"""
 import argparse
 import json
 from pathlib import Path
@@ -109,7 +122,7 @@ def check_integration(root):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--integration-root", type=Path,
                         help="Also check the marked root AGENTS.md block and installed optional skills")
     args = parser.parse_args()

@@ -1,10 +1,30 @@
 #!/usr/bin/env python3
-"""Collect native evidence, analyze it and open one implementation's agent insights.
+"""Continuously capture selected native evidence and view agent insights.
 
-The foreground viewer serves normalized reports on loopback port 9001
-(the port allowed by Perfetto's CSP). Repeated invocations reuse a compatible
-viewer for the same implementation. The owning viewer refreshes immediately,
-then waits the configured interval after each collection attempt until Ctrl+C.
+implementation is an existing allocated implementation directory. --interval
+SECONDS is positive and finite (default: 5); the owner waits this long after
+each collection attempt; it also sets the browser poll interval.
+
+Starts a foreground HTTP viewer on 127.0.0.1:9001 and attempts to open a
+browser. Creates/uses implementation/.records.lock; refreshes saved native
+turns and proven dispatch descendants under
+implementation/native/<session-id>/<turn-id>.jsonl; creates/overwrites implementation/reports/usage.json,
+usage.md, events.json and timeline.json. Reuses a compatible viewer for the
+same implementation and exits; the owner's interval remains in effect. Other
+port occupants cause an error; stop the conflicting viewer or process before
+retrying.
+
+Prints the dashboard URL and refresh/coverage messages to stdout; open the URL
+manually if browser launch is unavailable. Coverage gaps mean telemetry is
+incomplete even when refresh succeeds; null means unavailable. Initial failure
+exits 2 with stderr; later refresh failures print to stdout, keep the last
+report visible and retry on the next cycle. Exit 0 means reuse or a stopped
+viewer, not complete telemetry.
+
+Retain the owner's shell session while capturing; it runs until Ctrl+C or
+SIGTERM. Stop it after capture. Restart the owner to change --interval.
+
+Example: python3 agentic-workflow/helpers/trace_view.py .agentic-workflow/001_example --interval 5
 """
 import argparse
 from dataclasses import dataclass
@@ -206,8 +226,8 @@ def run(root, interval=5):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('implementation', type=Path)
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('implementation', type=Path, help='existing implementation directory')
     parser.add_argument('--interval', type=positive_interval, default=5,
                         metavar='SECONDS', help='collection and browser poll interval (default: 5; restart viewer to change)')
     args = parser.parse_args()

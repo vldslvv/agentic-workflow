@@ -89,6 +89,9 @@ outside this distribution.
 
 ### Check and operate
 
+Consult the selected command's `--help` (or `records.py allocate --help` /
+`records.py resolve --help`) for usage and lifecycle instructions.
+
 - Context: apply [Records](policies/RECORDS.md) for task/assignment conventions and [Tracing](guides/TRACING.md) for telemetry operation.
 - Inputs: consuming project root and, for record operations, an implementation name or identified implementation/task. Quote paths containing spaces.
 - Effects: run the applicable commands below from the project root. Use the actual path printed by allocation; its numeric prefix advances with each implementation. Stop the viewer with `Ctrl+C`.
