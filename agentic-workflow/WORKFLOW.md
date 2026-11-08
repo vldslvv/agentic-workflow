@@ -1,5 +1,7 @@
 # Implementation workflow
 
+This document defines the workflow's core behavior; role documents and policies provide the execution details.
+
 ## Author documents — when requested
 
 - Context: [PLANNER.md](roles/PLANNER.md), authorized brief and sources.
@@ -31,6 +33,7 @@
   - Extend selected code for incremental work.
   - Allocate or resume records before dispatch.
   - Assign task IDs before dispatch.
+  - Supervisor maintains an execution state.
   - Record modes, interfaces, file owners, worker handles and output paths.
   - Include shared configuration ownership.
   - Choose modes independently of models.
@@ -38,6 +41,7 @@
   - Use lightweight for simple, bounded tasks with clear criteria.
   - Honor user/source requirements.
   - Block on conflicts.
+  - For existing-project tasks, Supervisor requires Implementers to read task-scoped code, tests and project instructions before planning or editing.
   - Dispatch tasks with accepted prerequisites.
   - Run ready tasks concurrently within capacity.
   - Reserve Reviewer capacity.
@@ -185,6 +189,7 @@
   - Final/partial result, accepted scope and unfinished work.
   - Distinguish selected-scope from whole-app acceptance.
 - Resume:
+  - Supervisor recovers failed or interrupted runs idempotently using execution state.
   - Reuse records and available owners.
   - Reassess evidence.
   - Finish repair publication before dispatch.

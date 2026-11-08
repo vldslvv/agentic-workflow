@@ -11,7 +11,15 @@ Source code, code comments and docstrings are outside this policy's scope.
 - Use bullets for rules and numbered lists only for action sequences.
 - Separate procedural sections from guideline sections.
 - Link to each shared policy rule's authoritative home instead of repeating it.
-- Treat [WORKFLOW.md](../WORKFLOW.md) as the upstream design contract.
+
+## Workflow contract
+
+Apply when changing workflow behavior or its documentation.
+
+- Treat [WORKFLOW.md](../WORKFLOW.md) as the authoritative source of workflow behavior.
+- Update it whenever workflow behavior changes.
+- Express changes as brief statements of core responsibilities and outcomes.
+- Keep procedures, state formats and implementation details in role documents or policies.
 - Derive complete execution duties in role documents from it.
 - Keep those documents free of references back to the contract.
-- Reconcile role procedures with the contract when changing the workflow.
+- Keep derived instructions consistent with the workflow contract.
