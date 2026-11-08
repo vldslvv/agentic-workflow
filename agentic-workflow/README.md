@@ -81,8 +81,8 @@ Makefile and integration tests are development assets outside the copy boundary.
 
 Helpers require Python 3.10+ and a local POSIX filesystem with `fcntl`/`flock`.
 They use the standard library. A browser is useful for the local trace viewer;
-only its optional Perfetto UI needs internet. Native telemetry availability and
-pinned formats are described in [Tracing](guides/TRACING.md). Missing telemetry
+only its optional Perfetto UI needs internet. Capture, import and reporting workflows
+are described in [Tracing](guides/TRACING.md). Missing telemetry
 limits reports but does not block allocation or app acceptance. Windows support,
 a package-manager installer, plugin publication and an automated runner are
 outside this distribution.
