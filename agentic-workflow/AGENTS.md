@@ -5,6 +5,7 @@ Read the context for your action:
 | Action | Context |
 |---|---|
 | Implement specifications, including one task | [SUPERVISOR.md](roles/SUPERVISOR.md), enter as Supervisor |
+| Update or repair an existing app against revised specifications | [Supervisor reconciliation](roles/SUPERVISOR.md#reconcile-an-existing-implementation) |
 | Coordinate tasks | [SUPERVISOR.md](roles/SUPERVISOR.md) |
 | Plan or edit documents/workflow | [PLANNER.md](roles/PLANNER.md) |
 | Implement a task | [IMPLEMENTER.md](roles/IMPLEMENTER.md) |

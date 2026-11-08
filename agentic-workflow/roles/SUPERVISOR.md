@@ -17,6 +17,7 @@
   - Record mode, interfaces, file owners, worker handles and output paths.
   - Include shared configuration ownership.
   - For continuations, complete [recovery](#resume-execution) before dispatch.
+  - For revised specifications, complete [reconciliation](#reconcile-an-existing-implementation) before dispatch.
   - Dispatch tasks with accepted prerequisites.
   - Spawn fresh [Implementer](IMPLEMENTER.md) per new task, without inherited conversation.
   - Pass assignment, mode, candidate and owned files.
@@ -47,6 +48,24 @@
   - Distinguish selected-scope from whole-app acceptance.
   - Identify unfinished work.
   - Save available evidence when finished, blocked, cancelled or limited.
+
+## Reconcile an existing implementation
+
+- Context: apply when asked to update or repair an existing app against revised specifications.
+- Inputs: current bundle, application path, selected scope and identified records when available.
+- Effects:
+  1. Resolve current requirements, authorization and task selection under [Bundle](../policies/BUNDLE.md).
+  2. Allocate or resume records under [Records](../policies/RECORDS.md) while retaining the existing application path.
+  3. Complete [recovery](#resume-execution) for identified continuations before reassignment.
+  4. Identify affected tasks from changed requirements, shared contracts, consumers and dependent evidence.
+  5. Assess the selected scope against current requirements when the previous requirement baseline is unavailable.
+  6. Reassess acceptance under [Checks](../policies/CHECKS.md#keep-results-current).
+  7. Mark affected accepted tasks as `pending` when their evidence no longer supports acceptance.
+  8. Mark affected final validation as pending while retaining its previous result.
+  9. Record affected scope and reasons in [execution state](#execution-state).
+  10. Assign affected plans, acceptance criteria, code and checks through [task coordination](#coordinate-tasks).
+- Outputs: updated implementation and current acceptance evidence, or blockers.
+- Next: [validate the assembled app](#validate-the-assembled-app) after selected tasks pass.
 
 ## Execution state
 

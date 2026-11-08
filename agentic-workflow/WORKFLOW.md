@@ -30,8 +30,9 @@ This document defines the workflow's core behavior; role documents and policies 
 - Effects:
   - Resolve work.
   - Stop on `NO_PROJECT`, `NO_WORK` or blocked inputs.
-  - Start at new paths.
+  - Start initial work at new paths.
   - Extend selected code for incremental work.
+  - Reconcile existing implementations against revised specifications before dispatch.
   - Allocate or resume records before dispatch.
   - Assign task IDs before dispatch.
   - Supervisor maintains an execution state.
@@ -49,6 +50,17 @@ This document defines the workflow's core behavior; role documents and policies 
   - Break ties by table order.
   - Blocked tasks do not hold unrelated work.
 - Outputs: accepted task results or blockers.
+
+## Reconcile an existing implementation
+
+- Context: requested updates or repairs against revised specifications under [SUPERVISOR.md](roles/SUPERVISOR.md#reconcile-an-existing-implementation).
+- Inputs: current specifications, existing implementation and available evidence.
+- Effects:
+  - Supervisor reopens affected tasks and coordinates implementation and checks.
+  - Preserve unaffected work and applicable acceptance evidence.
+  - Preserve previous results under [Records](policies/RECORDS.md).
+- Outputs: updated implementation and current acceptance evidence, or blockers.
+- Next: validate the assembled app and repair remaining failures through the existing validation loop.
 
 ## Spawn Implementer — per task
 

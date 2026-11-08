@@ -22,6 +22,8 @@
 | Scenario | Observable pass condition |
 |---|---|
 | Ordered task lifecycle | Separate command processes satisfy the [ordered scenario](../contracts/cli.md#ordered-scenario). |
+| Hierarchical task lifecycle | Parent selection, listing and subtree deletion satisfy the [hierarchy scenario](../contracts/cli.md#hierarchy-scenario). |
+| Parent input validation | Commands satisfy the [parent input checks](../contracts/cli.md#parent-input-checks). |
 | Help | Exit status and stdout satisfy the [help contract](../contracts/cli.md#help). |
 
 ## Workflow requirements
