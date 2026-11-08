@@ -1,8 +1,12 @@
-Add spec verification -- consider something like OpenSpec
+Add spec verification -- consider evals or something more formal
 Generate make commands for app manipulation in specs
 Loop tasks without having a supervisor -- less context?
-
-Understand traces better
 Each task completion is a commit
-Correction flow -- change requirements, run and align
+
+
+Spec notes:
+specify dir structure and module structure
+specify using Dockerfiles explicitly
+specify separating each sub project into separate dir, don't put everything under one dir
+
 
