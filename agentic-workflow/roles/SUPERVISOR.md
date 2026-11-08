@@ -139,7 +139,8 @@ Apply when assigning a task's mode.
 
 - Honor user/source requirements.
 - Block dispatch on unresolved conflicts.
-- Choose the mode below independently of model choice.
+- Use the task's `Workflow: full` or `Workflow: lightweight` field when present.
+- When the field is omitted, choose the mode below independently of model choice.
 
 | Condition | Mode |
 |---|---|

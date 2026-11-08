@@ -1,3 +1,5 @@
+Workflow: full
+
 Implement a business layer for a TODO app.
 
 It should:
