@@ -1,31 +1,34 @@
 # Local evaluations
 
+Run from the source repository on POSIX with Python 3.10+ and an authenticated
+local Codex CLI. Todolist evals also require Git and uv.
+
 ## Review and repair workflow documents
 
-- Context: use [Workflow review](../agentic-workflow/guides/WORKFLOW_REVIEW.md) to check agreement with the fixed workflow contract.
-- Inputs:
-  - Current package, root entry points, model override and installed workflow wrappers, including uncommitted changes.
-  - Python 3.10+ and an authenticated local Codex CLI on POSIX.
-- Effects:
-  1. Pause concurrent edits.
-  2. Run `make eval-workflow`.
-  3. Inspect `report.md`, `result.json` and any repair diff.
-- Outputs:
-  - Review evidence under `.evals/workflow/review-*/`, with repair evidence under `repair/`.
-  - One fresh, read-only review of a snapshot.
-  - One automatic repair in working Markdown files for failures without uncertainty.
-  - Uncommitted repairs remain after failure or interruption.
-- Next: resolve remaining findings before another requested review.
+Pause concurrent edits, then run:
+
+```sh
+make eval-workflow
+```
+
+This runs one fresh, read-only snapshot review under
+[Workflow review](../agentic-workflow/guides/WORKFLOW_REVIEW.md), including current
+uncommitted package files, root entry points, model override and installed
+wrappers. Failures without uncertainty trigger one automatic repair in working
+Markdown files. Inspect `.evals/workflow/review-*/report.md`, `result.json`,
+`repair/` evidence and the diff; partial edits remain after failure or interruption.
+Resolve remaining findings before requesting another review.
 
 | Outcome | Meaning |
 |---|---|
 | `PASS` | Review passed without edits. |
-| `UNCLEAR` in any review row | No repair runs, even alongside failures. |
+| Any review row is `UNCLEAR` | No repair runs, even alongside failures. |
 | `FIXED` | Editor reports resolution, package checks pass and the source contract is unchanged. |
 | `UNCLEAR` after repair | Findings remain unresolved; edits are retained. |
-| Error or interruption | Inspect retained evidence and any partial edits. |
+| Error or interruption | Inspect retained evidence and partial edits. |
 
-`FIXED` has no independent re-review and does not prove agent behavior.
+`FIXED` includes no independent re-review and does not prove agent behavior.
+Review and repair share these settings, independently of model policy files:
 
 | Setting | Default |
 |---|---|
@@ -37,65 +40,59 @@
 make eval-workflow WORKFLOW_MODEL=gpt-6.1-sol WORKFLOW_REASONING=high WORKFLOW_TIMEOUT=900
 ```
 
-These settings control both review and repair, independently of model policy files.
-
 ## Todolist end-to-end eval
-
-- Context: use for one end-to-end generation trial from committed `HEAD`.
-- Inputs: Python 3.10+, Git, uv and an authenticated local Codex CLI on POSIX.
-- Effects:
-  1. Run `make eval`.
-  2. Inspect the saved `result.json` and `worktree.json`.
-- Outputs:
-  - One trial in a clean temporary worktree using committed inputs and the invoking checkout's eval tooling.
-  - Agent, CLI and artifact grades under `.evals/todolist-worktrees/<unique-run>/`.
-  - Archived logs, generated app and execution records before worktree removal.
-- Next: recover from the reported worktree path if archiving or removal fails.
-
-The invoking checkout stays unchanged, apart from saved eval evidence.
-Uncommitted app inputs are excluded.
 
 ```sh
 make eval EVAL_AGENT_TIMEOUT=1800 EVAL_COMMAND_TIMEOUT=60
 ```
 
+Runs one trial from committed `HEAD` in a clean temporary worktree, using the
+invoking checkout's eval tooling. Uncommitted app inputs are excluded.
+Logs, generated app and execution records are archived under
+`.evals/todolist-worktrees/<unique-run>/` before worktree removal. Inspect
+`result.json` for agent, CLI and artifact grades and `worktree.json` for worktree
+status. If archiving or removal fails, recover from the reported worktree path.
+The invoking checkout changes only to save eval evidence.
+
 ## Evaluate current todolist inputs
 
-- Context: use when generated files should remain in the current checkout.
-- Inputs:
-  - The same tools as the committed eval.
-  - A clean checkout, or explicit selection of uncommitted inputs with `--allow-dirty`.
-  - Absent `apps/todolist` and `.evals/todolist` paths.
-  - Supervisor settings from [model routing](../agentic-workflow/policies/MODELS.md#routing-source).
-- Effects:
-  1. Pause concurrent workflow work so new execution records can be attributed to this trial.
-  2. Run `python3 evals/todolist.py run`, adding `--allow-dirty` for uncommitted inputs.
-  3. Inspect agent, CLI and artifact results in `.evals/todolist/result.json`.
-- Outputs:
-  - Generated app, logs and new execution records retained in the checkout.
-  - Separate agent, [CLI contract](../specs/todolist/tasks/02_cli.md#cli-contract) and artifact-presence grades.
-  - Overall `PASS` only when all three grades pass.
-- Next: inspect results before requesting cleanup.
+Use this mode to retain generated files in the current checkout. Require a clean
+checkout, or select uncommitted inputs explicitly with `--allow-dirty`.
+`apps/todolist` and `.evals/todolist` must be absent. Supervisor settings follow
+[model routing](../agentic-workflow/policies/MODELS.md#routing-source).
 
-Artifact presence does not establish trace quality or workflow compliance.
-Use `--agent-timeout` and `--command-timeout` to override the 1,800-second and 60-second limits.
+Pause concurrent workflow work so new execution records belong to this trial:
+
+```sh
+python3 evals/todolist.py run
+```
+
+Inspect `.evals/todolist/result.json`; the app, logs and new execution records
+remain in the checkout. Overall `PASS` requires passing agent,
+[CLI contract](../specs/todolist/tasks/02_cli.md#cli-contract) and artifact-presence
+grades. Artifact presence does not establish trace quality or workflow compliance.
+`--agent-timeout` and `--command-timeout` override the 1,800-second and 60-second
+limits. Inspect results before requesting cleanup.
 
 ## Clean a completed current-checkout eval
 
-- Context: use only when cleanup is requested after the trial stops.
-- Inputs: this checkout's eval marker and completed records inventory.
-- Effects:
-  1. Preserve any evidence needed later.
-  2. Run `python3 evals/todolist.py clean`.
-- Outputs: removal of the generated app, that trial's records and `.evals/todolist`.
-- Next: handle refused paths or other reported changes manually.
+Only after cleanup is requested and the trial stops, preserve needed evidence and
+run:
 
-Existing records and unrelated changes remain.
+```sh
+python3 evals/todolist.py clean
+```
+
+Uses the checkout's eval marker and completed records inventory to remove the app,
+that trial's records and `.evals/todolist`. Existing records and unrelated changes
+remain; handle refused paths or other reported changes manually.
 
 ## Check eval runners
 
-- Context: use after changing eval tooling.
-- Inputs: Python 3.10+ and Git on POSIX.
-- Effects: run `python3 -m unittest discover -s evals/tests -v`.
-- Outputs: fixture-based launcher checks without model calls.
-- Next: run a real eval when validating generation or judge quality.
+After eval tooling changes, run fixture checks with Python 3.10+ and Git on POSIX:
+
+```sh
+python3 -m unittest discover -s evals/tests -v
+```
+
+These make no model calls; use a real eval to validate generation or judge quality.
