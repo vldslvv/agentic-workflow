@@ -38,8 +38,8 @@ def import_evidence(root):
         for e in native:
             assignment = assignments.get((source['session_id'], e['turn_id']), {})
             e['requested'] = requested.get((source['session_id'], e['turn_id']), {})
-            e['agent_name'] = e.get('native_agent_name') or e['agent_id']
             e['native_agent_path'] = e.get('native_agent_path') or source.get('native_agent_path')
+            e['agent_name'] = e.get('native_agent_name') or ('root' if e['native_agent_path'] == '/root' else e['agent_id'])
             e['purpose'] = assignment.get('purpose')
             e['assignment_source'] = assignment.get('source', 'native') if assignment else None
             e['assignment_evidence'] = assignment.get('evidence', [])
