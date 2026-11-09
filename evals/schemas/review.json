@@ -1,0 +1,49 @@
+{
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "string"
+    },
+    "excluded_inputs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "contract": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "UNCLEAR"
+            ]
+          },
+          "evidence": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "contract",
+          "status",
+          "evidence"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "scope",
+    "excluded_inputs",
+    "checks"
+  ],
+  "additionalProperties": false
+}

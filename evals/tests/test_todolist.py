@@ -30,10 +30,8 @@ class TodolistEvalTests(unittest.TestCase):
             path.chmod(0o755)
         shutil.copyfile(EVALS / "tests/fixtures/todo.py", self.bin / "todo.py")
         self.env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}")
-        (self.root / "evals").mkdir()
-        shutil.copyfile(EVALS / "todolist.py", self.root / "evals/todolist.py")
-        shutil.copyfile(EVALS / "worktree.py", self.root / "evals/worktree.py")
-        shutil.copyfile(EVALS / "runtime.py", self.root / "evals/runtime.py")
+        shutil.copytree(EVALS, self.root / "evals",
+                        ignore=shutil.ignore_patterns("tests", "__pycache__", "*.pyc"))
         shutil.copyfile(EVALS.parent / "Makefile", self.root / "Makefile")
         (self.root / "agentic-workflow/policies").mkdir(parents=True)
         (self.root / "agentic-workflow/policies/MODELS.md").write_text(
@@ -63,29 +61,42 @@ class TodolistEvalTests(unittest.TestCase):
         return json.loads((self.results / "result.json").read_text())
 
     def test_success_preserves_evidence_and_empty_artifacts_pass(self):
-        (self.root / "ignored").touch()
-        result = self.invoke()
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        report = self.report()
-        self.assertEqual([report[k]["status"] for k in ("agent", "cli", "artifacts")], ["PASS"] * 3)
-        self.assertEqual(len(report["cli"]["commands"]), 11)
-        self.assertEqual(json.loads((self.results / "cli.json").read_text())["status"], "PASS")
-        self.assertEqual((self.results / "generation-tasks.json").read_text(), "generation data to preserve\n")
-        self.assertEqual((self.results / "final-response.txt").read_text(), "fixture final response\n")
-        self.assertIn("agent event", (self.results / "events.jsonl").read_text())
-        self.assertIn("fixture stderr", (self.results / "agent.stderr").read_text())
-        self.assertTrue((self.root / "apps/todolist/tasks.json").is_file())
-        launch = json.loads((self.results / "run.json").read_text())
-        received = json.loads((self.results / "received.json").read_text())
-        self.assertEqual(launch["source_commit"], self.git("rev-parse", "HEAD").strip())
-        self.assertEqual(received[-1], "Implement specs/todolist")
-        for flag, value in (("--model", "fixture-model"), ("--sandbox", "workspace-write"),
-                            ("--enable", "multi_agent")):
-            self.assertEqual(received[received.index(flag) + 1], value)
-        for setting in ('approval_policy="never"', 'model_reasoning_effort="high"',
-                        "sandbox_workspace_write.network_access=true"):
-            self.assertIn(setting, received)
-        self.assertNotIn("--ephemeral", received)
+        for mode in ("pass", "no_generation_data"):
+            with self.subTest(mode=mode):
+                (self.root / "ignored").touch()
+                result = self.invoke(mode=mode)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                report = self.report()
+                self.assertEqual([report[k]["status"] for k in ("generation", "cli", "artifacts")], ["PASS"] * 3)
+                self.assertEqual([(s["name"], s["status"]) for s in report["cli"]["scenarios"]], [
+                    ("commands-and-persistence", "PASS"),
+                    ("hierarchy-and-subtree-deletion", "PASS"),
+                    ("invalid-parent-assignments", "PASS"),
+                ])
+                self.assertEqual(json.loads((self.results / "cli.json").read_text())["status"], "PASS")
+                if mode == "pass":
+                    self.assertEqual((self.results / "generation-tasks.json").read_text(), "generation data to preserve\n")
+                    self.assertEqual((self.root / "apps/todolist/tasks.json").read_text(), "generation data to preserve\n")
+                else:
+                    self.assertFalse((self.results / "generation-tasks.json").exists())
+                    self.assertFalse((self.root / "apps/todolist/tasks.json").exists())
+                self.assertEqual((self.results / "final-response.txt").read_text(), "fixture final response\n")
+                self.assertIn("agent event", (self.results / "events.jsonl").read_text())
+                self.assertIn("fixture stderr", (self.results / "agent.stderr").read_text())
+                launch = json.loads((self.results / "run.json").read_text())
+                received = json.loads((self.results / "received.json").read_text())
+                self.assertEqual(launch["source_commit"], self.git("rev-parse", "HEAD").strip())
+                self.assertEqual(received[-1], "Implement specs/todolist\n")
+                self.assertEqual(received[-1], (self.results / "prompt.txt").read_text())
+                self.assertEqual(received[-1], launch["prompt"])
+                for flag, value in (("--model", "fixture-model"), ("--sandbox", "workspace-write"),
+                                    ("--enable", "multi_agent")):
+                    self.assertEqual(received[received.index(flag) + 1], value)
+                for setting in ('approval_policy="never"', 'model_reasoning_effort="high"',
+                                "sandbox_workspace_write.network_access=true"):
+                    self.assertIn(setting, received)
+                self.assertNotIn("--ephemeral", received)
+                self.assertEqual(self.invoke("clean").returncode, 0)
 
     def test_dirty_checkout_rejected_before_creating_results(self):
         for kind in ("unstaged", "staged", "untracked"):
@@ -172,9 +183,13 @@ class TodolistEvalTests(unittest.TestCase):
         (ignored / "keep.txt").write_text("ignored evidence\n")
         with (self.root / ".git/info/exclude").open("a") as f:
             f.write("\n/.agentic-workflow/records/ignored/\n")
-        result = self.invoke()
+        self.assertEqual(self.invoke("clean").returncode, 2)
+        result = self.invoke(mode="unexpected_changes")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("source.txt", self.report()["unexpected_changes"])
+        self.assertNotIn("apps/todolist", self.report()["unexpected_changes"])
         self.assertEqual(self.report()["artifacts"]["implementations"], ["001_todolist"])
+        (self.root / "evals/prompts/todolist-generation.md").write_text("A revised prompt\n")
         # A directory added after the trial also does not belong to its cleanup.
         later = self.root / ".agentic-workflow/records/002_later"
         later.mkdir()
@@ -186,6 +201,9 @@ class TodolistEvalTests(unittest.TestCase):
             self.assertEqual((directory / "keep.txt").read_text(), text)
         self.assertFalse((self.root / ".agentic-workflow/records/001_todolist").exists())
         self.assertFalse(self.results.exists())
+        self.assertFalse((self.root / "apps/todolist").exists())
+        self.assertEqual((self.root / "source.txt").read_text(), "unexpected tracked modification\n")
+        self.assertTrue((self.root / "unrelated").exists())
 
     def test_unauthenticated_launch_rejected_before_creating_results(self):
         result = self.invoke(mode="unauthenticated")
@@ -193,45 +211,62 @@ class TodolistEvalTests(unittest.TestCase):
         self.assertIn("not authenticated", result.stderr)
         self.assertFalse(self.results.exists())
 
-    def test_existing_traces_cannot_satisfy_missing_new_implementation(self):
-        old = self.root / ".agentic-workflow/records/000_previous"
-        (old / "reports").mkdir(parents=True)
-        (old / "native/session").mkdir(parents=True)
-        for name in ("reports/usage.json", "reports/usage.md", "reports/timeline.json", "native/session/turn.jsonl"):
-            (old / name).touch()
-        with (self.root / ".git/info/exclude").open("a") as f:
-            f.write("\n/.agentic-workflow/records/000_previous/\n")
-        result = self.invoke(mode="no_implementation")
-        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-        self.assertEqual(self.report()["artifacts"]["status"], "FAIL")
-        self.assertEqual(self.report()["artifacts"]["implementations"], [])
-        self.assertEqual(self.invoke("clean").returncode, 0)
-        self.assertTrue((old / "native/session/turn.jsonl").is_file())
+    def test_generation_failure_and_launch_error_have_distinct_results(self):
+        for mode, status, code in (("agent_nonzero", "FAIL", 1), ("launch_error", "RUNNER_ERROR", 2)):
+            with self.subTest(mode=mode):
+                if mode == "launch_error":
+                    self.env["PATH"] = str(self.bin)
+                    (self.bin / "git").symlink_to(shutil.which("git"))
+                result = self.invoke(mode=mode)
+                self.assertEqual(result.returncode, code, result.stdout + result.stderr)
+                report = self.report()
+                self.assertEqual(report["status"], status)
+                self.assertEqual(report["generation"]["status"], status)
+                if mode == "agent_nonzero":
+                    self.assertEqual(report["generation"]["returncode"], 9)
+                    self.assertEqual(report["cli"]["status"], "PASS")
+                    self.assertEqual(report["artifacts"]["status"], "PASS")
+                self.assertTrue((self.results / "run.json").is_file())
+                self.assertEqual(self.invoke("clean").returncode, 0)
 
-    def test_launch_error_is_distinct_from_failed_assertion(self):
-        # Exclude the host's real Codex so the disappeared fixture cannot fall back.
-        self.env["PATH"] = str(self.bin)
-        (self.bin / "git").symlink_to(shutil.which("git"))
-        result = self.invoke(mode="launch_error")
-        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-        self.assertEqual(self.report()["overall"], "RUNNER_ERROR")
-        self.assertEqual(self.report()["agent"]["status"], "RUNNER_ERROR")
-        self.assertTrue((self.results / "run.json").is_file())
-
-    def test_cli_negative_controls(self):
-        for mode in ("wrong_output", "no_newline", "crlf", "cli_nonzero", "wrong_storage"):
+    def test_cli_grade_observes_output_persistence_hierarchy_and_rejected_mutations(self):
+        cases = (
+            ("wrong_output", "commands-and-persistence", "stdout"),
+            ("no_newline", "commands-and-persistence", "stdout"),
+            ("crlf", "commands-and-persistence", "stdout"),
+            ("cli_nonzero", "commands-and-persistence", "exit"),
+            ("wrong_storage", "commands-and-persistence", "tasks_json_created"),
+            ("ignore_parent", "hierarchy-and-subtree-deletion", "stdout"),
+            ("wrong_order", "hierarchy-and-subtree-deletion", "stdout"),
+            ("keep_descendants", "hierarchy-and-subtree-deletion", "stdout"),
+            ("invalid_mutation", "invalid-parent-assignments", "state_unchanged"),
+            ("invalid_metadata", "invalid-parent-assignments", "state_unchanged"),
+        )
+        for mode, scenario_name, failed_check in cases:
             with self.subTest(mode=mode):
                 result = self.invoke(mode=mode)
                 self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
                 report = self.report()
                 self.assertEqual(report["cli"]["status"], "FAIL")
-                self.assertEqual(report["agent"]["status"], "PASS")
+                self.assertEqual(report["generation"]["status"], "PASS")
                 self.assertEqual(report["artifacts"]["status"], "PASS")
-                self.assertTrue((self.results / "cli-01.stdout").is_file())
+                scenario = next(s for s in report["cli"]["scenarios"] if s["name"] == scenario_name)
+                self.assertEqual(scenario["status"], "FAIL")
+                self.assertTrue(any(c.get("checks", {}).get(failed_check) is False for c in scenario["commands"]))
+                self.assertEqual((self.root / "apps/todolist/tasks.json").read_text(), "generation data to preserve\n")
                 self.assertEqual(self.invoke("clean").returncode, 0)
+        # JSON formatting changes do not change persisted task state.
+        self.assertEqual(self.invoke(mode="invalid_reformat").returncode, 0)
 
-    def test_artifact_negative_controls(self):
-        for mode in ("missing_artifacts", "artifact_directory", "multiple_implementations"):
+    def test_artifact_grade_requires_one_new_implementation_with_regular_files(self):
+        old = self.root / ".agentic-workflow/records/000_previous"
+        for name in ("reports/usage.json", "reports/usage.md", "reports/timeline.json", "native/session/turn.jsonl"):
+            path = old / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.touch()
+        with (self.root / ".git/info/exclude").open("a") as ignored:
+            ignored.write("\n/.agentic-workflow/records/000_previous/\n")
+        for mode in ("missing_artifacts", "artifact_directory", "multiple_implementations", "no_implementation"):
             with self.subTest(mode=mode):
                 result = self.invoke(mode=mode)
                 self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
@@ -240,24 +275,20 @@ class TodolistEvalTests(unittest.TestCase):
                 self.assertEqual(report["cli"]["status"], "PASS")
                 if mode == "missing_artifacts":
                     self.assertEqual(len(report["artifacts"]["missing"]), 4)
-                    self.assertFalse((self.root / ".agentic-workflow/records/001_todolist/reports/usage.json").exists())
+                if mode == "no_implementation":
+                    self.assertEqual(report["artifacts"]["implementations"], [])
                 self.assertEqual(self.invoke("clean").returncode, 0)
-
-    def test_nonzero_agent_exit_fails_independently(self):
-        result = self.invoke(mode="agent_nonzero")
-        self.assertEqual(result.returncode, 1)
-        report = self.report()
-        self.assertEqual(report["agent"]["returncode"], 9)
-        self.assertEqual(report["cli"]["status"], "PASS")
-        self.assertEqual(report["artifacts"]["status"], "PASS")
+                self.assertTrue((old / "native/session/turn.jsonl").is_file())
 
     def test_timeouts_kill_descendants_and_preserve_results(self):
-        for mode, flag, grade in (("agent_timeout", "--agent-timeout", "agent"),
+        for mode, flag, grade in (("agent_timeout", "--agent-timeout", "generation"),
                                   ("cli_timeout", "--command-timeout", "cli")):
             with self.subTest(mode=mode):
                 result = self.invoke("run", flag, "0.5", mode=mode)
                 self.assertEqual(result.returncode, 124, result.stdout + result.stderr)
                 self.assertEqual(self.report()[grade]["status"], "TIMEOUT")
+                if grade == "cli":
+                    self.assertEqual((self.root / "apps/todolist/tasks.json").read_text(), "generation data to preserve\n")
                 self.assertTrue((self.results / "ready").exists())
                 time.sleep(1.6)
                 self.assertFalse((self.results / "leaked-child").exists())
@@ -277,7 +308,7 @@ class TodolistEvalTests(unittest.TestCase):
                     process.send_signal(sig)
                     out, err = process.communicate(timeout=5)
                     self.assertEqual(process.returncode, 128 + sig, out + err)
-                    self.assertEqual(self.report()["agent"]["status"], "INTERRUPTED")
+                    self.assertEqual(self.report()["generation"]["status"], "INTERRUPTED")
                     self.assertEqual(self.report()["cli"]["status"], "NOT_RUN")
                     time.sleep(1.6)
                     self.assertFalse((self.results / "leaked-child").exists())
@@ -286,21 +317,6 @@ class TodolistEvalTests(unittest.TestCase):
                         process.kill()
                         process.communicate()
                 self.assertEqual(self.invoke("clean").returncode, 0)
-
-    def test_cleanup_requires_run_and_leaves_unexpected_changes(self):
-        self.assertEqual(self.invoke("clean").returncode, 2)
-        run = self.invoke(mode="unexpected_changes")
-        self.assertEqual(run.returncode, 0)
-        self.assertIn("Unexpected changes retained", run.stdout)
-        self.assertIn("source.txt", self.report()["unexpected_changes"])
-        self.assertNotIn("apps/todolist", self.report()["unexpected_changes"])
-        result = self.invoke("clean")
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Unexpected changes retained", result.stdout)
-        self.assertEqual((self.root / "source.txt").read_text(), "unexpected tracked modification\n")
-        self.assertTrue((self.root / "unrelated").exists())
-        for path in ("apps/todolist", ".agentic-workflow/records/001_todolist", ".agentic-workflow/evals/todolist"):
-            self.assertFalse((self.root / path).exists())
 
     def test_cleanup_refuses_any_tracked_output_before_deleting(self):
         self.assertEqual(self.invoke().returncode, 0)
@@ -314,8 +330,7 @@ class TodolistEvalTests(unittest.TestCase):
                 self.assertTrue((self.root / "apps/todolist").is_dir())
                 self.git("rm", "--cached", "--", name)
 
-    def test_cleanup_protects_head_files_even_when_staged_for_deletion(self):
-        self.assertEqual(self.invoke().returncode, 0)
+        # Staging deletion must not make a committed output eligible for removal.
         name = "apps/todolist/todo.py"
         self.git("add", name)
         self.git("-c", "user.name=Eval Test", "-c", "user.email=eval@example.invalid",
@@ -387,7 +402,7 @@ class TodolistEvalTests(unittest.TestCase):
                 self.assertFalse(Path(summary["worktree"]).exists())
                 if mode == "wrong_output":
                     self.assertEqual(json.loads((archived / "result.json").read_text())["cli"]["status"], "FAIL")
-                    self.assertEqual((archived / "cli-01.stdout").read_text(), "Wrong output\n")
+                    self.assertEqual((archived / "cli/commands-and-persistence/01.stdout").read_text(), "Wrong output\n")
                 self.assertEqual(self.git("worktree", "list", "--porcelain").count("worktree "), 1)
                 self.assertEqual(self.git("status", "--porcelain"), "")
 

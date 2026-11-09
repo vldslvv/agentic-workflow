@@ -13,6 +13,7 @@ SPEC_BUNDLE ?=
 SPECS_MODEL ?= gpt-6-astra
 SPECS_REASONING ?= medium
 SPECS_TIMEOUT ?= 1800
+WORKFLOW_REPAIR ?= 0
 WORKFLOW_TIMEOUT ?= 1800
 WORKFLOW_MODEL ?= gpt-6-astra
 WORKFLOW_REASONING ?= medium
@@ -24,7 +25,7 @@ help:
 	@echo "                       SPEC_BUNDLE=specs/todolist (default: all bundles)"
 	@echo "                       SPECS_MODEL=gpt-6-astra SPECS_REASONING=medium SPECS_TIMEOUT=1800 (defaults)"
 	@echo "make eval         Evaluate HEAD in a clean temporary worktree; retain reports under .agentic-workflow/evals/todolist-worktrees/"
-	@echo "make eval-workflow  Review workflow documents once; automatically attempt one repair in working files"
+	@echo "make eval-workflow  Review workflow documents once; WORKFLOW_REPAIR=1 opts into one repair"
 	@echo "                       WORKFLOW_MODEL=gpt-6-astra WORKFLOW_REASONING=medium WORKFLOW_TIMEOUT=1800 (defaults)"
 	@echo "                       FIXED means mechanical checks passed without independent re-review; partial edits may remain on failure"
 	@echo "make trace        Live agent insights until Ctrl+C (IMPL=path required; optional TRACE_INTERVAL=5; restart to change interval)"
@@ -37,7 +38,7 @@ eval:
 	@cd "$(REPO_ROOT)" && python3 -B evals/worktree.py --agent-timeout "$(EVAL_AGENT_TIMEOUT)" --command-timeout "$(EVAL_COMMAND_TIMEOUT)"
 
 eval-workflow:
-	@cd "$(REPO_ROOT)" && python3 -B evals/workflow.py --timeout "$(WORKFLOW_TIMEOUT)" --model "$(WORKFLOW_MODEL)" --reasoning "$(WORKFLOW_REASONING)"
+	@cd "$(REPO_ROOT)" && python3 -B evals/workflow.py $(if $(filter 1,$(WORKFLOW_REPAIR)),--repair) --timeout "$(WORKFLOW_TIMEOUT)" --model "$(WORKFLOW_MODEL)" --reasoning "$(WORKFLOW_REASONING)"
 
 eval-specs:
 	@cd "$(REPO_ROOT)" && python3 -B evals/specs.py $(if $(SPEC_BUNDLE),--bundle "$(SPEC_BUNDLE)") --timeout "$(SPECS_TIMEOUT)" --model "$(SPECS_MODEL)" --reasoning "$(SPECS_REASONING)"

@@ -117,11 +117,11 @@ POSIX and an authenticated local Codex CLI; todolist trials also require Git and
 
 | Evaluation | Inputs | Command | Effect |
 |---|---|---|---|
-| [Workflow review](evals/README.md#review-and-repair-workflow-documents) | Current workflow documents and entry points, including uncommitted changes | `make eval-workflow` | Review a snapshot and attempt one automatic Markdown repair for failures without uncertainty |
+| [Workflow review](evals/README.md#review-and-repair-workflow-documents) | Current workflow documents and entry points, including uncommitted changes | `make eval-workflow` | Review a snapshot; opt into one Markdown repair with `WORKFLOW_REPAIR=1` |
 | [Specification review](evals/README.md#review-specification-bundles) | Current bundles under `specs/`, templates and applicable policies | `make eval-specs` | Report findings and suggested corrections without editing specifications |
 | [Todolist end-to-end](evals/README.md#todolist-end-to-end-eval) | Committed `HEAD` in a clean temporary worktree | `make eval` | Generate an app, grade agent completion, CLI behavior and artifact presence, then archive the trial |
 
-Reports and evidence are saved under `.agentic-workflow/evals/`. Workflow repair
+Reports and evidence are saved under `.agentic-workflow/evals/`. Optional workflow repair
 retains edits for inspection; its `FIXED` result includes no independent re-review.
 Todolist artifact presence does not establish trace quality or workflow compliance.
 

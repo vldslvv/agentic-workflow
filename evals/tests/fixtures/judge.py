@@ -8,7 +8,9 @@ import time
 
 calls = Path(os.environ["JUDGE_CALLS"])
 with calls.open("a") as stream:
-    stream.write(json.dumps({"args": sys.argv[1:], "cwd": os.getcwd()}) + "\n")
+    schema = Path(sys.argv[sys.argv.index("--output-schema") + 1])
+    stream.write(json.dumps({"args": sys.argv[1:], "cwd": os.getcwd(),
+                            "prompt": sys.argv[-1], "schema": json.loads(schema.read_text())}) + "\n")
 print('{"type":"fixture.started"}', flush=True)
 role = "EDITOR" if sys.argv[sys.argv.index("--sandbox") + 1] == "workspace-write" else "JUDGE"
 print(f"{role.lower()} fixture stderr", file=sys.stderr, flush=True)

@@ -6,7 +6,7 @@ import re
 import shutil
 from urllib.parse import unquote, urlsplit
 
-import runtime
+from . import runtime
 
 
 REFERENCES = (

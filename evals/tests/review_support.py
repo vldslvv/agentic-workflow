@@ -21,11 +21,9 @@ class DocumentReviewFixture(unittest.TestCase):
         self.base = Path(self.temp.name)
         self.root = self.base / "repo"
         self.root.mkdir()
-        (self.root / "evals").mkdir()
-        for name in ("workflow.py", "specs.py", "spec_inputs.py", "document_review.py", "runtime.py"):
-            shutil.copyfile(SOURCE / "evals" / name, self.root / "evals" / name)
+        shutil.copytree(SOURCE / "evals", self.root / "evals",
+                        ignore=shutil.ignore_patterns("tests", "__pycache__", "*.pyc"))
         shutil.copyfile(SOURCE / "Makefile", self.root / "Makefile")
-        shutil.copyfile(SOURCE / "evals/README.md", self.root / "evals/README.md")
         shutil.copytree(SOURCE / "agentic-workflow", self.root / "agentic-workflow",
                         ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
         shutil.copyfile(SOURCE / "AGENTS.md", self.root / "AGENTS.md")
@@ -39,7 +37,7 @@ class DocumentReviewFixture(unittest.TestCase):
 
     def response(self, *statuses):
         return json.dumps({
-            "scope": "Package and installed entry points against WORKFLOW.md",
+            "scope": f"Selected {self.runner} documents against their references",
             "excluded_inputs": ["Project memory and app artifacts"],
             "checks": [{"contract": f"Contract {index}", "status": status,
                         "evidence": f"roles/IMPLEMENTER.md:8 | finding {index}\nReading path"}

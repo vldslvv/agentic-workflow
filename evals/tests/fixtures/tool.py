@@ -55,7 +55,8 @@ if mode in ("agent_timeout", "interrupt"):
 app = root / "apps/todolist"
 app.mkdir(parents=True)
 shutil.copyfile(Path(__file__).with_name("todo.py"), app / "todo.py")
-(app / "tasks.json").write_text("generation data to preserve\n")
+if mode != "no_generation_data":
+    (app / "tasks.json").write_text("generation data to preserve\n")
 implementation = root / ".agentic-workflow/records/001_todolist"
 reports = implementation / "reports"
 reports.mkdir(parents=True)

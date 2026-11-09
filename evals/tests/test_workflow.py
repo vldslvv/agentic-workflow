@@ -1,203 +1,160 @@
-"""Workflow validation contract; only the paid model boundary is substituted."""
+"""Workflow review and optional repair through the public command boundary."""
+
 import json
 from pathlib import Path
 import shutil
-import unittest
 
 from review_support import DocumentReviewFixture, SOURCE
 
 
 class WorkflowReviewTests(DocumentReviewFixture):
-    def test_make_runs_one_read_only_pass_on_current_inputs_and_retains_report(self):
+    def test_default_review_and_uncertain_opt_in_never_edit(self):
         contract = self.root / "agentic-workflow/WORKFLOW.md"
         contract.write_text(contract.read_text() + "\nUncommitted requirement.\n")
-        before = contract.read_bytes()
         for relative in (".agentic-workflow/memory/index.md", ".agentic-workflow/records/001_old/result.md", "apps/app.py"):
             path = self.root / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text("Excluded input")
-        project_before = self.project_files()
-        result = self.invoke(self.response("PASS"), make=True)
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertEqual(self.project_files(), project_before)
-        calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
-        self.assertEqual(len(calls), 1)
-        args = calls[0]["args"]
-        self.assertEqual(args[0], "exec")
-        self.assertEqual(args[args.index("--model") + 1], "gpt-6-astra")
-        self.assertIn('model_reasoning_effort="medium"', args)
-        self.assertEqual(args[args.index("--sandbox") + 1], "read-only")
-        self.assertIn("project_doc_max_bytes=0", args)
-        self.assertIn("memories.use_memories=false", args)
-        self.assertIn("agentic-workflow/WORKFLOW.md", args[-1])
-        self.assertIn("agentic-workflow/guides/WORKFLOW_REVIEW.md", args[-1])
-        directory, = self.reports()
-        inputs = directory / "inputs"
-        self.assertEqual(Path(calls[0]["cwd"]), inputs)
-        self.assertEqual((inputs / "agentic-workflow/WORKFLOW.md").read_bytes(), before)
-        self.assertEqual(contract.read_bytes(), before)
-        self.assertTrue((inputs / ".agents/skills/agentic-workflow-planner/SKILL.md").is_file())
-        self.assertFalse((inputs / ".agentic-workflow/memory").exists())
-        self.assertFalse((inputs / ".agentic-workflow/records/001_old").exists())
-        self.assertFalse((inputs / "apps").exists())
-        self.assertIn("Workflow review: PASS", result.stdout)
-        report = (directory / "report.md").read_text()
-        self.assertIn("| Step/contract | Status | Evidence or finding |", report)
-        self.assertIn("\\| finding 0<br>Reading path", report)
-        self.assertIn("judge fixture stderr", (directory / "agent.stderr").read_text())
-        self.assertEqual(json.loads((directory / "result.json").read_text())["status"], "PASS")
-
-    def test_uncertainty_stops_repairs_even_when_review_also_fails(self):
-        project_before = self.project_files()
-        for statuses, review_status in ((["PASS", "UNCLEAR"], "UNCLEAR"),
-                                        (["UNCLEAR", "FAIL", "PASS"], "FAIL")):
-            with self.subTest(review_status=review_status):
+        before_sources = self.project_files()
+        cases = ((False, ("PASS",), "PASS"), (False, ("FAIL",), "FAIL"),
+                 (True, ("PASS",), "PASS"), (True, ("UNCLEAR",), "UNCLEAR"),
+                 (True, ("UNCLEAR", "FAIL"), "FAIL"))
+        for repair, statuses, expected in cases:
+            with self.subTest(repair=repair, statuses=statuses):
                 before = set(self.reports())
-                result = self.invoke(self.response(*statuses))
-                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                process = self.invoke(self.response(*statuses), make=not repair and expected == "PASS",
+                                      arguments=["--repair"] if repair else [])
+                self.assertEqual(process.returncode, 0 if expected == "PASS" else 1)
                 directory, = set(self.reports()) - before
-                self.assertEqual(json.loads((directory / "result.json").read_text())["status"], "UNCLEAR")
-                self.assertIn(f"Workflow review: {review_status}", (directory / "report.md").read_text())
-                self.assertIn("Workflow review: UNCLEAR", result.stdout)
-                self.assertEqual(self.project_files(), project_before)
-        self.assertEqual(len(self.reports()), 2)
-        self.assertEqual(len(self.calls.read_text().splitlines()), 2)
+                result = json.loads((directory / "result.json").read_text())
+                self.assertEqual(result["status"], expected)
+                self.assertEqual(result["review"]["status"], expected)
+                if repair:
+                    self.assertEqual(result["repair"]["status"], "NOT_RUN")
+                else:
+                    self.assertNotIn("repair", result)
+                inputs = directory / "inputs"
+                self.assertEqual((inputs / "agentic-workflow/WORKFLOW.md").read_bytes(), contract.read_bytes())
+                self.assertTrue((inputs / ".agents/skills/agentic-workflow-planner/SKILL.md").is_file())
+                for relative in (".agentic-workflow/memory", ".agentic-workflow/records", "apps"):
+                    self.assertFalse((inputs / relative).exists())
+                call = json.loads(self.calls.read_text().splitlines()[-1])
+                args = call["args"]
+                self.assertEqual(args[args.index("--model") + 1], "gpt-6-astra")
+                self.assertIn('model_reasoning_effort="medium"', args)
+                self.assertEqual(json.loads((directory / "run.json").read_text())["requested_settings"],
+                                 {"model": "gpt-6-astra", "reasoning": "medium"})
+                self.assertEqual(call["prompt"], (directory / "prompt.txt").read_text())
+                self.assertIn("agentic-workflow/WORKFLOW.md", call["prompt"])
+                self.assertIn("agentic-workflow/guides/WORKFLOW_REVIEW.md", call["prompt"])
+                self.assertEqual(self.project_files(), before_sources)
+        self.assertEqual(len(self.calls.read_text().splitlines()), len(cases))
 
-    def test_unusable_response_or_failed_judge_never_passes_or_retries(self):
-        for response, environment in ((None, {}), ("not JSON", {}), ("[]", {}),
-                                      (self.response(), {}), (self.response("UNKNOWN"), {}),
-                                      (self.response("PASS"), {"JUDGE_EXIT": "9"})):
-            with self.subTest(response=response, environment=environment):
+    def test_review_errors_and_timeouts_preserve_evidence_without_retry(self):
+        cases = [(None, {}, "RUNNER_ERROR", 2), ("not JSON", {}, "RUNNER_ERROR", 2),
+                 ("[]", {}, "RUNNER_ERROR", 2), (self.response(), {}, "RUNNER_ERROR", 2),
+                 (self.response("UNKNOWN"), {}, "RUNNER_ERROR", 2),
+                 (self.response("PASS"), {"JUDGE_EXIT": "9"}, "JUDGE_ERROR", 2),
+                 (self.response("PASS"), {"JUDGE_SLEEP": "20"}, "TIMEOUT", 124)]
+        for response, environment, status, code in cases:
+            with self.subTest(status=status, response=response):
                 before = set(self.reports())
-                result = self.invoke(response, **environment)
-                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                process = self.invoke(response, arguments=["--repair"], **environment)
+                self.assertEqual(process.returncode, code, process.stdout + process.stderr)
                 directory, = set(self.reports()) - before
-                self.assertNotEqual(json.loads((directory / "result.json").read_text())["status"], "PASS")
-                self.assertTrue((directory / "events.jsonl").is_file())
-                self.assertFalse((directory / "report.md").exists())
-        self.assertEqual(len(self.calls.read_text().splitlines()), 6)
+                result = json.loads((directory / "result.json").read_text())
+                self.assertEqual(result["status"], status)
+                self.assertEqual(result["review"]["status"], "NOT_RUN")
+                self.assertIn(status, (directory / "report.md").read_text())
+                self.assertIn("fixture.started", (directory / "events.jsonl").read_text())
+        self.assertEqual(len(self.calls.read_text().splitlines()), len(cases))
 
-    def test_timeout_retains_evidence_without_retry(self):
-        for role, log, calls in (("JUDGE", "events.jsonl", 1), ("EDITOR", "repair/events.jsonl", 2)):
-            with self.subTest(role=role):
-                before = set(self.reports())
-                call_count = len(self.calls.read_text().splitlines()) if self.calls.exists() else 0
-                result = self.invoke(self.response("FAIL"), **{f"{role}_SLEEP": "20"})
-                self.assertEqual(result.returncode, 124, result.stdout + result.stderr)
-                directory, = set(self.reports()) - before
-                self.assertEqual(json.loads((directory / "result.json").read_text())["status"], "TIMEOUT")
-                self.assertIn("fixture.started", (directory / log).read_text())
-                self.assertEqual(len(self.calls.read_text().splitlines()) - call_count, calls)
-                if role == "EDITOR":
-                    self.assertIn("partial edits may remain", result.stdout)
-
-    def test_failed_review_repairs_working_files_once_and_checks_integration(self):
+    def test_opt_in_repair_preserves_review_and_applies_cli_or_make_settings(self):
         override = self.root / ".agentic-workflow/config/MODELS.md"
         override.parent.mkdir(parents=True)
-        override.write_text("## Profiles\n| judge | judge-model | medium |\n"
-                            "| editor | editor-model | high |\n"
-                            "## Role routes\n| Reviewer | judge | judge |\n| Planner | editor | editor |\n")
-        relative = "AGENTS.md"
-        document = self.root / relative
+        override.write_text("Invalid routing is review input, not launch configuration.\n")
+        document = self.root / "AGENTS.md"
         corrected = document.read_text() + "\nKeep this existing local instruction.\n"
         original = corrected.replace("agentic-workflow/policies/GUIDELINES.md", "missing.md")
-        document.write_text(original)
-        project_before = self.project_files()
-        response = self.response("FAIL")
-        result = self.invoke(response, make=True,
-                             EDITOR_RESPONSE=json.dumps({"status": "FIXED", "summary": "Restored guideline link."}),
-                             EDITOR_EDITS=json.dumps({relative: corrected}))
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        project_before[relative] = corrected.encode()
-        self.assertEqual(self.project_files(), project_before)
-        calls = [json.loads(line) for line in self.calls.read_text().splitlines()]
-        self.assertEqual(len(calls), 2)
-        self.assertEqual(Path(calls[1]["cwd"]), self.root)
-        args = calls[1]["args"]
-        self.assertEqual(args[args.index("--sandbox") + 1], "workspace-write")
-        for call in calls:
-            self.assertEqual(call["args"][call["args"].index("--model") + 1], "gpt-6-astra")
-            self.assertIn('model_reasoning_effort="medium"', call["args"])
-        directory, = self.reports()
-        self.assertIn(str(directory / "inputs"), args[-1])
-        self.assertIn(str(directory / "judgment.json"), args[-1])
-        self.assertEqual((directory / "inputs" / relative).read_text(), original)
-        self.assertEqual((directory / "judgment.json").read_text(), response)
-        self.assertIn("Workflow review: FAIL", (directory / "report.md").read_text())
-        final = json.loads((directory / "result.json").read_text())
-        self.assertEqual(final["status"], "FIXED")
-        checks = json.loads((directory / "repair/checks.stdout").read_text())
-        self.assertEqual(checks["status"], "PASS")
-        self.assertIn("editor fixture stderr", (directory / "repair/agent.stderr").read_text())
-        self.assertIn("Workflow review: FIXED", result.stdout)
-        self.assertIn("No independent re-review occurred", result.stdout)
+        for make in (False, True):
+            with self.subTest(make=make):
+                document.write_text(original)
+                before_sources = self.project_files()
+                before = set(self.reports())
+                arguments = (["WORKFLOW_REPAIR=1", "WORKFLOW_MODEL=chosen-model", "WORKFLOW_REASONING=high"]
+                             if make else ["--repair", "--model", "chosen-model", "--reasoning", "high"])
+                response = self.response("FAIL")
+                process = self.invoke(response, make=make, arguments=arguments,
+                          EDITOR_RESPONSE=json.dumps({"status": "FIXED", "summary": "Restored guideline link."}),
+                          EDITOR_EDITS=json.dumps({"AGENTS.md": corrected}))
+                self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+                before_sources["AGENTS.md"] = corrected.encode()
+                self.assertEqual(self.project_files(), before_sources)
+                directory, = set(self.reports()) - before
+                result = json.loads((directory / "result.json").read_text())
+                self.assertEqual((result["status"], result["review"]["status"], result["repair"]["status"]),
+                                 ("FIXED", "FAIL", "FIXED"))
+                self.assertEqual(result["repair"]["checks"]["status"], "PASS")
+                self.assertEqual((directory / "judgment.json").read_text(), response)
+                self.assertEqual((directory / "inputs/AGENTS.md").read_text(), original)
+                report = (directory / "report.md").read_text()
+                for text in ("Workflow eval: FIXED", "Original review: FAIL", "Repair: FIXED",
+                             "No independent re-review occurred"):
+                    self.assertIn(text, report)
+                calls = [json.loads(line) for line in self.calls.read_text().splitlines()[-2:]]
+                for call, evidence, cwd, sandbox in ((calls[0], directory, directory / "inputs", "read-only"),
+                        (calls[1], directory / "repair", self.root, "workspace-write")):
+                    self.assertEqual(call["prompt"], (evidence / "prompt.txt").read_text())
+                    self.assertEqual(call["schema"], json.loads((evidence / "schema.json").read_text()))
+                    self.assertEqual(Path(call["cwd"]), cwd)
+                    args = call["args"]
+                    self.assertEqual(args[args.index("--sandbox") + 1], sandbox)
+                    self.assertEqual(args[args.index("--model") + 1], "chosen-model")
+                    self.assertIn('model_reasoning_effort="high"', args)
+                    self.assertEqual(json.loads((evidence / "run.json").read_text())["requested_settings"],
+                                     {"model": "chosen-model", "reasoning": "high"})
+                self.assertIn(str(directory / "inputs"), calls[1]["prompt"])
+                self.assertIn(str(directory / "judgment.json"), calls[1]["prompt"])
+        self.assertEqual(len(self.calls.read_text().splitlines()), 4)
 
-    def test_failed_or_unclear_repair_and_failed_checks_never_succeed_or_retry(self):
+    def test_unsuccessful_repairs_keep_partial_edits_and_original_failure(self):
         fixed = json.dumps({"status": "FIXED", "summary": "Corrected findings."})
-        unclear = json.dumps({"status": "UNCLEAR", "summary": "One finding is unresolved."})
         cases = [("missing output", None, {}, 2, "RUNNER_ERROR"),
                  ("malformed output", "not JSON", {}, 2, "RUNNER_ERROR"),
                  ("wrong shape", "[]", {}, 2, "RUNNER_ERROR"),
                  ("invalid status", json.dumps({"status": "PASS", "summary": "Done"}), {}, 2, "RUNNER_ERROR"),
                  ("empty summary", json.dumps({"status": "FIXED", "summary": ""}), {}, 2, "RUNNER_ERROR"),
-                 ("unresolved finding", unclear, {}, 1, "UNCLEAR"),
+                 ("unresolved", json.dumps({"status": "UNCLEAR", "summary": "Finding remains."}), {}, 1, "UNCLEAR"),
                  ("editor failed", fixed, {"EDITOR_EXIT": "9"}, 2, "REPAIR_ERROR"),
-                 ("broken integration", fixed, {"EDITOR_EDITS": json.dumps({"AGENTS.md": "Broken entry point\n"})}, 1, "FAIL"),
-                 ("changed contract", fixed, {"EDITOR_EDITS": json.dumps({"agentic-workflow/WORKFLOW.md":
-                     (SOURCE / "agentic-workflow/WORKFLOW.md").read_text() + "\nChanged contract\n"})}, 1, "FAIL")]
-        for name, response, environment, code, status in cases:
+                 ("timeout", fixed, {"EDITOR_SLEEP": "20"}, 124, "TIMEOUT"),
+                 ("broken integration", fixed, {"AGENTS.md": "Broken entry point\n"}, 1, "FAIL"),
+                 ("changed contract", fixed, {"agentic-workflow/WORKFLOW.md":
+                     (SOURCE / "agentic-workflow/WORKFLOW.md").read_text() + "\nChanged contract\n"}, 1, "FAIL")]
+        for name, response, options, code, status in cases:
             with self.subTest(case=name):
-                # Each failed editor leaves a real partial edit; the launcher must retain it.
                 edits = {"agentic-workflow/README.md": (SOURCE / "agentic-workflow/README.md").read_text()
                          + f"\nPartial edit: {name}\n"}
-                edits.update(json.loads(environment.get("EDITOR_EDITS", "{}")))
+                environment = {key: value for key, value in options.items() if key.startswith("EDITOR_")}
+                edits.update({key: value for key, value in options.items() if not key.startswith("EDITOR_")})
                 environment["EDITOR_EDITS"] = json.dumps(edits)
                 if response is not None:
                     environment["EDITOR_RESPONSE"] = response
                 before = set(self.reports())
-                call_count = len(self.calls.read_text().splitlines()) if self.calls.exists() else 0
-                result = self.invoke(self.response("FAIL"), **environment)
-                self.assertEqual(len(self.calls.read_text().splitlines()) - call_count, 2)
-                self.assertEqual(result.returncode, code, result.stdout + result.stderr)
+                process = self.invoke(self.response("FAIL"), arguments=["--repair"], **environment)
+                self.assertEqual(process.returncode, code, process.stdout + process.stderr)
                 directory, = set(self.reports()) - before
-                self.assertEqual(json.loads((directory / "result.json").read_text())["status"], status)
-                self.assertIn("partial edits may remain", result.stdout)
+                result = json.loads((directory / "result.json").read_text())
+                self.assertEqual(result["status"], status)
+                self.assertEqual(result["review"]["status"], "FAIL")
+                self.assertEqual(result["repair"]["status"], status)
+                self.assertTrue(result["partial_edits_may_remain"])
+                self.assertIn("partial edits may remain", (directory / "report.md").read_text())
+                if name == "broken integration":
+                    self.assertEqual(result["repair"]["checks"]["status"], "FAIL")
+                if name == "changed contract":
+                    self.assertFalse(result["repair"]["source_contract_unchanged"])
+                    self.assertEqual(result["repair"]["checks"]["status"], "PASS")
                 for relative, content in edits.items():
                     self.assertEqual((self.root / relative).read_text(), content)
-                if name == "broken integration":
-                    self.assertIn("Missing or invalid Agentic Workflow block",
-                                  (directory / "repair/checks.stdout").read_text())
-                if name == "changed contract":
-                    self.assertIn("WORKFLOW.md changed", result.stdout)
-                    self.assertEqual(json.loads((directory / "repair/checks.stdout").read_text())["status"], "PASS")
-                for relative in edits:
                     shutil.copyfile(SOURCE / relative, self.root / relative)
-
-    def test_command_model_settings_apply_to_both_calls_and_evidence(self):
-        override = self.root / ".agentic-workflow/config/MODELS.md"
-        override.parent.mkdir(parents=True)
-        override.write_text("Invalid routing remains a review input, not launch configuration.\n")
-        cases = ((False, [], "gpt-6-astra", "medium"),
-                 (True, ["WORKFLOW_MODEL=chosen-model", "WORKFLOW_REASONING=high"], "chosen-model", "high"),
-                 (False, ["--model", "chosen-model", "--reasoning", "low"], "chosen-model", "low"))
-        for make, arguments, model, reasoning in cases:
-            with self.subTest(make=make, arguments=arguments):
-                before = set(self.reports())
-                call_count = len(self.calls.read_text().splitlines()) if self.calls.exists() else 0
-                result = self.invoke(self.response("FAIL"), make=make, arguments=arguments,
-                                     EDITOR_RESPONSE=json.dumps({"status": "FIXED", "summary": "Resolved findings."}))
-                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-                calls = [json.loads(line) for line in self.calls.read_text().splitlines()[call_count:]]
-                self.assertEqual(len(calls), 2)
-                for call in calls:
-                    args = call["args"]
-                    self.assertEqual(args[args.index("--model") + 1], model)
-                    self.assertIn(f'model_reasoning_effort="{reasoning}"', args)
-                directory, = set(self.reports()) - before
-                for relative in ("run.json", "repair/run.json"):
-                    recorded = json.loads((directory / relative).read_text())
-                    self.assertEqual(recorded["requested_settings"], {"model": model, "reasoning": reasoning})
-
-
-if __name__ == "__main__":
-    unittest.main()
+        self.assertEqual(len(self.calls.read_text().splitlines()), 2 * len(cases))
