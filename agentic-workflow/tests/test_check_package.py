@@ -1,49 +1,11 @@
 """Package-check CLI contracts on disposable packages without Git history."""
 
-import json
-import shutil
-import subprocess
-import sys
-import tempfile
 import unittest
-from pathlib import Path
-from typing import TypedDict, cast
+
+from package_fixture import PackageCheckCase
 
 
-class PackageResult(TypedDict):
-    status: str
-    errors: list[str]
-    local_links_checked: int
-
-
-PACKAGE = Path(__file__).resolve().parents[1]
-
-
-class PackageCheckTests(unittest.TestCase):
-    def setUp(self) -> None:
-        self.temp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
-        self.package = self.root / "agentic-workflow"
-        shutil.copytree(
-            PACKAGE, self.package, ignore=shutil.ignore_patterns("__pycache__", "*.pyc")
-        )
-
-    def cli(self, *arguments: str) -> subprocess.CompletedProcess[str]:
-        return subprocess.run(
-            [sys.executable, str(self.package / "helpers/check_package.py"), *arguments],
-            cwd=self.root,
-            capture_output=True,
-            text=True,
-        )
-
-    def result(self, process: subprocess.CompletedProcess[str], code: int) -> PackageResult:
-        self.assertEqual(process.returncode, code, process.stdout + process.stderr)
-        report = cast(PackageResult, json.loads(process.stdout))
-        self.assertEqual(report["status"], "PASS" if code == 0 else "FAIL")
-        self.assertGreater(report["local_links_checked"], 0)
-        return report
-
+class PackageCheckTests(PackageCheckCase):
     def test_imports_stay_inside_standard_library_and_copy_boundary(self) -> None:
         (self.root / "repository_only.py").write_text("# Not in the copied package.\n")
         cases = (
@@ -93,18 +55,6 @@ class PackageCheckTests(unittest.TestCase):
 
     def test_valid_package_ignores_host_instructions(self) -> None:
         (self.root / "AGENTS.md").write_text("[Host-only reference](absent.md)\n")
-        self.assertEqual(self.result(self.cli(), 0)["errors"], [])
-
-    def test_additional_valid_markdown_is_allowed_and_checked(self) -> None:
-        (self.package / "extra.md").write_text(
-            "# Extra\n[Models](policies/MODELS.md#model-selection)\n"
-            "Use [MODELS].\n\n[MODELS]: policies/MODELS.md#codex\n"
-            "[EXTERNAL]: https://example.com/guide\n"
-            "- [GUIDELINES]: Engineering rules. agentic-workflow/policies/GUIDELINES.md\n"
-            "- [EXTERNAL_GUIDE]: External guide. https://example.com/guide\n"
-            "```markdown\n[EXAMPLE]: missing.md\n"
-            "- [EXAMPLE]: Installation example. agentic-workflow/missing.md\n```\n"
-        )
         self.assertEqual(self.result(self.cli(), 0)["errors"], [])
 
     def test_broken_local_link_and_anchor_fail(self) -> None:

@@ -1,4 +1,4 @@
-"""Validate the copied package and local Markdown links before use.
+"""Validate the copied package, document references and local Markdown links.
 
 No arguments checks only the package containing this helper. --integration-root
 PATH also checks PATH/AGENTS.md's marked workflow block and installed optional
@@ -40,9 +40,78 @@ def anchors(text: str) -> set[str]:
     return result
 
 
+def without_fences(text: str) -> str:
+    # Preserve line numbers while excluding fenced examples from document checks.
+    return re.sub(
+        r"^(`{3,}|~{3,})[^\n]*\n.*?^\1\s*$",
+        lambda match: "\n" * match[0].count("\n"),
+        text,
+        flags=re.M | re.S,
+    )
+
+
+def check_references(text: str, source: Path) -> list[str]:
+    """Check package catalogs; host instructions keep their own document style."""
+    errors: list[str] = []
+    labels: set[str] = set()
+    uses: list[tuple[int, str]] = []
+    headings = 0
+    catalogs = 0
+    in_references = False
+    for number, line in enumerate(without_fences(text).splitlines(), 1):
+        location = f"{source.relative_to(PACKAGE)}:{number}"
+        heading = re.fullmatch(r"#{1,6}\s+(.+?)\s*#*\s*", line)
+        if heading:
+            title = heading[1]
+            in_references = title == "References:"
+            if title.rstrip(":").lower() == "references" and not in_references:
+                errors.append(f"{location}: Reference heading must be References:")
+            if in_references:
+                catalogs += 1
+                if catalogs > 1:
+                    errors.append(f"{location}: Duplicate References: section")
+                if headings != 1:
+                    errors.append(
+                        f"{location}: References: must be the first section after the title"
+                    )
+            headings += 1
+            continue
+        if not line.strip():
+            continue
+        if in_references:
+            entry = re.fullmatch(r"- \[([A-Z][A-Z0-9_]*)\]: (\S.*) (\S+)", line)
+            if not entry:
+                errors.append(f"{location}: Invalid reference entry; use - [DOC]: description path")
+                continue
+            label, _, target = entry.groups()
+            if label in labels:
+                errors.append(f"{location}: Duplicate reference [{label}]")
+            labels.add(label)
+            if not target.startswith(("https://", "http://")):
+                path = unquote(target).partition("#")[0]
+                if not path or path.startswith("/") or re.match(r"[\w+.-]+:", path) or "\\" in path:
+                    errors.append(
+                        f"{location}: Reference path must be project-root-relative: {target}"
+                    )
+        else:
+            prose = re.sub(r"(`+).*?\1", "", line)
+            if re.match(r"\s*(?:- )?\[[^\]]+\]:", prose):
+                errors.append(f"{location}: Reference entry outside References: section")
+            uses.extend(
+                (number, label) for label in re.findall(r"\[([A-Z][A-Z0-9_]*)\](?![(:])", prose)
+            )
+    if uses and not catalogs:
+        errors.append(f"{source.relative_to(PACKAGE)}: Missing References: section")
+    if catalogs and not labels:
+        errors.append(f"{source.relative_to(PACKAGE)}: Empty References: section")
+    for number, label in uses:
+        if label not in labels:
+            errors.append(f"{source.relative_to(PACKAGE)}:{number}: Undefined reference [{label}]")
+    return errors
+
+
 def local_targets(text: str, source: Path, root: Path) -> list[str]:
-    # Installation examples inside fenced code are not links in this document.
-    text = re.sub(r"^(`{3,}|~{3,})[^\n]*\n.*?^\1\s*$", "", text, flags=re.M | re.S)
+    text = without_fences(text)
     targets = re.findall(r"\[[^\]]*\]\(([^)]+)\)", text)
     # Reference links share a destination declared once as [NAME]: path.
     targets.extend(
@@ -54,7 +123,7 @@ def local_targets(text: str, source: Path, root: Path) -> list[str]:
     # Catalog entries use project-root-relative paths, unlike Markdown links.
     targets.extend(
         os.path.relpath(root / target, source.parent)
-        for target in re.findall(r"^- \[[A-Z][A-Z_]*\]: .+ (\S+)$", text, re.M)
+        for target in re.findall(r"^- \[[A-Z][A-Z0-9_]*\]: .+ (\S+)$", text, re.M)
         if not re.match(r"[\w+.-]+:", target)
     )
     return [target for target in targets if not re.match(r"[\w+.-]+:", target)]
@@ -236,6 +305,8 @@ def check(files: dict[str, bytes]) -> tuple[list[str], int]:
     documents = {
         PACKAGE / name: data.decode() for name, data in files.items() if name.endswith(".md")
     }
+    for source, text in documents.items():
+        errors.extend(check_references(text, source))
     link_errors, links = check_links(documents, PACKAGE, PACKAGE.parent)
     errors.extend(link_errors)
     errors.extend(check_imports(files))
