@@ -663,8 +663,10 @@ class TraceTests(unittest.TestCase):
             )
 
         ongoing = exported(bundle)
-        self.assertEqual(ongoing["ph"], "X")
-        self.assertEqual(ongoing["dur"], 10_000_000)
+        self.assertEqual(ongoing["ph"], "B")
+        self.assertNotIn("dur", ongoing)
+        self.assertIn("0:00:10 elapsed", str(ongoing["name"]))
+        self.assertEqual(cast(dict[str, object], ongoing["args"])["elapsed_seconds"], 10)
         self.assertEqual(cast(dict[str, object], ongoing["args"])["elapsed_through"], 1793959210)
         self.assertIn("unfinished", str(ongoing["name"]))
         self.assertIsNone(agent["end"])
@@ -674,7 +676,10 @@ class TraceTests(unittest.TestCase):
         )
         with patch("time.time", return_value=1793959215):
             refreshed = usage.refresh(self.root)
-        self.assertEqual(exported(refreshed)["dur"], 15_000_000)
+        self.assertIn("0:00:15 elapsed", str(exported(refreshed)["name"]))
+        self.assertEqual(
+            cast(dict[str, object], exported(refreshed)["args"])["elapsed_seconds"], 15
+        )
         with path.open("a") as stream:
             stream.write("".join(json.dumps(r) + "\n" for r in completed))
         finished = usage.refresh(self.root)
@@ -958,7 +963,7 @@ class TraceTests(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            query("SELECT count(*) AS n FROM slice WHERE category='agent' AND dur=-1"), [{"n": "0"}]
+            query("SELECT count(*) AS n FROM slice WHERE category='agent' AND dur=-1"), [{"n": "1"}]
         )
         # Perfetto's UI orders thread groups by this hint, then main-thread
         # priority, then tid. Query imported hints, not our JSON construction.
@@ -1117,8 +1122,9 @@ class TraceTests(unittest.TestCase):
         )
         self.assertEqual(
             query("SELECT dur FROM slice WHERE EXTRACT_ARG(arg_set_id, 'args.event_id')='parent'"),
-            [{"dur": "10000000000"}],
+            [{"dur": "-1"}],
         )
+        self.assertEqual(query("SELECT end_ts FROM trace_bounds"), [{"end_ts": "110000000000"}])
         edges = query(
             "SELECT outgoing.name AS parent, incoming.name AS child FROM flow "
             "JOIN slice AS s1 ON flow.slice_out=s1.id JOIN thread_track AS t1 ON s1.track_id=t1.id "

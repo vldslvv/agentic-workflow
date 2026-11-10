@@ -25,6 +25,7 @@ import json
 import time
 from collections import Counter, defaultdict
 from dataclasses import dataclass
+from datetime import timedelta
 from pathlib import Path
 from typing import cast
 
@@ -600,17 +601,31 @@ def timeline(events: list[Event]) -> Timeline:
                 )
             )
         elif e["kind"] == "agent" and start is not None and end is None:
-            # Bound the displayed elapsed time to this export, without recording
-            # an observed completion or changing the native evidence.
+            # Keep the slice open so Perfetto fades its unfinished edge.
+            # Elapsed time is a snapshot, not an observed completion.
             elapsed_through = max(start, refreshed)
+            elapsed = elapsed_through - start
             base["args"]["elapsed_through"] = elapsed_through
+            base["args"]["elapsed_seconds"] = elapsed
             output.append(
                 dict(
                     base,
-                    name=label + " · unfinished",
-                    ph="X",
+                    name=label + f" · unfinished · {timedelta(seconds=int(elapsed))} elapsed",
+                    ph="B",
                     ts=round(start * 1_000_000),
-                    dur=round(elapsed_through * 1_000_000) - round(start * 1_000_000),
+                )
+            )
+            # Extend the trace bounds through the snapshot even when there
+            # have been no recent native events.
+            output.append(
+                dict(
+                    name="Elapsed time snapshot",
+                    cat="snapshot",
+                    ph="i",
+                    s="t",
+                    pid=1,
+                    tid=base["tid"],
+                    ts=round(elapsed_through * 1_000_000),
                 )
             )
             omitted.append(dict(event_id=e["event_id"], reason="duration_unavailable"))
