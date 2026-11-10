@@ -7,6 +7,11 @@ import os
 import signal
 import subprocess
 import time
+from pathlib import Path
+from types import FrameType
+from typing import NoReturn
+
+from .models import Execution
 
 
 class RunnerError(Exception):
@@ -14,18 +19,19 @@ class RunnerError(Exception):
 
 
 class Interrupted(Exception):
-    def __init__(self, signum):
+    def __init__(self, signum: int) -> None:
         self.signum = signum
 
-def interrupt(signum, frame):
+
+def interrupt(signum: int, frame: FrameType | None) -> NoReturn:
     raise Interrupted(signum)
 
 
-def write_json(path, value):
+def write_json(path: Path, value: object) -> None:
     path.write_text(json.dumps(value, indent=2, ensure_ascii=True) + "\n")
 
 
-def terminate_group(process):
+def terminate_group(process: subprocess.Popen[bytes]) -> None:
     # Ignore repeated interrupts while reaping the leader and killing descendants,
     # including a child that ignores SIGTERM after its parent exits.
     previous = {s: signal.signal(s, signal.SIG_IGN) for s in (signal.SIGINT, signal.SIGTERM)}
@@ -45,14 +51,25 @@ def terminate_group(process):
         for sig, handler in previous.items():
             signal.signal(sig, handler)
 
-def execute(command, cwd, timeout, stdout, stderr):
+
+def execute(
+    command: list[str],
+    cwd: Path,
+    timeout: float,
+    stdout: Path,
+    stderr: Path,
+) -> Execution:
     started = time.monotonic()
-    outcome = {"command": command, "status": "RUNNER_ERROR", "returncode": None}
+    outcome: Execution = {"command": command, "status": "RUNNER_ERROR", "returncode": None}
     process = None
     try:
         with stdout.open("wb") as out, stderr.open("wb") as err:
             process = subprocess.Popen(
-                command, cwd=cwd, stdin=subprocess.DEVNULL, stdout=out, stderr=err,
+                command,
+                cwd=cwd,
+                stdin=subprocess.DEVNULL,
+                stdout=out,
+                stderr=err,
                 start_new_session=True,
             )
             outcome["returncode"] = process.wait(timeout=timeout)
@@ -60,7 +77,7 @@ def execute(command, cwd, timeout, stdout, stderr):
     except subprocess.TimeoutExpired:
         outcome["status"] = "TIMEOUT"
     except Interrupted as exc:
-        outcome.update(status="INTERRUPTED", signal=exc.signum)
+        outcome.update({"status": "INTERRUPTED", "signal": exc.signum})
     except OSError as exc:
         outcome["error"] = str(exc)
     finally:
@@ -71,7 +88,7 @@ def execute(command, cwd, timeout, stdout, stderr):
     return outcome
 
 
-def positive_seconds(value):
+def positive_seconds(value: str) -> float:
     number = float(value)
     if not math.isfinite(number) or number <= 0:
         raise argparse.ArgumentTypeError("timeout must be a positive finite number")

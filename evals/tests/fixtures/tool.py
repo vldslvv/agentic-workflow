@@ -2,13 +2,11 @@
 
 import json
 import os
-from pathlib import Path
 import shutil
-import signal
 import subprocess
 import sys
 import time
-
+from pathlib import Path
 
 mode = os.environ.get("EVAL_FIXTURE", "pass")
 tool = Path(sys.argv[0]).name
@@ -21,7 +19,7 @@ root = Path.cwd() if tool == "codex" else Path.cwd().parents[1]
 results = root / ".agentic-workflow/evals/todolist"
 
 
-def hang():
+def hang() -> None:
     # The descendant ignores TERM, so merely killing/waiting for its parent is
     # insufficient. It would leave a marker if group termination were broken.
     child_code = """

@@ -5,17 +5,26 @@ local Codex CLI. Todolist trials also require Git and uv.
 
 ## Layout
 
-The root Python files are command-line entrypoints; implementation lives below them.
+The root Python modules expose typed `run()` functions containing each evaluation's
+orchestration. Their `main()` functions parse arguments and map results to exit
+codes; supporting operations live in `support/`.
 
 ```text
 evals/
-├── specs.py, workflow.py    # Document review entrypoints
-├── todolist.py, worktree.py # Generation and isolated-trial entrypoints
-├── runners/                # Orchestration, grading, snapshots and process helpers
+├── specs.py, workflow.py    # Capture, invoke, grade and save reviews
+├── todolist.py, worktree.py # Generate/grade and create/archive/clean trials
+├── support/                # Typed evidence, grading, snapshots and process helpers
 ├── prompts/                # Model instructions
 ├── schemas/                # Model response contracts
 └── tests/                  # Behavior tests and external-process fixtures
 ```
+
+| Function | Visible flow |
+|---|---|
+| `specs.run()` | Capture inputs → load prompt → invoke reviewer → grade → save |
+| `workflow.run()` | Capture inputs → review → optional repair and checks → save |
+| `todolist.run()` | Prepare trial → prompt agent → grade CLI and artifacts → save |
+| `worktree.run()` | Create checkout → call `todolist.run()` → archive → clean up |
 
 ## Choose an evaluation
 

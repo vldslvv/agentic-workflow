@@ -2,20 +2,32 @@
 
 import json
 import os
-from pathlib import Path
 import sys
+from collections.abc import Iterator
+from pathlib import Path
+from typing import NotRequired, TypedDict
+
+
+class Task(TypedDict):
+    id: int
+    text: str
+    done: bool
+    parent: int | None
+    extra: NotRequired[str]
 
 
 mode = os.environ.get("EVAL_FIXTURE", "pass")
 path = Path("other.json" if mode == "wrong_storage" else "tasks.json")
-tasks = json.loads(path.read_text()) if path.exists() else []
+tasks: list[Task] = json.loads(path.read_text()) if path.exists() else []
 command, *args = sys.argv[1:]
 if command == "list":
-    def lines(parent=None, depth=0):
+
+    def lines(parent: int | None = None, depth: int = 0) -> Iterator[str]:
         for task in sorted(tasks, key=lambda item: item["id"]):
             if task["parent"] == parent:
                 yield f"{'  ' * depth}{task['id']} [{'x' if task['done'] else ' '}] {task['text']}"
                 yield from lines(task["id"], depth + 1)
+
     output = "\n".join(lines()) or "No tasks."
     if mode == "wrong_order" and any(t["parent"] for t in tasks):
         output = "\n".join(reversed(output.splitlines()))
@@ -35,8 +47,12 @@ else:
                 path.write_text(json.dumps(tasks, indent=4))
             sys.exit(2)
         parent = parents[0] if parents and mode != "ignore_parent" else None
-        task = {"id": max((t["id"] for t in tasks), default=0) + 1,
-                "text": args[0], "done": False, "parent": parent}
+        task: Task = {
+            "id": max((t["id"] for t in tasks), default=0) + 1,
+            "text": args[0],
+            "done": False,
+            "parent": parent,
+        }
         tasks.append(task)
         output = f"Added task {task['id']}: {task['text']}"
     else:

@@ -27,41 +27,54 @@ SIGTERM. Stop it after capture. Restart the owner to change --interval.
 
 Example: python3 agentic-workflow/helpers/trace_view.py .agentic-workflow/records/001_example --interval 5
 """
+
 import argparse
-from dataclasses import dataclass
-from datetime import datetime, timezone
 import errno
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import math
 import os
-from pathlib import Path
 import re
 import secrets
 import signal
 import threading
 import time
+import webbrowser
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from types import FrameType
+from typing import NoReturn, TypedDict, cast
 from urllib.parse import quote
 from urllib.request import ProxyHandler, build_opener
-import webbrowser
 
 from trace_dashboard import render
+from trace_types import Report
 from usage_report import ReportBundle, refresh
 
-HOST, PORT = '127.0.0.1', 9001
-ORIGIN = 'https://ui.perfetto.dev'
-SERVICE = 'agentic-workflow-insights-v1'
+
+class ViewerStatus(TypedDict):
+    service: str
+    implementation: str
+    token: str
+    pid: int
+    interval: float
+
+
+HOST, PORT = "127.0.0.1", 9001
+ORIGIN = "https://ui.perfetto.dev"
+SERVICE = "agentic-workflow-insights-v1"
 # /status belongs to Perfetto's native RPC probe; it must remain a 404 here.
-STATUS_PATH = '/__agentic_workflow_trace_viewer__'
+STATUS_PATH = "/__agentic_workflow_trace_viewer__"
 
 
-def viewer_url(token):
-    return f'http://{HOST}:{PORT}/{token}/'
+def viewer_url(token: str) -> str:
+    return f"http://{HOST}:{PORT}/{token}/"
 
 
-def perfetto_url(token):
-    source = f'http://{HOST}:{PORT}/{token}/timeline.json'
-    return f'{ORIGIN}/#!/?url={quote(source, safe="")}&referrer=agentic-workflow'
+def perfetto_url(token: str) -> str:
+    source = f"http://{HOST}:{PORT}/{token}/timeline.json"
+    return f"{ORIGIN}/#!/?url={quote(source, safe='')}&referrer=agentic-workflow"
 
 
 @dataclass(frozen=True)
@@ -74,118 +87,151 @@ class Snapshot:
 class Viewer(ThreadingHTTPServer):
     daemon_threads = True
 
-    def __init__(self, root, interval):
+    def __init__(self, root: Path, interval: float) -> None:
         self.root = root
         self.interval = interval
-        self.snapshot = None
+        self.snapshot: Snapshot | None = None
         self.initial_collection = threading.Event()
         self.token = secrets.token_hex(16)
         super().__init__((HOST, PORT), Handler)
 
-    def collect(self):
+    def collect(self) -> Report:
         bundle = refresh(self.root)
-        self.publish(bundle, datetime.now(timezone.utc).isoformat(timespec='seconds'))
+        self.publish(bundle, datetime.now(timezone.utc).isoformat(timespec="seconds"))
         return bundle.usage
 
-    def publish(self, bundle, refreshed, error=None):
-        page = render(bundle.usage, perfetto_url(self.token) if bundle.timeline_available else None,
-                      interval=self.interval, refreshed=refreshed, error=error, content=bundle.content)
+    def publish(self, bundle: ReportBundle, refreshed: str, error: str | None = None) -> None:
+        page = render(
+            bundle.usage,
+            perfetto_url(self.token) if bundle.timeline_available else None,
+            interval=self.interval,
+            refreshed=refreshed,
+            error=error,
+            content=bundle.content,
+        )
         # Published bundles are never mutated. Each request captures one snapshot.
         self.snapshot = Snapshot(bundle, page.encode(), refreshed)
 
 
 class Handler(BaseHTTPRequestHandler):
-    def log_message(self, *_args):
+    server: Viewer
+
+    def log_message(self, format: str, *args: object) -> None:
         pass
 
-    def reply(self, code, data=b'', content_type='application/json'):
+    def reply(self, code: int, data: bytes = b"", content_type: str = "application/json") -> None:
         self.send_response(code)
-        self.send_header('Content-Type', content_type)
-        self.send_header('Content-Length', str(len(data)))
-        self.send_header('Cache-Control', 'no-store')
-        self.send_header('Referrer-Policy', 'no-referrer')
-        self.send_header('X-Content-Type-Options', 'nosniff')
-        self.send_header('Access-Control-Allow-Origin', ORIGIN)
-        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
-        self.send_header('Access-Control-Allow-Private-Network', 'true')
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Access-Control-Allow-Origin", ORIGIN)
+        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Private-Network", "true")
         self.end_headers()
         self.wfile.write(data)
 
-    def allowed(self):
-        return (self.headers.get('Host') == f'{HOST}:{PORT}' and
-                self.headers.get('Origin') in (None, ORIGIN))
+    def allowed(self) -> bool:
+        return self.headers.get("Host") == f"{HOST}:{PORT}" and self.headers.get("Origin") in (
+            None,
+            ORIGIN,
+        )
 
-    def do_OPTIONS(self):
+    def do_OPTIONS(self) -> None:
         self.reply(204 if self.allowed() else 403)
 
-    def do_GET(self):
+    def do_GET(self) -> None:
         if not self.allowed():
             self.reply(403)
         elif self.path == STATUS_PATH:
-            self.reply(200, json.dumps(dict(service=SERVICE, implementation=str(self.server.root),
-                                           token=self.server.token, pid=os.getpid(),
-                                           interval=self.server.interval)).encode())
-        elif self.path in (f'/{self.server.token}/', f'/{self.server.token}/usage.json',
-                           f'/{self.server.token}/timeline.json', f'/{self.server.token}/events.json'):
+            self.reply(
+                200,
+                json.dumps(
+                    dict(
+                        service=SERVICE,
+                        implementation=str(self.server.root),
+                        token=self.server.token,
+                        pid=os.getpid(),
+                        interval=self.server.interval,
+                    )
+                ).encode(),
+            )
+        elif self.path in (
+            f"/{self.server.token}/",
+            f"/{self.server.token}/usage.json",
+            f"/{self.server.token}/timeline.json",
+            f"/{self.server.token}/events.json",
+        ):
             # Identity is available while initial collection waits on the
             # implementation lock, but pages must wait for its first result.
             self.server.initial_collection.wait()
             snapshot = self.server.snapshot
             if snapshot is None:
                 self.reply(503)
-            elif self.path.endswith('/'):
-                self.reply(200, snapshot.html, 'text/html; charset=utf-8')
+            elif self.path.endswith("/"):
+                self.reply(200, snapshot.html, "text/html; charset=utf-8")
             else:
-                self.reply(200, snapshot.bundle.files[self.path.rsplit('/', 1)[1]])
+                self.reply(200, snapshot.bundle.files[self.path.rsplit("/", 1)[1]])
         else:
             self.reply(404)
 
 
-def existing_viewer(root):
+def existing_viewer(root: Path) -> ViewerStatus:
     """Check identity before reusing a listener; never kill a port occupant."""
     opener = build_opener(ProxyHandler({}))
     for _ in range(10):
         try:
-            with opener.open(f'http://{HOST}:{PORT}{STATUS_PATH}', timeout=.2) as response:
+            with opener.open(f"http://{HOST}:{PORT}{STATUS_PATH}", timeout=0.2) as response:
                 status = json.loads(response.read(8192))
-            if (status.get('service') == SERVICE and status.get('implementation') == str(root)
-                    and re.fullmatch(r'[0-9a-f]{32}', status.get('token', ''))):
-                return status
+            if (
+                status.get("service") == SERVICE
+                and status.get("implementation") == str(root)
+                and re.fullmatch(r"[0-9a-f]{32}", status.get("token", ""))
+            ):
+                return cast(ViewerStatus, status)
             break
         except (OSError, ValueError, AttributeError, TypeError):
-            time.sleep(.1)  # A concurrently starting viewer may not yet be serving.
-    raise ValueError(f'Port {PORT} is occupied by another process, implementation or older viewer; stop that viewer before retrying.')
+            time.sleep(0.1)  # A concurrently starting viewer may not yet be serving.
+    raise ValueError(
+        f"Port {PORT} is occupied by another process, implementation or older viewer; stop that viewer before retrying."
+    )
 
 
-def open_browser(url):
-    print(f'Agent insights: {url}', flush=True)
-    print('Use “Open timeline in Perfetto” for timing; allow local-device access if prompted.', flush=True)
+def open_browser(url: str) -> None:
+    print(f"Agent insights: {url}", flush=True)
+    print(
+        "Use “Open timeline in Perfetto” for timing; allow local-device access if prompted.",
+        flush=True,
+    )
     try:
         opened = webbrowser.open(url, new=0)
     except (OSError, webbrowser.Error):
         opened = False
     if not opened:
-        print('Browser launch unavailable. Open the dashboard URL above on this machine.', flush=True)
+        print(
+            "Browser launch unavailable. Open the dashboard URL above on this machine.", flush=True
+        )
 
 
-def positive_interval(value):
+def positive_interval(value: str) -> float:
     try:
         interval = float(value)
     except ValueError:
-        raise argparse.ArgumentTypeError('interval must be positive and finite') from None
+        raise argparse.ArgumentTypeError("interval must be positive and finite") from None
     if not math.isfinite(interval) or interval <= 0:
-        raise argparse.ArgumentTypeError('interval must be positive and finite')
+        raise argparse.ArgumentTypeError("interval must be positive and finite")
     return interval
 
 
-def wait_interval(interval):
+def wait_interval(interval: float) -> None:
     # Bound individual sleeps so even very large finite intervals are supported.
     started = time.monotonic()
     while (remaining := interval - (time.monotonic() - started)) > 0:
         time.sleep(min(remaining, 3600))
 
 
-def run(root, interval=5):
+def run(root: Path, interval: float = 5) -> None:
     root = Path(root).resolve()
     try:
         server = Viewer(root, interval)
@@ -193,9 +239,12 @@ def run(root, interval=5):
         if exc.errno != errno.EADDRINUSE:
             raise
         status = existing_viewer(root)
-        print(f'Reusing the running viewer (interval {status["interval"]:g}s). '
-              'Restart the owning viewer to change its interval.', flush=True)
-        open_browser(viewer_url(status['token']))
+        print(
+            f"Reusing the running viewer (interval {status['interval']:g}s). "
+            "Restart the owning viewer to change its interval.",
+            flush=True,
+        )
+        open_browser(viewer_url(status["token"]))
         return
     with server:
         worker = threading.Thread(target=server.serve_forever, daemon=True)
@@ -204,13 +253,25 @@ def run(root, interval=5):
             # Initial failures remain command errors; only the owner collects.
             report = server.collect()
             server.initial_collection.set()
-            print(f'Refreshed {report["implementation_id"]}: {root / "reports"}', flush=True)
-            if not report['summary']['observed_model_measurements'] and not report['summary']['observed_tool_calls']:
-                print('No imported execution observations in this report; the viewer cannot reconstruct missing native evidence.', flush=True)
-            if report['summary']['coverage']:
-                print('Coverage: ' + json.dumps(report['summary']['coverage'], sort_keys=True), flush=True)
-            print(f'Serving agent insights locally; refreshing every {interval:g}s after collection. '
-                  'Ctrl+C stops collection and serving.', flush=True)
+            print(f"Refreshed {report['implementation_id']}: {root / 'reports'}", flush=True)
+            if (
+                not report["summary"]["observed_model_measurements"]
+                and not report["summary"]["observed_tool_calls"]
+            ):
+                print(
+                    "No imported execution observations in this report; the viewer cannot reconstruct missing native evidence.",
+                    flush=True,
+                )
+            if report["summary"]["coverage"]:
+                print(
+                    "Coverage: " + json.dumps(report["summary"]["coverage"], sort_keys=True),
+                    flush=True,
+                )
+            print(
+                f"Serving agent insights locally; refreshing every {interval:g}s after collection. "
+                "Ctrl+C stops collection and serving.",
+                flush=True,
+            )
             open_browser(viewer_url(server.token))
             while True:
                 wait_interval(interval)
@@ -218,30 +279,44 @@ def run(root, interval=5):
                     server.collect()
                 except (OSError, ValueError, KeyError, TypeError) as exc:
                     previous = server.snapshot
-                    server.publish(previous.bundle, previous.refreshed, 'Refresh failed; retrying on the next cycle.')
-                    print(f'trace-view: refresh failed: {exc}', flush=True)
+                    assert previous is not None
+                    server.publish(
+                        previous.bundle,
+                        previous.refreshed,
+                        "Refresh failed; retrying on the next cycle.",
+                    )
+                    print(f"trace-view: refresh failed: {exc}", flush=True)
         finally:
             server.initial_collection.set()
             server.shutdown()
             worker.join()
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('implementation', type=Path, help='existing implementation directory')
-    parser.add_argument('--interval', type=positive_interval, default=5,
-                        metavar='SECONDS', help='collection and browser poll interval (default: 5; restart viewer to change)')
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("implementation", type=Path, help="existing implementation directory")
+    parser.add_argument(
+        "--interval",
+        type=positive_interval,
+        default=5,
+        metavar="SECONDS",
+        help="collection and browser poll interval (default: 5; restart viewer to change)",
+    )
     args = parser.parse_args()
-    def stop(_signum, _frame):
+
+    def stop(_signum: int, _frame: FrameType | None) -> NoReturn:
         raise KeyboardInterrupt
+
     signal.signal(signal.SIGTERM, stop)
     try:
         run(args.implementation, args.interval)
     except KeyboardInterrupt:
-        print('\nViewer stopped.', flush=True)
+        print("\nViewer stopped.", flush=True)
     except (OSError, ValueError, KeyError, TypeError) as exc:
-        parser.exit(2, f'trace-view: {exc}\n')
+        parser.exit(2, f"trace-view: {exc}\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

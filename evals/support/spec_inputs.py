@@ -1,13 +1,14 @@
 """Select specification bundles and capture their local review references."""
 
 import os
-from pathlib import Path
 import re
 import shutil
+from collections.abc import Iterator
+from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 from . import runtime
-
+from .models import Check, Inputs
 
 REFERENCES = (
     "agentic-workflow/templates/project.md",
@@ -21,17 +22,25 @@ REFERENCES = (
     "agentic-workflow/policies/GUIDELINES.md",
 )
 
-def select_bundles(root, bundle):
+
+def select_bundles(root: Path, bundle: str | None) -> list[Path]:
     directory = root / "specs"
     if bundle is not None:
         selected = root / bundle
-        if (not selected.resolve().is_relative_to(directory.resolve())
-                or selected.resolve().parent != directory.resolve()
-                or selected.is_symlink() or not selected.is_dir()):
+        if (
+            not selected.resolve().is_relative_to(directory.resolve())
+            or selected.resolve().parent != directory.resolve()
+            or selected.is_symlink()
+            or not selected.is_dir()
+        ):
             raise runtime.RunnerError(f"Select a bundle directory directly under specs/: {bundle}")
         bundles = [selected]
     else:
-        bundles = sorted(path for path in directory.iterdir() if path.is_dir()) if directory.is_dir() else []
+        bundles = (
+            sorted(path for path in directory.iterdir() if path.is_dir())
+            if directory.is_dir()
+            else []
+        )
     if not bundles:
         raise runtime.RunnerError("No bundle directories under specs/")
     for path in bundles:
@@ -40,36 +49,49 @@ def select_bundles(root, bundle):
     return bundles
 
 
-def document_links(text):
+def document_links(text: str) -> Iterator[str]:
     """Read inline and reference-style Markdown destinations outside code fences."""
     text = re.sub(r"(?ms)^\s*(`{3,}|~{3,})[^\n]*\n.*?^\s*\1\s*$", "", text)
-    pattern = r'\]\(\s*(<[^>]+>|[^\s)]+)(?:\s+[^)]*)?\)|^\s*\[[^\]]+\]:\s*(<[^>]+>|\S+)'
+    pattern = r"\]\(\s*(<[^>]+>|[^\s)]+)(?:\s+[^)]*)?\)|^\s*\[[^\]]+\]:\s*(<[^>]+>|\S+)"
     for match in re.finditer(pattern, text, re.MULTILINE):
         yield (match[1] or match[2]).strip("<>")
 
 
-def excluded_path(relative):
-    return (bool(relative.parts) and relative.parts[0] in ("apps", ".agentic-workflow", ".git")
-            or any(part in ("__pycache__", ".venv", "node_modules") for part in relative.parts))
+def excluded_path(relative: Path) -> bool:
+    return (
+        bool(relative.parts)
+        and relative.parts[0] in ("apps", ".agentic-workflow", ".git")
+        or any(part in ("__pycache__", ".venv", "node_modules") for part in relative.parts)
+    )
 
 
-def capture(root, destination, bundle):
+def capture(root: Path, destination: Path, bundle: str | None) -> Inputs:
     """Copy current bundle files and the transitive closure of local source links."""
     bundles = select_bundles(root, bundle)
     destination.mkdir(parents=True)
-    excluded = ["Application outputs (apps/), project memory and execution history (.agentic-workflow/) are excluded."]
-    checks = []
+    excluded = [
+        "Application outputs (apps/), project memory and execution history (.agentic-workflow/) are excluded."
+    ]
+    checks: list[Check] = []
     visited = set()
     pending = [(Path(relative), "required review reference") for relative in REFERENCES]
-    for bundle in bundles:
-        pending.extend((path.relative_to(root), "selected bundle")
-                       for path in sorted(bundle.rglob("*")) if path.is_file() or path.is_symlink())
+    for selected_bundle in bundles:
+        pending.extend(
+            (path.relative_to(root), "selected bundle")
+            for path in sorted(selected_bundle.rglob("*"))
+            if path.is_file() or path.is_symlink()
+        )
 
-    def unavailable(location, reason):
+    def unavailable(location: str, reason: str) -> None:
         message = f"{location}: {reason}"
         excluded.append(message)
-        checks.append({"contract": "agentic-workflow/policies/BUNDLE.md — resolve requirement links and required source documents",
-                       "status": "UNCLEAR", "evidence": message + "; provide the required reference and rerun the review."})
+        checks.append(
+            {
+                "contract": "agentic-workflow/policies/BUNDLE.md — resolve requirement links and required source documents",
+                "status": "UNCLEAR",
+                "evidence": message,
+            }
+        )
 
     while pending:
         relative, origin = pending.pop(0)
@@ -85,7 +107,11 @@ def capture(root, destination, bundle):
         if excluded_path(relative):
             unavailable(origin, f"excluded reference: {relative}")
             continue
-        if any(parent.is_symlink() for parent in (path, *path.parents) if parent != root and parent.is_relative_to(root)):
+        if any(
+            parent.is_symlink()
+            for parent in (path, *path.parents)
+            if parent != root and parent.is_relative_to(root)
+        ):
             unavailable(origin, f"symlink reference: {relative}")
             continue
         if not path.exists():
@@ -109,9 +135,10 @@ def capture(root, destination, bundle):
                 continue
             if url.path:
                 pending.append((relative.parent / unquote(url.path), f"{relative} -> {link}"))
-    evidence = {"bundles": [str(path.relative_to(root)) for path in bundles],
-                "excluded_inputs": excluded, "checks": checks}
+    evidence: Inputs = {
+        "bundles": [str(path.relative_to(root)) for path in bundles],
+        "excluded_inputs": excluded,
+        "checks": checks,
+    }
     runtime.write_json(destination / "snapshot-references.json", evidence)
     return evidence
-
-
