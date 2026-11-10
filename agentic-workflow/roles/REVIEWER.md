@@ -1,13 +1,16 @@
 # Reviewer
 
+Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling](../policies/RECORDS.md#hand-off-work).
+
 ## Review a task
 
 - Context:
-  - Read [AGENTS.md](../AGENTS.md), [Checks](../policies/CHECKS.md) and [Records](../policies/RECORDS.md).
+  - Instructions: read [AGENTS.md](../AGENTS.md), [Checks](../policies/CHECKS.md) and [Records](../policies/RECORDS.md).
 - Inputs:
-  - Requirements, acceptance, candidate and permitted evidence.
-  - Supervisor confirms review boundary paused.
+  - Assignment, Project specification, assigned Task specification, applicable Contracts and Verification, Implementation, Acceptance.
+  - When available: prior Evidence and Result permitted by Checks.
 - Effects:
+  - Wait for Supervisor confirmation that affected writers are paused.
   - Apply Checks' fresh-context, permitted-input and inspection-order rules.
   - Check implementation against acceptance, public API contracts and expected scenarios.
   - Check code and acceptance against every applicable requirement.
@@ -27,10 +30,10 @@
   - Keep requirements and code unchanged.
   - Report candidate changes to Implementer and Supervisor.
   - Apply Checks' recheck rules.
-  - Save the [result](../templates/result.md).
+  - Save and return the result under [Records](../policies/RECORDS.md#return-work).
   - Report blockers promptly.
 - Outputs:
-  - Result and available usage paths.
+  - Evidence and Result.
   - Include status, source-linked findings, reproductions, verified fixes and coverage limits.
   - Identify public API contract defects and test gaps.
 - Next:

@@ -68,7 +68,7 @@ Keep customizations outside the package:
 For routing overrides, copy [MODELS.md](policies/MODELS.md) to the path above and
 edit the complete policy under its [routing-source rules](policies/MODELS.md#routing-source).
 
-Retain the package layout: root `AGENTS.md`, `WORKFLOW.md` and `README.md`, plus
+Retain the package layout: root `AGENTS.md`, `GLOSSARY.md`, `WORKFLOW.md` and `README.md`, plus
 `roles/`, `policies/`, `guides/`, `templates/`, `helpers/` and `tests/`.
 Source-repository evals, example specs, generated apps, research, Makefile and
 integration tests stay outside the copy boundary.

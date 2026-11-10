@@ -63,7 +63,8 @@ Apply to independent review and validation.
 
 - Start with a fresh context and no inherited conversation.
 - Choose checks from original requirements and guidelines before reading acceptance or code.
-- Limit inputs to requirements, applicable acceptance, candidate work, factual results, contracts, justified guideline exceptions and prior findings.
+- Limit inputs to Instructions, Assignment, Project specification, Task specifications, Task order, applicable Contracts, Verification, Acceptance, Implementation, Evidence and Results.
+- Pass only factual portions of Results and Evidence, including justified guideline exceptions and prior findings.
 - Allow focused mock justifications as review inputs.
 - Assess mock justifications independently.
 - Exclude plans, implementation suggestions, conversations, project memory, design explanations and claims of correctness.

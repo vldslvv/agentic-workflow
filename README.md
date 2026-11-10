@@ -25,6 +25,9 @@ The repository also contains optional role wrappers in `.agents/skills/`, exampl
 bundles in `specs/`, applications in `apps/`, evaluation tooling in `evals/` and
 integration tests in `tests/`.
 
+For proposed formal checks of workflow consistency, ambiguity and recovery, read
+the [formal verification proposal](docs/formal-verification.md).
+
 ## Roles
 
 Each role has a focused responsibility within the [workflow](agentic-workflow/WORKFLOW.md).

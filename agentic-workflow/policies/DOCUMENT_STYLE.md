@@ -10,13 +10,14 @@ Source code, code comments and docstrings are outside this policy's scope.
 - Keep related details together when the rule remains short.
 - Use bullets for rules and numbered lists only for action sequences.
 - Separate procedural sections from guideline sections.
-- Link to each shared policy rule's authoritative home instead of repeating it.
+- Link to each shared policy rule’s authoritative home except in the self-contained workflow contract.
 
 ## Workflow contract
 
 Apply when changing workflow behavior or its documentation.
 
 - Treat [WORKFLOW.md](../WORKFLOW.md) as the authoritative source of workflow behavior.
+- Keep it self-contained without references to other documents.
 - Update it whenever workflow behavior changes.
 - Express changes as brief statements of core responsibilities and outcomes.
 - Keep procedures, state formats and implementation details in role documents or policies.

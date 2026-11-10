@@ -1,223 +1,241 @@
 # Implementation workflow
 
-This document defines the workflow's core behavior; role documents and policies provide the execution details.
+This document is the source of truth for how the system works.
+It defines responsibilities, inputs, outputs, decisions and transitions independently
+of the documents that provide execution instructions.
+
+## Shared responsibilities
+
+Apply to every role and handoff.
+
+- Follow applicable Instructions and the authorized Assignment.
+- Give every worker an Assignment stating objective, selected scope, task mode, target, record location and ownership constraints.
+- Pass named inputs by path and read them before planning, editing or checking.
+- Let each output owner create its record directories before saving outputs.
+- Preserve approved requirements and history during corrections.
+- Obtain user authority before changing required behavior.
+- Save a Result containing status, completed scope, Evidence references, findings, limits and unfinished work.
+- Return a short status, Result path and any required decision or blocker.
+- Preserve Results and Evidence when finished, blocked, cancelled or limited.
+- Select worker settings from the applicable model routing Instructions independently of task mode.
+- Record requested and observed settings separately and report unsupported controls.
+- Capture available native execution and usage information without blocking acceptance for missing telemetry.
+- Keep project specifications, Implementation, Memory and execution records outside the workflow package.
 
 ## Author documents — when requested
 
-- Context: [PLANNER.md](roles/PLANNER.md), authorized brief and sources.
-- Inputs: requested documents, target paths, relevant code and accepted contracts.
+- Context: Planner applies Instructions for the authorized document work.
+- Inputs:
+  - Assignment.
+  - Relevant existing Project specification, Task specifications, Task order, Contracts, Verification, Plan, Acceptance or Instructions.
+  - Implementation and prior Result when applicable.
+  - Memory for ordinary work.
 - Effects:
-  - Planner writes requested documents.
-  - Planner defines component boundaries and shared interaction contracts.
-  - Planner checks document validity.
-  - Acceptance maps required behavior and contracts to concrete checks under [Checks](policies/CHECKS.md).
-  - For workflow changes, check behavior, role reading paths and package validity.
-  - Preserve approved history.
+  - Planner authors the requested specification types, Plan, Acceptance or Instructions.
+  - Define component boundaries and shared Contracts where required.
+  - Map Acceptance to original requirements, Contract guarantees and observable check scenarios.
+  - Check coverage, consistency, dependencies, links and observable pass criteria.
+  - Report unresolved requirements and unavailable checks.
+  - For workflow maintenance, check preserved behavior, complete role reading paths and package validity.
 - Outputs:
-  - Document paths, blockers and check gaps.
-  - Report document validity and generation readiness separately.
-- Next:
-  - Stop before execution.
-  - App setup and review are not prerequisites.
-  - Implementation needs authorization under [BUNDLE.md](policies/BUNDLE.md).
+  - Requested Project specification, Task specifications, Task order, Contracts, Verification, Plan, Acceptance or Instructions.
+  - Result reporting document validity and generation readiness separately.
+  - Memory when useful lessons are saved.
+- Next: stop before implementation unless separately authorized.
 
-## Start Supervisor
+## Coordinate implementation
 
-- Context:
-  - [SUPERVISOR.md](roles/SUPERVISOR.md), project files, [BUNDLE.md](policies/BUNDLE.md), [RECORDS.md](policies/RECORDS.md).
-  - All roles apply [AGENTS.md](AGENTS.md) and [model routing](policies/MODELS.md).
-- Inputs: spec directory or identified continuation.
+- Context: Supervisor applies Instructions and reads subordinate input/output contracts.
+- Inputs:
+  - Assignment, Project specification, Task specifications, Task order, Contracts and Verification.
+  - Results, Evidence and Execution state when available.
+  - Memory index for ordinary work.
 - Effects:
-  - Resolve work.
-  - Stop on `NO_PROJECT`, `NO_WORK` or blocked inputs.
-  - Start initial work at new paths.
-  - Extend selected code for incremental work.
-  - Reconcile existing implementations against revised specifications before dispatch.
-  - Allocate or resume records before dispatch.
-  - Capture native turns through explicit host identities and report unavailable telemetry.
-  - Supervisor records its own orchestration assignment before dispatch.
-  - Assign task IDs before dispatch.
-  - Supervisor maintains an execution state.
-  - Record modes, interfaces, file owners, worker handles and output paths.
-  - Include shared configuration ownership.
-  - Choose modes independently of models.
-  - Use plan-review for required planning/review, complexity or uncertainty.
-  - Use direct for simple, bounded tasks with clear criteria.
-  - Honor user/source requirements.
-  - Block on conflicts.
-  - For existing-project tasks, Supervisor requires Implementers to read task-scoped code, tests and project instructions before planning or editing.
-  - Dispatch tasks with accepted prerequisites.
-  - Run ready tasks concurrently within capacity.
-  - Reserve Reviewer capacity.
-  - Break ties by table order.
-  - Blocked tasks do not hold unrelated work.
-- Outputs: accepted task results or blockers.
+  - Supervisor resolves the authorized scope, target and task prerequisites.
+  - Stop when no project or work is selected, or required inputs are missing or ambiguous.
+  - Reject missing tasks, unknown dependencies and dependency cycles.
+  - Select tasks with their prerequisites and require current Evidence for accepted prerequisites.
+  - Allocate records for new work and resolve existing task records for continuations.
+  - Record Supervisor’s orchestration assignment and assign task IDs before dispatch.
+  - Start initial Implementation at new paths and extend the selected Implementation for incremental work.
+  - Reconcile revised specifications and recover continuations before dispatch.
+  - Maintain Execution state for task status, mode, workspace, ownership, worker handles, acceptance and continuation.
+  - Track final validation and unfinished repair publication separately from task acceptance.
+  - Honor explicit task modes and block unresolved conflicts.
+  - Use `plan-review` for required planning/review, complexity or uncertainty.
+  - Use `direct` for simple bounded tasks with clear criteria.
+  - Dispatch ready tasks with accepted prerequisites concurrently within capacity reserved for review and validation.
+  - Break scheduling ties by Task order table order.
+  - Resolve overlapping ownership, shared configuration ownership and Contract changes before edits.
+  - Return affected Plans, Acceptance, checks and reviews to their owners.
+  - Let unrelated work continue when a task is blocked or writers are paused elsewhere.
+- Outputs: Assignments, Execution state and Result.
 
-## Reconcile an existing implementation
+## Implement a task
 
-- Context: requested updates or repairs against revised specifications under [SUPERVISOR.md](roles/SUPERVISOR.md#reconcile-an-existing-implementation).
-- Inputs: current specifications, existing implementation and available evidence.
+- Context: Implementer applies Instructions and retains task ownership through corrections.
+- Inputs:
+  - Assignment, Project specification, assigned Task specification, applicable Contracts and Verification, Implementation.
+  - Prior Result and existing Plan and Acceptance when continuing.
+  - Memory for ordinary work.
 - Effects:
-  - Supervisor reopens affected tasks and coordinates implementation and checks.
-  - Preserve unaffected work and applicable acceptance evidence.
-  - Preserve previous results under [Records](policies/RECORDS.md).
-- Outputs: updated implementation and current acceptance evidence, or blockers.
-- Next: validate the assembled app and repair remaining failures through the existing validation loop.
-
-## Spawn Implementer — per task
-
-- Context: [IMPLEMENTER.md](roles/IMPLEMENTER.md), task sources, accepted contracts.
-- Inputs: assignment, mode, candidate, owned files.
-- Effects:
-  - Supervisor spawns Implementer in a fresh session.
-  - Use handoff rules in [RECORDS.md](policies/RECORDS.md).
-  - Implementer reads inputs.
-  - Implementer agrees on scope and file ownership with Supervisor before concurrent edits.
-  - Supervisor resolves overlaps and interface changes before edits.
-  - Return affected plans/checks/reviews to owners.
-  - Plan-review: write plan and source-linked acceptance before code.
-  - Plan-review: include public API contracts and test scenarios under [Checks](policies/CHECKS.md).
-  - Direct: use source criteria.
-  - Direct: skip plan, separate acceptance and review.
+  - Supervisor starts a fresh Implementer per new task without inherited conversation.
+  - Implementer agrees on scope and file ownership before concurrent edits.
+  - In `plan-review`, write Plan and source-linked Acceptance before Implementation.
+  - Include public API Contracts and expected test scenarios in Acceptance.
+  - In `direct`, implement and check source criteria without separate Plan, Acceptance or task review.
   - Keep the assigned mode.
-  - Implement the task.
-  - Check requirements and regressions.
-  - Inspect the diff.
-  - Record mock justifications for Reviewer under Checks.
-  - Fix defects.
-  - Rerun affected checks.
-  - Preserve approved originals.
+  - Implementer checks requirements and regressions, inspects the diff, records Evidence and fixes defects.
+  - Rerun checks affected by corrections.
 - Outputs:
-  - Candidate, evidence, task result.
-  - Plan-review mode adds plan and acceptance.
+  - Implementation, Evidence and Result.
+  - Plan and Acceptance in `plan-review`.
+  - Memory when useful lessons are saved.
 - Next:
-  - Plan-review → review.
-  - Direct → accept.
+  - In `plan-review`, Implementer leads independent review.
+  - In `direct`, return Result to Supervisor for acceptance.
 
-## Spawn Reviewer — plan-review mode
+## Review a plan-review task
 
-- Context:
-  - [REVIEWER.md](roles/REVIEWER.md), requirements, acceptance, candidate, factual evidence.
-  - Apply independent-check rules in [CHECKS.md](policies/CHECKS.md).
+- Context: Implementer reads Reviewer’s input/output contract and Supervisor controls writer pauses.
 - Inputs:
-  - Checked candidate and agreed review boundary.
-  - Supervisor confirms affected writers paused.
+  - Assignment, Project specification, assigned Task specification, applicable Contracts and Verification, Implementation, Acceptance.
+  - Permitted prior Evidence and Result when available.
 - Effects:
-  - Implementer launches fresh Reviewer.
-  - Pass mock justifications with check evidence.
-  - Reviewer checks code against acceptance criteria.
-  - Reviewer checks code and acceptance against requirements.
-  - Focus on public API contracts and their unit/integration tests.
-  - Assess internal tests and mocks by their value under Checks.
-  - Check expected scenario coverage, test quality and prior fixes.
-  - Run relevant checks.
-  - Reproduce findings where feasible.
-  - Keep requirements and code unchanged.
-  - Report candidate changes to Implementer and Supervisor.
-  - Apply Checks' recheck rules.
-- Outputs: result, source-linked findings, reproductions, verified fixes and coverage gaps.
+  - Implementer agrees on the review boundary with Supervisor.
+  - Supervisor confirms affected writers paused before Implementer starts a fresh Reviewer.
+  - Reviewer checks Implementation and Acceptance against every applicable requirement, Contract and expected scenario.
+  - Check omissions, weakened expectations, unjustified constraints, interactions and unintended changes.
+  - Assess test coverage, independent expected outcomes, mock justifications and prior fixes.
+  - Run relevant checks and reproduce findings where feasible.
+  - Keep requirements and Implementation unchanged.
+  - Return source-linked findings, reproductions, verified fixes and coverage limits to Implementer.
+  - Implementer reports review completion to Supervisor.
+  - Supervisor explicitly releases paused writers before corrections.
+- Outputs: Evidence and Result.
 - Next:
-  - Implementer reports review completion.
-  - Wait for Supervisor's explicit release before writing.
-  - Return findings to the same Implementer.
-  - Implementer fixes findings.
-  - Implementer reruns affected checks.
-  - Implementer repeats fresh review.
-  - Pass → task result and acceptance.
+  - The same Implementer corrects actionable findings, reruns affected checks and repeats fresh review.
+  - After review passes, Implementer returns Result to Supervisor for acceptance.
 
-## Accept task — Supervisor
+## Check and accept work
 
-- Context: [CHECKS.md](policies/CHECKS.md).
-- Inputs: task result, mode, required evidence.
-- Effects:
-  - Pass unlocks dependents.
-  - Return defects to the same Implementer for correction.
-- Outputs:
-  - Acceptance or findings.
-  - Reassess affected downstream evidence.
-- Next:
-  - Ready tasks → implement.
-  - All accepted → validate.
-  - All remaining blocked → stop.
+Apply to check preparation, independent checks and acceptance decisions.
 
-## Spawn Validator — Supervisor
+- Derive checks from original requirements, including normal use, boundaries, failures, interactions and lifecycle guarantees.
+- Check public API Contracts and use unit and integration tests where they cover distinct risks.
+- Run required manual checks and checks against real dependencies.
+- Assess internal tests and mocks by the failures they detect and record mock justifications and coverage limits.
+- Reject production hooks added only for tests.
+- Start every independent review and validation with a fresh context and no inherited conversation.
+- Choose independent checks from requirements and Instructions before reading Acceptance or Implementation.
+- Limit independent inputs to the assigned requirements, Contracts, Verification, applicable Acceptance, Implementation and factual Results and Evidence.
+- Permit focused mock justifications, justified guideline exceptions and prior findings as Evidence.
+- Exclude Plans, implementation suggestions, conversations, Memory, design explanations and claims of correctness from independent inputs, including copies in other files.
+- Keep the checked Implementation, dependencies, configuration and check inputs unchanged during independent checks.
+- Report changes during checking and repeat affected independent checks in a fresh context.
+- Require passing checks, adequate requirement coverage and no actionable findings for `PASS`.
+- Use `FAIL` for violated requirements or applicable rules and `BLOCKED` for unresolved requirements or unavailable required capabilities.
+- Report skipped checks as `NOT_RUN`, or `BLOCKED` when their absence prevents acceptance.
+- Block acceptance when required independent review has not run.
+- Supervisor reads saved task Results and required independent Results before accepting work.
+- Inspect detailed Evidence when Results are insufficient for the acceptance decision.
+- Return defects to the same Implementer and reassess affected downstream Evidence.
+- Unlock dependents only after Supervisor accepts their prerequisites.
+- Reassess affected acceptance when requirements, Instructions, dependencies or Implementation change.
+- Repeat successful checks only for relevant changes, failures, new concerns or required independent checks.
 
-- Context:
-  - [VALIDATOR.md](roles/VALIDATOR.md), requirements, acceptance, contracts, factual evidence.
-  - Apply independent-check rules in [CHECKS.md](policies/CHECKS.md).
+## Validate the assembled application
+
+- Context: Supervisor starts fresh validation after all selected tasks pass, in either task mode.
 - Inputs:
-  - Assembled candidate, exact task set and modes.
-  - Affected writers paused.
+  - Assignment, Project specification, selected Task specifications, Task order, applicable Contracts, Verification, Implementation, Results and Evidence.
+  - Acceptance for plan-review tasks.
 - Effects:
-  - After all selected tasks pass, Supervisor launches fresh Validator in either mode.
-  - Check final scenarios, interactions and real dependencies.
-  - Run required manual checks.
-  - Reproduce gaps where feasible.
-  - Keep the candidate unchanged.
+  - Supervisor confirms affected writers paused before starting Validator.
+  - Validator independently checks assembled-application scenarios, task interactions, real dependencies and required manual checks.
   - Use source criteria for direct tasks.
+  - Keep Implementation unchanged and reproduce gaps where feasible.
+  - Distinguish Plan or Acceptance defects, implementation failures and unresolved requirements.
+  - Publish a repair Task specification and update Task order after implementation failure.
+  - Supervisor releases writers after validation and routes the Result.
 - Outputs:
-  - Final result.
-  - Repair task for implementation failures.
+  - Evidence and Result.
+  - Repair Task specification and updated Task order after implementation failure.
 - Next:
-  - Supervisor releases writers.
-  - Supervisor routes the result below.
-  - Repeat fresh validation after accepted corrections.
-  - Obtain user authority for required behavior changes.
+  - Pass completes the validated scope.
+  - Plan or Acceptance defects return to original Implementers for affected task steps.
+  - Implementation failures go to a fresh Implementer through the task workflow.
+  - Missing capabilities or unresolved requirements block affected work.
+  - Corrections require affected checks, required fresh review and acceptance before fresh validation.
 
-| Result | Next |
-|---|---|
-| Pass | Finish |
-| Plan/acceptance defect | Original Implementers repeat affected task steps. |
-| Implementation failure | Follow repair publication below. |
-| Missing capability or unresolved requirement | Record blockers. |
+## Publish a repair
 
-## Publish repair — Validator
-
-- Context: [VALIDATOR.md](roles/VALIDATOR.md), [BUNDLE.md](policies/BUNDLE.md), [RECORDS.md](policies/RECORDS.md).
-- Inputs: failed validation, validated scope, bundle files and task rows.
+- Context: Validator publishes one repair per failed validation pass.
+- Inputs: Assignment, failed validation Result and Evidence, validated Task specifications, Task order and applicable requirements.
 - Effects:
-  - Publish one repair per failed pass.
-  - Include actionable findings and recheck details from the Validator procedure.
-  - Reserve the next unused `tasks/repair-NNN.md` across files and rows.
-  - Depend on all validated tasks, earlier repairs and other prerequisites.
-  - Save result, path and dependencies before publishing the repair and `task_order.md` row.
-  - Preserve existing specs and code.
-- Outputs: repair and dependency row, or blockers.
-- Next:
-  - Supervisor assigns repair to fresh Implementer through the task steps.
-  - On resume, Validator completes missing publication parts before dispatch.
-  - Recover dependencies from validated scope.
-  - Block on ambiguity or conflicts.
-  - Use a new number for each later failed pass.
+  - Reserve the next unused repair task number across existing Task specifications and Task order rows.
+  - Include all actionable findings, source requirements, expected and observed behavior, reproductions, scope and rechecks.
+  - Depend on every validated task, including earlier repairs, and any other required prerequisites.
+  - Save Result, reserved path and dependencies before publishing the repair Task specification and its Task order row.
+  - Preserve existing specifications and Implementation.
+  - On resume, complete only missing publication parts using the saved reservation and validated scope.
+  - Block on ambiguous dependencies or conflicting files and rows.
+  - Use a new repair number for each later failed validation pass.
+- Outputs: repair Task specification, updated Task order and Result recording publication or blockers.
+- Next: Supervisor dispatches the repair after publication is complete.
 
-## Finish, stop or resume
+## Reconcile and resume
 
-- Context: [RECORDS.md](policies/RECORDS.md).
-- Inputs: results, findings, current artifacts.
+- Context: Supervisor handles revised specifications and interrupted executions.
+- Inputs: Assignment, Implementation, current specifications, Task order, Contracts and Verification; saved Execution state, Results and Evidence when available.
 - Effects:
-  - Save results and evidence when finished, blocked, cancelled or limited.
-  - Apply each role's memory and usage rules.
-  - Report blockers promptly.
-  - Implementer and Validator report completion once.
-  - Supervisor builds usage reports when finished, blocked or requested.
-- Outputs:
-  - Final/partial result, accepted scope and unfinished work.
-  - Distinguish selected-scope from whole-app acceptance.
-- Resume:
-  - Supervisor recovers failed or interrupted runs idempotently using execution state.
-  - Reuse records and available owners.
-  - Reassess evidence.
-  - Finish repair publication before dispatch.
+  - Recover from saved files even when the original conversation is unavailable.
+  - Reconstruct dependencies from current Task order and reconcile saved status with files, Evidence and available workers.
+  - Reuse task IDs, workspaces, approved documents, records and available owners.
+  - Resolve uncertain ownership before allowing a replacement writer.
+  - Inspect existing effects before retrying interrupted operations.
+  - Reopen affected tasks and final validation when revised requirements or changed inputs invalidate their Evidence.
+  - Preserve unaffected work, current acceptance and previous Results.
+  - Give replacement workers only their role’s permitted inputs and continuation information.
+  - Have Validator finish incomplete repair publication before dispatch and refresh dependencies afterward.
+  - Save reconciled Execution state before resuming ready work.
+  - Avoid duplicate dispatch, repair publication and unnecessary checks when files and Evidence are unchanged.
+- Outputs: continuation Assignments, reconciled Execution state and Result.
+- Next: resume unfinished work with accepted prerequisites and resolved blockers, including outstanding validation.
 
-## Coordination guidelines
+## Reconstruct without prior implementation
 
-Apply while workers are active.
+- Context: every role uses a fresh context within the agreed reconstruction boundary.
+- Inputs: Assignment, approved requirements, Contracts, Acceptance, examples and explicitly reusable assets, data and services.
+- Effects:
+  - Use a new workspace and preserve the source workspace and historical Evidence.
+  - Exclude prior code, build products, repository history, old Plans, conversations, caches and all Memory, including copies.
+  - Inspect exported inputs and possible access paths for excluded material.
+  - Preserve expected outcomes, thresholds and fixtures while adapting checks to the new target.
+  - Test required isolation controls and block when enforced isolation is required but unavailable.
+  - Replace any worker that reads excluded material and withdraw reconstruction claims if prior code enters the workspace or worker context.
+  - Permit new reconstruction Plans and Implementation only where each role allows them.
+  - Follow the same implementation, independent review, acceptance and validation transitions.
+  - Resume only work from this reconstruction.
+- Outputs: Implementation, Evidence and Result reporting reused inputs, achieved separation and limits.
 
-- Supervisor manages worker thread cleanup and reserves capacity for independent checks.
-- Use native agent waits with the longest timeout compatible with required updates.
-- Keep waiting after timeouts.
-- Message for decisions or new information.
+## Memory, completion and worker lifetime
+
+Apply during ordinary work, coordination and shutdown.
+
+- Planner and Implementer read the Memory index and relevant entries during ordinary work.
+- Supervisor reads only the Memory index and forwards relevant paths without reading detailed entries.
+- Exclude Memory from Reviewer, Validator and every reconstruction role.
+- Prefer current requirements and repository facts over conflicting Memory.
+- Save only useful, source-backed lessons and merge duplicate or outdated notes.
+- Save worker Results before closing their threads.
+- Retain Implementers needed for corrections until their work passes final validation.
+- Close completed workers when corrections are no longer needed and record closed handles in Execution state.
+- Use native agent waits and continue waiting after timeouts while work remains active.
 - Inspect worker status or unfinished files only to resolve actionable uncertainty.
-- Supervisor pauses affected writers before review and validation.
-- Supervisor releases writers after review and validation.
-- Unrelated work may continue.
+- Save dispatch intent before launch, worker handles after launch and Execution state after returned Results and before stopping.
+- Save Results before recording their references or acceptance in Execution state.
+- Treat Execution state as a checkpoint to reconcile, rather than proof of acceptance.
+- Stop when all remaining tasks are blocked and report blockers promptly.
+- Supervisor distinguishes selected-scope from whole-application acceptance and identifies unfinished work.
+- Produce usage reports when finished, blocked or requested and report unavailable telemetry as a reporting limit.

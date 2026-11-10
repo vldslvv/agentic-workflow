@@ -1,11 +1,13 @@
 # Execution records
 
+Use the [shared vocabulary](../GLOSSARY.md) for Assignments and Results.
+
 ## Allocate or resume
 
 - Context: apply the [record guidelines](#record-guidelines) when saving, handing off or resuming work.
 - Inputs:
-  - New work: current brief or bundle and allowed memory.
-  - Resumed work: identified record paths.
+  - New work: Assignment and applicable specifications; Memory only where permitted.
+  - Resumed work: Assignment, prior Results and Execution state when available.
 - Effects:
   - For new work, run `python3 agentic-workflow/helpers/records.py allocate NAME` before starting tasks.
   - Look up resumed task IDs only in that implementation's immediate `tasks/` directory.
@@ -39,16 +41,16 @@ Capture failures appear on stderr without blocking allocation or resolution.
 ## Hand off work
 
 - Context: apply [Checks](CHECKS.md) and [Memory](MEMORY.md) when choosing what a recipient may read.
-- Inputs:
-  - Implementation root, task ID and mode.
-  - Entry points, role instructions and guideline paths.
-  - Allowed sources, work to check and evidence.
-  - Accepted contracts, agreed interfaces and file owners.
-  - Prior findings and an output path.
+- Inputs: Assignment, Instructions and the recipient role’s named inputs.
 - Effects:
+  - Have each output owner create its record directories before saving outputs, including direct tasks and validation.
+  - Pass the implementation directory path as `IMPLEMENTATION` for `resolve`, rather than its name.
   - Pass absolute paths or paths relative to a stated root.
   - Pass paths rather than document copies.
-  - Include plans and memory only when the recipient's role allows them.
+  - State the Assignment and pass the recipient’s named inputs, marking conditional inputs explicitly.
+  - Link role instructions for procedure and the selected model policy for routing.
+  - Include Plan and Memory only when the recipient’s role allows them.
+  - Have recipients read Instructions and assigned inputs before planning, editing or checking.
   - Search only for inputs still missing.
   - Keep worker handles and output paths for return handoffs.
   - Send implementation corrections through [Supervisor](../roles/SUPERVISOR.md).
@@ -57,7 +59,22 @@ Capture failures appear on stderr without blocking allocation or resolution.
   - Report owner replacements.
   - Include the assignment line below.
   - Have recipients repeat the assignment line in their own commentary.
-- Outputs: allowed input paths, recipient handle and assignment line.
+- Outputs: Assignment with allowed input paths and assignment line.
+
+Keep recipient handles and output paths in Execution state when coordinating tasks.
+
+## Return work
+
+Apply when a worker finishes, pauses for review or stops with unfinished work.
+
+- Save one Result using the [result template](../templates/result.md).
+- Include applicable Memory and usage paths.
+- Filter Results and Evidence for independent recipients under [Checks](CHECKS.md#independent-checks).
+- Return status, Result path and any decision or blocker in one short message.
+- Link changed files, check evidence and findings from the saved result.
+- Keep detailed command output in evidence files when needed.
+- Report only new facts in follow-up messages.
+- Preserve required evidence and unresolved findings when shortening results.
 
 ## Record guidelines
 
@@ -73,7 +90,7 @@ Apply to task documents, handoffs and results.
 - Use `plan.md` and `acceptance.md` for required task documents.
 - Follow the [plan](../templates/plan.md), [acceptance](../templates/acceptance.md) and [result](../templates/result.md) templates.
 - Preserve approved originals and their history in place.
-- Save one short result per role and run.
+- Follow [Return work](#return-work) for saved results and completion messages.
 - Link extra evidence and usage reports.
 - Keep failure and repair history.
 - Avoid routine manifests, checksum lists, duplicate summaries and repeated hash scans.

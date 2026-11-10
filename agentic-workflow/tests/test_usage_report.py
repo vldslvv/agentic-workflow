@@ -641,7 +641,8 @@ class TraceTests(unittest.TestCase):
         rows = [json.loads(r) for r in path.read_text().splitlines()]
         completed = [r for r in rows if r["payload"].get("type") == "task_complete"]
         path.write_text("".join(json.dumps(r) + "\n" for r in rows if r not in completed))
-        bundle = usage.refresh(self.root)
+        with patch("time.time", return_value=1793959210):
+            bundle = usage.refresh(self.root)
         report = bundle.usage
         self.assertEqual(report["summary"]["outcomes"], {"failed": 1, "returned": 1})
         self.assertEqual(report["summary"]["wrapper_calls"], 1)
@@ -662,14 +663,18 @@ class TraceTests(unittest.TestCase):
             )
 
         ongoing = exported(bundle)
-        self.assertEqual(ongoing["ph"], "B")
-        self.assertNotIn("dur", ongoing)
+        self.assertEqual(ongoing["ph"], "X")
+        self.assertEqual(ongoing["dur"], 10_000_000)
+        self.assertEqual(cast(dict[str, object], ongoing["args"])["elapsed_through"], 1793959210)
         self.assertIn("unfinished", str(ongoing["name"]))
         self.assertIsNone(agent["end"])
         self.assertIn(
             dict(event_id=agent["event_id"], reason="duration_unavailable"),
             bundle.content["timing_omissions"],
         )
+        with patch("time.time", return_value=1793959215):
+            refreshed = usage.refresh(self.root)
+        self.assertEqual(exported(refreshed)["dur"], 15_000_000)
         with path.open("a") as stream:
             stream.write("".join(json.dumps(r) + "\n" for r in completed))
         finished = usage.refresh(self.root)
@@ -953,7 +958,7 @@ class TraceTests(unittest.TestCase):
             ],
         )
         self.assertEqual(
-            query("SELECT count(*) AS n FROM slice WHERE category='agent' AND dur=-1"), [{"n": "1"}]
+            query("SELECT count(*) AS n FROM slice WHERE category='agent' AND dur=-1"), [{"n": "0"}]
         )
         # Perfetto's UI orders thread groups by this hint, then main-thread
         # priority, then tid. Query imported hints, not our JSON construction.
@@ -1084,7 +1089,8 @@ class TraceTests(unittest.TestCase):
             dict(base, kind="model", event_id="model", start=None, end=101.4, timestamp=101.4),
         ]
         trace = self.root / "timeline.json"
-        trace.write_text(json.dumps(usage.timeline(cast(list[Event], events))))
+        with patch("time.time", return_value=110):
+            trace.write_text(json.dumps(usage.timeline(cast(list[Event], events))))
 
         def query(sql: str) -> list[dict[str, str]]:
             result = subprocess.run(
@@ -1111,7 +1117,7 @@ class TraceTests(unittest.TestCase):
         )
         self.assertEqual(
             query("SELECT dur FROM slice WHERE EXTRACT_ARG(arg_set_id, 'args.event_id')='parent'"),
-            [{"dur": "-1"}],
+            [{"dur": "10000000000"}],
         )
         edges = query(
             "SELECT outgoing.name AS parent, incoming.name AS child FROM flow "

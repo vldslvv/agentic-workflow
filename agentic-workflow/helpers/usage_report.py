@@ -22,6 +22,7 @@ Example: python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/reco
 import argparse
 import hashlib
 import json
+import time
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -473,6 +474,7 @@ def timeline_lanes(
 
 
 def timeline(events: list[Event]) -> Timeline:
+    refreshed = time.time()
     first_seen: dict[str, float] = {}
     for e in events:
         observed = next(
@@ -598,8 +600,18 @@ def timeline(events: list[Event]) -> Timeline:
                 )
             )
         elif e["kind"] == "agent" and start is not None and end is None:
+            # Bound the displayed elapsed time to this export, without recording
+            # an observed completion or changing the native evidence.
+            elapsed_through = max(start, refreshed)
+            base["args"]["elapsed_through"] = elapsed_through
             output.append(
-                dict(base, name=label + " · unfinished", ph="B", ts=round(start * 1_000_000))
+                dict(
+                    base,
+                    name=label + " · unfinished",
+                    ph="X",
+                    ts=round(start * 1_000_000),
+                    dur=round(elapsed_through * 1_000_000) - round(start * 1_000_000),
+                )
             )
             omitted.append(dict(event_id=e["event_id"], reason="duration_unavailable"))
         elif start is not None or end is not None or point is not None:

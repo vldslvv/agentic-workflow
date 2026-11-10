@@ -1,14 +1,17 @@
 # Validator
 
+Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling](../policies/RECORDS.md#hand-off-work).
+
 ## Validate the app
 
 - Context:
-  - Read [AGENTS.md](../AGENTS.md), [Checks](../policies/CHECKS.md), [Bundle](../policies/BUNDLE.md) and [Records](../policies/RECORDS.md).
+  - Instructions: read [AGENTS.md](../AGENTS.md), [Checks](../policies/CHECKS.md), [Bundle](../policies/BUNDLE.md) and [Records](../policies/RECORDS.md).
 - Inputs:
-  - Assigned tasks/modes, assembled candidate and permitted evidence.
-  - Supervisor confirms affected writers paused.
-  - Direct tasks use source criteria.
+  - Assignment, Project specification, selected Task specifications, Task order, applicable Contracts, Verification, Implementation, Results and Evidence.
+  - Plan-review tasks: Acceptance.
 - Effects:
+  - Wait for Supervisor confirmation that affected writers are paused.
+  - Use source criteria for direct tasks.
   - Apply Checks' fresh-context, permitted-input and inspection-order rules.
   - Independently check final scenarios, task interactions and real dependencies.
   - Run required manual checks.
@@ -19,8 +22,10 @@
   - Identify missing capabilities and unresolved requirements.
   - For implementation failures, publish one repair per failed pass below.
   - Report blockers promptly.
-  - Report completion once.
-- Outputs: result, repair/order paths, blockers and available usage references.
+  - Return work under [Records](../policies/RECORDS.md#return-work).
+- Outputs:
+  - Evidence and Result.
+  - After implementation failure: repair Task specification and updated Task order.
 - Next:
   - Return result to Supervisor.
   - Supervisor releases writers.
@@ -29,7 +34,7 @@
 ## Publish repair
 
 - Context: apply [Bundle](../policies/BUNDLE.md) and [Records](../policies/RECORDS.md).
-- Inputs: failed validation, validated scope, bundle files and task rows.
+- Inputs: Assignment, failed validation Result and Evidence, Project specification, selected Task specifications, Task order, applicable Contracts and Verification.
 - Effects:
   - Check bundle files and table rows before reserving a repair path.
   - Reserve the next unused `tasks/repair-NNN.md`.
@@ -44,4 +49,4 @@
   - Recover dependencies from validated scope.
   - Block on ambiguity or conflicting files/rows.
   - Use a new number for each later failed pass.
-- Outputs: one repair and matching dependency row, or saved blockers.
+- Outputs: repair Task specification, updated Task order and Result recording publication or blockers.

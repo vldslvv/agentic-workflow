@@ -1,10 +1,16 @@
 # Planner
 
+Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling](../policies/RECORDS.md#hand-off-work).
+
 ## Author documents
 
 - Context:
-  - Read [AGENTS.md](../AGENTS.md), [Checks](../policies/CHECKS.md), [Records](../policies/RECORDS.md) and [Memory](../policies/MEMORY.md).
-- Inputs: brief, scope, sources, target paths, relevant code and accepted contracts.
+  - Instructions: read [AGENTS.md](../AGENTS.md), [Checks](../policies/CHECKS.md), [Records](../policies/RECORDS.md) and [Memory](../policies/MEMORY.md).
+- Inputs:
+  - Assignment.
+  - When relevant: existing Project specification, Task specifications, Task order, Contracts, Verification, Plan, Acceptance or Instructions.
+  - When applicable: Implementation and prior Result.
+  - Ordinary work: Memory.
 - Effects:
   - Resolve inputs.
   - Write authorized documents using applicable [bundle](../policies/BUNDLE.md), [plan](../templates/plan.md) or [acceptance](../templates/acceptance.md) templates.
@@ -13,14 +19,14 @@
   - Check source coverage, consistency, component boundaries, contract alignment, links and dependencies.
   - Check that pass rules are observable.
   - Report unresolved requirements and unavailable checks.
-  - Save results, usage references and useful memory.
   - Preserve approved history during corrections.
+  - Save useful Memory under its policy.
+  - Return work under [Records](../policies/RECORDS.md#return-work).
 - Outputs:
-  - Document paths, document validity and generation readiness.
-  - Report validity and readiness separately.
-- Next:
-  - Stop before execution.
-  - App setup and review are not prerequisites.
+  - Requested Project specification, Task specifications, Task order, Contracts, Verification, Plan, Acceptance or Instructions.
+  - Result reporting document validity and generation readiness separately.
+  - When useful lessons are saved: Memory.
+- Next: stop before implementation unless separately authorized.
 
 ## Workflow maintenance
 

@@ -11,7 +11,8 @@ Read the context for your action:
 | Implement a task | [IMPLEMENTER.md](roles/IMPLEMENTER.md) |
 | Review a task | [REVIEWER.md](roles/REVIEWER.md) |
 | Validate the app | [VALIDATOR.md](roles/VALIDATOR.md) |
-| Resolve project files | [BUNDLE.md](policies/BUNDLE.md) |
+| Interpret role inputs and outputs | [GLOSSARY.md](GLOSSARY.md) |
+| Resolve specifications | [BUNDLE.md](policies/BUNDLE.md) |
 | Define or assess checks | [CHECKS.md](policies/CHECKS.md) |
 | Hand off, save or resume work | [RECORDS.md](policies/RECORDS.md) |
 | Ordinary planning/implementation | [MEMORY.md](policies/MEMORY.md) |

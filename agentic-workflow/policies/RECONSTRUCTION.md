@@ -6,14 +6,14 @@
   - Read before rebuilding without access to the previous implementation.
   - Apply [Checks](CHECKS.md), [Records](RECORDS.md) and the [separation guidelines](#separation-guidelines).
   - Describe work that uses prior code as a port.
-- Inputs: approved behaviour, target, assets, data and services allowed for reuse, and compatibility checks.
+- Inputs: Assignment and each role’s named inputs from the [shared vocabulary](../GLOSSARY.md), filtered under the separation guidelines below.
 - Effects:
   - Define required behaviour and reusable inputs.
   - Preserve expected outcomes, thresholds and fixtures.
   - Adapt commands to the new target without weakening checks.
   - Use a new workspace.
   - Use fresh contexts for every role, including Supervisor.
-  - Give each role only allowed inputs.
+  - Give each role an Assignment and only allowed inputs under its role contract.
   - Limit exports to approved requirements, acceptance, public contracts, examples, reusable inputs and applicable workflow and engineering guidance.
   - Inspect exports for excluded material.
   - Check for excluded material through files, parent instructions, session memory, caches, remotes and the network.
@@ -24,7 +24,7 @@
   - Replace any worker that read excluded material.
   - Check real dependencies that will be reused.
 - Outputs:
-  - Report target changes, reused inputs, rebuilt outputs, access controls, limits and results under Records.
+  - Implementation, Evidence and Result recording target changes, reused inputs, access controls and limits under Records.
   - State what separation was achieved.
 
 ## Separation guidelines
