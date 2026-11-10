@@ -6,9 +6,37 @@ Capture, inspect and report workflow execution traces and usage.
 
 - [OPENCODE_RELEASE]: Identifies the checked OpenCode release. https://github.com/anomalyco/opencode/releases/tag/v2.2.6
 - [OPENCODE_SHELL]: Defines native agent shell identity. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/core/src/tool/plugin/shell.ts
+- [OPENCODE_SUBAGENT]: Defines prompt delivery and child session reuse. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/core/src/tool/plugin/subagent.ts
+- [OPENCODE_COMPLETION]: Defines background child completion notifications. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/core/src/session/subagent-completion.ts
+- [OPENCODE_EXPORT]: Defines settled-message export behavior. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/core/src/session/transfer.ts
 - [OPENCODE_MESSAGES]: Defines exported session messages. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/schema/src/session-message.ts
 - [OPENCODE_TOKENS]: Defines native token accounting. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/schema/src/token-usage.ts
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
+
+## Detect the tracing provider
+
+Apply when capturing, viewing or reporting native evidence.
+
+- Use the implementation directory containing `native/` and `reports/` as the directory argument.
+- Expect reporting and viewing to detect the agent host from saved native evidence.
+- Expect missing, unreadable, invalid or mixed-provider evidence to stop the command before writes or viewer startup.
+- Capture or import supported native traces before starting a report or viewer.
+- Keep each implementation's native evidence limited to one tracing provider.
+- Expect each refresh to route explicitly to the detected provider internally.
+- Read `tracing_provider` in normalized reports separately from the model's `provider` field.
+
+Reporting and viewing have no provider option and do not use the current shell's
+agent identity for detection. They inspect the saved native formats without
+accessing host storage or executables, then refresh only the detected provider.
+The viewer retains that provider for every refresh and reports it in its status.
+
+Allocation and task resolution detect the host automatically from `CODEX_THREAD_ID`
+or `OPENCODE_SESSION_ID`. Exactly one nonempty identity selects that provider.
+Conflicting identities fail before creating records, locks or captures and name
+both providers; run the command in a shell with only the active host's identity.
+With neither identity, allocation and resolution still work and warn that capture
+is unavailable. A selected provider's capture failure preserves saved evidence
+and never falls back to another provider. Capture has no provider override.
 
 ## Enable OpenCode capture
 
@@ -17,7 +45,7 @@ Capture, inspect and report workflow execution traces and usage.
 - Effects:
   1. Allocate or resolve records from the agent's shell.
   2. Start live capture below and keep it running through completion.
-- Outputs: selected native turns and their observed subagent dispatches.
+- Outputs: selected native turns, background continuations and proven subagent dispatches.
 - Next: inspect capture diagnostics and the generated reports.
 
 No plugin is required. The helpers invoke `opencode session export SESSION_ID`
@@ -26,30 +54,48 @@ The V1 plugin previously provided here must be removed from
 `.opencode/plugins/agentic-workflow.js` when updating an existing installation.
 
 Allocation and resolution select the current turn using native idle boundaries;
-steered prompts before an idle marker remain in that turn. Refresh follows
-subagent calls with matching parent identities and unambiguous prompt timing.
-Later turns require `records.py resolve` to join the implementation's scope.
+steered prompts before an idle marker remain in that turn. A turn starts with a
+user prompt or synthetic wake-up and ends at idle. Refresh follows returned child
+session IDs with matching parent identities and a unique delivered prompt match,
+including steering messages and the native fresh-child prefix. Dispatch start
+bounds delivery; tool completion does not, because delivery can appear later.
+Missing delivery is retried on refresh, and repeated matches remain ambiguous.
+
+Refresh also follows synthetic notifications identifying children or shells
+dispatched in selected turns, then follows dispatches in those continuations.
+Automatic continuation selection stops at a new user-initiated turn after idle;
+use `records.py resolve` to explicitly join that work to the implementation.
+Assignments carry across selected turns in the same session; quoted child
+notification text does not identify the supervisor's assignment.
 Sessions are never selected by working directory or recency.
 
 OpenCode exports only settled assistant messages, so running tools and model
 steps appear after settlement. Keep capture running until the final idle marker
 is saved; an unfinished-turn diagnostic means completion has not been observed.
-Canonical captures use `native/<session-id>/<first-user-message-id>.json`.
+Canonical captures use `native/<session-id>/<initiating-message-id>.json`.
 Keep manual exports at other paths under `native/` so they remain unchanged.
 Missing CLI access or ambiguous dispatches produce coverage diagnostics while
 preserving saved evidence. Existing V1 saved exports remain readable; live
 capture targets V2. The checked release and native contracts are
-[OPENCODE_RELEASE], [OPENCODE_SHELL], [OPENCODE_MESSAGES] and [OPENCODE_TOKENS].
+[OPENCODE_RELEASE], [OPENCODE_SHELL], [OPENCODE_MESSAGES], [OPENCODE_TOKENS],
+[OPENCODE_SUBAGENT], [OPENCODE_COMPLETION] and [OPENCODE_EXPORT]. Export polling
+remains eventually consistent; it cannot expose unsettled assistant activity.
 
 ## Capture live work
 
 - Context: apply [RECORDS] when starting or resuming execution.
-- Inputs: allocated implementation path and available native host storage, with [OpenCode capture](#enable-opencode-capture) configured when applicable.
+- Inputs: allocated implementation path, saved native evidence and available native host storage, with [OpenCode capture](#enable-opencode-capture) configured when applicable.
 - Effects:
   1. Run `python3 agentic-workflow/helpers/trace_view.py IMPLEMENTATION --interval 5`.
   2. Keep the process running during execution.
+  3. Rerun the command to replace a viewer for the same implementation and provider and apply the requested interval.
 - Outputs: captured native turns, refreshed reports and a local dashboard.
 - Next: inspect progress or report final usage before stopping capture with `Ctrl+C`.
+
+Codex and OpenCode use the same foreground viewer lifecycle. Each successful
+invocation owns its viewer until stopped. Viewers from before automatic replacement
+support must be stopped manually once before restarting. A different provider,
+another implementation or an unrelated port occupant is rejected.
 
 ## Import saved traces
 
@@ -66,7 +112,7 @@ capture targets V2. The checked release and native contracts are
 ## Inspect traces
 
 - Context: use when inspecting execution, recorded content or timing.
-- Inputs: implementation path with captured or imported traces.
+- Inputs: implementation path and captured or imported traces.
 - Effects:
   1. Open the running dashboard or launch `python3 agentic-workflow/helpers/trace_view.py IMPLEMENTATION`.
   2. Open the printed URL if the browser does not launch.
@@ -74,6 +120,10 @@ capture targets V2. The checked release and native contracts are
   4. Inspect **Recorded content** for messages and tool activity.
   5. Use **Open timeline in Perfetto** when timing details are needed.
 - Outputs: execution observations and identified evidence gaps.
+- Perfetto shows one bar per native agent/session from its earliest selected start to its latest selected completion, including waits between turns.
+- Agent bars show elapsed observed spans, not continuous model activity or proof of process liveness.
+- Span details include contributing turn IDs and individual turn evidence; events and usage totals retain separate turns and measurements.
+- Keep an agent bar unfinished when any selected turn lacks an observed end.
 - Unfinished agent bars indicate an observed start without an observed end, including interrupted captures, and do not establish process liveness or a measured duration.
 - Parallel Perfetto tracks preserve overlapping operations without asserting call nesting between tracks.
 - Perfetto lists sessions by earliest recorded time, keeps each session's parallel tracks together, and places untimed sessions last.
@@ -112,7 +162,7 @@ capture targets V2. The checked release and native contracts are
 ## Report usage
 
 - Context: apply [RECORDS] when work finishes, is blocked or needs a usage report.
-- Inputs: implementation path with saved native evidence and any assignment annotations.
+- Inputs: implementation path, saved native evidence and any assignment annotations.
 - Effects:
   1. Run `python3 agentic-workflow/helpers/usage_report.py IMPLEMENTATION`.
   2. Read usage totals and coverage diagnostics.

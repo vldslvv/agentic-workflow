@@ -1,9 +1,4 @@
-"""Native file discovery, selection and collection; no usage accounting.
-
-Codex's read-only SQLite index resolves identities. Saved JSONL records remain
-byte-for-byte native records, partitioned by session/turn. Exports live in native/.
-Native evidence selects scope; optional annotations recover opaque assignments.
-"""
+"""Codex identity, saved-turn selection, dispatch matching and assignments."""
 
 import json
 import os
@@ -12,22 +7,22 @@ from contextlib import closing
 from pathlib import Path
 from typing import cast
 
-from records import identifier, write_atomic
-from trace_adapters import stamp
-from trace_types import (
+from tracing.shared.assignments import annotate_assignments, assignment_tag
+from tracing.shared.events import read_source, stamp
+from tracing.shared.files import identifier, local_path, safe_destination, write_atomic
+from tracing.shared.types import (
     Assignment,
+    CollectedEvidence,
     Diagnostic,
-    Dispatch,
-    Document,
-    Native,
-    OpenCode,
+    Event,
+    EvidenceKey,
     Settings,
     Source,
 )
 
-
-def gap(code: str, session: str | None = None, turn: str | None = None) -> Diagnostic:
-    return dict(code=code, session_id=session, turn_id=turn)
+from .diagnostics import classify, gap
+from .parser import parse
+from .types import Dispatch, Document, Native
 
 
 def object_value(value: object) -> Native:
@@ -142,65 +137,12 @@ def codex_document(path: Path | str) -> Document:
     return dict(path=path, meta=meta, session_id=sid, records=records, turns=turns)
 
 
-def saved_documents(root: Path) -> tuple[list[Document], list[Source]]:
-    documents: list[Document] = []
-    exports: list[Source] = []
-    for path in sorted((Path(root) / "native").rglob("*")):
-        if not path.is_file():
-            continue
-        local_path(root, path)
-        if path.suffix == ".jsonl":
-            documents.append(codex_document(path))
-        elif path.suffix == ".json":
-            data = cast(OpenCode, json.loads(path.read_text()))
-            info = data["info"]
-            legacy = "version" in info
-            if legacy:
-                turns = [
-                    m["info"]["id"]
-                    for m in data["messages"]
-                    if m["info"]["role"] == "user" and m["info"].get("sessionID") == info["id"]
-                ]
-            else:
-                from opencode_capture import turns as opencode_turns
-
-                turns = list(opencode_turns(data))
-            exports.append(
-                dict(
-                    id=str(path.relative_to(root)),
-                    path=str(path.relative_to(root)),
-                    adapter="opencode",
-                    session_id=info["id"],
-                    turn_ids=turns,
-                    source_version="opencode-export-" + str(info.get("version", "v2")),
-                )
-            )
-    return documents, exports
-
-
-def local_path(root: Path, path: Path) -> Path:
-    """Resolve the chosen root, rejecting aliases at every component inside it."""
-    boundary = Path(root).absolute()
-    try:
-        relative = Path(path).absolute().relative_to(boundary)
-    except ValueError:
-        raise ValueError("path escapes implementation root") from None
-    current = boundary.resolve()
-    for part in relative.parts:
-        if part == "..":
-            raise ValueError("path escapes implementation root")
-        current /= part
-        if current.is_symlink():
-            raise ValueError("path contains a filesystem alias")
-    return current
-
-
-def safe_destination(root: Path, path: Path) -> Path:
-    path = local_path(root, path)
-    # Hard links can alias host logs even when paths are contained.
-    if path.exists() and path.stat().st_nlink != 1:
-        raise ValueError("output aliases another file")
-    return path
+def saved_documents(root: Path) -> list[Document]:
+    return [
+        codex_document(local_path(root, path))
+        for path in sorted((root / "native").rglob("*.jsonl"))
+        if path.is_file()
+    ]
 
 
 def save_turn(root: Path, document: Document, turn: str) -> bool:
@@ -227,15 +169,7 @@ def save_turn(root: Path, document: Document, turn: str) -> bool:
     return True
 
 
-def capture_current(root: Path) -> list[Diagnostic]:
-    opencode_session = os.environ.get("OPENCODE_SESSION_ID")
-    if opencode_session:
-        from opencode_capture import capture_current as capture_opencode
-
-        return capture_opencode(root, opencode_session)
-    sid = os.environ.get("CODEX_THREAD_ID")
-    if not sid:
-        return [gap("current_session_unavailable")]
+def capture_current(root: Path, sid: str) -> list[Diagnostic]:
     try:
         entry = native_index().get(sid)
         if not entry:
@@ -270,56 +204,6 @@ def assignment_message(payload: Native, agent_path: str | None) -> bool:
     )
 
 
-def annotate_assignments(
-    root: Path, sources: list[Source], assignments: dict[tuple[str | None, str | None], Assignment]
-) -> None:
-    """Fill only missing selected assignments; never select evidence or override tags."""
-    path = local_path(root, root / "assignment-annotations.json")
-    if not path.exists():
-        return
-    data = json.loads(path.read_text())
-    if (
-        not isinstance(data, dict)
-        or data.get("version") != 1
-        or not isinstance(data.get("assignments"), list)
-    ):
-        raise ValueError("invalid assignment annotations: expected version 1 and assignments list")
-    selected = {(s["adapter"], s["session_id"], t) for s in sources for t in s["turn_ids"]}
-    seen = set()
-    for entry in data["assignments"]:
-        if not isinstance(entry, dict):
-            raise ValueError("invalid assignment annotation")
-        key = tuple(entry.get(k) for k in ("adapter", "session_id", "turn_id"))
-        for value in key:
-            identifier(value)
-        if key not in selected or key in seen:
-            raise ValueError("assignment annotation needs a unique selected native turn")
-        seen.add(key)
-        tag = {k: identifier(entry.get(k)) for k in ("task", "role")}
-        tag["implementation"] = root.name
-        if "purpose" in entry:
-            if not isinstance(entry["purpose"], str) or len(entry["purpose"]) > 500:
-                raise ValueError("invalid annotation purpose")
-            tag["purpose"] = entry["purpose"]
-        evidence = entry.get("evidence")
-        if not isinstance(evidence, list) or not evidence:
-            raise ValueError("assignment annotation needs evidence paths")
-        for reference in evidence:
-            if (
-                not isinstance(reference, str)
-                or not reference
-                or Path(reference).is_absolute()
-                or not local_path(root, root / reference).is_file()
-            ):
-                raise ValueError("assignment annotation needs implementation-local evidence files")
-        native_key = key[1:]
-        if assignments.get(native_key):
-            raise ValueError("assignment annotation conflicts with a native assignment")
-        assignments[native_key] = cast(
-            Assignment, dict(tag, source="annotation", evidence=evidence)
-        )
-
-
 def observed_agent_paths(
     documents: list[Document], diagnostics: list[Diagnostic]
 ) -> dict[str, str]:
@@ -346,29 +230,6 @@ def observed_agent_paths(
         else:
             diagnostics.append(gap("ambiguous_native_agent_path", sid))
     return resolved
-
-
-def assignment_tag(text: str, implementation: str) -> tuple[Assignment | None, bool]:
-    tags = []
-    invalid = False
-    for line in text.splitlines():
-        if not line.startswith("AGENTIC_WORKFLOW "):
-            continue
-        value = object_value(line.partition(" ")[2])
-        try:
-            for field in ("implementation", "task", "role"):
-                identifier(value.get(field))
-            if "purpose" in value and (
-                not isinstance(value["purpose"], str) or len(value["purpose"]) > 500
-            ):
-                raise ValueError("invalid purpose")
-        except ValueError:
-            invalid = True
-            continue
-        if value["implementation"] == implementation:
-            tags.append(cast(Assignment, value))
-    unique = {json.dumps(t, sort_keys=True): t for t in tags}
-    return (next(iter(unique.values())) if len(unique) == 1 else None, invalid or len(unique) > 1)
 
 
 def dispatches(document: Document, selected: set[str]) -> list[Dispatch]:
@@ -486,32 +347,20 @@ def dispatch_turn(document: Document, call: Dispatch, before: float | None = Non
     return None
 
 
-def collect(
-    root: Path,
-) -> tuple[
-    list[Source],
-    dict[tuple[str | None, str | None], Assignment],
-    dict[tuple[str | None, str | None], Settings],
-    list[Diagnostic],
-]:
+def collect(implementation_dir: Path) -> CollectedEvidence:
     """Refresh saved selections and their proven dispatch descendants.
 
     Caller holds the implementation lock across collection and report writes.
-    Returns source descriptors derived from native contents, assignment context
-    and coverage diagnostics. These descriptors are never persisted.
+    Returns normalized events, source descriptors, assignment context, requested
+    settings and coverage diagnostics. Source descriptors are never persisted.
     """
-    root = Path(root)
-    saved, exports = saved_documents(root)
+    root = Path(implementation_dir).resolve()
+    saved = saved_documents(root)
     diagnostics, index = [], {}
-    if exports:
-        from opencode_capture import refresh as refresh_opencode
-
-        diagnostics.extend(refresh_opencode(root, exports))
-    if saved or not exports:
-        try:
-            index = native_index()
-        except (OSError, sqlite3.Error):
-            diagnostics.append(gap("native_storage_unavailable"))
+    try:
+        index = native_index()
+    except (OSError, sqlite3.Error):
+        diagnostics.append(gap("native_storage_unavailable"))
     documents: dict[str, Document] = {}
     selected: dict[str, set[str]] = {}
     for doc in saved:
@@ -564,8 +413,8 @@ def collect(
             sid = parent
         return sid
 
-    assignments: dict[tuple[str | None, str | None], Assignment] = {}
-    requested: dict[tuple[str | None, str | None], Settings] = {}
+    assignments: dict[EvidenceKey, Assignment] = {}
+    requested: dict[EvidenceKey, Settings] = {}
     seen: set[tuple[str, str | None]] = set()
     changed = True
     while changed:
@@ -645,13 +494,13 @@ def collect(
                 if ambiguous:
                     diagnostics.append(gap("ambiguous_assignment", target, turn))
                 if tag:
-                    previous = assignments.get((target, turn))
+                    previous = assignments.get(("codex", target, turn))
                     if previous and previous != tag:
                         diagnostics.append(gap("ambiguous_assignment", target, turn))
-                        assignments[(target, turn)] = {}
+                        assignments[("codex", target, turn)] = {}
                     else:
-                        assignments[(target, turn)] = tag
-                request = requested.setdefault((target, turn), {})
+                        assignments[("codex", target, turn)] = tag
+                request = requested.setdefault(("codex", target, turn), {})
                 request.update(
                     cast(
                         Settings,
@@ -672,9 +521,9 @@ def collect(
                 else:
                     save_turn(root, documents[sid], turn)
     # Re-read the copies: parsing and reports must describe the saved evidence.
-    saved, exports = saved_documents(root)
-    sources = list(exports)
-    if not saved and not exports:
+    saved = saved_documents(root)
+    sources: list[Source] = []
+    if not saved:
         diagnostics.append(gap("no_native_evidence"))
     paths = observed_agent_paths(saved, diagnostics)
     for doc in saved:
@@ -690,51 +539,6 @@ def collect(
                 native_agent_path=paths.get(doc["session_id"]),
             )
         )
-    export_prompts: dict[str, dict[str, tuple[float, str]]] = {}
-    for source in exports:
-        data = cast(OpenCode, json.loads((root / source["path"]).read_text()))
-        if "version" not in data["info"]:
-            from opencode_capture import turns as opencode_turns
-
-            prompts = [
-                (
-                    turn,
-                    messages[0]["time"]["created"],
-                    "\n".join(
-                        [m.get("text", "") for m in messages if m["type"] == "user"]
-                        + [
-                            p.get("text", "")
-                            for m in messages
-                            if m["type"] == "assistant"
-                            for p in m.get("content", [])
-                            if p["type"] == "text"
-                        ]
-                    ),
-                )
-                for turn, messages in opencode_turns(data).items()
-            ]
-        else:
-            prompts = [
-                (
-                    m["info"]["id"],
-                    m["info"].get("time", {}).get("created", 0),
-                    "\n".join(p.get("text", "") for p in m["parts"] if p.get("type") == "text"),
-                )
-                for m in data["messages"]
-                if m["info"]["id"] in source["turn_ids"]
-            ]
-        for turn, time, text in prompts:
-            export_prompts.setdefault(source["session_id"], {})[turn] = (time, text)
-    for session, session_prompts in export_prompts.items():
-        previous = None
-        for turn, (_, text) in sorted(session_prompts.items(), key=lambda item: item[1][0]):
-            tag, ambiguous = assignment_tag(text, root.name)
-            if ambiguous:
-                diagnostics.append(gap("ambiguous_assignment", session, turn))
-                previous = None
-            elif tag:
-                previous = tag
-            assignments[(session, turn)] = previous or {}
     # Assignment inheritance is native-session scoped, in native turn order.
     for sid in sorted({s["session_id"] for s in sources if s["adapter"] == "codex"}):
         session_docs = [d for d in saved if d["session_id"] == sid]
@@ -761,15 +565,21 @@ def collect(
                 previous = None
             elif tag:
                 previous = tag
-            elif (sid, turn) in assignments:
-                previous = assignments[(sid, turn)] or None
-            assignments[(sid, turn)] = previous or {}
-            request = requested.get((sid, turn), {})
+            elif ("codex", sid, turn) in assignments:
+                previous = assignments[("codex", sid, turn)] or None
+            assignments[("codex", sid, turn)] = previous or {}
+            request = requested.get(("codex", sid, turn), {})
             prior_request = {
                 "model": request.get("model") or prior_request.get("model"),
                 "reasoning_effort": request.get("reasoning_effort")
                 or prior_request.get("reasoning_effort"),
             }
-            requested[(sid, turn)] = prior_request.copy()
-    annotate_assignments(root, sources, assignments)
-    return sources, assignments, requested, diagnostics
+            requested[("codex", sid, turn)] = prior_request.copy()
+    annotate_assignments(root, sources, assignments, "codex")
+    events: list[Event] = []
+    for source in sources:
+        source["tracing_provider"] = "codex"
+        native, gaps = read_source(source, root / source["path"], parse)
+        events.extend(native)
+        diagnostics.extend(gaps)
+    return CollectedEvidence(events, sources, assignments, requested, classify(diagnostics))

@@ -1,120 +1,16 @@
-"""Native input shapes and portable telemetry/report contracts.
-
-Native schemas are partial: missing fields retain their existing parser defaults.
-Opaque provider payloads remain objects and are serialized without interpretation.
-"""
+"""Normalized evidence and report contracts."""
 
 from __future__ import annotations
 
-from pathlib import Path
+from dataclasses import dataclass
 from typing import Literal, TypedDict
-
-
-class Native(TypedDict, total=False):
-    id: str
-    type: str
-    payload: Native
-    timestamp: str | float
-    source: Native | str | bytes | None
-    subagent: Native
-    thread_spawn: Native
-    parent_thread_id: str
-    agent_path: str | None
-    agent_nickname: str
-    forked_from_id: str
-    cli_version: str
-    turn_id: str
-    internal_chat_message_metadata_passthrough: Native
-    thread_id: str
-    role: str
-    recipient: str
-    content: list[Native]
-    text: str
-    message: str
-    summary: object
-    item: Native
-    agent_thread_id: str
-    call_id: str
-    parent_call_id: str
-    output: object
-    stdout: str
-    stderr: str
-    aggregated_output: str
-    arguments: object
-    input: object
-    name: str
-    model: str
-    effort: str
-    started_at: str | float
-    response_id: str
-    usage: Native
-    metadata: Native
-    truncated: bool
-    result: Native
-    Ok: Native
-    Err: object
-    isError: bool
-    status: str
-    exit_code: int
-    input_tokens: int
-    cached_input_tokens: int
-    output_tokens: int
-    reasoning_output_tokens: int
-    input_tokens_details: Native
-    cached_tokens: int
-    cache: Native
-    read: int
-    write: int
-    reasoning: int
-    implementation: str
-    task: str
-    purpose: str
-    target: str
-    task_name: str
-    agent_id: str
-    message_id: str
-    reasoning_effort: str
-    error: object
-    rollout_path: str
-
-
-class OpenCode(TypedDict, total=False):
-    info: OpenCode
-    messages: list[OpenCode]
-    id: str
-    version: str
-    parentID: str
-    sessionID: str
-    type: str
-    role: str
-    time: dict[str, float]
-    text: str
-    parts: list[OpenCode]
-    content: list[OpenCode]
-    model: OpenCode
-    modelID: str
-    providerID: str
-    variant: str
-    outcome: Literal["succeeded", "failed", "interrupted"]
-    error: object
-    tokens: Native
-    finish: str
-    reason: str
-    state: OpenCode
-    callID: str
-    name: str
-    tool: str
-    status: str
-    metadata: OpenCode
-    system: object
-    input: object
-    output: object
 
 
 class Source(TypedDict, total=False):
     id: str
     path: str
     adapter: str
+    tracing_provider: str
     session_id: str
     turn_ids: list[str]
     source_version: str
@@ -140,6 +36,7 @@ class Settings(TypedDict, total=False):
 class Context(TypedDict, total=False):
     implementation_id: str
     adapter: str
+    tracing_provider: str
     agent_id: str
     task_id: str | None
     role: str | None
@@ -157,6 +54,7 @@ class DiagnosticDetails(TypedDict, total=False):
 
 class Diagnostic(Context, DiagnosticDetails, total=False):
     code: str
+    coverage_effect: Literal["informational", "incomplete", "missing_measurement"]
     source_id: str
 
 
@@ -165,6 +63,7 @@ class Provenance(TypedDict):
     path: str
     location: int | str
     adapter: str
+    tracing_provider: str
     source_version: str
 
 
@@ -179,6 +78,7 @@ Usage = dict[str, int | None]
 
 
 class EventDetails(Settings, total=False):
+    is_wrapper: bool
     event_id: str
     start: float | None
     end: float | None
@@ -209,6 +109,8 @@ class EventDetails(Settings, total=False):
     parent_event_id: str | None
     outputs: list[Event]
     instructions: list[Event]
+    turn_ids: list[str]
+    selected_turns: list[Event]
     call_event_id: str | None
     tool_name: str | None
     turn_event_id: str | None
@@ -218,23 +120,6 @@ class Event(Context, EventDetails, total=False):
     kind: str
     native_event_id: str
     provenance: list[Provenance]
-
-
-class Document(TypedDict):
-    path: Path
-    meta: Native
-    session_id: str
-    records: list[tuple[str | None, Native | None, bytes]]
-    turns: list[str]
-
-
-class Dispatch(TypedDict, total=False):
-    kind: str
-    arguments: Native
-    call_id: str | None
-    timestamp: float | None
-    turn: str | None
-    result: Native
 
 
 class Metric(TypedDict):
@@ -306,6 +191,7 @@ class AssignmentRow(TypedDict, total=False):
 
 
 class Report(TypedDict, total=False):
+    tracing_provider: str
     version: int
     summary: Summary
     groups: dict[str, list[Group]]
@@ -318,7 +204,8 @@ class Report(TypedDict, total=False):
     implementation_id: str
 
 
-class TimingMetadata(TypedDict):
+class TimingMetadata(TypedDict, total=False):
+    tracing_provider: str
     timing_omissions: list[dict[str, str]]
 
 
@@ -329,6 +216,7 @@ class Timeline(TypedDict):
 
 
 class EventReport(TypedDict):
+    tracing_provider: str
     timing_omissions: list[dict[str, str]]
     version: int
     implementation_id: str
@@ -356,3 +244,15 @@ class TimelineEvent(TypedDict, total=False):
     pid: int
     tid: int
     args: dict[str, object]
+
+
+EvidenceKey = tuple[str, str | None, str | None]
+
+
+@dataclass
+class CollectedEvidence:
+    events: list[Event]
+    sources: list[Source]
+    assignments: dict[EvidenceKey, Assignment]
+    requested: dict[EvidenceKey, Settings]
+    diagnostics: list[Diagnostic]

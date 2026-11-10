@@ -4,7 +4,9 @@
 Choose a subcommand; read its --help for arguments and restrictions.
 
 Allocates directories or resolves an existing task and attempts native capture;
-starts no service.
+starts no service. Detection reads CODEX_THREAD_ID and OPENCODE_SESSION_ID.
+Conflicting nonempty identities fail before any writes; absent identities warn
+and retain allocation/resolution behavior. There is no provider override.
 
 Prints the selected path; capture diagnostics go to stderr. Exit 0 means
 success, not complete telemetry; exit 2 means invalid input or an operation
@@ -18,49 +20,14 @@ Examples:
 """
 
 import argparse
-import fcntl
 import os
 import re
 import sys
-import tempfile
-from collections.abc import Iterator
-from contextlib import contextmanager
 from pathlib import Path
 
-from trace_types import Diagnostic
-
-
-def identifier(value: object) -> str:
-    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", value):
-        raise ValueError(f"unsafe identifier: {value!r}")
-    return value
-
-
-@contextmanager
-def locked(path: Path) -> Iterator[None]:
-    """Serialize allocation/native capture/report refresh; locks release on process exit."""
-    flags = os.O_RDONLY if Path(path).is_dir() else os.O_WRONLY | os.O_CREAT
-    descriptor = os.open(path, flags, 0o666)
-    try:
-        fcntl.flock(descriptor, fcntl.LOCK_EX)
-        yield
-    finally:
-        os.close(descriptor)
-
-
-def write_atomic(path: Path, data: str | bytes) -> None:
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fd, temporary = tempfile.mkstemp(prefix=".write-", dir=path.parent)
-    try:
-        with os.fdopen(fd, "wb" if isinstance(data, bytes) else "w") as stream:
-            stream.write(data)
-            stream.flush()
-            os.fsync(stream.fileno())
-        os.replace(temporary, path)
-    finally:
-        if os.path.exists(temporary):
-            os.unlink(temporary)
+from tracing.registry import capture_current, detect_current
+from tracing.shared.files import identifier, locked
+from tracing.shared.types import Diagnostic
 
 
 def report_capture(diagnostics: list[Diagnostic]) -> None:
@@ -68,8 +35,8 @@ def report_capture(diagnostics: list[Diagnostic]) -> None:
         print("records: " + diagnostic["code"], file=sys.stderr)
         if diagnostic["code"] == "current_session_unavailable":
             print(
-                "records: run capture in an OpenCode agent shell with OPENCODE_SESSION_ID; see "
-                "agentic-workflow/guides/TRACING.md#enable-opencode-capture",
+                "records: capture unavailable; use CODEX_THREAD_ID or OPENCODE_SESSION_ID in the active agent shell; see "
+                "agentic-workflow/guides/TRACING.md#detect-the-tracing-provider",
                 file=sys.stderr,
             )
         elif diagnostic["code"] == "opencode_export_unavailable":
@@ -82,6 +49,7 @@ def report_capture(diagnostics: list[Diagnostic]) -> None:
 
 def allocate(records_root: Path, name: str) -> Path:
     identifier(name)
+    detected = detect_current(os.environ)
     records_root = Path(records_root)
     records_root.mkdir(parents=True, exist_ok=True)
     with locked(records_root):
@@ -94,23 +62,20 @@ def allocate(records_root: Path, name: str) -> Path:
         root.mkdir()  # Reserve before writing; an interrupted allocation is not reused.
         for directory in ("tasks", "runs", "reports"):
             (root / directory).mkdir()
-        from native_traces import capture_current
-
         with locked(root / ".records.lock"):
-            capture_diagnostics = capture_current(root)
+            capture_diagnostics = capture_current(root, detected)
         report_capture(capture_diagnostics)
     return root
 
 
 def resolve_task(root: Path, task: str) -> Path:
+    detected = detect_current(os.environ)
     root = Path(root)
     target = root / "tasks" / identifier(task)
     if not target.is_dir() or not target.resolve().is_relative_to(root.resolve()):
         raise ValueError("task absent from identified implementation")
-    from native_traces import capture_current
-
     with locked(root / ".records.lock"):
-        report_capture(capture_current(root))
+        report_capture(capture_current(root, detected))
     return target
 
 
@@ -132,7 +97,10 @@ Creates --records-root/<NNN>_<name>/ with tasks/, runs/, reports/ and
 .records.lock; NNN is the next numeric prefix (at least three digits). Attempts
 to save the current native turn and session metadata under
 <NNN>_<name>/native/<session-id>/<turn-id>.jsonl (Codex) or .json (OpenCode);
-OpenCode 2.2.6 supplies OPENCODE_SESSION_ID in agent shells. Starts no service.
+OpenCode 2.2.6 supplies OPENCODE_SESSION_ID in agent shells. CODEX_THREAD_ID
+identifies Codex. Both nonempty identities fail before writes. With neither
+identity, allocation continues with a warning. There is no provider override.
+Starts no service.
 
 Prints the implementation path. Exit 0 means allocation succeeded, not complete
 telemetry; best-effort capture diagnostics go to stderr. Exit 2 means invalid
@@ -164,7 +132,10 @@ Requires implementation/tasks/<task>/ to exist within implementation; creates
 no task. Creates/uses implementation/.records.lock and attempts to save the
 current native turn and session metadata to implementation/native/<session-
 id>/<turn-id>.jsonl (Codex) or .json (OpenCode); OpenCode 2.2.6 supplies
-OPENCODE_SESSION_ID in agent shells. Starts no service.
+OPENCODE_SESSION_ID in agent shells. CODEX_THREAD_ID identifies Codex. Both
+nonempty identities fail before writes. With neither identity, resolution
+continues with a warning.
+There is no provider override. Starts no service.
 
 Prints the task path. Exit 0 means resolution succeeded, not complete
 telemetry; best-effort capture diagnostics go to stderr. Exit 2 means invalid

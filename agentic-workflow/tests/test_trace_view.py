@@ -57,7 +57,9 @@ class ViewerTests(unittest.TestCase):
             pass
         else:
             self.fail("Port 9001 is occupied; stop the local viewer before running tests.")
-        self.environment = patch.dict(os.environ, CODEX_HOME=str(self.base), CODEX_THREAD_ID="")
+        self.environment = patch.dict(
+            os.environ, CODEX_HOME=str(self.base), CODEX_THREAD_ID="", OPENCODE_SESSION_ID=""
+        )
         self.environment.start()
         self.addCleanup(self.environment.stop)
         c = sqlite3.connect(str(self.base / "state_5.sqlite"))
@@ -65,6 +67,7 @@ class ViewerTests(unittest.TestCase):
         c.commit()
         c.close()
         self.root = self.implementation("demo")
+        self.provider = "codex"
         self.browser_log = self.base / "browser.jsonl"
         browser = self.base / "browser.py"
         browser.write_text(
@@ -338,7 +341,7 @@ class ViewerTests(unittest.TestCase):
         path = self.base / "headless.log"
         output = path.open("w")
         process = subprocess.Popen(
-            [sys.executable, str(HELPERS / "trace_view.py"), str(self.root)],
+            self.command(),
             cwd=self.base,
             env=env,
             stdout=output,
@@ -356,9 +359,15 @@ class ViewerTests(unittest.TestCase):
             with self.subTest(empty=empty):
                 if empty:
                     self.root = records.allocate(self.base / ".agentic-workflow/records", "empty")
+                    native = self.root / "native/capture.jsonl"
+                    native.parent.mkdir()
+                    native.write_text(
+                        json.dumps(dict(type="session_meta", payload=dict(id="empty"))) + "\n"
+                    )
                 self.launch()
                 status, urls = self.ready()
                 self.assertEqual(status["interval"], 5)
+                self.assertEqual(status["tracing_provider"], self.provider)
                 self.assertEqual(urlsplit(urls[0]).netloc, "127.0.0.1:9001")
                 with self.http.open(urls[0]) as response:
                     self.assertIn("text/html", response.headers["Content-Type"])
@@ -398,6 +407,20 @@ class ViewerTests(unittest.TestCase):
                     ("timeline.json", "traceEvents"),
                 ]:
                     self.assertIn(key, json.loads(self.dashboard(urls[0] + name)))
+                for target, origin, expected in (
+                    ("/wrong-token/shutdown", None, 404),
+                    (f"/{status['token']}/shutdown", "https://unrelated.invalid", 403),
+                    (f"/{status['token']}/shutdown", "https://ui.perfetto.dev", 403),
+                ):
+                    headers = {} if origin is None else {"Origin": origin}
+                    with self.assertRaises(HTTPError) as denied:
+                        self.http.open(
+                            Request(
+                                "http://127.0.0.1:9001" + target, headers=headers, method="POST"
+                            )
+                        )
+                    self.assertEqual(denied.exception.code, expected)
+                    denied.exception.close()
                 for path in (
                     "/",
                     "/status",
@@ -414,31 +437,77 @@ class ViewerTests(unittest.TestCase):
                 self.stop_all()
                 self.browser_log.unlink()
 
+    def test_opencode_reports_refresh_after_foreground_replacement(self) -> None:
+        self.provider = "opencode"
+        native = self.root / "native/capture.jsonl"
+        native.unlink()
+        native = native.with_suffix(".json")
+        native.write_bytes((PACKAGE / "tests/fixtures/opencode-2.2.6.json").read_bytes())
+        owner = self.launch()
+        _, urls = self.ready()
+        before = json.loads(self.dashboard(urls[-1] + "usage.json"))
+        repeat = self.launch(interval=0.05)
+        status, urls = self.ready(2)
+        self.assertIsNone(repeat.poll())
+        self.assertEqual(status["pid"], repeat.pid)
+        self.assertEqual(owner.wait(timeout=5), 0)
+        after = json.loads(self.dashboard(urls[-1] + "usage.json"))
+        self.assertEqual(after["summary"], before["summary"])
+        self.assertTrue(after["summary"]["observed_tool_calls"])
+        data = json.loads(native.read_text())
+        data["messages"][2]["text"] = "OPENCODE_REFRESH_AFTER_RESTART"
+        native.write_text(json.dumps(data))
+        self.wait_for(
+            lambda: self.dashboard(urls[-1] + "events.json"),
+            lambda text: "OPENCODE_REFRESH_AFTER_RESTART" in text,
+        )
+        self.stop_all()
+        with self.assertRaises(URLError):
+            self.status()
+
     def test_concurrent_cli_invocations_and_shutdown_restart(self) -> None:
-        # Hold the real collection lock: reuse must work even before the owner
-        # finishes its first pass, without launching a second collector.
+        # Restart must work while initial collection waits on the records lock.
         with (self.root / ".records.lock").open("a") as lock:
             fcntl.flock(lock, fcntl.LOCK_EX)
             with ThreadPoolExecutor(max_workers=2) as pool:
                 processes = list(pool.map(lambda _: self.launch(), range(2)))
-            self.ready(1)
+
+            def starting_status() -> dict[str, object]:
+                try:
+                    return dict(self.status())
+                except OSError:
+                    return {}
+
+            self.wait_for(
+                starting_status, lambda status: status.get("pid") in {p.pid for p in processes}
+            )
             deadline = time.monotonic() + 5
             while all(p.poll() is None for p in processes) and time.monotonic() < deadline:
                 time.sleep(0.05)
             self.assertEqual(sum(p.poll() is None for p in processes), 1)
             self.assertEqual([p.returncode for p in processes if p.poll() is not None], [0])
-        status, urls = self.ready(2)
-        self.assertEqual(urls[0], urls[1])
-        repeat = subprocess.run(
-            self.command(interval=0.02),
-            cwd=self.base,
-            env=self.env,
-            capture_output=True,
-            text=True,
-            timeout=8,
+        status, urls = self.ready(1)
+        repeat = self.launch(interval=0.02)
+        replacement, urls = self.ready(2)
+        self.assertIsNone(repeat.poll())
+        self.assertEqual(replacement["pid"], repeat.pid)
+        self.assertNotEqual(replacement["pid"], status["pid"])
+        self.assertEqual(replacement["interval"], 0.02)
+        self.assertNotEqual(urls[0], urls[1])
+        self.wait_for(lambda: [p.poll() for p in processes], lambda codes: codes == [0, 0])
+        status = replacement
+        self.assertEqual(status["tracing_provider"], "codex")
+        native = self.root / "native/capture.jsonl"
+        parked = native.rename(self.base / "parked.jsonl")
+        alternative = native.with_suffix(".json")
+        alternative.write_bytes((PACKAGE / "tests/fixtures/opencode-2.2.6.json").read_bytes())
+        rejected = subprocess.run(
+            self.command(), cwd=self.base, env=self.env, capture_output=True, text=True, timeout=8
         )
-        self.assertEqual(repeat.returncode, 0, repeat.stderr)
-        self.assertIn("Restart the owning viewer", repeat.stdout)
+        alternative.unlink()
+        parked.rename(native)
+        self.assertEqual(rejected.returncode, 2, rejected.stderr)
+        self.assertIn("tracing provider", rejected.stderr)
         self.assertEqual(self.status(), status)
         other = self.implementation("other")
         rejected = subprocess.run(
@@ -456,7 +525,7 @@ class ViewerTests(unittest.TestCase):
         with self.assertRaises(URLError):
             self.status()
         self.launch()
-        restarted, _ = self.ready(4)
+        restarted, _ = self.ready(3)
         self.assertNotEqual(restarted["pid"], status["pid"])
 
         self.stop_all()

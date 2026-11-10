@@ -96,6 +96,13 @@ Retain the package layout: root `AGENTS.md`, `GLOSSARY.md`, `WORKFLOW.md` and `R
 Source-repository evals, example specs, generated apps, research, Makefile and
 integration tests stay outside the copy boundary.
 
+Tracing code lives under `helpers/tracing/`: `registry.py` selects providers,
+`codex/` and `opencode/` own native capture and interpretation, and `shared/`
+contains normalized types, filesystem utilities, assignments, enrichment,
+accounting, timelines and presentation. Commands use this package; providers
+import only their own modules and shared utilities, and shared modules never
+import providers or commands. The package checker enforces these boundaries.
+
 ## Requirements and portable commands
 
 Helpers use the Python 3.11+ standard library and require a local POSIX filesystem
@@ -122,7 +129,13 @@ python3 agentic-workflow/helpers/trace_view.py .agentic-workflow/records/001_exa
 
 Use the actual path printed by allocation; each call advances the numeric prefix.
 Quote paths containing spaces. Stop the viewer with `Ctrl+C`. Missing telemetry
-limits reports but does not block allocation or app acceptance.
+limits reports but does not block allocation or app acceptance. Conflicting
+native session identities fail before writes; see [TRACING] for detection.
+Reporting and viewing detect the tracing provider from saved native evidence,
+independently of the current agent shell, and route explicitly to it internally.
+There is no provider option. Missing, unreadable, invalid or mixed-provider evidence
+fails before writes or viewer startup. Only the detected provider's evidence is
+refreshed; report filenames stay the same.
 
 The checker validates the package, local links and every Python import, including
 conditional, function-local and literal dynamic imports. Imports must resolve to

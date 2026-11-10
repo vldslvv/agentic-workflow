@@ -88,7 +88,9 @@ class CollectionTests(unittest.TestCase):
         )
         c.commit()
         c.close()
-        self.environment = patch.dict(os.environ, CODEX_HOME=str(self.host), CODEX_THREAD_ID="root")
+        self.environment = patch.dict(
+            os.environ, CODEX_HOME=str(self.host), CODEX_THREAD_ID="root", OPENCODE_SESSION_ID=""
+        )
         self.environment.start()
         self.addCleanup(self.environment.stop)
         self.root = self.base / ".agentic-workflow/records/001_demo"
@@ -165,7 +167,7 @@ class CollectionTests(unittest.TestCase):
         old_user = (json.dumps(turn("root", "old", 100)[2]) + "\n").encode()
         expected = expected.replace(old_user, b"", 1)
         self.assertEqual(captured.read_bytes(), expected)
-        report = refresh(self.root).usage
+        report = refresh(self.root, "codex").usage
         self.assertEqual(report["summary"]["tokens"]["total_tokens"]["known_subtotal"], 13)
         self.assertIn("unfinished_turn", report["summary"]["coverage"])
         with native.open("ab") as f:
@@ -175,7 +177,7 @@ class CollectionTests(unittest.TestCase):
                     + "\n"
                 ).encode()
             )
-        complete = refresh(self.root).usage
+        complete = refresh(self.root, "codex").usage
         self.assertEqual(complete["summary"]["tokens"]["total_tokens"]["total"], 13)
         self.assertEqual(
             captured.read_bytes(),
@@ -195,7 +197,7 @@ class CollectionTests(unittest.TestCase):
             )
         result = self.cli("records.py", "resolve", self.root, "work")
         self.assertEqual(result.returncode, 0, result.stderr)
-        report = refresh(self.root).usage
+        report = refresh(self.root, "codex").usage
         self.assertEqual(report["summary"]["tokens"]["total_tokens"]["total"], 26)
         self.assertEqual(
             {r["key"]["task_id"] for r in report["groups"]["task"]}, {"orchestration", "repair"}
@@ -270,7 +272,7 @@ class CollectionTests(unittest.TestCase):
             created=195,
         )
         self.allocate()
-        pending = refresh(self.root).usage
+        pending = refresh(self.root, "codex").usage
         self.assertEqual(pending["summary"]["tokens"]["total_tokens"]["known_subtotal"], 65)
         self.assertNotIn(
             "codex:replacement", {n["agent_id"] for n in pending["spawn_tree"]["nodes"]}
@@ -284,7 +286,7 @@ class CollectionTests(unittest.TestCase):
             created=490,
         )
         originals = {p: p.read_bytes() for p in self.host.glob("*.jsonl")}
-        report = refresh(self.root).usage
+        report = refresh(self.root, "codex").usage
         self.assertEqual(report["summary"]["tokens"]["total_tokens"]["total"], 78)
         self.assertEqual(
             {p.parent.name for p in self.root.glob("native/*/*.jsonl")},
@@ -319,7 +321,7 @@ class CollectionTests(unittest.TestCase):
         # Requested settings remain available without replacing observed settings.
         from usage_report import import_evidence
 
-        events, _ = import_evidence(self.root)
+        events, _ = import_evidence(self.root, "codex")
         child = next(
             e
             for e in events
@@ -330,7 +332,7 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual({p: p.read_bytes() for p in originals}, originals)
         # Offline refresh reconstructs attribution from saved dispatches and metadata.
         with patch.dict(os.environ, CODEX_HOME=str(self.base / "missing")):
-            offline = refresh(self.root).usage
+            offline = refresh(self.root, "codex").usage
         self.assertEqual(offline["summary"]["tokens"]["total_tokens"]["known_subtotal"], 78)
         self.assertIn("native_storage_unavailable", offline["summary"]["coverage"])
         self.assertEqual(offline["assignments"], report["assignments"])
@@ -362,7 +364,7 @@ class CollectionTests(unittest.TestCase):
             created=190,
         )
         self.allocate()
-        report = refresh(self.root).usage
+        report = refresh(self.root, "codex").usage
         self.assertEqual(report["summary"]["tokens"]["total_tokens"]["known_subtotal"], 26)
         self.assertIn("ambiguous_native_identity", report["summary"]["coverage"])
         self.assertIn("ambiguous_dispatch_turn", report["summary"]["coverage"])
@@ -379,7 +381,7 @@ class CollectionTests(unittest.TestCase):
         canonical = self.root / "native/root/r1.jsonl"
         (self.root / "native/explicit.jsonl").write_bytes(canonical.read_bytes())
         copies = {p: p.read_bytes() for p in self.root.glob("native/**/*.jsonl")}
-        unavailable = refresh(self.root).usage
+        unavailable = refresh(self.root, "codex").usage
         self.assertEqual({p: p.read_bytes() for p in copies}, copies)
         self.assertIn("native_source_unavailable", unavailable["summary"]["coverage"])
         self.assertEqual(unavailable["summary"]["tokens"]["total_tokens"]["known_subtotal"], 26)
@@ -411,7 +413,7 @@ class CollectionTests(unittest.TestCase):
             stream.write(
                 b"".join((json.dumps(r) + "\n").encode() for r in turn("root", "unrelated", 500))
             )
-        report = refresh(self.root).usage
+        report = refresh(self.root, "codex").usage
         self.assertEqual(report["summary"]["tokens"]["total_tokens"]["known_subtotal"], 26)
         self.assertEqual(
             {t for n in report["spawn_tree"]["nodes"] for t in n["turns"]}, {"selected", "work"}
@@ -424,7 +426,7 @@ class CollectionTests(unittest.TestCase):
         with native.open("ab") as f:
             f.write(b'{"type":"event_msg","note":"' + bytes([0xE2, 0x82]))
         self.allocate()
-        report = refresh(self.root).usage
+        report = refresh(self.root, "codex").usage
         self.assertIn("invalid_json_line", report["summary"]["coverage"])
         self.assertEqual(report["summary"]["tokens"]["total_tokens"]["known_subtotal"], 13)
         original = native.read_bytes()
@@ -434,7 +436,7 @@ class CollectionTests(unittest.TestCase):
             + bytes([0xAC])
             + b'","timestamp":105,"payload":{"type":"task_complete","turn_id":"active"}}\n'
         )
-        report = refresh(self.root).usage
+        report = refresh(self.root, "codex").usage
         self.assertEqual(report["summary"]["tokens"]["total_tokens"]["total"], 13)
         self.assertNotIn("invalid_json_line", report["summary"]["coverage"])
         self.assertEqual((self.root / "native/root/active.jsonl").read_bytes(), native.read_bytes())
@@ -468,7 +470,7 @@ class CollectionTests(unittest.TestCase):
         )
         self.native("worker", child, "root", "/root/worker", created=190)
         self.allocate()
-        baseline = refresh(self.root).usage
+        baseline = refresh(self.root, "codex").usage
         copies = {p: p.read_bytes() for p in self.root.glob("native/**/*.jsonl")}
         (self.root / "tasks/work").mkdir(parents=True)
         (self.root / "tasks/work/acceptance.md").write_text(
@@ -485,7 +487,7 @@ class CollectionTests(unittest.TestCase):
         )
         annotations = self.root / "assignment-annotations.json"
         annotations.write_text(json.dumps(dict(version=1, assignments=[annotation])))
-        report = refresh(self.root).usage
+        report = refresh(self.root, "codex").usage
         by_agent = {a["agent_id"]: a for a in report["assignments"]}
         worker = by_agent["codex:worker"]
         self.assertEqual(
@@ -499,7 +501,7 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual(report["summary"]["tokens"], baseline["summary"]["tokens"])
         self.assertEqual({p: p.read_bytes() for p in copies}, copies)
         with patch.dict(os.environ, CODEX_HOME=str(self.base / "missing")):
-            offline = refresh(self.root).usage
+            offline = refresh(self.root, "codex").usage
         self.assertEqual(offline["assignments"], report["assignments"])
         # Annotations cannot select turns, override native tags, or escape the root.
         invalid = [
@@ -511,7 +513,7 @@ class CollectionTests(unittest.TestCase):
             with self.subTest(entry=entry):
                 annotations.write_text(json.dumps(dict(version=1, assignments=[entry])))
                 with self.assertRaises(ValueError):
-                    refresh(self.root)
+                    refresh(self.root, "codex")
 
     def test_delivered_agent_message_tags_are_attributed_to_recipient_only(self) -> None:
         self.native(
@@ -543,7 +545,7 @@ class CollectionTests(unittest.TestCase):
             )
         self.native("worker", child, "root", "/root/worker", created=190)
         self.allocate()
-        report = refresh(self.root).usage
+        report = refresh(self.root, "codex").usage
         worker = next(a for a in report["assignments"] if a["agent_id"] == "codex:worker")
         self.assertEqual(
             (worker["task_id"], worker["role"], worker["purpose"]),

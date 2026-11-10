@@ -53,6 +53,45 @@ class PackageCheckTests(PackageCheckCase):
                 else:
                     self.assertEqual(report["errors"], [])
 
+    def test_tracing_dependencies_follow_provider_and_shared_boundaries(self) -> None:
+        cases = (
+            ("", "from . import codex\n", False),
+            ("", "import records\n", True),
+            ("shared", "from .types import Event\n", False),
+            ("shared", "from tracing.codex import collect\n", True),
+            ("shared", "from tracing import opencode\n", True),
+            ("shared", "from ..registry import select\n", True),
+            ("shared", "from ... import usage_report\n", True),
+            ("codex", "from tracing.shared.files import locked\n", False),
+            ("codex", "from .parser import parse\n", False),
+            ("codex", "from tracing.opencode import collect\n", True),
+            ("codex", "from .. import opencode\n", True),
+            ("codex", "from records import allocate\n", True),
+            ("codex", "import importlib\nimportlib.import_module('trace_view')\n", True),
+            ("opencode", "from ..shared.types import Event\n", False),
+            ("opencode", "from tracing import codex\n", True),
+            ("opencode", "import usage_report\n", True),
+            ("opencode", "__import__('tracing.codex')\n", True),
+        )
+        for owner, source, violation in cases:
+            with self.subTest(owner=owner, source=source):
+                path = self.package / f"helpers/tracing/{owner}/probe.py"
+                path.write_text(source)
+                try:
+                    report = self.result(self.cli(), 1 if violation else 0)
+                    if violation:
+                        self.assertTrue(
+                            any(
+                                "prohibited tracing dependency" in error
+                                for error in report["errors"]
+                            ),
+                            report,
+                        )
+                    else:
+                        self.assertEqual(report["errors"], [])
+                finally:
+                    path.unlink()
+
     def test_valid_package_ignores_host_instructions(self) -> None:
         (self.root / "AGENTS.md").write_text("[Host-only reference](absent.md)\n")
         self.assertEqual(self.result(self.cli(), 0)["errors"], [])

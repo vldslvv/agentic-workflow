@@ -4,8 +4,8 @@ import json
 from collections.abc import Sequence
 from html import escape
 
-from trace_types import EventReport, Metric, Report
-from usage_report import format_settings
+from .reporting import format_settings
+from .types import EventReport, Metric, Report
 
 GROUPS = {
     "task": "Task",
@@ -77,7 +77,7 @@ def render(
         '<button id="resume-updates" type="button">Resume updates</button></div>',
         '<div id="report-content">',
         '<header><div><p class="eyebrow">LOCAL EXECUTION EVIDENCE</p><h1>Agent trace insights</h1>',
-        f"<p>{text(report['implementation_id'])}</p></div><nav>",
+        f"<p>{text(report['implementation_id'])} · Tracing provider: {text(report.get('tracing_provider'))}</p></div><nav>",
         (
             f'<a class="button" id="perfetto" href="{text(perfetto_url)}" target="_blank" rel="noreferrer">Open timeline in Perfetto ↗</a>'
             if perfetto_url

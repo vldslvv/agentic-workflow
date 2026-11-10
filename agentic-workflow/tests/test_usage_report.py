@@ -21,8 +21,9 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "helpers"))
 import records
 import usage_report as usage
-from trace_dashboard import render
-from trace_types import AssignmentRow, Diagnostic, Event, Source
+from tracing.shared import reporting
+from tracing.shared.dashboard import render
+from tracing.shared.types import AssignmentRow, Diagnostic, Event, Source
 
 HELPERS = Path(__file__).resolve().parents[1] / "helpers"
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -33,7 +34,9 @@ class TraceTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.addCleanup(patch.stopall)
-        patch.dict(os.environ, CODEX_HOME=self.temp.name, CODEX_THREAD_ID="").start()
+        patch.dict(
+            os.environ, CODEX_HOME=self.temp.name, CODEX_THREAD_ID="", OPENCODE_SESSION_ID=""
+        ).start()
         import sqlite3
 
         c = sqlite3.connect(str(Path(self.temp.name) / "state_5.sqlite"))
@@ -139,7 +142,7 @@ class TraceTests(unittest.TestCase):
         return path, dict(id=source_id, session_id=sid, turn_ids=turns)
 
     def evidence(self) -> tuple[list[Event], list[Diagnostic]]:
-        return usage.import_evidence(self.root)
+        return usage.import_evidence(self.root, "codex")
 
     def tag(self, path: Path, assignments: dict[str, dict[str, str]]) -> None:
         rows = [json.loads(line) for line in path.read_text().splitlines()]
@@ -208,7 +211,7 @@ class TraceTests(unittest.TestCase):
             with self.subTest(adapter=adapter):
                 self.root = records.allocate(self.records_root, adapter)
                 self.source(adapter)
-                report = usage.refresh(self.root).usage
+                report = usage.refresh(self.root, adapter).usage
                 self.assertEqual(
                     {k: v["total"] for k, v in report["summary"]["tokens"].items()}, expected
                 )
@@ -219,7 +222,7 @@ class TraceTests(unittest.TestCase):
 
     def test_opencode_variant_does_not_supply_missing_observed_effort(self) -> None:
         _, source = self.source("opencode", bind=False)
-        bundle = usage.refresh(self.root)
+        bundle = usage.refresh(self.root, "opencode")
         models = [e for e in bundle.content["events"] if e["kind"] == "model"]
         self.assertEqual({e["model"] for e in models}, {"model-a", "model-b"})
         self.assertEqual({e["variant"] for e in models}, {"high", "low"})
@@ -256,7 +259,7 @@ class TraceTests(unittest.TestCase):
                 "turn-2": dict(task="repair", role="reviewer", purpose="Check correction"),
             },
         )
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "codex").usage
         assignments = report["assignments"]
         self.assertEqual({a["agent_name"] for a in assignments}, {"Ada"})
         self.assertEqual({a["native_agent_path"] for a in assignments}, {"/root/builder"})
@@ -296,6 +299,8 @@ class TraceTests(unittest.TestCase):
         self.assertIn("Ada · implementer / build · model-a / high", lane)
         self.assertIn("Ada · reviewer / repair · model-b / low", lane)
         agent_slices = [e for e in trace if e.get("cat") == "agent" and e["ph"] == "X"]
+        self.assertEqual(len(agent_slices), 1)
+        self.assertEqual(agent_slices[0]["args"]["turn_ids"], ["turn-1", "turn-2"])
         self.assertTrue(any("model-a / high" in e["name"] for e in agent_slices))
         self.assertTrue(any("model-b / low" in e["name"] for e in agent_slices))
         dashboard = render(report, "https://ui.perfetto.dev")
@@ -318,7 +323,7 @@ class TraceTests(unittest.TestCase):
     def test_task_dashboard_shows_recorded_roles_and_explicit_unknowns(self) -> None:
         self.source(task="work")
         self.source(sid="other", task="other", role="validator")
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "codex").usage
         assignment = next(a for a in report["assignments"] if a["task_id"] == "work")
         other = next(a for a in report["assignments"] if a["task_id"] == "other")
         role_cases: list[tuple[list[str | None], str]] = [
@@ -345,7 +350,7 @@ class TraceTests(unittest.TestCase):
     def test_task_dashboard_keeps_usage_without_an_assignment(self) -> None:
         self.source(task="work", role="implementer")
         self.source(sid="unassigned", bind=False)
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "codex").usage
         dashboard = render(report, None)
         task_table = dashboard.split('id="group-task"', 1)[1].split("</table>", 1)[0]
         self.assertIn("<td>Unknown</td><td>Unknown</td><td>200</td>", task_table)
@@ -366,7 +371,12 @@ class TraceTests(unittest.TestCase):
         self.assertEqual(first.returncode, 0, first.stderr)
         outputs = {p: p.read_bytes() for p in self.root.glob("reports/*")}
         with ThreadPoolExecutor(max_workers=3) as pool:
-            results = list(pool.map(lambda _: self.cli("usage_report.py", self.root), range(3)))
+            results = list(
+                pool.map(
+                    lambda _: self.cli("usage_report.py", self.root),
+                    range(3),
+                )
+            )
         self.assertTrue(all(r.returncode == 0 for r in results), [r.stderr for r in results])
         self.assertEqual({p: p.read_bytes() for p in outputs}, outputs)
         self.assertEqual(path.read_bytes(), before)
@@ -382,7 +392,7 @@ class TraceTests(unittest.TestCase):
 
     def test_codex_content_identity_relationships_availability_and_full_exports(self) -> None:
         path, _ = self.source(turns=["turn-1"])
-        before = usage.refresh(self.root).usage["summary"]
+        before = usage.refresh(self.root, "codex").usage["summary"]
         rows = [json.loads(line) for line in path.read_text().splitlines()]
         rows[0]["payload"]["base_instructions"] = {"text": "Recorded base instructions"}
         next(r["payload"] for r in rows if r["type"] == "turn_context")[
@@ -464,7 +474,7 @@ class TraceTests(unittest.TestCase):
             ),
         ]
         path.write_text("".join(json.dumps(r) + "\n" for r in rows))
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "codex").usage
         self.assertEqual(report["summary"]["tokens"], before["tokens"])
         self.assertEqual(report["summary"]["observed_tool_calls"], 4)
         self.assertEqual(report["summary"]["timed_operations"], before["timed_operations"] + 1)
@@ -522,16 +532,17 @@ class TraceTests(unittest.TestCase):
         self.assertNotIn("handoff body", json.dumps(report))
         # A second saved copy merges provenance without merging genuinely repeated messages.
         (path.parent / "copy.jsonl").write_bytes(path.read_bytes())
-        usage.refresh(self.root)
+        usage.refresh(self.root, "codex")
         copied = json.loads((self.root / "reports/events.json").read_text())["events"]
         self.assertEqual([e["event_id"] for e in copied], [e["event_id"] for e in events])
         self.assertTrue(all(len(e["provenance"]) >= 2 for e in copied))
 
     def test_opencode_recorded_parts_instructions_errors_and_selected_turns(self) -> None:
-        from trace_adapters import read_source
+        from tracing.opencode.parser import parse
+        from tracing.shared.events import read_source
 
         path, _ = self.source("opencode")
-        before = usage.refresh(self.root).usage["summary"]
+        before = usage.refresh(self.root, "opencode").usage["summary"]
         data = json.loads(path.read_text())
         user, assistant = data["messages"][:2]
         user["info"]["system"] = "Recorded system instructions"
@@ -557,11 +568,11 @@ class TraceTests(unittest.TestCase):
             session_id="supervisor",
             turn_ids=["turn-1", "turn-2"],
         )
-        selected, _ = read_source(source, path)
+        selected, _ = read_source(source, path, parse)
         self.assertNotIn("EXCLUDED CONTENT", json.dumps(selected))
         data["messages"].pop()
         path.write_text(json.dumps(data))
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "opencode").usage
         self.assertEqual(report["summary"], before)
         events = json.loads((self.root / "reports/events.json").read_text())["events"]
         self.assertEqual(
@@ -594,14 +605,14 @@ class TraceTests(unittest.TestCase):
         rows = path.read_text().splitlines()
         duplicate = next(row for row in rows if "token_usage_record" in row)
         path.write_text("\n".join(rows + [duplicate]) + "\n")
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "codex").usage
         self.assertEqual(report["summary"]["tokens"]["total_tokens"]["total"], 200)
         changed = json.loads(duplicate)
         changed["payload"]["usage"]["input_tokens"] = 101
         with path.open("a") as stream:
             stream.write(json.dumps(changed) + "\n")
         with self.assertRaisesRegex(ValueError, "conflicting duplicate"):
-            usage.refresh(self.root)
+            usage.refresh(self.root, "codex")
 
     def test_missing_counters_and_partial_attribution_preserve_known_usage(self) -> None:
         path, _ = self.source(bind=False)
@@ -613,7 +624,7 @@ class TraceTests(unittest.TestCase):
             ):
                 del row["payload"]["usage"]["cached_input_tokens"]
         path.write_text("".join(json.dumps(r) + "\n" for r in rows))
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "codex").usage
         self.assertEqual(report["summary"]["tokens"]["input_tokens"]["total"], 150)
         self.assertEqual(
             report["summary"]["tokens"]["cached_input_tokens"],
@@ -630,7 +641,7 @@ class TraceTests(unittest.TestCase):
         rows = [json.loads(r) for r in path.read_text().splitlines()]
         rows = [r for r in rows if r["type"] != "token_usage_record"]
         path.write_text("".join(json.dumps(r) + "\n" for r in rows) + '{"truncated":')
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "codex").usage
         self.assertIsNone(report["summary"]["tokens"]["total_tokens"]["known_subtotal"])
         self.assertIn("missing_usage", report["summary"]["coverage"])
         self.assertIn("invalid_json_line", report["summary"]["coverage"])
@@ -642,7 +653,7 @@ class TraceTests(unittest.TestCase):
         completed = [r for r in rows if r["payload"].get("type") == "task_complete"]
         path.write_text("".join(json.dumps(r) + "\n" for r in rows if r not in completed))
         with patch("time.time", return_value=1793959210):
-            bundle = usage.refresh(self.root)
+            bundle = usage.refresh(self.root, "codex")
         report = bundle.usage
         self.assertEqual(report["summary"]["outcomes"], {"failed": 1, "returned": 1})
         self.assertEqual(report["summary"]["wrapper_calls"], 1)
@@ -675,14 +686,14 @@ class TraceTests(unittest.TestCase):
             bundle.content["timing_omissions"],
         )
         with patch("time.time", return_value=1793959215):
-            refreshed = usage.refresh(self.root)
+            refreshed = usage.refresh(self.root, "codex")
         self.assertIn("0:00:15 elapsed", str(exported(refreshed)["name"]))
         self.assertEqual(
             cast(dict[str, object], exported(refreshed)["args"])["elapsed_seconds"], 15
         )
         with path.open("a") as stream:
             stream.write("".join(json.dumps(r) + "\n" for r in completed))
-        finished = usage.refresh(self.root)
+        finished = usage.refresh(self.root, "codex")
         observed = next(e for e in finished.content["events"] if e["event_id"] == agent["event_id"])
         self.assertEqual(exported(finished)["ph"], "X")
         self.assertEqual(
@@ -709,7 +720,7 @@ class TraceTests(unittest.TestCase):
             {"kind": "model", "start": 100},
         ):
             with self.subTest(changes=changes):
-                trace = usage.timeline([cast(Event, dict(base, **changes))])
+                trace = reporting.timeline([cast(Event, dict(base, **changes))])
                 row = next(
                     e
                     for e in trace["traceEvents"]
@@ -730,7 +741,7 @@ class TraceTests(unittest.TestCase):
             task="validation",
         )
         events, gaps = self.evidence()
-        tree = usage.build_report(events, gaps)["spawn_tree"]
+        tree = reporting.build_report(events, gaps)["spawn_tree"]
         self.assertEqual(
             {(e["parent"], e["child"], e["relationship"]) for e in tree["edges"]},
             {
@@ -740,7 +751,7 @@ class TraceTests(unittest.TestCase):
                 ("codex:implementer", "codex:parallel", "fork"),
             },
         )
-        trace = usage.timeline(events)
+        trace = reporting.timeline(events)
         rows = trace["traceEvents"]
         self.assertEqual(sum(r["ph"] == "M" and r["name"] == "thread_name" for r in rows), 4)
         self.assertEqual(sum(r["ph"] == "s" for r in rows), 3)
@@ -762,7 +773,7 @@ class TraceTests(unittest.TestCase):
     def test_native_source_version_is_derived_and_unverified_versions_are_disclosed(self) -> None:
         path, _ = self.source()
         path.write_text(path.read_text().replace("0.167.0", "unknown"))
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "codex").usage
         self.assertIn("unverified_native_version", report["summary"]["coverage"])
         self.assertEqual(report["summary"]["tokens"]["total_tokens"]["known_subtotal"], 200)
 
@@ -806,7 +817,7 @@ class TraceTests(unittest.TestCase):
         message["parts"].insert(1, dict(message["parts"][0], id="step-2"))
         # Native message tokens repeat the latest step, not the sum.
         path.write_text(json.dumps(data))
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "opencode").usage
         self.assertEqual(report["summary"]["tokens"]["total_tokens"]["total"], 260)
         self.assertEqual(report["summary"]["observed_model_measurements"], 2)
         self.assertEqual(report["summary"]["outcomes"], {"failed": 1})
@@ -822,7 +833,7 @@ class TraceTests(unittest.TestCase):
                 ] = invalid
                 path.write_text("".join(json.dumps(r) + "\n" for r in rows))
                 with self.assertRaisesRegex(ValueError, "exceed"):
-                    usage.refresh(self.root)
+                    usage.refresh(self.root, "codex")
 
     def test_opencode_zero_initialized_messages_are_unmeasured_but_completed_steps_survive(
         self,
@@ -848,7 +859,7 @@ class TraceTests(unittest.TestCase):
                         "data": {"message": "PRIVATE_ERROR"},
                     }
                 path.write_text(json.dumps(data))
-                report = usage.refresh(self.root).usage
+                report = usage.refresh(self.root, "opencode").usage
                 tokens = report["summary"]["tokens"]["total_tokens"]
                 self.assertIsNone(tokens["total"])
                 self.assertIsNone(tokens["known_subtotal"])
@@ -858,7 +869,7 @@ class TraceTests(unittest.TestCase):
                     self.assertIn("unfinished_turn", report["summary"]["coverage"])
         message["parts"].append(step)
         path.write_text(json.dumps(data))
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "opencode").usage
         self.assertEqual(report["summary"]["tokens"]["total_tokens"]["known_subtotal"], 70)
 
     def test_native_mcp_transport_tool_failure_success_and_unknown_status(self) -> None:
@@ -881,7 +892,7 @@ class TraceTests(unittest.TestCase):
                 events, _ = self.evidence()
                 tool = next(e for e in events if e.get("call_id") == "nested")
                 self.assertEqual(tool["outcome"], expected)
-                self.assertNotIn("PRIVATE_ERROR", json.dumps(usage.build_report(events, [])))
+                self.assertNotIn("PRIVATE_ERROR", json.dumps(reporting.build_report(events, [])))
                 self.assertEqual(tool["outputs"][0]["content"]["values"]["result"], result)
 
     def test_source_wide_gaps_propagate_to_each_affected_assignment_and_model(self) -> None:
@@ -895,7 +906,7 @@ class TraceTests(unittest.TestCase):
         )
         with path.open("a") as stream:
             stream.write('{"truncated":')
-        report = usage.refresh(self.root).usage
+        report = usage.refresh(self.root, "codex").usage
         for name in ("task", "agent_run", "role", "model_effort"):
             with self.subTest(group=name):
                 self.assertTrue(report["groups"][name])
@@ -929,7 +940,7 @@ class TraceTests(unittest.TestCase):
             dict(base, kind="agent", event_id="child", agent_id="opencode:aaa", start=102, end=109),
         ]
         trace = self.root / "timeline.json"
-        trace.write_text(json.dumps(usage.timeline(cast(list[Event], events))))
+        trace.write_text(json.dumps(reporting.timeline(cast(list[Event], events))))
 
         def query(sql: str) -> list[dict[str, str]]:
             result = subprocess.run(
@@ -999,7 +1010,7 @@ class TraceTests(unittest.TestCase):
             )
         )
         path.write_text("".join(json.dumps(r) + "\n" for r in rows))
-        usage.refresh(self.root)
+        usage.refresh(self.root, "codex")
         trace = self.root / "reports/timeline.json"
 
         def query(sql: str) -> list[dict[str, str]]:
@@ -1095,7 +1106,7 @@ class TraceTests(unittest.TestCase):
         ]
         trace = self.root / "timeline.json"
         with patch("time.time", return_value=110):
-            trace.write_text(json.dumps(usage.timeline(cast(list[Event], events))))
+            trace.write_text(json.dumps(reporting.timeline(cast(list[Event], events))))
 
         def query(sql: str) -> list[dict[str, str]]:
             result = subprocess.run(
@@ -1142,7 +1153,9 @@ class TraceTests(unittest.TestCase):
         for event in other:
             event["adapter"] = "another-adapter"
             event["provenance"] = [{**p, "adapter": "another-adapter"} for p in event["provenance"]]
-        self.assertEqual(usage.summarize(events, diagnostics), usage.summarize(other, diagnostics))
+        self.assertEqual(
+            reporting.summarize(events, diagnostics), reporting.summarize(other, diagnostics)
+        )
 
 
 if __name__ == "__main__":

@@ -186,9 +186,34 @@ def check_imports(files: dict[str, bytes]) -> list[str]:
                 or f"{parent}.{module}" in modules
             )
 
+        def resolved(module: str, level: int = 0) -> str:
+            if level:
+                parts = list(Path(filename).parent.parts)
+                return ".".join(parts[: len(parts) - level + 1] + ([module] if module else []))
+            if module in modules:
+                return module
+            local = f"helpers.{module}"
+            return local if local in modules else module
+
+        def check_layer(module: str, line: int) -> None:
+            parts = Path(filename).parts
+            if parts[:2] != ("helpers", "tracing") or len(parts) < 3:
+                return
+            owner = parts[2]
+            if module.split(".")[0] in sys.stdlib_module_names:
+                return
+            permitted: tuple[str, ...] = ("helpers.tracing.shared",)
+            if owner in ("codex", "opencode"):
+                permitted += (f"helpers.tracing.{owner}",)
+            elif len(parts) == 3:
+                permitted = ("helpers.tracing",)
+            if not any(module == prefix or module.startswith(prefix + ".") for prefix in permitted):
+                errors.append(f"{filename}:{line}: prohibited tracing dependency: {module}")
+
         def check_target(module: str, line: int, level: int = 0) -> None:
             if not allowed(module, level):
                 errors.append(f"{filename}:{line}: prohibited import: {'.' * level}{module}")
+            check_layer(resolved(module, level), line)
 
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
@@ -199,7 +224,15 @@ def check_imports(files: dict[str, bytes]) -> list[str]:
                     for item in node.names:
                         check_target(item.name, node.lineno, node.level)
                 else:
-                    check_target(node.module, node.lineno, node.level)
+                    import_target = resolved(node.module, node.level)
+                    children = [f"{import_target}.{item.name}" for item in node.names]
+                    module_children = [child for child in children if child in modules]
+                    if not module_children or len(module_children) < len(node.names):
+                        check_target(node.module, node.lineno, node.level)
+                    elif not allowed(node.module, node.level):
+                        check_target(node.module, node.lineno, node.level)
+                    for child in module_children:
+                        check_layer(child, node.lineno)
             elif isinstance(node, ast.Call):
                 function = node.func
                 name = (
@@ -292,13 +325,36 @@ def check(files: dict[str, bytes]) -> tuple[list[str], int]:
         for name in (
             "check_package",
             "records",
-            "native_traces",
-            "opencode_capture",
-            "opencode_v2",
-            "trace_adapters",
             "usage_report",
-            "trace_dashboard",
             "trace_view",
+        )
+    )
+    expected.update(
+        "helpers/" + name
+        for name in (
+            "tracing/__init__.py",
+            "tracing/codex/__init__.py",
+            "tracing/codex/collection.py",
+            "tracing/codex/diagnostics.py",
+            "tracing/codex/parser.py",
+            "tracing/codex/types.py",
+            "tracing/opencode/__init__.py",
+            "tracing/opencode/capture.py",
+            "tracing/opencode/collection.py",
+            "tracing/opencode/diagnostics.py",
+            "tracing/opencode/parser.py",
+            "tracing/opencode/types.py",
+            "tracing/opencode/v2.py",
+            "tracing/registry.py",
+            "tracing/shared/__init__.py",
+            "tracing/shared/assignments.py",
+            "tracing/shared/dashboard.py",
+            "tracing/shared/enrichment.py",
+            "tracing/shared/events.py",
+            "tracing/shared/files.py",
+            "tracing/shared/reporting.py",
+            "tracing/shared/types.py",
+            "tracing/shared/values.py",
         )
     )
     errors = [f"Missing package file: {p}" for p in sorted(expected - files.keys())]

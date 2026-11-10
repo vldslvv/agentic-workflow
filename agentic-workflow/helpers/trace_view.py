@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 """Continuously capture selected native evidence and view agent insights.
 
-implementation is an existing allocated implementation directory. --interval
+implementation is an existing allocated implementation directory. The tracing
+provider is detected from saved native evidence, independently of the current
+agent shell. Missing, invalid or mixed-provider evidence fails before writes or
+viewer startup. Each refresh routes explicitly to the detected provider. --interval
 SECONDS is positive and finite (default: 5); the owner waits this long after
 each collection attempt; it also sets the browser poll interval.
 
 Starts a foreground HTTP viewer on 127.0.0.1:9001 and attempts to open a
-browser. Creates/uses implementation/.records.lock; refreshes saved native
+browser. Creates/uses implementation/.records.lock and .trace-viewer.lock;
+refreshes saved native
 turns and proven dispatch descendants under
 implementation/native/<session-id>/<turn-id>.jsonl (Codex) or .json (OpenCode);
 creates/overwrites implementation/reports/usage.json,
-usage.md, events.json and timeline.json. Reuses a compatible viewer for the
-same implementation and exits; the owner's interval remains in effect. Other
+usage.md, events.json and timeline.json. Restarts a compatible viewer for the
+same implementation and tracing provider and owns the new foreground process. Other
 port occupants cause an error; stop the conflicting viewer or process before
 retrying.
 
@@ -19,11 +23,11 @@ Prints the dashboard URL and refresh/coverage messages to stdout; open the URL
 manually if browser launch is unavailable. Coverage gaps mean telemetry is
 incomplete even when refresh succeeds; null means unavailable. Initial failure
 exits 2 with stderr; later refresh failures print to stdout, keep the last
-report visible and retry on the next cycle. Exit 0 means reuse or a stopped
+report visible and retry on the next cycle. Exit 0 means a stopped
 viewer, not complete telemetry.
 
 Retain the owner's shell session while capturing; it runs until Ctrl+C or
-SIGTERM. Stop it after capture. Restart the owner to change --interval.
+SIGTERM. Stop it after capture. Run the command again to replace the viewer and change --interval.
 
 Example: python3 agentic-workflow/helpers/trace_view.py .agentic-workflow/records/001_example --interval 5
 """
@@ -39,6 +43,7 @@ import signal
 import threading
 import time
 import webbrowser
+from contextlib import ExitStack
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -46,16 +51,19 @@ from pathlib import Path
 from types import FrameType
 from typing import NoReturn, TypedDict, cast
 from urllib.parse import quote
-from urllib.request import ProxyHandler, build_opener
+from urllib.request import ProxyHandler, Request, build_opener
 
-from trace_dashboard import render
-from trace_types import Report
+from tracing.registry import detect_saved, select
+from tracing.shared.dashboard import render
+from tracing.shared.files import locked
+from tracing.shared.types import Report
 from usage_report import ReportBundle, refresh
 
 
 class ViewerStatus(TypedDict):
     service: str
     implementation: str
+    tracing_provider: str
     token: str
     pid: int
     interval: float
@@ -63,7 +71,7 @@ class ViewerStatus(TypedDict):
 
 HOST, PORT = "127.0.0.1", 9001
 ORIGIN = "https://ui.perfetto.dev"
-SERVICE = "agentic-workflow-insights-v1"
+SERVICE = "agentic-workflow-insights-v2"
 # /status belongs to Perfetto's native RPC probe; it must remain a 404 here.
 STATUS_PATH = "/__agentic_workflow_trace_viewer__"
 
@@ -87,8 +95,9 @@ class Snapshot:
 class Viewer(ThreadingHTTPServer):
     daemon_threads = True
 
-    def __init__(self, root: Path, interval: float) -> None:
+    def __init__(self, root: Path, provider: str, interval: float) -> None:
         self.root = root
+        self.provider = provider
         self.interval = interval
         self.snapshot: Snapshot | None = None
         self.initial_collection = threading.Event()
@@ -96,7 +105,7 @@ class Viewer(ThreadingHTTPServer):
         super().__init__((HOST, PORT), Handler)
 
     def collect(self) -> Report:
-        bundle = refresh(self.root)
+        bundle = refresh(self.root, self.provider)
         self.publish(bundle, datetime.now(timezone.utc).isoformat(timespec="seconds"))
         return bundle.usage
 
@@ -141,6 +150,16 @@ class Handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self) -> None:
         self.reply(204 if self.allowed() else 403)
 
+    def do_POST(self) -> None:
+        if not self.allowed() or self.headers.get("Origin") is not None:
+            self.reply(403)
+        elif self.path != f"/{self.server.token}/shutdown":
+            self.reply(404)
+        else:
+            self.reply(202)
+            # Interrupt collection and interval waits through normal CLI cleanup.
+            os.kill(os.getpid(), signal.SIGTERM)
+
     def do_GET(self) -> None:
         if not self.allowed():
             self.reply(403)
@@ -151,6 +170,7 @@ class Handler(BaseHTTPRequestHandler):
                     dict(
                         service=SERVICE,
                         implementation=str(self.server.root),
+                        tracing_provider=self.server.provider,
                         token=self.server.token,
                         pid=os.getpid(),
                         interval=self.server.interval,
@@ -177,8 +197,8 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(404)
 
 
-def existing_viewer(root: Path) -> ViewerStatus:
-    """Check identity before reusing a listener; never kill a port occupant."""
+def existing_viewer(root: Path, provider: str) -> ViewerStatus:
+    """Check identity before requesting shutdown from a listener."""
     opener = build_opener(ProxyHandler({}))
     for _ in range(10):
         try:
@@ -187,6 +207,7 @@ def existing_viewer(root: Path) -> ViewerStatus:
             if (
                 status.get("service") == SERVICE
                 and status.get("implementation") == str(root)
+                and status.get("tracing_provider") == provider
                 and re.fullmatch(r"[0-9a-f]{32}", status.get("token", ""))
             ):
                 return cast(ViewerStatus, status)
@@ -194,7 +215,7 @@ def existing_viewer(root: Path) -> ViewerStatus:
         except (OSError, ValueError, AttributeError, TypeError):
             time.sleep(0.1)  # A concurrently starting viewer may not yet be serving.
     raise ValueError(
-        f"Port {PORT} is occupied by another process, implementation or older viewer; stop that viewer before retrying."
+        f"Port {PORT} is occupied by another process, implementation, tracing provider or older viewer; stop that viewer before retrying."
     )
 
 
@@ -231,65 +252,84 @@ def wait_interval(interval: float) -> None:
         time.sleep(min(remaining, 3600))
 
 
-def run(root: Path, interval: float = 5) -> None:
+def run(root: Path, provider: str, interval: float = 5) -> None:
+    select(provider)
     root = Path(root).resolve()
-    try:
-        server = Viewer(root, interval)
-    except OSError as exc:
-        if exc.errno != errno.EADDRINUSE:
-            raise
-        status = existing_viewer(root)
-        print(
-            f"Reusing the running viewer (interval {status['interval']:g}s). "
-            "Restart the owning viewer to change its interval.",
-            flush=True,
-        )
-        open_browser(viewer_url(status["token"]))
-        return
-    with server:
-        worker = threading.Thread(target=server.serve_forever, daemon=True)
-        worker.start()
+    if not root.is_dir():
+        raise ValueError("implementation directory does not exist")
+    with ExitStack() as startup:
+        startup.enter_context(locked(root / ".trace-viewer.lock"))
         try:
-            # Initial failures remain command errors; only the owner collects.
-            report = server.collect()
-            server.initial_collection.set()
-            print(f"Refreshed {report['implementation_id']}: {root / 'reports'}", flush=True)
-            if (
-                not report["summary"]["observed_model_measurements"]
-                and not report["summary"]["observed_tool_calls"]
-            ):
-                print(
-                    "No imported execution observations in this report; the viewer cannot reconstruct missing native evidence.",
-                    flush=True,
-                )
-            if report["summary"]["coverage"]:
-                print(
-                    "Coverage: " + json.dumps(report["summary"]["coverage"], sort_keys=True),
-                    flush=True,
-                )
-            print(
-                f"Serving agent insights locally; refreshing every {interval:g}s after collection. "
-                "Ctrl+C stops collection and serving.",
-                flush=True,
-            )
-            open_browser(viewer_url(server.token))
+            server = Viewer(root, provider, interval)
+        except OSError as exc:
+            if exc.errno != errno.EADDRINUSE:
+                raise
+            status = existing_viewer(root, provider)
+            opener = build_opener(ProxyHandler({}))
+            request = Request(viewer_url(status["token"]) + "shutdown", method="POST")
+            with opener.open(request, timeout=5) as response:
+                if response.status != 202:
+                    raise ValueError("viewer refused shutdown; stop it manually before retrying")
+            deadline = time.monotonic() + 5
             while True:
-                wait_interval(interval)
                 try:
-                    server.collect()
-                except (OSError, ValueError, KeyError, TypeError) as exc:
-                    previous = server.snapshot
-                    assert previous is not None
-                    server.publish(
-                        previous.bundle,
-                        previous.refreshed,
-                        "Refresh failed; retrying on the next cycle.",
+                    server = Viewer(root, provider, interval)
+                    break
+                except OSError as exc:
+                    if exc.errno != errno.EADDRINUSE:
+                        raise
+                    if time.monotonic() >= deadline:
+                        raise ValueError(
+                            "viewer restart timed out; stop it manually before retrying"
+                        ) from exc
+                    time.sleep(0.05)
+            print("Restarted the existing viewer.", flush=True)
+        with server:
+            worker = threading.Thread(target=server.serve_forever, daemon=True)
+            try:
+                worker.start()
+                startup.close()
+                # Initial failures remain command errors; only the owner collects.
+                report = server.collect()
+                server.initial_collection.set()
+                print(f"Refreshed {report['implementation_id']}: {root / 'reports'}", flush=True)
+                if (
+                    not report["summary"]["observed_model_measurements"]
+                    and not report["summary"]["observed_tool_calls"]
+                ):
+                    print(
+                        "No imported execution observations in this report; the viewer cannot reconstruct missing native evidence.",
+                        flush=True,
                     )
-                    print(f"trace-view: refresh failed: {exc}", flush=True)
-        finally:
-            server.initial_collection.set()
-            server.shutdown()
-            worker.join()
+                if report["summary"]["coverage"]:
+                    print(
+                        "Coverage: " + json.dumps(report["summary"]["coverage"], sort_keys=True),
+                        flush=True,
+                    )
+                print(
+                    f"Serving agent insights locally; refreshing every {interval:g}s after collection. "
+                    "Ctrl+C stops collection and serving.",
+                    flush=True,
+                )
+                open_browser(viewer_url(server.token))
+                while True:
+                    wait_interval(interval)
+                    try:
+                        server.collect()
+                    except (OSError, ValueError, KeyError, TypeError) as exc:
+                        previous = server.snapshot
+                        assert previous is not None
+                        server.publish(
+                            previous.bundle,
+                            previous.refreshed,
+                            "Refresh failed; retrying on the next cycle.",
+                        )
+                        print(f"trace-view: refresh failed: {exc}", flush=True)
+            finally:
+                server.initial_collection.set()
+                if worker.ident is not None:
+                    server.shutdown()
+                    worker.join()
 
 
 def main() -> None:
@@ -302,7 +342,7 @@ def main() -> None:
         type=positive_interval,
         default=5,
         metavar="SECONDS",
-        help="collection and browser poll interval (default: 5; restart viewer to change)",
+        help="collection and browser poll interval (default: 5; rerun to replace viewer)",
     )
     args = parser.parse_args()
 
@@ -311,7 +351,8 @@ def main() -> None:
 
     signal.signal(signal.SIGTERM, stop)
     try:
-        run(args.implementation, args.interval)
+        provider = detect_saved(args.implementation)
+        run(args.implementation, provider, args.interval)
     except KeyboardInterrupt:
         print("\nViewer stopped.", flush=True)
     except (OSError, ValueError, KeyError, TypeError) as exc:

@@ -1,11 +1,13 @@
 """OpenCode 2.2.6 transfer schema: flat messages, idle-delimited turns."""
 
-from opencode_capture import turns
-from trace_adapters import add, content, count, diagnostic, event, stamp
-from trace_types import Diagnostic, Event, Native, OpenCode, Settings, Source, Usage
+from tracing.shared.events import add, content, count, diagnostic, event, stamp
+from tracing.shared.types import Diagnostic, Event, Settings, Source, Usage
+
+from .capture import turns
+from .types import OpenCode, Tokens
 
 
-def usage(raw: Native | None) -> Usage:
+def usage(raw: Tokens | None) -> Usage:
     raw = raw or {}
     cache = raw.get("cache") or {}
     base, cached, written, output, reasoning = map(
@@ -161,6 +163,7 @@ def parse(source: Source, data: OpenCode) -> tuple[list[Event], list[Diagnostic]
                         loc,
                         call_id=cid,
                         name=part["name"],
+                        is_wrapper=False,
                         start=stamp(clock.get("ran", clock.get("created")), True),
                         end=stamp(clock.get("completed"), True),
                         outcome=outcome,
@@ -179,6 +182,7 @@ def parse(source: Source, data: OpenCode) -> tuple[list[Event], list[Diagnostic]
                             loc,
                             call_id=cid,
                             name=part["name"],
+                            is_wrapper=False,
                             timestamp=stamp(clock.get("completed"), True),
                             outcome=outcome,
                             content=content(state, "content", "error"),

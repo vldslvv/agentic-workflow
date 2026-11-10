@@ -6,8 +6,12 @@ import subprocess
 from pathlib import Path
 from typing import cast
 
-from records import identifier, write_atomic
-from trace_types import Diagnostic, OpenCode, Source
+from tracing.shared.files import identifier, safe_destination, write_atomic
+from tracing.shared.types import Diagnostic, Source
+from tracing.shared.values import object_value
+
+from .diagnostics import gap
+from .types import OpenCode
 
 
 def export_session(session: str) -> OpenCode:
@@ -31,7 +35,7 @@ def turns(data: OpenCode) -> dict[str, list[OpenCode]]:
     result: dict[str, list[OpenCode]] = {}
     active: str | None = None
     for message in data["messages"]:
-        if active is None and message["type"] == "user":
+        if active is None and message["type"] in ("user", "synthetic"):
             active = message["id"]
             result[active] = []
         if active is not None:
@@ -41,7 +45,7 @@ def turns(data: OpenCode) -> dict[str, list[OpenCode]]:
     return result
 
 
-def users(data: OpenCode) -> list[OpenCode]:
+def initiators(data: OpenCode) -> list[OpenCode]:
     return [messages[0] for messages in turns(data).values()]
 
 
@@ -53,8 +57,6 @@ def selected_turn(data: OpenCode, turn: str) -> OpenCode:
 
 
 def save(root: Path, data: OpenCode, turn: str) -> OpenCode:
-    from native_traces import safe_destination
-
     selected = selected_turn(data, turn)
     path = safe_destination(
         root, Path(root) / "native" / identifier(data["info"]["id"]) / (identifier(turn) + ".json")
@@ -82,11 +84,9 @@ EXPORT_ERRORS = (OSError, ValueError, KeyError, TypeError, subprocess.Subprocess
 
 
 def capture_current(root: Path, session: str) -> list[Diagnostic]:
-    from native_traces import gap
-
     try:
         data = export_session(session)
-        prompts = users(data)
+        prompts = initiators(data)
         if not prompts:
             return [gap("active_turn_unavailable", session)]
         # OpenCode exports messages in native chronological order.
@@ -96,13 +96,41 @@ def capture_current(root: Path, session: str) -> list[Diagnostic]:
         return [gap("opencode_export_unavailable", session)]
 
 
-def refresh(root: Path, sources: list[Source]) -> list[Diagnostic]:
-    """Refresh canonical captures and follow task calls from selected turns only."""
-    from native_traces import gap
+def dispatch_turns(data: OpenCode, part: OpenCode) -> list[str]:
+    """Match delivered prompts, including steering, without a completion deadline."""
+    prompt = object_value(part.get("state", {}).get("input")).get("prompt")
+    clock = part.get("time") or {}
+    start = clock.get("ran", clock.get("created"))
+    if not isinstance(prompt, str) or not isinstance(start, (int, float)):
+        return []
+    return [
+        turn
+        for turn, messages in turns(data).items()
+        for message in messages
+        if message["type"] == "user"
+        and message.get("time", {}).get("created", -1) >= start
+        and message.get("text")
+        in (
+            prompt,
+            "You are a subagent spawned by another session.\n" + prompt,
+        )
+    ]
 
+
+def notification(message: OpenCode) -> tuple[str, str] | None:
+    metadata = message.get("metadata") or {}
+    source = metadata.get("source")
+    key = {"subagent": "childID", "shell": "shellID"}.get(source or "")
+    target = metadata.get(key) if key else None
+    return (source, target) if isinstance(source, str) and isinstance(target, str) else None
+
+
+def refresh(root: Path, sources: list[Source]) -> list[Diagnostic]:
+    """Follow dispatches and wake-ups to a fixed point, bounded by new user turns."""
     diagnostics: list[Diagnostic] = []
     cache: dict[str, OpenCode | None] = {}
     seen: set[tuple[str, str]] = set()
+    unresolved: set[tuple[str, str]] = set()
 
     def load(session: str) -> OpenCode | None:
         if session not in cache:
@@ -132,12 +160,25 @@ def refresh(root: Path, sources: list[Source]) -> list[Diagnostic]:
         except EXPORT_ERRORS:
             diagnostics.append(gap("opencode_turn_unavailable", session, turn))
             continue
+        dispatched: set[tuple[str, str]] = set()
         for message in selected["messages"]:
             for part in message.get("content", []):
-                if part.get("type") != "tool" or part.get("name") != "subagent":
+                if part.get("type") != "tool":
                     continue
                 state = part.get("state") or {}
-                child = (state.get("metadata") or {}).get("sessionID")
+                metadata = state.get("metadata") or {}
+                if part.get("name") == "shell":
+                    shell = metadata.get("shellID")
+                    if shell:
+                        dispatched.add(("shell", shell))
+                    elif metadata.get("status") == "running" or object_value(
+                        state.get("input")
+                    ).get("background"):
+                        diagnostics.append(gap("opencode_dispatch_unresolved", session, turn))
+                    continue
+                if part.get("name") != "subagent":
+                    continue
+                child = metadata.get("sessionID")
                 if not child:
                     diagnostics.append(gap("opencode_dispatch_unresolved", session, turn))
                     continue
@@ -147,17 +188,34 @@ def refresh(root: Path, sources: list[Source]) -> list[Diagnostic]:
                 if target["info"].get("parentID") != session:
                     diagnostics.append(gap("opencode_parent_mismatch", child))
                     continue
-                time = part.get("time") or {}
-                start, end = time.get("ran", time.get("created")), time.get("completed")
-                candidates = [
-                    m["id"]
-                    for m in users(target)
-                    if isinstance(start, (int, float))
-                    and start <= m.get("time", {}).get("created", -1)
-                    and (end is None or m["time"]["created"] <= end)
-                ]
+                dispatched.add(("subagent", child))
+                candidates = dispatch_turns(target, part)
                 if len(candidates) != 1:
-                    diagnostics.append(gap("ambiguous_dispatch_turn", child))
+                    diagnostics.append(
+                        gap(
+                            "ambiguous_dispatch_turn"
+                            if candidates
+                            else "opencode_dispatch_unresolved",
+                            child,
+                        )
+                    )
                 else:
                     pending.append((child, candidates[0]))
+        after = False
+        for following, messages in turns(data).items():
+            if following == turn:
+                after = True
+                continue
+            if not after:
+                continue
+            if messages[0]["type"] == "user":
+                break
+            if any(notification(m) in dispatched for m in messages if m["type"] == "synthetic"):
+                pending.append((session, following))
+            else:
+                unresolved.add((session, following))
+    diagnostics.extend(
+        gap("opencode_continuation_unresolved", session, turn)
+        for session, turn in sorted(unresolved - seen)
+    )
     return diagnostics

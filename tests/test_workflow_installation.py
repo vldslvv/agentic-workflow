@@ -41,7 +41,9 @@ class InstallationTests(unittest.TestCase):
             "# Host instructions\n[Unrelated](missing-host-file.md)\n\n" + self.block + "\n"
         )
         self.env = {key: value for key, value in os.environ.items() if not key.startswith("PYTHON")}
-        self.env.update(CODEX_HOME=str(self.root / "no telemetry"), CODEX_THREAD_ID="")
+        self.env.update(
+            CODEX_HOME=str(self.root / "no telemetry"), CODEX_THREAD_ID="", OPENCODE_SESSION_ID=""
+        )
         environment = Path(self.temp.name) / "isolated-python"
         venv.EnvBuilder(with_pip=False, symlinks=True).create(environment)
         self.python = environment / "bin/python"
@@ -164,9 +166,17 @@ class InstallationTests(unittest.TestCase):
             (expected / "tasks/one").mkdir()
             process = self.cli("records.py", "resolve", expected, "one")
             self.assertEqual(process.returncode, 0, process.stderr)
-            process = self.cli("usage_report.py", expected)
-            self.assertEqual(process.returncode, 0, process.stderr)
-            self.assertIn("summary", json.loads((expected / "reports/usage.json").read_text()))
+            for provider in ("codex", "opencode"):
+                filename = "codex-0.167.0.jsonl" if provider == "codex" else "opencode-2.2.6.json"
+                native = expected / "native" / filename
+                native.parent.mkdir(exist_ok=True)
+                native.write_bytes((self.package / "tests/fixtures" / filename).read_bytes())
+                process = self.cli("usage_report.py", expected)
+                self.assertEqual(process.returncode, 0, process.stderr)
+                report = json.loads((expected / "reports/usage.json").read_text())
+                self.assertIn("summary", report)
+                self.assertEqual(report["tracing_provider"], provider)
+                native.unlink()
         shutil.rmtree(self.package)
         shutil.copytree(
             SOURCE / "agentic-workflow",
