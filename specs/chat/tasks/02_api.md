@@ -24,7 +24,7 @@
 
 Apply when implementing the API component.
 
-- Use FastAPI served by Uvicorn.
+- Use the API technologies required by the [project](../project.md).
 - Consume the database-access module instead of duplicating SQL or storage rules in routes.
 - Provide an API image that starts with supplied database configuration.
 

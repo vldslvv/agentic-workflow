@@ -52,7 +52,7 @@ class SpecificationReviewTests(DocumentReviewFixture):
                 self.assertEqual(Path(call["cwd"]), directory / "inputs")
                 self.assertEqual(
                     call["schema"]["properties"]["checks"]["items"]["properties"]["status"]["enum"],
-                    ["PASS", "FAIL", "UNCLEAR"],
+                    ["PASS", "FAIL"],
                 )
                 self.assertEqual(call["args"][call["args"].index("--sandbox") + 1], "read-only")
                 for setting in ("project_doc_max_bytes=0", "memories.use_memories=false"):
@@ -157,4 +157,7 @@ class SpecificationReviewTests(DocumentReviewFixture):
                 self.assertEqual(process.returncode, 1, process.stdout + process.stderr)
                 (directory,) = set(self.reports()) - before
                 result = json.loads((directory / "result.json").read_text())
-                self.assertEqual(result["status"], "UNCLEAR")
+                self.assertEqual(result["status"], "FAIL")
+                self.assertIn(
+                    "provide the required reference", (directory / "report.md").read_text()
+                )

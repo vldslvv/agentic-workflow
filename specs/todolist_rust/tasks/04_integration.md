@@ -20,6 +20,8 @@
 
 ## Constraints
 
+Apply when assembling the CLI with Postgres.
+
 - Use the accepted storage interface to connect the business layer to Postgres.
 - Require a live database connection for every CLI invocation.
 - Use Postgres instead of `tasks.json` in the assembled application.

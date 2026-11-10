@@ -15,6 +15,7 @@ def archive_evidence(worktree: Path, destination: Path) -> None:
             destination,
             dirs_exist_ok=True,
             symlinks=True,
+            ignore=shutil.ignore_patterns("uv-cache"),
         )
     app = trial.safe_path(worktree, trial.APP)
     if app.is_dir():

@@ -34,7 +34,7 @@ help:
 	@echo "make eval         Evaluate HEAD in a clean temporary worktree; retain reports under .agentic-workflow/evals/todolist-worktrees/"
 	@echo "make eval-workflow  Review workflow documents once; WORKFLOW_REPAIR=1 opts into one repair"
 	@echo "                       WORKFLOW_MODEL=gpt-6-astra WORKFLOW_REASONING=medium WORKFLOW_TIMEOUT=1800 (defaults)"
-	@echo "                       FIXED means mechanical checks passed without independent re-review; partial edits may remain on failure"
+	@echo "                       Repair PASS means reported resolution and mechanical checks passed without independent re-review; partial edits may remain on failure"
 	@echo "make trace        Live agent insights until Ctrl+C (IMPL=path required; optional TRACE_INTERVAL=5; restart to change interval)"
 	@echo "make cleanup      Remove numbered execution records; retain project settings"
 	@echo "make clean        Remove numbered execution records; retain project settings"

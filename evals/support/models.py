@@ -6,8 +6,6 @@ from typing import Literal, NotRequired, TypedDict
 Status = Literal[
     "PASS",
     "FAIL",
-    "UNCLEAR",
-    "FIXED",
     "NOT_RUN",
     "RUNNER_ERROR",
     "JUDGE_ERROR",
@@ -56,7 +54,7 @@ class Execution(TypedDict):
 
 class Check(TypedDict):
     contract: str
-    status: Literal["PASS", "FAIL", "UNCLEAR"]
+    status: Literal["PASS", "FAIL"]
     evidence: str
 
 
@@ -80,7 +78,7 @@ class Inputs(TypedDict, total=False):
 
 
 class RepairResponse(TypedDict):
-    status: Literal["FIXED", "UNCLEAR"]
+    status: Literal["PASS", "FAIL"]
     summary: str
 
 

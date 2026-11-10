@@ -114,10 +114,10 @@ def read_judgment(path: Path) -> Judgment:
                 not isinstance(row.get(key), str) or not row[key].strip()
                 for key in ("contract", "status", "evidence")
             )
-            or row["status"] not in ("PASS", "FAIL", "UNCLEAR")
+            or row["status"] not in ("PASS", "FAIL")
         ):
             raise ValueError(
-                "Invalid judge check: expected contract, PASS/FAIL/UNCLEAR status and evidence"
+                "Invalid judge check: expected contract, PASS/FAIL status and evidence"
             )
     return cast(Judgment, judgment)
 
@@ -183,9 +183,8 @@ def grade(results: Path, execution: Execution, inputs: Inputs) -> DocumentResult
     except (OSError, ValueError) as exc:
         return {**result, "status": "RUNNER_ERROR", "error": str(exc)}
     checks = judgment["checks"] + inputs.get("checks", [])
-    statuses = {row["status"] for row in checks}
-    status: Literal["FAIL", "UNCLEAR", "PASS"] = next(
-        value for value in ("FAIL", "UNCLEAR", "PASS") if value in statuses
+    status: Literal["PASS", "FAIL"] = (
+        "FAIL" if any(row["status"] == "FAIL" for row in checks) else "PASS"
     )
     review: Review = {
         **judgment,
@@ -209,7 +208,7 @@ def save(results: Path, result: DocumentResult, title: str) -> None:
 def exit_code(result: DocumentResult) -> int:
     if result["status"] == "INTERRUPTED":
         return 128 + result["signal"]
-    return {"PASS": 0, "FIXED": 0, "FAIL": 1, "UNCLEAR": 1, "TIMEOUT": 124}.get(result["status"], 2)
+    return {"PASS": 0, "FAIL": 1, "TIMEOUT": 124}.get(result["status"], 2)
 
 
 def argument_parser(description: str | None) -> argparse.ArgumentParser:

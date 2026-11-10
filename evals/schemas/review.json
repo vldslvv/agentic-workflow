@@ -23,8 +23,7 @@
             "type": "string",
             "enum": [
               "PASS",
-              "FAIL",
-              "UNCLEAR"
+              "FAIL"
             ]
           },
           "evidence": {

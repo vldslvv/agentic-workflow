@@ -26,6 +26,8 @@ def run(root: Path, agent_timeout: float, command_timeout: float, allow_dirty: b
     commit, settings, dirty = trial.preflight(root, allow_dirty)
     before = sorted(trial.records_entries(root))
     results = root / trial.RESULTS
+    cache = results / "uv-cache"
+    environment = dict(os.environ, UV_CACHE_DIR=str(cache))
     command = [
         "codex",
         "exec",
@@ -40,6 +42,8 @@ def run(root: Path, agent_timeout: float, command_timeout: float, allow_dirty: b
         'approval_policy="never"',
         "-c",
         "sandbox_workspace_write.network_access=true",
+        "-c",
+        f"shell_environment_policy.set.UV_CACHE_DIR={json.dumps(str(cache))}",
         "--model",
         settings.model,
         "--output-last-message",
@@ -49,7 +53,7 @@ def run(root: Path, agent_timeout: float, command_timeout: float, allow_dirty: b
         command += ["-c", f"model_reasoning_effort={json.dumps(settings.reasoning)}"]
     prompt = PROMPT_PATH.read_text()
     command.append(prompt)
-    results.mkdir(parents=True)
+    cache.mkdir(parents=True)
     (results / "prompt.txt").write_text(prompt)
     runtime.write_json(
         results / "run.json",
@@ -60,6 +64,7 @@ def run(root: Path, agent_timeout: float, command_timeout: float, allow_dirty: b
             "prompt": prompt,
             "prompt_path": "prompt.txt",
             "command": command,
+            "environment": {"UV_CACHE_DIR": str(cache)},
             "supervisor": asdict(settings),
             "agent_timeout_seconds": agent_timeout,
             "command_timeout_seconds": command_timeout,
@@ -88,6 +93,7 @@ def run(root: Path, agent_timeout: float, command_timeout: float, allow_dirty: b
             agent_timeout,
             results / "events.jsonl",
             results / "agent.stderr",
+            env=environment,
         )
         report["records_created"] = trial.new_implementations(root, before)
         # Presence and CLI grades are independent of the generation exit status.
@@ -99,7 +105,7 @@ def run(root: Path, agent_timeout: float, command_timeout: float, allow_dirty: b
             try:
                 app = trial.safe_path(root, trial.APP)
                 trial.safe_path(root, trial.APP / "tasks.json")
-                report["cli"] = todolist_cli.grade(app, results, command_timeout)
+                report["cli"] = todolist_cli.grade(app, results, command_timeout, env=environment)
             except (OSError, runtime.RunnerError) as exc:
                 report["cli"] = {"status": "RUNNER_ERROR", "error": str(exc)}
         runtime.write_json(results / "cli.json", report["cli"])

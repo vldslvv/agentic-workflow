@@ -17,6 +17,10 @@ if tool == "codex" and sys.argv[1:] == ["login", "status"]:
     sys.exit(1 if mode == "unauthenticated" else 0)
 root = Path.cwd() if tool == "codex" else Path.cwd().parents[1]
 results = root / ".agentic-workflow/evals/todolist"
+with (results / "cache-environments.jsonl").open("a") as stream:
+    stream.write(json.dumps({"tool": tool, "cache": os.environ.get("UV_CACHE_DIR")}) + "\n")
+if "UV_CACHE_DIR" in os.environ:
+    (Path(os.environ["UV_CACHE_DIR"]) / "fixture-cache-entry").touch()
 
 
 def hang() -> None:

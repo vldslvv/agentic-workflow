@@ -50,11 +50,11 @@ def repair(root: Path, results: Path, args: ReviewSettings) -> Repair:
         response = json.loads((evidence / "output.json").read_text())
         if (
             not isinstance(response, dict)
-            or response.get("status") not in ("FIXED", "UNCLEAR")
+            or response.get("status") not in ("PASS", "FAIL")
             or not isinstance(response.get("summary"), str)
             or not response["summary"].strip()
         ):
-            raise ValueError("Editor response must include FIXED or UNCLEAR and a nonempty summary")
+            raise ValueError("Editor response must include PASS or FAIL and a nonempty summary")
         response = cast(RepairResponse, response)
         attempt["response"] = response
     except runtime.Interrupted as exc:

@@ -12,9 +12,9 @@
   7. Suggest corrections without editing files.
 - Outputs:
   - Reviewed scope, unassessed rules and unreadable or excluded inputs.
-  - One row per workflow step and linked contract: `Step/contract | PASS / FAIL / UNCLEAR | Evidence or finding`.
+  - One row per assessed workflow step and linked contract: `Step/contract | PASS / FAIL | Evidence or finding`.
   - Separate findings for each unmet obligation, including the expected role or reading path for omissions.
-  - Overall `FAIL` for any failure, otherwise `UNCLEAR` for uncertainty, otherwise `PASS`.
+  - Overall `FAIL` for any failed in-scope check, otherwise `PASS`.
   - Report in the conversation unless an output path outside the package is requested.
 - Next: leave disputed judgments and intended contract changes for human review.
 
@@ -29,6 +29,7 @@ Apply while comparing instructions.
 - Compare meaning across roles, sequence, modes, handoffs, outputs, completion, corrections and allowed state.
 - Flag missing or weakened obligations, contradictions and extra mandatory steps.
 - Allow implementation guidance and details delegated to policy owners.
-- Mark missing or ambiguous inputs `UNCLEAR` with affected paths or rules.
+- Mark missing or ambiguous required inputs `FAIL` with affected paths or rules and a concrete next action.
+- Report out-of-scope limitations as notes without adding graded checks or changing the verdict.
 - Limit partial-review conclusions to assessed rules.
 - Treat document agreement as advisory evidence, not proof of agent behavior or an approval gate.

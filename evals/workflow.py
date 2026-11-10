@@ -35,13 +35,12 @@ def run(root: Path, args: ReviewSettings) -> DocumentResult:
         result = document_review.grade(results, execution, {})
         if args.repair:
             review = result["review"]
-            uncertain = any(row["status"] == "UNCLEAR" for row in review.get("checks", []))
             result["repair"] = {
                 "status": "NOT_RUN",
                 "attempted": False,
-                "reason": "Repair requires a failed review without uncertainty.",
+                "reason": "Repair requires a failed review.",
             }
-            if review["status"] == "FAIL" and not uncertain:
+            if review["status"] == "FAIL":
                 original_contract = (results / "inputs/agentic-workflow/WORKFLOW.md").read_bytes()
                 attempt = workflow_review.repair(root, results, args)
                 if "response" in attempt:
@@ -52,7 +51,7 @@ def run(root: Path, args: ReviewSettings) -> DocumentResult:
                 result["status"] = attempt["status"]
                 if "signal" in attempt:
                     result["signal"] = attempt["signal"]
-                if attempt["status"] == "FIXED":
+                if attempt["status"] == "PASS":
                     result["note"] = (
                         "Editor reported resolution and mechanical checks passed. No independent re-review occurred."
                     )
@@ -74,7 +73,7 @@ def main() -> int:
     parser.add_argument(
         "--repair",
         action="store_true",
-        help="Attempt one edit after a failed review with no uncertainty",
+        help="Attempt one edit after a failed review",
     )
     args = parser.parse_args()
     return document_review.exit_code(run(Path.cwd().resolve(), ReviewSettings(**vars(args))))

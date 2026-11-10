@@ -33,7 +33,13 @@ class TodolistEvalTests(unittest.TestCase):
             )
             path.chmod(0o755)
         shutil.copyfile(EVALS / "tests/fixtures/todo.py", self.bin / "todo.py")
-        self.env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}")
+        self.shared_cache = self.base / "shared-cache"
+        self.shared_cache.mkdir()
+        self.env = dict(
+            os.environ,
+            PATH=f"{self.bin}:{os.environ['PATH']}",
+            UV_CACHE_DIR=str(self.shared_cache),
+        )
         shutil.copytree(
             EVALS,
             self.root / "evals",
@@ -138,7 +144,20 @@ class TodolistEvalTests(unittest.TestCase):
                 self.assertNotIn("--ephemeral", received)
                 self.assertIn('approval_policy="never"', received)
                 self.assertIn("sandbox_workspace_write.network_access=true", received)
+                cache = self.results / "uv-cache"
+                environments = [
+                    json.loads(line)
+                    for line in (self.results / "cache-environments.jsonl").read_text().splitlines()
+                ]
+                self.assertEqual({entry["tool"] for entry in environments}, {"codex", "uv"})
+                self.assertEqual({entry["cache"] for entry in environments}, {str(cache)})
+                self.assertTrue((cache / "fixture-cache-entry").is_file())
+                self.assertEqual(list(self.shared_cache.iterdir()), [])
+                self.assertIn(
+                    f"shell_environment_policy.set.UV_CACHE_DIR={json.dumps(str(cache))}", received
+                )
                 self.assertEqual(self.invoke("clean").returncode, 0)
+                self.assertFalse(cache.exists())
 
     def test_dirty_checkout_rejected_before_creating_results(self) -> None:
         for kind in ("unstaged", "staged", "untracked"):
@@ -489,6 +508,7 @@ class TodolistEvalTests(unittest.TestCase):
         self.assertFalse(launch["allow_dirty"])
         self.assertEqual((archived / "fixture-source.txt").read_text(), "original\n")
         self.assertTrue((archived / "app/todo.py").is_file())
+        self.assertFalse((archived / "uv-cache").exists())
         self.assertTrue((archived / "records/001_todolist/native/session/turn.jsonl").is_file())
         self.assertEqual(self.git("worktree", "list", "--porcelain").count("worktree "), 1)
         self.assertEqual(

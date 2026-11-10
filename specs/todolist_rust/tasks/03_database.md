@@ -19,6 +19,8 @@
 
 ## Constraints
 
+Apply when implementing Postgres storage.
+
 - Supply a Docker setup that starts Postgres.
 - Verify storage against the real database without requiring CLI changes.
 

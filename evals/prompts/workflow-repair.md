@@ -14,13 +14,13 @@ Attempt one correction of the completed review without another model review.
 
 1. Edit working Markdown files included in the snapshot only as needed for the findings.
 2. Preserve existing work, saved evidence and `agentic-workflow/WORKFLOW.md`.
-3. Leave unresolved findings for human review without committing changes.
+3. Leave unresolved findings for human review without committing changes or inventing missing requirements or evidence.
 
 ## Outputs
 
 - Return JSON matching the supplied repair schema.
-- Return `FIXED` with a summary only if all findings are resolved.
-- Return `UNCLEAR` with a summary of what remains otherwise.
+- Return `PASS` with a summary only if all findings are resolved.
+- Return `FAIL` with the remaining findings and concrete next actions otherwise.
 
 ## Next
 

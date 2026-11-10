@@ -23,7 +23,7 @@
 
 Apply when implementing the web client.
 
-- Use Svelte, TypeScript, Vite, and plain CSS.
+- Use the web client technologies required by the [project](../project.md).
 - Use relative `/api` URLs through the web origin.
 - Serve compiled assets through Nginx without a runtime Node server.
 - Keep database access outside the browser.

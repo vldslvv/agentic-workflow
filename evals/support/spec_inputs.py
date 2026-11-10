@@ -88,8 +88,8 @@ def capture(root: Path, destination: Path, bundle: str | None) -> Inputs:
         checks.append(
             {
                 "contract": "agentic-workflow/policies/BUNDLE.md — resolve requirement links and required source documents",
-                "status": "UNCLEAR",
-                "evidence": message,
+                "status": "FAIL",
+                "evidence": message + "; provide the required reference and rerun the review.",
             }
         )
 

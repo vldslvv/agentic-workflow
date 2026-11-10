@@ -21,9 +21,7 @@ Build a web chat prototype for exchanging text messages between predefined users
 
 Apply when implementing this bundle.
 
-- Keep contracts separate from [component tasks](task_order.md).
-- Link each provider and consumer task to its applicable contracts.
-- Keep shared requirements in their contracts instead of copying them into tasks.
+- Follow the [task specification rules](../../agentic-workflow/policies/BUNDLE.md#task-specifications).
 - Treat acknowledgment as confirmation of client display rather than human reading.
 - Accept possible duplicate messages when manually retrying a send whose response was lost.
 

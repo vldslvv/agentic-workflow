@@ -24,5 +24,7 @@ Assess document validity separately from application conformance.
 - Return JSON matching the supplied review schema.
 - Cite the template or policy clause in each finding's `contract` field.
 - Cite the affected spec path and line or section, explain the issue and suggest a concrete correction in `evidence`.
-- Include `PASS` checks for reviewed areas without findings and `UNCLEAR` for unresolved judgments or missing source evidence.
-- Apply status precedence `FAIL`, then `UNCLEAR`, then `PASS`.
+- Use only `PASS` for satisfied in-scope obligations and `FAIL` for unmet obligations or missing evidence needed to assess them.
+- For missing evidence, identify the required source and the concrete action needed to complete the assessment.
+- Put out-of-scope limitations, including unassessed application behavior, in `scope` or `excluded_inputs` rather than adding graded checks.
+- Return `FAIL` if any in-scope check fails and `PASS` otherwise.

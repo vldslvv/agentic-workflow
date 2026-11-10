@@ -24,8 +24,7 @@ class WorkflowReviewTests(DocumentReviewFixture):
             (False, ("PASS",), "PASS"),
             (False, ("FAIL",), "FAIL"),
             (True, ("PASS",), "PASS"),
-            (True, ("UNCLEAR",), "UNCLEAR"),
-            (True, ("UNCLEAR", "FAIL"), "FAIL"),
+            (False, ("PASS", "FAIL"), "FAIL"),
         )
         for repair, statuses, expected in cases:
             with self.subTest(repair=repair, statuses=statuses):
@@ -73,6 +72,7 @@ class WorkflowReviewTests(DocumentReviewFixture):
             ("not JSON", {}, "RUNNER_ERROR", 2),
             ("[]", {}, "RUNNER_ERROR", 2),
             (self.response(), {}, "RUNNER_ERROR", 2),
+            (self.response("UNCLEAR"), {}, "RUNNER_ERROR", 2),
             (self.response("PASS"), {"JUDGE_EXIT": "9"}, "JUDGE_ERROR", 2),
             (self.response("PASS"), {"JUDGE_SLEEP": "20"}, "TIMEOUT", 124),
         ]
@@ -112,7 +112,7 @@ class WorkflowReviewTests(DocumentReviewFixture):
                     make=make,
                     arguments=arguments,
                     EDITOR_RESPONSE=json.dumps(
-                        {"status": "FIXED", "summary": "Restored guideline link."}
+                        {"status": "PASS", "summary": "Restored guideline link."}
                     ),
                     EDITOR_EDITS=json.dumps({"AGENTS.md": corrected}),
                 )
@@ -123,16 +123,16 @@ class WorkflowReviewTests(DocumentReviewFixture):
                 result = json.loads((directory / "result.json").read_text())
                 self.assertEqual(
                     (result["status"], result["review"]["status"], result["repair"]["status"]),
-                    ("FIXED", "FAIL", "FIXED"),
+                    ("PASS", "FAIL", "PASS"),
                 )
                 self.assertEqual(result["repair"]["checks"]["status"], "PASS")
                 self.assertEqual((directory / "judgment.json").read_text(), response)
                 self.assertEqual((directory / "inputs/AGENTS.md").read_text(), original)
                 report = (directory / "report.md").read_text()
                 for text in (
-                    "Workflow eval: FIXED",
+                    "Workflow eval: PASS",
                     "Original review: FAIL",
-                    "Repair: FIXED",
+                    "Repair: PASS",
                     "No independent re-review occurred",
                 ):
                     self.assertIn(text, report)
@@ -155,28 +155,28 @@ class WorkflowReviewTests(DocumentReviewFixture):
                         {"model": "chosen-model", "reasoning": "high"},
                     )
                 self.assertEqual(
-                    calls[1]["schema"]["properties"]["status"]["enum"], ["FIXED", "UNCLEAR"]
+                    calls[1]["schema"]["properties"]["status"]["enum"], ["PASS", "FAIL"]
                 )
                 self.assertIn(str(directory / "inputs"), calls[1]["prompt"])
                 self.assertIn(str(directory / "judgment.json"), calls[1]["prompt"])
         self.assertEqual(len(self.calls.read_text().splitlines()), 4)
 
     def test_unsuccessful_repairs_keep_partial_edits_and_original_failure(self) -> None:
-        fixed = json.dumps({"status": "FIXED", "summary": "Corrected findings."})
+        fixed = json.dumps({"status": "PASS", "summary": "Corrected findings."})
         cases = [
             ("missing output", None, {}, 2, "RUNNER_ERROR"),
             ("malformed output", "not JSON", {}, 2, "RUNNER_ERROR"),
             ("wrong shape", "[]", {}, 2, "RUNNER_ERROR"),
             (
                 "invalid status",
-                json.dumps({"status": "PASS", "summary": "Done"}),
+                json.dumps({"status": "UNCLEAR", "summary": "Done"}),
                 {},
                 2,
                 "RUNNER_ERROR",
             ),
             (
                 "empty summary",
-                json.dumps({"status": "FIXED", "summary": ""}),
+                json.dumps({"status": "PASS", "summary": ""}),
                 {},
                 2,
                 "RUNNER_ERROR",
@@ -184,14 +184,11 @@ class WorkflowReviewTests(DocumentReviewFixture):
             (
                 "unresolved",
                 json.dumps(
-                    {
-                        "status": "UNCLEAR",
-                        "summary": "Finding remains; provide the missing reference.",
-                    }
+                    {"status": "FAIL", "summary": "Finding remains; provide the missing reference."}
                 ),
                 {},
                 1,
-                "UNCLEAR",
+                "FAIL",
             ),
             ("editor failed", fixed, {"EDITOR_EXIT": "9"}, 2, "REPAIR_ERROR"),
             ("timeout", fixed, {"EDITOR_SLEEP": "20"}, 124, "TIMEOUT"),

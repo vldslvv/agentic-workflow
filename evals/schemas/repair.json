@@ -4,8 +4,8 @@
     "status": {
       "type": "string",
       "enum": [
-        "FIXED",
-        "UNCLEAR"
+        "PASS",
+        "FAIL"
       ]
     },
     "summary": {

@@ -1,6 +1,7 @@
 """Grade the public CLI scenarios in specs/todolist/verification.md."""
 
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -97,6 +98,7 @@ def grade_scenario(
     evidence: Path,
     timeout: float,
     steps: tuple[Step, ...],
+    env: Mapping[str, str] | None = None,
 ) -> ScenarioGrade:
     result: ScenarioGrade = {"status": "PASS", "commands": []}
     data = app / "tasks.json"
@@ -105,7 +107,9 @@ def grade_scenario(
         observed = None
         try:
             before = stored_state(data)
-            observed = runtime.execute(["uv", "run", "todo", *args], app, timeout, stdout, stderr)
+            observed = runtime.execute(
+                ["uv", "run", "todo", *args], app, timeout, stdout, stderr, env=env
+            )
             observed.update(
                 {
                     "expected_stdout": expected_stdout,
@@ -145,7 +149,9 @@ def grade_scenario(
     return result
 
 
-def grade(app: Path, results: Path, timeout: float) -> CLIGrade:
+def grade(
+    app: Path, results: Path, timeout: float, *, env: Mapping[str, str] | None = None
+) -> CLIGrade:
     """Run each scenario from an empty store and always restore generation data."""
     result: CLIGrade = {"status": "FAIL", "scenarios": []}
     if not app.is_dir():
@@ -162,7 +168,7 @@ def grade(app: Path, results: Path, timeout: float) -> CLIGrade:
             data.unlink(missing_ok=True)
             evidence = results / "cli" / name
             evidence.mkdir(parents=True)
-            scenario = grade_scenario(app, evidence, timeout, steps)
+            scenario = grade_scenario(app, evidence, timeout, steps, env)
             scenario.update({"name": name, "contract": f"specs/todolist/contracts/{source}"})
             result["scenarios"].append(scenario)
             runtime.write_json(evidence / "result.json", scenario)

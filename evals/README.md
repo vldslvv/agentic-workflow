@@ -58,6 +58,12 @@ Reviewers run in the captured input directory with automatic project instruction
 and memories disabled. Generation runs in the trial checkout using its workflow
 instructions and Supervisor model route.
 
+Document reviewers use the `read-only` Codex sandbox; generation and optional
+repair use `workspace-write`. Each todolist trial sets `UV_CACHE_DIR` to
+`.agentic-workflow/evals/todolist/uv-cache` inside its checkout for both agent
+commands and CLI grading, overriding any inherited shared cache setting.
+The local cache is removed with trial cleanup and excluded from archived evidence.
+
 ## Results and evidence
 
 Each run saves evidence under `.agentic-workflow/evals/`:
@@ -83,13 +89,14 @@ it exited successfully. Artifact grading checks file presence, not contents.
 | Status | Meaning | Exit code |
 |---|---|---|
 | `PASS` | All required grades passed | 0 |
-| `FIXED` | Requested repair reported resolution, mechanical checks passed, source contract unchanged | 0 |
-| `FAIL`, `UNCLEAR` | Failed criteria or unresolved assessment | 1 |
+| `FAIL` | Unmet criteria or missing evidence required for an in-scope assessment | 1 |
 | Runner/model error | Evaluation could not complete normally | 2 |
 | `TIMEOUT` | Invocation exceeded its timeout | 124 |
 | `INTERRUPTED` | Invocation was interrupted | 128 + signal |
 
-`FIXED` preserves the original failed review and includes no independent re-review.
+After an optional repair, `PASS` means the editor reported resolution, package checks
+passed and the source contract is unchanged; it preserves the original failed
+review and includes no independent re-review.
 A new review is needed to assess the edited documents. Missing or invalid model
 responses cannot produce a passing result. Historical reports retain their original
 format; new reports use the contracts above.
@@ -104,7 +111,9 @@ format; new reports use the contracts above.
 
 Application outputs, project memory and execution history are excluded. Missing
 required references prevent a clean pass; invalid or empty selections fail before
-model invocation. Review precedence is `FAIL`, then `UNCLEAR`, then `PASS`.
+model invocation. Any failed in-scope check makes the review `FAIL`; otherwise it
+is `PASS`. Missing required evidence is a failure with a concrete next action.
+Out-of-scope limitations remain notes and do not affect the verdict.
 
 ```sh
 make eval-specs SPEC_BUNDLE=specs/todolist
@@ -115,13 +124,13 @@ python3 -B evals/specs.py --bundle specs/todolist --model gpt-6-astra --reasonin
 
 - Context: assess current instructions under [Workflow review](../agentic-workflow/guides/WORKFLOW_REVIEW.md).
 - Inputs: package files, root entry points, model override and installed wrappers, including uncommitted changes.
-- Effects: capture inputs and run one fresh review; repair only when explicitly requested and failures contain no uncertain checks.
+- Effects: capture inputs and run one fresh review; repair only when explicitly requested and the review fails.
 - Outputs: review and optional repair outcomes under `.agentic-workflow/evals/workflow/review-*/`.
 - Next: inspect the report and diff, including retained partial edits after failed or interrupted repairs.
 
 Pause concurrent edits before running. An explicit repair makes at most one editor
-invocation, preserves the source contract, and runs package checks. Uncertainty
-prevents repair even when other checks fail.
+invocation, preserves the source contract, and runs package checks. Unresolved
+findings or unavailable required evidence remain `FAIL` with concrete next actions.
 
 ```sh
 make eval-workflow

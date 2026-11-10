@@ -19,6 +19,8 @@
 
 ## Behavior
 
+Apply when defining or implementing task operations and storage.
+
 - Preserve task data across process invocations.
 - Reflect creation, completion and deletion in the task status and timestamps.
 - Expose observable results for creating, listing, completing and deleting tasks.
@@ -36,15 +38,38 @@
 
 ## Rust interface
 
+Apply when implementing or consuming the Rust library.
+
 - Use the `todolist_rust` library with public `Task`, `Status`, `Error`, `Storage`, `add`, `list`, `complete` and `delete` exports.
 - Represent task IDs as `i64`, timestamps as `chrono::DateTime<chrono::Utc>`, and statuses as `Status::{New, Completed, Deleted}`.
 - Serialize task field names exactly as listed above, including `update`, and serialize statuses using their enum names.
-- Implement `Storage::create_task(&mut self, description: String, now: DateTime<Utc>) -> Result<Task, Error>`, `Storage::list_tasks(&mut self) -> Result<Vec<Task>, Error>` and `Storage::change_status(&mut self, id: i64, status: Status, now: DateTime<Utc>) -> Result<Task, Error>`.
+- Implement the `Storage` methods below.
 - Call `add(&mut impl Storage, &str)`, `list(&mut impl Storage)`, `complete(&mut impl Storage, i64)` and `delete(&mut impl Storage, i64)` through the business layer.
 - Return `Result<Task, Error>` from mutations and `Result<Vec<Task>, Error>` from listing.
 - Expose `Error::{InvalidDescription, NotFound(i64), Deleted(i64), Storage(String)}` with human-readable `Display` messages.
 
+```rust
+pub trait Storage {
+    fn create_task(
+        &mut self,
+        description: String,
+        now: DateTime<Utc>,
+    ) -> Result<Task, Error>;
+
+    fn list_tasks(&mut self) -> Result<Vec<Task>, Error>;
+
+    fn change_status(
+        &mut self,
+        id: i64,
+        status: Status,
+        now: DateTime<Utc>,
+    ) -> Result<Task, Error>;
+}
+```
+
 ## Operation semantics
+
+Apply when implementing task operations with either storage backend.
 
 - Reject blank descriptions with `InvalidDescription` and preserve nonblank descriptions exactly.
 - Assign the first ID as 1 and each later ID as the previous maximum plus 1, retaining deleted tasks.
@@ -59,6 +84,8 @@
 - Require status changes to persist successfully before returning a changed task.
 
 ## JSON storage
+
+Apply when implementing or configuring the initial JSON backend.
 
 - Export `json::JsonStorage::new(path)` and `json::JsonStorage::default()`.
 - Use the compiled app root's `tasks.json` path for the default JSON store, independent of the caller's working directory.

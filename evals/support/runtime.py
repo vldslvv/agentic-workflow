@@ -7,6 +7,7 @@ import os
 import signal
 import subprocess
 import time
+from collections.abc import Mapping
 from pathlib import Path
 from types import FrameType
 from typing import NoReturn
@@ -58,6 +59,8 @@ def execute(
     timeout: float,
     stdout: Path,
     stderr: Path,
+    *,
+    env: Mapping[str, str] | None = None,
 ) -> Execution:
     started = time.monotonic()
     outcome: Execution = {"command": command, "status": "RUNNER_ERROR", "returncode": None}
@@ -67,6 +70,7 @@ def execute(
             process = subprocess.Popen(
                 command,
                 cwd=cwd,
+                env=env,
                 stdin=subprocess.DEVNULL,
                 stdout=out,
                 stderr=err,

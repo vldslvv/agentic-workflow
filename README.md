@@ -122,7 +122,7 @@ POSIX and an authenticated local Codex CLI; todolist trials also require Git and
 | [Todolist end-to-end](evals/README.md#todolist-end-to-end-eval) | Committed `HEAD` in a clean temporary worktree | `make eval` | Generate an app, grade agent completion, CLI behavior and artifact presence, then archive the trial |
 
 Reports and evidence are saved under `.agentic-workflow/evals/`. Optional workflow repair
-retains edits for inspection; its `FIXED` result includes no independent re-review.
+retains edits for inspection; its `PASS` result includes no independent re-review.
 Todolist artifact presence does not establish trace quality or workflow compliance.
 
 Follow the [eval guide](evals/README.md) for prerequisites, model and timeout

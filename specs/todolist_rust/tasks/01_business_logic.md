@@ -19,6 +19,8 @@
 
 ## Constraints
 
+Apply when implementing the initial business layer and JSON backend.
+
 - Establish the shared interfaces and error behavior under the [contract definition requirements](../contracts/task_operations.md#behavior).
 
 ## Acceptance
