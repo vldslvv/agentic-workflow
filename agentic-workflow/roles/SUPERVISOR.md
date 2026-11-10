@@ -22,7 +22,7 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
 
 - Context:
   - Instructions: read [AGENTS], [BUNDLE], [CHECKS] and [RECORDS].
-  - Read subordinate input/output contracts in [PLANNER], [IMPLEMENTER], [REVIEWER] and [VALIDATOR].
+  - Read the input and output contract for each role you assign under [PLANNER], [IMPLEMENTER], [REVIEWER] or [VALIDATOR].
   - Read only the Memory index and forward relevant paths under [MEMORY], except during reconstruction.
 - Inputs:
   - Assignment, Project specification, Task specifications, Task order, Contracts and Verification.
@@ -32,7 +32,8 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Execute the selected scope autonomously without interactive prompts.
   - Resolve routine decisions within the authorized scope using requirements and available evidence.
   - Report unresolved requirements, missing authority and unavailable capabilities as blockers without prompting.
-  - Resolve inputs.
+  - Read the instructions and inputs needed to resolve scope, dependencies, task mode and ownership before dispatch.
+  - Open additional files when an assignment, acceptance or recovery decision requires them.
   - Stop on [BUNDLE]'s `NO_PROJECT`, `NO_WORK` or blocked inputs.
   - Use new paths for initial work.
   - Extend selected code for incremental work.
@@ -44,9 +45,7 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Include shared configuration ownership.
   - For continuations, complete [recovery](#resume-execution) before dispatch.
   - For revised specifications, complete [reconciliation](#reconcile-an-existing-implementation) before dispatch.
-  - Dispatch tasks with accepted prerequisites.
-  - Spawn a fresh Implementer per new task under [IMPLEMENTER], without inherited conversation.
-  - Prepare assignments under [RECORDS] (“Hand off work”).
+  - Assign ready tasks under [Dispatch new tasks](#dispatch-new-tasks).
   - Run ready tasks concurrently within capacity.
   - Reserve room for full-task Reviewers and final validation.
   - Break ties by table order.
@@ -56,9 +55,9 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Confirm affected writers paused before independent checks.
   - Explicitly release them afterward.
   - Unrelated work may continue.
-  - Read saved task results and required independent results before acceptance.
+  - Read each worker's saved Result and any required independent review before accepting the task.
   - Check scope, requirement coverage, outcomes and unresolved findings under [CHECKS].
-  - Open detailed evidence when a result is incomplete, conflicting or insufficient for the decision.
+  - Inspect detailed evidence when those records are incomplete, conflict or leave an acceptance question open.
   - Accept tasks under [CHECKS] with the mode's required evidence.
   - Pass unlocks dependents.
   - Return defects to the same Implementer for correction and rechecks.
@@ -74,6 +73,16 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Save Result and available Evidence when finished, blocked, cancelled or limited.
   - Distinguish selected-scope from whole-app acceptance in Result.
 - Outputs: Assignments, Execution state and Result.
+
+## Dispatch new tasks
+
+- Context: apply to every new `direct` or `plan-review` task, including when the scope contains one task.
+- Inputs: a task whose prerequisites are accepted, its task ID and the named inputs in [IMPLEMENTER].
+- Effects:
+  1. Select the [task mode](#task-mode).
+  2. Pass the relevant input and role instruction paths in the Assignment under [RECORDS] (“Hand off work”).
+  3. Spawn a fresh Implementer subagent for the task without inherited conversation.
+- Outputs: Implementer Assignment and worker handle in [execution state](#execution-state).
 
 ## Reconcile an existing implementation
 
@@ -156,6 +165,7 @@ Apply when reconciling state or continuing interrupted work.
 - Effects:
   - Confirm affected writers paused.
   - Spawn a fresh Validator with an Assignment and its named inputs under [RECORDS] and [CHECKS].
+  - Read the saved Validator Result and inspect detailed evidence when it is incomplete, conflicts with other records or leaves an acceptance question open.
   - Release writers after validation.
   - Route the result below.
 - Outputs: Assignments, Execution state and Result referencing the Validator Result.
@@ -180,14 +190,15 @@ Apply while workers are active.
 - Retain Implementers needed for corrections until their work passes final validation.
 - Record closed worker handles in execution state.
 - Report an unavailable close action before open threads exhaust capacity.
-- Use native agent waits with the longest timeout compatible with required updates, do not sleep.
-- Keep waiting after timeouts.
-- Message workers for decisions or new information.
+- Wait for workers only through the host's native worker wait when the next decision depends on them.
+- Resume waiting after a timeout unless a deadline, blocker or ready task calls for action.
+- Let the host surface routine progress.
+- Contact workers when their input is needed for a specific decision or blocker.
 - Inspect worker status or unfinished files only to resolve actionable uncertainty.
 
 ## Task mode
 
-Apply when assigning a task's mode.
+Apply when choosing the assigned Implementer's procedure under [IMPLEMENTER].
 
 - Honor user/source requirements.
 - Block dispatch on unresolved conflicts.
