@@ -76,7 +76,8 @@ integration tests stay outside the copy boundary.
 ## Requirements and portable commands
 
 Helpers use the Python 3.10+ standard library and require a local POSIX filesystem
-with `fcntl`/`flock`. The trace viewer uses a browser; only its optional Perfetto
+with `fcntl`/`flock`. Copy-in use needs no uv, pip, repository configuration or
+third-party typing libraries. The trace viewer uses a browser; only its optional Perfetto
 UI needs internet. The package includes no app stack, automated runner, Windows
 support, package-manager installer or plugin publication.
 
@@ -100,7 +101,10 @@ Use the actual path printed by allocation; each call advances the numeric prefix
 Quote paths containing spaces. Stop the viewer with `Ctrl+C`. Missing telemetry
 limits reports but does not block allocation or app acceptance.
 
-The checker validates the package and local links; `--integration-root` adds the
+The checker validates the package, local links and every Python import, including
+conditional, function-local and literal dynamic imports. Imports must resolve to
+the standard library or copied package modules; computed import targets fail.
+Run it with the interpreter that will execute the helpers. `--integration-root` adds the
 marked root block and installed workflow wrappers, ignoring other host
 instructions and skills. Tests need no source Makefile; optional browser and
 Perfetto checks skip when their tools are unavailable.
