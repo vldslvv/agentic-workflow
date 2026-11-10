@@ -48,6 +48,26 @@ Specify when that duty becomes actionable and who can release the pause.
 
 Start with the rule table; choose a solver or temporal model for the conflicts being checked.
 
+## Historical perspective
+
+Instruction consistency is an established requirements-engineering problem;
+these overlapping approaches predate LLMs.
+
+| Approach | Outcome and lesson |
+|---|---|
+| [SCR requirements tables](https://www.jucs.org/jucs_13_5/formal_methods_for_specifying/jucs_13_5_0607_0618_heitmeyer.pdf), 1970s onward | Automated checks detect missing cases, conflicting outcomes and circular definitions before implementation. |
+| [Z specifications at IBM](https://research.ibm.com/publications/use-of-software-engineering-including-the-z-notation-in-the-development-of-cics), 1980s | The CICS experience reported potential for fewer defects at little additional development cost. |
+| [UML + OCL / USE](https://www.db.informatik.uni-bremen.de/projects/USE-2.3.0/), 1990s onward | Diagrams plus explicit constraints enabled model validation; diagrams alone do not establish consistency. |
+| [Workflow nets](https://www.vdaalst.com/publications/p98.pdf), 1990s onward | Soundness analysis detects control-flow defects; a sound process can still express the wrong requirements. |
+| [TLA+ at AWS](https://www.amazon.science/publications/how-amazon-web-services-uses-formal-methods), 2015 report | Found subtle design defects; choosing a faithful abstraction remained a learned skill. |
+| [NASA FRET](https://ntrs.nasa.gov/citations/20220007510), 2022 report | Structured natural language supports realizability checking and diagnosis of conflicting requirements. |
+
+Distinguish consistency (rules can hold together), realizability (requirements can
+be met across allowed environmental inputs) and intent validation (rules express
+what the author meant). For this project, SCR-style tables, FRET and workflow
+soundness are close precedents. LLMs may reduce formalization effort; reviewing
+and maintaining the representation remains necessary.
+
 ## State of research
 
 Selected work as of November 2026:
