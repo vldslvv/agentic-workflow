@@ -1,6 +1,6 @@
 # Local evaluations
 
-Run from the source repository on POSIX with Python 3.10+ and an authenticated
+Run from the source repository on POSIX with Python 3.11+ and an authenticated
 local Codex CLI. Todolist trials also require Git and uv.
 
 ## Layout
@@ -188,6 +188,8 @@ After tooling changes, run:
 
 ```sh
 python3 -B -m unittest discover -s evals/tests -v
+make check
+make check-portability
 ```
 
 Tests exercise command-line behavior with real Git and filesystem operations.

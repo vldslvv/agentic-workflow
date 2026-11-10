@@ -75,7 +75,7 @@ integration tests stay outside the copy boundary.
 
 ## Requirements and portable commands
 
-Helpers use the Python 3.10+ standard library and require a local POSIX filesystem
+Helpers use the Python 3.11+ standard library and require a local POSIX filesystem
 with `fcntl`/`flock`. Copy-in use needs no uv, pip, repository configuration or
 third-party typing libraries. The trace viewer uses a browser; only its optional Perfetto
 UI needs internet. The package includes no app stack, automated runner, Windows
@@ -118,7 +118,10 @@ make trace IMPL=PATH
 ```
 
 These run copy-in integration checks, eval fixtures and a viewer for an explicit
-implementation, respectively.
+implementation, respectively. The source repository also provides `make check`,
+`make test` and `make check-portability`; the latter checks the package and all
+behavior suites on Python 3.11 and 3.15. Development configuration stays at the
+repository root and is not part of the copied package.
 
 ## Example use
 

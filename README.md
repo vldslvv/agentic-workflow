@@ -112,7 +112,7 @@ Ordinary changes use [Guidelines](agentic-workflow/policies/GUIDELINES.md) and
 ## Evals
 
 The source repository includes local evaluations for workflow documents,
-specification bundles and end-to-end implementation. They use Python 3.10+ on
+specification bundles and end-to-end implementation. They use Python 3.11+ on
 POSIX and an authenticated local Codex CLI; todolist trials also require Git and uv.
 
 | Evaluation | Inputs | Command | Effect |
@@ -128,13 +128,34 @@ Todolist artifact presence does not establish trace quality or workflow complian
 Follow the [eval guide](evals/README.md) for prerequisites, model and timeout
 settings, selecting a specification bundle, current-checkout trials and cleanup.
 
-## Checks
+## Development and checks
 
-Run the package and root integration check from the repository root:
+Source development uses Python 3.11+ and uv. Configuration and locked development
+dependencies live in root `pyproject.toml`, `uv.lock` and `.pre-commit-config.yaml`.
+Runtime dependencies are empty; the copied package needs only the standard library.
 
 ```sh
-python3 agentic-workflow/helpers/check_package.py --integration-root .
+uv sync --locked --python 3.11
+make check
+make test
+uv run pre-commit run --all-files
+uv python install 3.11 3.15
+make check-portability
 ```
 
+`make check` runs strict mypy, Ruff linting, 100-column formatting checks and the
+package/integration checker across helpers, evals, tests and fixtures. Generated
+apps, execution evidence, temporary worktrees and caches are outside that scope.
+Pre-commit runs the same checks; install the hook with `uv run pre-commit install`.
+
+`make test` runs package, copy-in installation and eval behavior suites.
+`make check-portability` runs the package checker and all three suites on Python
+3.11 and 3.15, using interpreters resolved by uv. Install those interpreters before
+running the matrix. Optional browser and Perfetto checks skip when unavailable.
+Live model evaluations remain separate from these fixture-based checks.
+
+Override `PYTHON` with an interpreter path, `UV` with a uv executable, or
+`PORTABILITY_PYTHONS` with a space-separated version list. Commands also work from
+another directory using `make -f /path/to/agentic-workflow/Makefile check`.
 The [package guide](agentic-workflow/README.md#requirements-and-portable-commands)
-lists requirements and additional checks.
+lists commands available after copying only the package.
