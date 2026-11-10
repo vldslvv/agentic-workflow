@@ -1,6 +1,6 @@
 # Workflow style
 
-Apply when changing workflow behavior or its documentation.
+Apply only when editing the workflow contract.
 
 ## References:
 

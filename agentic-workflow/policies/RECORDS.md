@@ -39,8 +39,8 @@ It attempts to capture session metadata and the current native turn.
 Codex supplies its thread identity directly; OpenCode 2.2.6 supplies
 native shell identity as described in [TRACING] (“Enable OpenCode capture”).
 Capture failures appear on stderr without blocking allocation or resolution.
-Conflicting native identities fail before writes under [TRACING] (“Select the
-tracing provider”); allocation and resolution accept no provider override.
+Conflicting native identities fail before writes under [TRACING] (“Automatic tracing
+provider detection”); allocation and resolution accept no provider override.
 
 ## Recover originals
 

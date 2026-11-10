@@ -39,6 +39,13 @@ class WorkflowReviewTests(DocumentReviewFixture):
                 result = json.loads((directory / "result.json").read_text())
                 self.assertEqual(result["status"], expected)
                 self.assertEqual(result["review"]["status"], expected)
+                self.assertIn(f"Workflow eval: {expected}", process.stdout)
+                for index, status in enumerate(statuses):
+                    self.assertIn(
+                        f"- [{status}] Contract {index}\n"
+                        f"  roles/IMPLEMENTER.md:8 | finding {index}\n  Reading path",
+                        process.stdout,
+                    )
                 if repair:
                     self.assertEqual(result["repair"]["status"], "NOT_RUN")
                 else:
@@ -136,6 +143,9 @@ class WorkflowReviewTests(DocumentReviewFixture):
                     "No independent re-review occurred",
                 ):
                     self.assertIn(text, report)
+                    self.assertIn(text, process.stdout)
+                self.assertIn("Restored guideline link.", process.stdout)
+                self.assertIn("Package checks: PASS", process.stdout)
                 calls = [json.loads(line) for line in self.calls.read_text().splitlines()[-2:]]
                 for call, evidence, cwd, sandbox in (
                     (calls[0], directory, directory / "inputs", "read-only"),

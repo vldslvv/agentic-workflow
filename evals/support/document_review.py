@@ -7,6 +7,7 @@ import signal
 import sys
 import tempfile
 from pathlib import Path
+from textwrap import indent
 from typing import Literal, cast
 
 from . import runtime
@@ -123,9 +124,6 @@ def read_judgment(path: Path) -> Judgment:
 
 
 def render(result: DocumentResult, title: str) -> str:
-    def cell(value: str) -> str:
-        return value.replace("|", "\\|").replace("\n", "<br>")
-
     review = result["review"]
     lines = [
         f"# {title} eval: {result['status']}",
@@ -138,11 +136,10 @@ def render(result: DocumentResult, title: str) -> str:
     if "scope" in review:
         lines += [review["scope"], "", "Excluded or unreadable inputs:", ""]
         lines.extend(f"- {item}" for item in review["excluded_inputs"] or ["None reported."])
-        lines += ["", "| Step/contract | Status | Evidence or finding |", "|---|---|---|"]
-        lines.extend(
-            "| " + " | ".join(cell(row[key]) for key in ("contract", "status", "evidence")) + " |"
-            for row in review["checks"]
-        )
+        lines += ["", "Findings:", ""]
+        for row in review["checks"]:
+            contract = row["contract"].replace("\n", "\n  ")
+            lines += [f"- [{row['status']}] {contract}", indent(row["evidence"], "  "), ""]
     if "repair" in result:
         repair = result["repair"]
         lines += ["", f"Repair: {repair['status']}", ""]
@@ -197,12 +194,12 @@ def grade(results: Path, execution: Execution, inputs: Inputs) -> DocumentResult
 
 def save(results: Path, result: DocumentResult, title: str) -> None:
     runtime.write_json(results / "result.json", result)
-    (results / "report.md").write_text(render(result, title))
+    report = render(result, title)
+    (results / "report.md").write_text(report)
     if "error" in result:
         print(f"{result['status']}: {result['error']}", file=sys.stderr)
-    if "note" in result:
-        print(result["note"], flush=True)
-    print(f"{title} eval: {result['status']}; evidence: {results}", flush=True)
+    print(report, end="", flush=True)
+    print(f"Evidence: {results}", flush=True)
 
 
 def exit_code(result: DocumentResult) -> int:

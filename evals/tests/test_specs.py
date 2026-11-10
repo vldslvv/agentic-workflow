@@ -42,7 +42,13 @@ class SpecificationReviewTests(DocumentReviewFixture):
                 self.assertEqual((directory / "judgment.json").read_text(), response)
                 report = (directory / "report.md").read_text()
                 self.assertIn(f"Specification eval: {expected}", report)
-                self.assertIn("\\| finding 0<br>Reading path", report)
+                self.assertIn(f"Specification eval: {expected}", process.stdout)
+                finding = (
+                    f"- [{expected}] Contract 0\n"
+                    "  roles/IMPLEMENTER.md:8 | finding 0\n  Reading path"
+                )
+                self.assertIn(finding, process.stdout)
+                self.assertIn(finding, report)
                 call = json.loads(self.calls.read_text().splitlines()[-1])
                 self.assertEqual(call["prompt"], (directory / "prompt.txt").read_text())
                 self.assertIn("specs/alpha, specs/beta", call["prompt"])

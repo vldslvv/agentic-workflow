@@ -13,7 +13,7 @@ Capture, inspect and report workflow execution traces and usage.
 - [OPENCODE_TOKENS]: Defines native token accounting. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/schema/src/token-usage.ts
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 
-## Detect the tracing provider
+## Automatic tracing provider detection
 
 Apply when capturing, viewing or reporting native evidence.
 

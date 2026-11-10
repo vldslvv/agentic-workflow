@@ -9,7 +9,7 @@ Define how tasks move through implementation, review and final validation.
 
 ## Context
 
-Apply [WORKFLOW_STYLE] when changing workflow behavior or its documentation.
+When editing this document, read and apply [WORKFLOW_STYLE].
 Use [GLOSSARY] for shared terms.
 
 Supervisor executes the selected scope autonomously without interactive prompts.

@@ -36,7 +36,7 @@ def report_capture(diagnostics: list[Diagnostic]) -> None:
         if diagnostic["code"] == "current_session_unavailable":
             print(
                 "records: capture unavailable; use CODEX_THREAD_ID or OPENCODE_SESSION_ID in the active agent shell; see "
-                "agentic-workflow/guides/TRACING.md#detect-the-tracing-provider",
+                "agentic-workflow/guides/TRACING.md#automatic-tracing-provider-detection",
                 file=sys.stderr,
             )
         elif diagnostic["code"] == "opencode_export_unavailable":
