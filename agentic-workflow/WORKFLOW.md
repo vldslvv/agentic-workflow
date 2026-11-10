@@ -4,6 +4,11 @@ This document is the source of truth for how the system works.
 It defines responsibilities, inputs, outputs, decisions and transitions independently
 of the documents that provide execution instructions.
 
+## References
+
+- Apply [Workflow style](policies/WORKFLOW_STYLE.md) when changing workflow behavior or its documentation.
+- Use the [Glossary](GLOSSARY.md) for shared terms.
+
 ## Shared responsibilities
 
 Apply to every role and handoff.
