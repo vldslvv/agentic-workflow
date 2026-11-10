@@ -1,24 +1,40 @@
 # Supervisor
 
-Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling](../policies/RECORDS.md#hand-off-work).
+Coordinate task execution, recovery and acceptance.
+
+## References:
+
+- [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
+- [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
+- [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
+- [BUNDLE]: Defines specification files, task selection and path resolution. agentic-workflow/policies/BUNDLE.md
+- [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
+- [PLANNER]: Authors project documents and maintains workflow instructions. agentic-workflow/roles/PLANNER.md
+- [IMPLEMENTER]: Implements assigned tasks and manages corrections. agentic-workflow/roles/IMPLEMENTER.md
+- [REVIEWER]: Independently reviews task requirements and implementation. agentic-workflow/roles/REVIEWER.md
+- [VALIDATOR]: Validates the assembled app and publishes repair tasks. agentic-workflow/roles/VALIDATOR.md
+- [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
+- [TRACING]: Explains native capture, trace inspection and usage reporting. agentic-workflow/guides/TRACING.md
 
 ## Coordinate tasks
 
+Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
+
 - Context:
-  - Instructions: read [AGENTS.md](../AGENTS.md), [Bundle](../policies/BUNDLE.md), [Checks](../policies/CHECKS.md) and [Records](../policies/RECORDS.md).
-  - Read subordinate input/output contracts in [Planner](PLANNER.md), [Implementer](IMPLEMENTER.md), [Reviewer](REVIEWER.md) and [Validator](VALIDATOR.md).
-  - Read only the Memory index and forward relevant paths under [Memory](../policies/MEMORY.md), except during reconstruction.
+  - Instructions: read [AGENTS], [BUNDLE], [CHECKS] and [RECORDS].
+  - Read subordinate input/output contracts in [PLANNER], [IMPLEMENTER], [REVIEWER] and [VALIDATOR].
+  - Read only the Memory index and forward relevant paths under [MEMORY], except during reconstruction.
 - Inputs:
   - Assignment, Project specification, Task specifications, Task order, Contracts and Verification.
   - When available: Results, Evidence and Execution state.
   - Ordinary work: Memory index.
 - Effects:
   - Resolve inputs.
-  - Stop on Bundle's `NO_PROJECT`, `NO_WORK` or blocked inputs.
+  - Stop on [BUNDLE]'s `NO_PROJECT`, `NO_WORK` or blocked inputs.
   - Use new paths for initial work.
   - Extend selected code for incremental work.
   - Allocate or resume records before dispatch.
-  - Emit the Records assignment line for `supervisor` / `orchestration` in commentary after allocation or resume.
+  - Emit the [RECORDS] assignment line for `supervisor` / `orchestration` in commentary after allocation or resume.
   - Assign task IDs before dispatch.
   - Maintain [execution state](#execution-state) throughout coordination.
   - Record mode, interfaces, file owners, worker handles and output paths.
@@ -26,8 +42,8 @@ Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling]
   - For continuations, complete [recovery](#resume-execution) before dispatch.
   - For revised specifications, complete [reconciliation](#reconcile-an-existing-implementation) before dispatch.
   - Dispatch tasks with accepted prerequisites.
-  - Spawn fresh [Implementer](IMPLEMENTER.md) per new task, without inherited conversation.
-  - Prepare assignments under [Records handoff rules](../policies/RECORDS.md#hand-off-work).
+  - Spawn a fresh Implementer per new task under [IMPLEMENTER], without inherited conversation.
+  - Prepare assignments under [RECORDS] (“Hand off work”).
   - Run ready tasks concurrently within capacity.
   - Reserve room for full-task Reviewers and final validation.
   - Break ties by table order.
@@ -38,9 +54,9 @@ Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling]
   - Explicitly release them afterward.
   - Unrelated work may continue.
   - Read saved task results and required independent results before acceptance.
-  - Check scope, requirement coverage, outcomes and unresolved findings under Checks.
+  - Check scope, requirement coverage, outcomes and unresolved findings under [CHECKS].
   - Open detailed evidence when a result is incomplete, conflicting or insufficient for the decision.
-  - Accept tasks under Checks with the mode's required evidence.
+  - Accept tasks under [CHECKS] with the mode's required evidence.
   - Pass unlocks dependents.
   - Return defects to the same Implementer for correction and rechecks.
   - Require fresh review in plan-review mode.
@@ -51,7 +67,7 @@ Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling]
   - After all selected tasks pass, validate the assembled app below.
   - Validate in either task mode.
   - Run `python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/records/NNN_name` when finished, blocked or requested.
-  - Use [Tracing](../guides/TRACING.md) for trace issues.
+  - Use [TRACING] for trace issues.
   - Save Result and available Evidence when finished, blocked, cancelled or limited.
   - Distinguish selected-scope from whole-app acceptance in Result.
 - Outputs: Assignments, Execution state and Result.
@@ -61,12 +77,12 @@ Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling]
 - Context: apply when asked to update or repair an existing app against revised specifications.
 - Inputs: Assignment, Project specification, Task specifications, Task order, Contracts, Verification and Implementation; Results, Evidence and Execution state when available.
 - Effects:
-  1. Resolve current requirements, authorization and task selection under [Bundle](../policies/BUNDLE.md).
-  2. Allocate or resume records under [Records](../policies/RECORDS.md) while retaining the existing application path.
+  1. Resolve current requirements, authorization and task selection under [BUNDLE].
+  2. Allocate or resume records under [RECORDS] while retaining the existing application path.
   3. Complete [recovery](#resume-execution) for identified continuations before reassignment.
   4. Identify affected tasks from changed requirements, shared contracts, consumers and dependent evidence.
   5. Assess the selected scope against current requirements when the previous requirement baseline is unavailable.
-  6. Reassess acceptance under [Checks](../policies/CHECKS.md#keep-results-current).
+  6. Reassess acceptance under [CHECKS] (“Keep results current”).
   7. Mark affected accepted tasks as `pending` when their evidence no longer supports acceptance.
   8. Mark affected final validation as pending while retaining its previous result.
   9. Record affected scope and reasons in [execution state](#execution-state).
@@ -78,7 +94,7 @@ Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling]
 
 Apply when coordinating an implementation or recovering its execution.
 
-- Keep one `execution-state.md` at the implementation root allocated under Records.
+- Keep one `execution-state.md` at the implementation root allocated under [RECORDS].
 - Keep the Supervisor as its sole writer.
 - Record the specification bundle location and selected task scope.
 - Record each task's status, mode, workspace, last execution phase and available worker handles.
@@ -93,7 +109,7 @@ Apply when coordinating an implementation or recovering its execution.
 
 ## Resume execution
 
-- Context: apply [Records](../policies/RECORDS.md), [Bundle](../policies/BUNDLE.md) and [Checks](../policies/CHECKS.md).
+- Context: apply [RECORDS], [BUNDLE] and [CHECKS].
 - Inputs:
   - Assignment, Implementation, Project specification, Task specifications, Task order, Contracts and Verification.
   - When available: Execution state, Results and Evidence.
@@ -118,11 +134,11 @@ Apply when reconciling state or continuing interrupted work.
 
 - Recover from saved files even when the original conversation is unavailable.
 - Reuse available owners, task IDs, workspaces, approved documents and implementation records.
-- Give replacement workers the specification, permitted saved artifacts, findings and continuation note under Records' handoff rules.
-- Preserve Checks' fresh-context and permitted-input requirements for review and validation.
+- Give replacement workers the specification, permitted saved artifacts, findings and continuation note under [RECORDS]' handoff rules.
+- Preserve [CHECKS]' fresh-context and permitted-input requirements for review and validation.
 - Reconcile completed results saved before a checkpoint update before repeating work.
 - Preserve current validation evidence when its checked scope and candidate remain valid.
-- Recheck affected evidence under Checks before restoring acceptance or unlocking dependents.
+- Recheck affected evidence under [CHECKS] before restoring acceptance or unlocking dependents.
 - Treat dependent tasks waiting for prerequisites as blocked rather than failed.
 - Leave unrelated accepted tasks unchanged when recovering failures elsewhere in the graph.
 - Resolve uncertainty about persistent or external effects before retrying an interrupted operation.
@@ -132,11 +148,11 @@ Apply when reconciling state or continuing interrupted work.
 
 ## Validate the assembled app
 
-- Context: apply [Checks](../policies/CHECKS.md) and [Validator](VALIDATOR.md).
+- Context: apply [CHECKS] and [VALIDATOR].
 - Inputs: Assignment, Project specification, selected Task specifications, Task order, Contracts, Verification, Implementation, Results and Evidence; Acceptance for plan-review tasks.
 - Effects:
   - Confirm affected writers paused.
-  - Spawn a fresh Validator with an Assignment and its named inputs under Records and Checks.
+  - Spawn a fresh Validator with an Assignment and its named inputs under [RECORDS] and [CHECKS].
   - Release writers after validation.
   - Route the result below.
 - Outputs: Assignments, Execution state and Result referencing the Validator Result.

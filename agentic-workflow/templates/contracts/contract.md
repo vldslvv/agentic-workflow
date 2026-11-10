@@ -1,6 +1,14 @@
 # <Interaction contract>
 
-Apply [task specification rules](../../policies/BUNDLE.md#task-specifications).
+Define the interface and guarantees shared by interacting components.
+
+## References:
+
+- [BUNDLE]: Defines specification files, task selection and path resolution. agentic-workflow/policies/BUNDLE.md
+
+## Contract
+
+Apply [BUNDLE] (“Task specifications”).
 
 - **Participants:** <Provider and consumer roles.>
 - **Sources:** <Authorizing requirements.>

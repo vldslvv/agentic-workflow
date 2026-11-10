@@ -1,18 +1,28 @@
 # Validator
 
-Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling](../policies/RECORDS.md#hand-off-work).
+Validate the assembled application and publish repair tasks for failures.
+
+## References:
+
+- [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
+- [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
+- [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
+- [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
+- [BUNDLE]: Defines specification files, task selection and path resolution. agentic-workflow/policies/BUNDLE.md
 
 ## Validate the app
 
+Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
+
 - Context:
-  - Instructions: read [AGENTS.md](../AGENTS.md), [Checks](../policies/CHECKS.md), [Bundle](../policies/BUNDLE.md) and [Records](../policies/RECORDS.md).
+  - Instructions: read [AGENTS], [CHECKS], [BUNDLE] and [RECORDS].
 - Inputs:
   - Assignment, Project specification, selected Task specifications, Task order, applicable Contracts, Verification, Implementation, Results and Evidence.
   - Plan-review tasks: Acceptance.
 - Effects:
   - Wait for Supervisor confirmation that affected writers are paused.
   - Use source criteria for direct tasks.
-  - Apply Checks' fresh-context, permitted-input and inspection-order rules.
+  - Apply [CHECKS]' fresh-context, permitted-input and inspection-order rules.
   - Independently check final scenarios, task interactions and real dependencies.
   - Run required manual checks.
   - Reproduce gaps where feasible.
@@ -22,7 +32,7 @@ Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling]
   - Identify missing capabilities and unresolved requirements.
   - For implementation failures, publish one repair per failed pass below.
   - Report blockers promptly.
-  - Return work under [Records](../policies/RECORDS.md#return-work).
+  - Return work under [RECORDS] (“Return work”).
 - Outputs:
   - Evidence and Result.
   - After implementation failure: repair Task specification and updated Task order.
@@ -33,7 +43,7 @@ Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling]
 
 ## Publish repair
 
-- Context: apply [Bundle](../policies/BUNDLE.md) and [Records](../policies/RECORDS.md).
+- Context: apply [BUNDLE] and [RECORDS].
 - Inputs: Assignment, failed validation Result and Evidence, Project specification, selected Task specifications, Task order, applicable Contracts and Verification.
 - Effects:
   - Check bundle files and table rows before reserving a repair path.

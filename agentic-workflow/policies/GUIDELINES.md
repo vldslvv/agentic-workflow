@@ -2,6 +2,12 @@
 
 Read before planning, production code, tests, tooling, review or repairs.
 
+## References:
+
+- [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
+
+## Guidelines
+
 - Separate state and logic.
 - Use classes that mix state and logic only when required.
 - Localize side effects.
@@ -11,7 +17,7 @@ Read before planning, production code, tests, tooling, review or repairs.
 - Prioritize public behaviour tests.
 - Internal tests can add useful coverage.
 - Prefer real infrastructure.
-- Justify mocks under [Checks](CHECKS.md).
+- Justify mocks under [CHECKS].
 - Compose larger structures from small modules.
 - Test public behaviour for every eligible module.
 - Test public contracts specified in the task.

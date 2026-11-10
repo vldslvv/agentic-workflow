@@ -98,16 +98,28 @@ class PackageCheckTests(unittest.TestCase):
     def test_additional_valid_markdown_is_allowed_and_checked(self) -> None:
         (self.package / "extra.md").write_text(
             "# Extra\n[Routing](policies/MODELS.md#model-routing)\n"
+            "Use [MODELS].\n\n[MODELS]: policies/MODELS.md#routing-source\n"
+            "[EXTERNAL]: https://example.com/guide\n"
+            "- [GUIDELINES]: Engineering rules. agentic-workflow/policies/GUIDELINES.md\n"
+            "- [EXTERNAL_GUIDE]: External guide. https://example.com/guide\n"
+            "```markdown\n[EXAMPLE]: missing.md\n"
+            "- [EXAMPLE]: Installation example. agentic-workflow/missing.md\n```\n"
         )
         self.assertEqual(self.result(self.cli(), 0)["errors"], [])
 
     def test_broken_local_link_and_anchor_fail(self) -> None:
         extra = self.package / "extra.md"
         for target in ("missing.md", "AGENTS.md#absent-heading"):
-            with self.subTest(target=target):
-                extra.write_text(f"# Extra\n[Reference]({target})\n")
-                report = self.result(self.cli(), 1)
-                self.assertTrue(any(target in error for error in report["errors"]))
+            for reference in (
+                f"[Reference]({target})",
+                f"[REFERENCE]\n\n[REFERENCE]: {target}",
+                f'[REFERENCE]\n\n[REFERENCE]: <{target}> "Reference"',
+                f"- [REFERENCE]: Referenced document. agentic-workflow/{target}",
+            ):
+                with self.subTest(target=target, reference=reference):
+                    extra.write_text(f"# Extra\n{reference}\n")
+                    report = self.result(self.cli(), 1)
+                    self.assertTrue(any(target in error for error in report["errors"]))
 
     def test_missing_required_role_and_template_fail(self) -> None:
         for relative in ("roles/REVIEWER.md", "templates/verification.md", "helpers/records.py"):
@@ -123,9 +135,15 @@ class PackageCheckTests(unittest.TestCase):
 
     def test_link_outside_package_fails_even_when_host_file_exists(self) -> None:
         (self.root / "host.md").write_text("# Host dependency\n")
-        (self.package / "extra.md").write_text("[Host](../host.md)\n")
-        report = self.result(self.cli(), 1)
-        self.assertTrue(any("outside copy boundary" in error for error in report["errors"]))
+        for reference in (
+            "[Host](../host.md)",
+            "[HOST]\n\n[HOST]: ../host.md",
+            "- [HOST]: Host dependency. host.md",
+        ):
+            with self.subTest(reference=reference):
+                (self.package / "extra.md").write_text(reference + "\n")
+                report = self.result(self.cli(), 1)
+                self.assertTrue(any("outside copy boundary" in error for error in report["errors"]))
 
     def test_unreadable_document_returns_inability_to_run(self) -> None:
         (self.package / "extra.md").write_bytes(b"\xff")

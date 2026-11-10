@@ -1,3 +1,7 @@
+# Task order
+
+List task specifications in dependency order.
+
 | Task | Depends on |
 |---|---|
-| [task.md](tasks/task.md) | None |
+| tasks/task.md | None |

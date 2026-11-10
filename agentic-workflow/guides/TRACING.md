@@ -1,5 +1,15 @@
 # Tracing workflows
 
+Capture, inspect and report workflow execution traces and usage.
+
+## References:
+
+- [OPENCODE_RELEASE]: Identifies the checked OpenCode release. https://github.com/anomalyco/opencode/releases/tag/v2.2.6
+- [OPENCODE_SHELL]: Defines native agent shell identity. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/core/src/tool/plugin/shell.ts
+- [OPENCODE_MESSAGES]: Defines exported session messages. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/schema/src/session-message.ts
+- [OPENCODE_TOKENS]: Defines native token accounting. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/schema/src/token-usage.ts
+- [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
+
 ## Enable OpenCode capture
 
 - Context: use OpenCode 2.2.6 for workflow execution.
@@ -29,14 +39,11 @@ Keep manual exports at other paths under `native/` so they remain unchanged.
 Missing CLI access or ambiguous dispatches produce coverage diagnostics while
 preserving saved evidence. Existing V1 saved exports remain readable; live
 capture targets V2. The checked release and native contracts are
-[2.2.6](https://github.com/anomalyco/opencode/releases/tag/v2.2.6),
-[agent shell identity](https://github.com/anomalyco/opencode/blob/v2.2.6/packages/core/src/tool/plugin/shell.ts),
-[message schema](https://github.com/anomalyco/opencode/blob/v2.2.6/packages/schema/src/session-message.ts),
-and [token accounting](https://github.com/anomalyco/opencode/blob/v2.2.6/packages/schema/src/token-usage.ts).
+[OPENCODE_RELEASE], [OPENCODE_SHELL], [OPENCODE_MESSAGES] and [OPENCODE_TOKENS].
 
 ## Capture live work
 
-- Context: apply [Records](../policies/RECORDS.md) when starting or resuming execution.
+- Context: apply [RECORDS] when starting or resuming execution.
 - Inputs: allocated implementation path and available native host storage, with [OpenCode capture](#enable-opencode-capture) configured when applicable.
 - Effects:
   1. Run `python3 agentic-workflow/helpers/trace_view.py IMPLEMENTATION --interval 5`.
@@ -77,7 +84,7 @@ and [token accounting](https://github.com/anomalyco/opencode/blob/v2.2.6/package
 
 ## Recover assignments
 
-- Context: apply [Records](../policies/RECORDS.md) when reports lack assignments for opaque handoffs.
+- Context: apply [RECORDS] when reports lack assignments for opaque handoffs.
 - Inputs: selected session/turn IDs and saved evidence of task/role assignments.
 - Effects:
   1. Verify missing assignments against saved evidence.
@@ -104,13 +111,13 @@ and [token accounting](https://github.com/anomalyco/opencode/blob/v2.2.6/package
 
 ## Report usage
 
-- Context: apply [Records](../policies/RECORDS.md) when work finishes, is blocked or needs a usage report.
+- Context: apply [RECORDS] when work finishes, is blocked or needs a usage report.
 - Inputs: implementation path with saved native evidence and any assignment annotations.
 - Effects:
   1. Run `python3 agentic-workflow/helpers/usage_report.py IMPLEMENTATION`.
   2. Read usage totals and coverage diagnostics.
   3. Report measured usage with missing or ambiguous evidence identified.
-  4. Link permitted reports in the role's result under Records' disclosure rules.
+  4. Link permitted reports in the role's result under [RECORDS]' disclosure rules.
 - Outputs:
   - Usage reports: `reports/usage.json` and `reports/usage.md`.
   - Content and timing exports: `reports/events.json` and `reports/timeline.json`.

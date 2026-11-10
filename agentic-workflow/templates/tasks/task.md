@@ -1,8 +1,15 @@
 # <Component — capability or change>
 
-Apply [task specification rules](../../policies/BUNDLE.md#task-specifications).
+Specify a component’s responsibilities, behavior, constraints and acceptance.
+
+## References:
+
+- [BUNDLE]: Defines specification files, task selection and path resolution. agentic-workflow/policies/BUNDLE.md
+- [SUPERVISOR]: Coordinates implementation, recovery and acceptance. agentic-workflow/roles/SUPERVISOR.md
 
 ## Context
+
+Apply [BUNDLE] (“Task specifications”).
 
 - **Responsibility:** <The component's purpose.>
 - **Boundary:** <Included work and explicit exclusions.>
@@ -40,4 +47,4 @@ Apply [task specification rules](../../policies/BUNDLE.md#task-specifications).
 
 ## Workflow requirements — optional
 
-<Requested `Workflow: plan-review` or `Workflow: direct` and required approvals/reviews under [task-mode policy](../../roles/SUPERVISOR.md#task-mode).>
+<Requested `Workflow: plan-review` or `Workflow: direct` and required approvals/reviews under [SUPERVISOR] (“Task mode”).>

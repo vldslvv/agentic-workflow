@@ -17,6 +17,7 @@ import argparse
 import ast
 import importlib.util
 import json
+import os.path
 import re
 import sys
 from pathlib import Path
@@ -39,20 +40,30 @@ def anchors(text: str) -> set[str]:
     return result
 
 
-def local_targets(text: str) -> list[str]:
+def local_targets(text: str, source: Path, root: Path) -> list[str]:
     # Installation examples inside fenced code are not links in this document.
     text = re.sub(r"^(`{3,}|~{3,})[^\n]*\n.*?^\1\s*$", "", text, flags=re.M | re.S)
-    return [
-        target
-        for target in re.findall(r"\[[^\]]*\]\(([^)]+)\)", text)
+    targets = re.findall(r"\[[^\]]*\]\(([^)]+)\)", text)
+    # Reference links share a destination declared once as [NAME]: path.
+    targets.extend(
+        angled or bare
+        for angled, bare in re.findall(
+            r"^ {0,3}\[[^\]\n]+\]:[ \t]*(?:<([^>\n]+)>|(\S+))", text, re.M
+        )
+    )
+    # Catalog entries use project-root-relative paths, unlike Markdown links.
+    targets.extend(
+        os.path.relpath(root / target, source.parent)
+        for target in re.findall(r"^- \[[A-Z][A-Z_]*\]: .+ (\S+)$", text, re.M)
         if not re.match(r"[\w+.-]+:", target)
-    ]
+    )
+    return [target for target in targets if not re.match(r"[\w+.-]+:", target)]
 
 
-def check_links(documents: dict[Path, str], boundary: Path) -> tuple[list[str], int]:
+def check_links(documents: dict[Path, str], boundary: Path, root: Path) -> tuple[list[str], int]:
     errors, links = [], 0
     for source, text in documents.items():
-        for target in local_targets(text):
+        for target in local_targets(text, source, root):
             links += 1
             path, _, fragment = unquote(target).partition("#")
             destination = (source.parent / path if path else source).resolve()
@@ -225,14 +236,18 @@ def check(files: dict[str, bytes]) -> tuple[list[str], int]:
     documents = {
         PACKAGE / name: data.decode() for name, data in files.items() if name.endswith(".md")
     }
-    link_errors, links = check_links(documents, PACKAGE)
+    link_errors, links = check_links(documents, PACKAGE, PACKAGE.parent)
     errors.extend(link_errors)
     errors.extend(check_imports(files))
     shared = files.get("AGENTS.md", b"").decode()
     for role in ROLES:
-        if f"](roles/{role}.md)" not in shared:
+        if f"roles/{role}.md" not in local_targets(shared, PACKAGE / "AGENTS.md", PACKAGE.parent):
             errors.append(f"Missing shared role entry point: {role}")
-        if "](../AGENTS.md)" not in files.get(f"roles/{role}.md", b"").decode():
+        if "../AGENTS.md" not in local_targets(
+            files.get(f"roles/{role}.md", b"").decode(),
+            PACKAGE / f"roles/{role}.md",
+            PACKAGE.parent,
+        ):
             errors.append(f"Missing shared-rules entry point in {role}")
     return errors, links
 
@@ -254,7 +269,7 @@ def check_integration(root: Path) -> tuple[list[str], int]:
             "policies/GUIDELINES.md",
             "policies/MEMORY.md",
         ):
-            if f"agentic-workflow/{path}" not in local_targets(block):
+            if f"agentic-workflow/{path}" not in local_targets(block, instructions, root):
                 errors.append(f"Missing root entry point: {Path(path).stem}")
     for skill in SKILLS:
         name = f"agentic-workflow-{skill}"
@@ -266,7 +281,7 @@ def check_integration(root: Path) -> tuple[list[str], int]:
         content = source.read_text() if source.is_file() else ""
         invocation = policy.read_text() if policy.is_file() else ""
         required = (f"name: {name}", "description:", "disable-model-invocation: true")
-        targets = local_targets(content)
+        targets = local_targets(content, source, root)
         references = (
             ["AGENTS.md", "roles/PLANNER.md", "roles/SUPERVISOR.md"]
             if skill == "acceptance"
@@ -279,7 +294,7 @@ def check_integration(root: Path) -> tuple[list[str], int]:
         if "allow_implicit_invocation: false" not in invocation or f"${name}" not in invocation:
             errors.append(f"Invalid invocation policy: {name}")
         documents[source] = content
-    link_errors, links = check_links(documents, root)
+    link_errors, links = check_links(documents, root, root)
     return errors + link_errors, links
 
 

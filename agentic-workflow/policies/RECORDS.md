@@ -1,8 +1,22 @@
 # Execution records
 
-Use the [shared vocabulary](../GLOSSARY.md) for Assignments and Results.
+Manage execution records, assignments, handoffs and results.
+
+## References:
+
+- [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
+- [TRACING]: Explains native capture, trace inspection and usage reporting. agentic-workflow/guides/TRACING.md
+- [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
+- [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
+- [SUPERVISOR]: Coordinates implementation, recovery and acceptance. agentic-workflow/roles/SUPERVISOR.md
+- [RESULT_TEMPLATE]: Records completion status, evidence, findings and limits. agentic-workflow/templates/result.md
+- [IMPLEMENTER]: Implements assigned tasks and manages corrections. agentic-workflow/roles/IMPLEMENTER.md
+- [PLAN_TEMPLATE]: Structures task implementation plans. agentic-workflow/templates/plan.md
+- [ACCEPTANCE_TEMPLATE]: Maps requirements to observable checks and pass rules. agentic-workflow/templates/acceptance.md
 
 ## Allocate or resume
+
+Use the [GLOSSARY] for Assignments and Results.
 
 - Context: apply the [record guidelines](#record-guidelines) when saving, handing off or resuming work.
 - Inputs:
@@ -22,7 +36,7 @@ Use the [shared vocabulary](../GLOSSARY.md) for Assignments and Results.
 It attempts to capture session metadata and the current native turn.
 `resolve` finds the task and attempts the same capture.
 Codex supplies its thread identity directly; OpenCode 2.2.6 supplies
-[native shell identity](../guides/TRACING.md#enable-opencode-capture).
+native shell identity as described in [TRACING] (“Enable OpenCode capture”).
 Capture failures appear on stderr without blocking allocation or resolution.
 
 ## Recover originals
@@ -40,7 +54,7 @@ Capture failures appear on stderr without blocking allocation or resolution.
 
 ## Hand off work
 
-- Context: apply [Checks](CHECKS.md) and [Memory](MEMORY.md) when choosing what a recipient may read.
+- Context: apply [CHECKS] and [MEMORY] when choosing what a recipient may read.
 - Inputs: Assignment, Instructions and the recipient role’s named inputs.
 - Effects:
   - Have each output owner create its record directories before saving outputs, including direct tasks and validation.
@@ -53,7 +67,7 @@ Capture failures appear on stderr without blocking allocation or resolution.
   - Have recipients read Instructions and assigned inputs before planning, editing or checking.
   - Search only for inputs still missing.
   - Keep worker handles and output paths for return handoffs.
-  - Send implementation corrections through [Supervisor](../roles/SUPERVISOR.md).
+  - Send implementation corrections through Supervisor under [SUPERVISOR].
   - Send document corrections to their author.
   - Give an unavailable owner's replacement only allowed saved inputs.
   - Report owner replacements.
@@ -67,9 +81,9 @@ Keep recipient handles and output paths in Execution state when coordinating tas
 
 Apply when a worker finishes, pauses for review or stops with unfinished work.
 
-- Save one Result using the [result template](../templates/result.md).
+- Save one Result using the [RESULT_TEMPLATE].
 - Include applicable Memory and usage paths.
-- Filter Results and Evidence for independent recipients under [Checks](CHECKS.md#independent-checks).
+- Filter Results and Evidence for independent recipients under [CHECKS] (“Independent checks”).
 - Return status, Result path and any decision or blocker in one short message.
 - Link changed files, check evidence and findings from the saved result.
 - Keep detailed command output in evidence files when needed.
@@ -86,9 +100,9 @@ Apply to task documents, handoffs and results.
 - Store records in the locations below.
 - Use source filenames without extensions as task IDs.
 - Reserve `orchestration` for Supervisor activity and `validation` for final validation.
-- Follow the assigned [Implementer mode](../roles/IMPLEMENTER.md) to decide which documents are required.
+- Follow the assigned task mode in [IMPLEMENTER] to decide which documents are required.
 - Use `plan.md` and `acceptance.md` for required task documents.
-- Follow the [plan](../templates/plan.md), [acceptance](../templates/acceptance.md) and [result](../templates/result.md) templates.
+- Follow [PLAN_TEMPLATE], [ACCEPTANCE_TEMPLATE] and [RESULT_TEMPLATE].
 - Preserve approved originals and their history in place.
 - Follow [Return work](#return-work) for saved results and completion messages.
 - Link extra evidence and usage reports.
@@ -101,7 +115,7 @@ Apply to task documents, handoffs and results.
 - Report missing telemetry as a reporting limit.
 - Do not block app acceptance for missing telemetry.
 - Leave unknown values unavailable.
-- Apply [Tracing](../guides/TRACING.md) for capture throughout execution, usage reports and assignment recovery.
+- Apply [TRACING] for capture throughout execution, usage reports and assignment recovery.
 
 | Record | Location under the implementation root |
 |---|---|

@@ -1,9 +1,23 @@
 # Agentic Workflow
 
 Copy-in instructions, templates and local helpers for specification-driven
-implementation. Start at [AGENTS.md](AGENTS.md) for roles and acceptance rules.
+implementation.
+
+## References:
+
+- [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
+- [MODELS]: Defines model routing and worker settings. agentic-workflow/policies/MODELS.md
+- [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
+- [TRACING]: Explains native capture, trace inspection and usage reporting. agentic-workflow/guides/TRACING.md
+- [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
+- [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
+- [PROJECT_TEMPLATE]: Structures project intent, constraints and output paths. agentic-workflow/templates/project.md
+- [SUPERVISOR]: Coordinates implementation, recovery and acceptance. agentic-workflow/roles/SUPERVISOR.md
+- [GUIDELINES]: Defines engineering rules for code, tests and tooling. agentic-workflow/policies/GUIDELINES.md
 
 ## Install
+
+Start at [AGENTS] for roles and acceptance rules.
 
 Copy the complete `agentic-workflow/` directory into an existing project root.
 Merge this block into the root `AGENTS.md`, preserving existing instructions and
@@ -13,16 +27,27 @@ both markers; integration checks inspect only the marked block.
 <!-- agentic-workflow:start -->
 # Agentic Workflow
 
+Apply shared engineering and workflow instructions to project work.
+
+## References:
+
+- [GUIDELINES]: Defines engineering rules for code, tests and tooling. agentic-workflow/policies/GUIDELINES.md
+- [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
+- [DOCUMENT_STYLE]: Defines document structure and reference conventions. agentic-workflow/policies/DOCUMENT_STYLE.md
+- [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
+
+## Instructions
+
 - Before planning, changing or reviewing code, tests or tooling, read
-  [Engineering guidelines](agentic-workflow/policies/GUIDELINES.md).
+  [GUIDELINES].
 - For specification implementation, read
-  [Workflow entry points](agentic-workflow/AGENTS.md) and act as Supervisor.
+  [AGENTS] and act as Supervisor.
 - For document authoring or workflow maintenance, read those entry points
   and act as Planner.
 - Before authoring or editing project documents,
-  read [Document style](agentic-workflow/policies/DOCUMENT_STYLE.md), regardless of role.
+  read [DOCUMENT_STYLE], regardless of role.
 - Ordinary planning and implementation follows
-  [Project memory](agentic-workflow/policies/MEMORY.md); implement ordinary work directly.
+  [MEMORY]; implement ordinary work directly.
 - Keep project inputs, application code, memory and execution evidence
   outside `agentic-workflow/`.
 <!-- agentic-workflow:end -->
@@ -38,11 +63,11 @@ and invoke the wrappers explicitly:
 | `.agents/skills/agentic-workflow-acceptance/` | `$agentic-workflow-acceptance` |
 
 Direct role-file routing works without wrappers. Report unsupported host worker
-isolation or settings under [model routing](policies/MODELS.md) and
-[Checks](policies/CHECKS.md). Run the [portable checks](#requirements-and-portable-commands)
+isolation or settings under [MODELS] and
+[CHECKS]. Run the [portable checks](#requirements-and-portable-commands)
 after installation.
 
-OpenCode 2.2.6 uses [native session capture](guides/TRACING.md#enable-opencode-capture)
+OpenCode 2.2.6 uses native session capture under [TRACING] (“Enable OpenCode capture”)
 without a plugin; follow the update note there to remove the old V1 wrapper.
 
 ## Update the package
@@ -61,12 +86,12 @@ Keep customizations outside the package:
 | Root `AGENTS.md` | Project instructions and entry-point block |
 | `specs/` | Project specification bundles |
 | Application directories | Project code and dependencies |
-| `.agentic-workflow/memory/` | Project lessons under [Memory](policies/MEMORY.md) |
+| `.agentic-workflow/memory/` | Project lessons under [MEMORY] |
 | `.agentic-workflow/config/MODELS.md` | Complete project routing override |
 | `.agentic-workflow/records/NNN_name/` | Tasks, runs, native traces and reports |
 
-For routing overrides, copy [MODELS.md](policies/MODELS.md) to the path above and
-edit the complete policy under its [routing-source rules](policies/MODELS.md#routing-source).
+For routing overrides, copy [MODELS] to the path above and
+edit the complete policy under [MODELS] (“Routing source”).
 
 Retain the package layout: root `AGENTS.md`, `GLOSSARY.md`, `WORKFLOW.md` and `README.md`, plus
 `roles/`, `policies/`, `guides/`, `templates/`, `helpers/` and `tests/`.
@@ -85,8 +110,8 @@ support, package-manager installer or plugin publication.
 
 Run from the consuming project root. Consult command `--help`, including
 `records.py allocate --help` and `records.py resolve --help`, for usage and
-lifecycle instructions. Follow [Records](policies/RECORDS.md) for task conventions
-and [Tracing](guides/TRACING.md) for capture, imports and reports.
+lifecycle instructions. Follow [RECORDS] for task conventions
+and [TRACING] for capture, imports and reports.
 
 ```sh
 python3 agentic-workflow/helpers/check_package.py
@@ -126,9 +151,9 @@ repository root and is not part of the copied package.
 ## Example use
 
 Ask the agent to author a specification bundle using the
-[project template](templates/project.md), then request `Implement specs/example`
-for execution through [Supervisor](roles/SUPERVISOR.md). Ordinary changes follow
-[Guidelines](policies/GUIDELINES.md) and [Memory](policies/MEMORY.md) directly.
+[PROJECT_TEMPLATE], then request `Implement specs/example`
+for execution through [SUPERVISOR]. Ordinary changes follow
+[GUIDELINES] and [MEMORY] directly.
 Preserve explicit plan-only and approval requirements.
 
 ## Distribution license

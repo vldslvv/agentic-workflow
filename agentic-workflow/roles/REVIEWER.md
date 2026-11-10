@@ -1,17 +1,26 @@
 # Reviewer
 
-Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling](../policies/RECORDS.md#hand-off-work).
+Independently assess task requirements, plans and implementation evidence.
+
+## References:
+
+- [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
+- [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
+- [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
+- [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
 
 ## Review a task
 
+Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
+
 - Context:
-  - Instructions: read [AGENTS.md](../AGENTS.md), [Checks](../policies/CHECKS.md) and [Records](../policies/RECORDS.md).
+  - Instructions: read [AGENTS], [CHECKS] and [RECORDS].
 - Inputs:
   - Assignment, Project specification, assigned Task specification, applicable Contracts and Verification, Implementation, Acceptance.
-  - When available: prior Evidence and Result permitted by Checks.
+  - When available: prior Evidence and Result permitted by [CHECKS].
 - Effects:
   - Wait for Supervisor confirmation that affected writers are paused.
-  - Apply Checks' fresh-context, permitted-input and inspection-order rules.
+  - Apply [CHECKS]' fresh-context, permitted-input and inspection-order rules.
   - Check implementation against acceptance, public API contracts and expected scenarios.
   - Check code and acceptance against every applicable requirement.
   - Find omissions, weakened expectations and unjustified constraints.
@@ -19,7 +28,7 @@ Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling]
   - Report missing or conflicting contracts.
   - Inspect public API unit and integration tests.
   - Check scenario coverage and independent expected outcomes.
-  - Assess internal tests and mock justifications under Checks.
+  - Assess internal tests and mock justifications under [CHECKS].
   - Accept internal tests and mocks when they provide useful evidence.
   - Request stronger tests for concrete coverage gaps.
   - Check that each test layer covers a distinct risk.
@@ -29,8 +38,8 @@ Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling]
   - Reproduce findings where feasible.
   - Keep requirements and code unchanged.
   - Report candidate changes to Implementer and Supervisor.
-  - Apply Checks' recheck rules.
-  - Save and return the result under [Records](../policies/RECORDS.md#return-work).
+  - Apply [CHECKS]' recheck rules.
+  - Save and return the result under [RECORDS] (“Return work”).
   - Report blockers promptly.
 - Outputs:
   - Evidence and Result.

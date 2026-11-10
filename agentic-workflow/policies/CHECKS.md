@@ -2,8 +2,9 @@
 
 Read when preparing checks, reviewing work or deciding whether it passes.
 
-- Resolve requirements through [Bundle](BUNDLE.md).
-- Apply engineering rules from [Guidelines](GUIDELINES.md).
+## References:
+
+- [RESULT_TEMPLATE]: Records completion status, evidence, findings and limits. agentic-workflow/templates/result.md
 
 ## Prepare acceptance
 
@@ -53,7 +54,7 @@ Apply when reporting checks or accepting work.
 - Mark skipped checks `NOT_RUN`, or `BLOCKED` when their absence prevents acceptance.
 - Block acceptance with `INDEPENDENT_REVIEW_NOT_RUN` when a required fresh review has not run.
 - Report substitute checks and coverage gaps without lowering the requirements.
-- Save evidence using the [result template](../templates/result.md).
+- Save evidence using the [RESULT_TEMPLATE].
 - For manual judgments, name the rule and the item inspected.
 - Report cleanup errors separately from the failure being checked.
 

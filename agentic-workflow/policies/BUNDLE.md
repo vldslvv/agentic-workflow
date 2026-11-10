@@ -2,7 +2,17 @@
 
 Apply when finding or writing specifications or selecting tasks.
 
-A bundle contains the project files listed below.
+## References:
+
+- [PROJECT_TEMPLATE]: Structures project intent, constraints and output paths. agentic-workflow/templates/project.md
+- [TASK_ORDER_TEMPLATE]: Lists task filenames and dependencies. agentic-workflow/templates/task_order.md
+- [TASK_TEMPLATE]: Structures component behavior, constraints and acceptance. agentic-workflow/templates/tasks/task.md
+- [CONTRACT_TEMPLATE]: Structures shared interaction contracts. agentic-workflow/templates/contracts/contract.md
+- [VERIFICATION_TEMPLATE]: Structures shared checks and assembled-app scenarios. agentic-workflow/templates/verification.md
+- [VALIDATOR]: Validates the assembled app and publishes repair tasks. agentic-workflow/roles/VALIDATOR.md
+- [SUPERVISOR]: Coordinates implementation, recovery and acceptance. agentic-workflow/roles/SUPERVISOR.md
+
+## Resolve a bundle
 
 - Use the selected bundle.
 - Without a selected bundle, look for these files outside the package.
@@ -21,20 +31,22 @@ A bundle contains the project files listed below.
 - Require implementation permission beyond document approval.
 - Use ordinary Markdown without requiring frontmatter.
 
+A bundle contains the project files listed below.
+
 | File | Purpose | Template |
 |---|---|---|
-| `project.md` | Intent, constraints, target and output paths | [Project](../templates/project.md) |
-| `task_order.md` | Task filenames and dependencies | [Task order](../templates/task_order.md) |
-| `tasks/*.md` | Component responsibilities, behavior and acceptance outcomes | [Task](../templates/tasks/task.md) |
-| `contracts/*.md` (optional) | Shared interaction contracts | [Contract](../templates/contracts/contract.md) |
-| `verification.md` | Shared checks and assembled-app scenarios | [Verification](../templates/verification.md) |
+| `project.md` | Intent, constraints, target and output paths | [PROJECT_TEMPLATE] |
+| `task_order.md` | Task filenames and dependencies | [TASK_ORDER_TEMPLATE] |
+| `tasks/*.md` | Component responsibilities, behavior and acceptance outcomes | [TASK_TEMPLATE] |
+| `contracts/*.md` (optional) | Shared interaction contracts | [CONTRACT_TEMPLATE] |
+| `verification.md` | Shared checks and assembled-app scenarios | [VERIFICATION_TEMPLATE] |
 
 ## Task specifications
 
 Apply when authoring tasks and interaction contracts.
 
 - Define each ordinary task as a cohesive component or bounded component change.
-- Follow [repair scope](../roles/VALIDATOR.md#publish-repair) for cross-component validation repairs.
+- Follow [VALIDATOR] (“Publish repair”) for cross-component validation repairs.
 - Make tasks implementable and checkable against agreed contracts and declared prerequisites.
 - Keep responsibility, boundaries, behavior and acceptance, omitting other inapplicable fields.
 - Keep shared requirements in one authoritative contract or interface definition.
@@ -44,7 +56,7 @@ Apply when authoring tasks and interaction contracts.
 
 ## Select tasks and resolve paths
 
-Apply before the [Supervisor](../roles/SUPERVISOR.md) schedules selected tasks.
+Apply before scheduling selected tasks under [SUPERVISOR].
 
 - Declare dependencies only in the `Task | Depends on` table in `task_order.md`.
 - List each task once.

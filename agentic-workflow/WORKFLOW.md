@@ -4,12 +4,15 @@ This document is the source of truth for how the system works.
 It defines responsibilities, inputs, outputs, decisions and transitions independently
 of the documents that provide execution instructions.
 
-## References
+## References:
 
-- Apply [Workflow style](policies/WORKFLOW_STYLE.md) when changing workflow behavior or its documentation.
-- Use the [Glossary](GLOSSARY.md) for shared terms.
+- [WORKFLOW_STYLE]: Defines how to maintain the workflow contract. agentic-workflow/policies/WORKFLOW_STYLE.md
+- [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
 
 ## Shared responsibilities
+
+Apply [WORKFLOW_STYLE] when changing workflow behavior or its documentation.
+Use [GLOSSARY] for shared terms.
 
 Apply to every role and handoff.
 

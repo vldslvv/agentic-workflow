@@ -1,12 +1,26 @@
 # Implementer
 
-Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling](../policies/RECORDS.md#hand-off-work).
+Implement assigned tasks, verify their behavior and manage corrections.
+
+## References:
+
+- [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
+- [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
+- [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
+- [BUNDLE]: Defines specification files, task selection and path resolution. agentic-workflow/policies/BUNDLE.md
+- [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
+- [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
+- [PLAN_TEMPLATE]: Structures task implementation plans. agentic-workflow/templates/plan.md
+- [ACCEPTANCE_TEMPLATE]: Maps requirements to observable checks and pass rules. agentic-workflow/templates/acceptance.md
+- [REVIEWER]: Independently reviews task requirements and implementation. agentic-workflow/roles/REVIEWER.md
 
 ## Execute a task
 
+Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
+
 - Context:
-  - Instructions: read [AGENTS.md](../AGENTS.md), [Bundle](../policies/BUNDLE.md), [Checks](../policies/CHECKS.md) and [Records](../policies/RECORDS.md).
-  - Ordinary work also uses [Memory](../policies/MEMORY.md).
+  - Instructions: read [AGENTS], [BUNDLE], [CHECKS] and [RECORDS].
+  - Ordinary work also uses [MEMORY].
 - Inputs:
   - Assignment, Project specification, assigned Task specification, applicable Contracts and Verification, Implementation.
   - When continuing: prior Result and any existing Plan and Acceptance.
@@ -18,13 +32,13 @@ Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling]
   - Check requirements and regressions.
   - Inspect the diff.
   - Record check evidence.
-  - Include mock justifications under Checks.
+  - Include mock justifications under [CHECKS].
   - Fix defects.
   - Rerun affected checks.
   - Preserve approved originals when fixing source omissions.
   - Plan-review: complete review below.
   - Report blockers promptly.
-  - Return work under [Records](../policies/RECORDS.md#return-work).
+  - Return work under [RECORDS] (“Return work”).
 - Outputs:
   - Implementation, Evidence, Result.
   - Plan-review mode: Plan and Acceptance.
@@ -38,11 +52,11 @@ Use the [shared vocabulary](../GLOSSARY.md) and [Assignment and Result handling]
 
 Apply when assigned `plan-review` mode.
 
-- Write [plan.md](../templates/plan.md) before code.
-- Write [acceptance.md](../templates/acceptance.md) before code.
+- Write `plan.md` using [PLAN_TEMPLATE] before code.
+- Write `acceptance.md` using [ACCEPTANCE_TEMPLATE] before code.
 - Link acceptance to sources.
-- Include public API contracts under Checks.
-- Include expected test scenarios under Checks.
+- Include public API contracts under [CHECKS].
+- Include expected test scenarios under [CHECKS].
 - Implement the task.
 
 ## Direct mode
@@ -56,12 +70,12 @@ Apply when assigned `direct` mode.
 
 ## Review a plan-review task
 
-- Context: Instructions include [Checks](../policies/CHECKS.md) and the [Reviewer input/output contract](REVIEWER.md).
+- Context: Instructions include [CHECKS] and the input/output contract in [REVIEWER].
 - Inputs: Assignment, Project specification, assigned Task specification, applicable Contracts and Verification, Implementation, Acceptance, Evidence and prior Result when available.
 - Effects:
   - Agree on review boundary with Supervisor.
   - Wait for confirmation that affected writers are paused.
-  - Spawn a fresh Reviewer with an Assignment and its named inputs under Records and Checks.
+  - Spawn a fresh Reviewer with an Assignment and its named inputs under [RECORDS] and [CHECKS].
   - Pass mock justifications with check evidence.
   - Report review completion to Supervisor.
   - Wait for explicit release before writing.
