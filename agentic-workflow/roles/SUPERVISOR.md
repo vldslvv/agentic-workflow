@@ -29,6 +29,9 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - When available: Results, Evidence and Execution state.
   - Ordinary work: Memory index.
 - Effects:
+  - Execute the selected scope autonomously without interactive prompts.
+  - Resolve routine decisions within the authorized scope using requirements and available evidence.
+  - Report unresolved requirements, missing authority and unavailable capabilities as blockers without prompting.
   - Resolve inputs.
   - Stop on [BUNDLE]'s `NO_PROJECT`, `NO_WORK` or blocked inputs.
   - Use new paths for initial work.
@@ -159,7 +162,7 @@ Apply when reconciling state or continuing interrupted work.
 - Next:
   - Repeat affected implementation, checks and required review before accepting corrections.
   - After accepting corrections, repeat fresh validation.
-  - Obtain user authority for required behavior changes.
+  - Apply [BUNDLE]'s authorization rules to required behavior changes.
 
 | Result | Supervisor action |
 |---|---|
@@ -179,7 +182,7 @@ Apply while workers are active.
 - Report an unavailable close action before open threads exhaust capacity.
 - Use native agent waits with the longest timeout compatible with required updates, do not sleep.
 - Keep waiting after timeouts.
-- Message for decisions or new information.
+- Message workers for decisions or new information.
 - Inspect worker status or unfinished files only to resolve actionable uncertainty.
 
 ## Task mode

@@ -16,7 +16,7 @@ Apply when finding or writing specifications or selecting tasks.
 
 - Use the selected bundle.
 - Without a selected bundle, look for these files outside the package.
-- Ask when more than one bundle fits.
+- Report a blocker when more than one bundle fits and the authorized scope does not identify one.
 - Put authorized new specifications in `specs/`.
 - Keep existing specifications in their current locations.
 - Return `NO_PROJECT` when no project has been requested.
@@ -26,8 +26,9 @@ Apply when finding or writing specifications or selecting tasks.
 - Preserve explicit requirements, the full approved text and its history.
 - Make ordinary implementation choices when implementation is requested.
 - Create needed records for requested implementation.
-- Ask the user to resolve significant requirement conflicts.
-- Get user approval before changing required behaviour.
+- Report unresolved significant requirement conflicts as blockers without prompting.
+- Change required behaviour only with existing user authorization.
+- Report missing authorization as a blocker without prompting.
 - Require implementation permission beyond document approval.
 - Use ordinary Markdown without requiring frontmatter.
 
@@ -73,7 +74,8 @@ Apply before scheduling selected tasks under [SUPERVISOR].
 - Return `NO_WORK` for an empty selection.
 - Resolve repository-relative output paths from the repository root.
 - Stop execution when ambiguity could affect the work.
-- Clarify broad scenarios' pass criteria before execution without changing requirements.
+- Resolve broad scenarios' pass criteria from requirements before execution.
+- Report unresolved pass criteria as blockers without changing requirements or prompting.
 - Allow checks to develop during implementation.
 - Do not require a fixed check inventory or approval receipt.
 - Report document validity separately from app conformance.

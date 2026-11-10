@@ -1,5 +1,9 @@
 # Agentic Workflow
 
+Use this index to locate context needed for the current task.
+A reference alone does not require reading its target.
+Open documents when their context is needed or an applicable instruction explicitly requires them.
+
 Routes workflow actions to role instructions and shared policies.
 
 ## References:
@@ -26,8 +30,6 @@ Routes workflow actions to role instructions and shared policies.
 - [RESULT_TEMPLATE]: Records completion status, evidence, findings and limits. agentic-workflow/templates/result.md
 
 ## Entry points
-
-Read the context for your action:
 
 | Action | Context |
 |---|---|

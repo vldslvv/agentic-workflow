@@ -1,9 +1,19 @@
 # Role vocabulary
 
-These terms name existing workflow inputs and outputs.
-Policies retain procedures, permissions and storage rules.
+These terms name existing workflow roles, inputs and outputs.
+Role instructions and policies retain procedures, permissions and storage rules.
 
 ## Language
+
+**Supervisor**: Coordinator of task execution, recovery and acceptance.
+
+**Planner**: Author of project documents and maintainer of workflow instructions.
+
+**Implementer**: Owner of an assigned task's Implementation, checks and corrections.
+
+**Reviewer**: Independent assessor of Acceptance and Implementation against task requirements.
+
+**Validator**: Independent assessor of the assembled application and author of repair Task specifications for implementation failures.
 
 **Instructions**: Applicable role instructions, workflow policies and project guidance.
 

@@ -1,6 +1,6 @@
 # Reviewer
 
-Independently assess task requirements, plans and implementation evidence.
+Independently assess Acceptance and implementation against task requirements.
 
 ## References:
 

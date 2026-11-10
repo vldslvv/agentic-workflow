@@ -25,7 +25,8 @@ Use the [GLOSSARY] for Assignments and Results.
 - Effects:
   - For new work, run `python3 agentic-workflow/helpers/records.py allocate NAME` before starting tasks.
   - Look up resumed task IDs only in that implementation's immediate `tasks/` directory.
-  - Ask when the implementation, task or resume scope is missing or unclear.
+  - Resolve the implementation, task and resume scope from authorized inputs and identified records.
+  - Report missing or ambiguous scope as a blocker without prompting.
   - For resumed work, run `python3 agentic-workflow/helpers/records.py resolve IMPLEMENTATION TASK`.
   - Use complete records, findings and current files for that work.
   - Recheck outdated or missing evidence.
@@ -48,7 +49,7 @@ tracing provider”); allocation and resolution accept no provider override.
 - Effects:
   - Recover originals from known sources.
   - Do not recreate originals from summaries.
-  - Ask for unavailable originals with a list of checked locations.
+  - Report unavailable originals as blockers with a list of checked locations, without prompting.
   - Give independent workers recovered sources or acceptance criteria without recovery conversations.
   - In Plan mode, present full drafts without saving.
   - Once editing is available, save approved text before implementation or handoff.

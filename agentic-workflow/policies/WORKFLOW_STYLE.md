@@ -4,17 +4,16 @@ Apply when changing workflow behavior or its documentation.
 
 ## References:
 
-- [WORKFLOW]: Defines workflow responsibilities, outcomes and transitions. agentic-workflow/WORKFLOW.md
-- [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
+- [WORKFLOW]: Defines the overall implementation, review and validation flow. agentic-workflow/WORKFLOW.md
 
 ## Guidelines
 
-- Treat [WORKFLOW] as the authoritative source of workflow behavior.
-- Keep its behavior self-contained.
-- Allow references in it only to this policy and [GLOSSARY].
-- Update it whenever workflow behavior changes.
+- Treat [WORKFLOW] as the authoritative source of the overall execution flow.
+- Keep the flow self-contained, with document references only to this policy and the glossary.
+- Update it whenever the overall flow changes.
 - Express changes as brief statements of core responsibilities and outcomes.
-- Keep procedures, state formats and implementation details in role documents or policies.
+- Keep execution details in role instructions and policies.
+- Keep validation techniques, worker context, scheduling mechanics, records and state management outside the contract.
 - Derive complete execution duties in role documents from it.
 - Keep those documents free of references back to the contract.
 - Keep derived instructions consistent with the workflow contract.
