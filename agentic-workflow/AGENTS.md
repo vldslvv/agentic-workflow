@@ -19,7 +19,7 @@ Routes workflow actions to role instructions and shared policies.
 - [README]: Explains installation, package ownership and portable commands. agentic-workflow/README.md
 - [TRACING]: Explains native capture, trace inspection and usage reporting. agentic-workflow/guides/TRACING.md
 - [GUIDELINES]: Defines engineering rules for code, tests and tooling. agentic-workflow/policies/GUIDELINES.md
-- [MODELS]: Defines model routing and worker settings. agentic-workflow/policies/MODELS.md
+- [MODELS]: Provides heuristics for choosing subagent models. agentic-workflow/policies/MODELS.md
 - [DOCUMENT_STYLE]: Defines document structure and reference conventions. agentic-workflow/policies/DOCUMENT_STYLE.md
 - [PLAN_TEMPLATE]: Structures task implementation plans. agentic-workflow/templates/plan.md
 - [ACCEPTANCE_TEMPLATE]: Maps requirements to observable checks and pass rules. agentic-workflow/templates/acceptance.md
@@ -48,8 +48,10 @@ Read the context for your action:
 | Install or check the package/optional skills | [README] |
 | Inspect traces or usage | [TRACING] |
 
-Every role reads [GUIDELINES], resolves [MODELS] (“Routing source”),
-and applies its context documents. Follow conditional references when applicable.
+Every role reads [GUIDELINES] and applies its context documents.
+When choosing subagents and their models, use `.agentic-workflow/config/MODELS.md`
+if present, otherwise [MODELS].
+Follow conditional references when applicable.
 Before authoring or editing project documents,
 read and apply [DOCUMENT_STYLE], regardless of role.
 Keep project inputs, code, memory and execution evidence outside this package.

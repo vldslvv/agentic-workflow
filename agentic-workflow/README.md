@@ -6,7 +6,7 @@ implementation.
 ## References:
 
 - [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
-- [MODELS]: Defines model routing and worker settings. agentic-workflow/policies/MODELS.md
+- [MODELS]: Provides heuristics for choosing subagent models. agentic-workflow/policies/MODELS.md
 - [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
 - [TRACING]: Explains native capture, trace inspection and usage reporting. agentic-workflow/guides/TRACING.md
 - [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
@@ -63,8 +63,7 @@ and invoke the wrappers explicitly:
 | `.agents/skills/agentic-workflow-acceptance/` | `$agentic-workflow-acceptance` |
 
 Direct role-file routing works without wrappers. Report unsupported host worker
-isolation or settings under [MODELS] and
-[CHECKS]. Run the [portable checks](#requirements-and-portable-commands)
+isolation or settings under [CHECKS]. Run the [portable checks](#requirements-and-portable-commands)
 after installation.
 
 OpenCode 2.2.6 uses native session capture under [TRACING] (“Enable OpenCode capture”)
@@ -87,11 +86,10 @@ Keep customizations outside the package:
 | `specs/` | Project specification bundles |
 | Application directories | Project code and dependencies |
 | `.agentic-workflow/memory/` | Project lessons under [MEMORY] |
-| `.agentic-workflow/config/MODELS.md` | Complete project routing override |
+| `.agentic-workflow/config/MODELS.md` | Project model-selection overrides |
 | `.agentic-workflow/records/NNN_name/` | Tasks, runs, native traces and reports |
 
-For routing overrides, copy [MODELS] to the path above and
-edit the complete policy under [MODELS] (“Routing source”).
+To customize model choices, copy [MODELS] to the path above and edit its heuristics.
 
 Retain the package layout: root `AGENTS.md`, `GLOSSARY.md`, `WORKFLOW.md` and `README.md`, plus
 `roles/`, `policies/`, `guides/`, `templates/`, `helpers/` and `tests/`.

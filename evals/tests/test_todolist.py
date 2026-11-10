@@ -48,10 +48,8 @@ class TodolistEvalTests(unittest.TestCase):
         shutil.copyfile(EVALS.parent / "Makefile", self.root / "Makefile")
         (self.root / "agentic-workflow/policies").mkdir(parents=True)
         (self.root / "agentic-workflow/policies/MODELS.md").write_text(
-            "## Profiles\n| Profile | Model | Reasoning |\n|---|---|---|\n"
-            "| coordinator | fixture-model | high |\n"
-            "## Role routes\n| Role | Default | Demanding work |\n|---|---|---|\n"
-            "| Supervisor | coordinator | coordinator |\n"
+            "## Codex\n- Coordination: model fixture-model, effort high.\n"
+            "## Other providers\n- Coordination: model general-purpose, effort low.\n"
         )
         (self.root / ".gitignore").write_text(
             "/.agentic-workflow/evals/\n/.agentic-workflow/tmp/worktrees/\n/ignored\n__pycache__/\n"
@@ -192,10 +190,10 @@ class TodolistEvalTests(unittest.TestCase):
         self.assertEqual(self.invoke("clean").returncode, 0)
         self.assertEqual(override.read_text(), content)
         # A present override is authoritative even when invalid; no fallback.
-        override.write_text("## Profiles\n")
+        override.write_text("## Codex\n")
         result = self.invoke("run", "--allow-dirty")
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-        self.assertIn("Missing Supervisor default route", result.stderr)
+        self.assertIn("Missing Coordination entry in the Codex section", result.stderr)
         self.assertFalse(self.results.exists())
 
     def test_existing_ignored_output_paths_rejected(self) -> None:

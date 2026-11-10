@@ -169,7 +169,9 @@ make eval EVAL_AGENT_TIMEOUT=1800 EVAL_COMMAND_TIMEOUT=60
 Pause concurrent workflow work so new execution records belong to this trial.
 Require a clean checkout, or select uncommitted inputs with `--allow-dirty`.
 Both `apps/todolist` and `.agentic-workflow/evals/todolist` must be absent.
-Supervisor settings follow [model routing](../agentic-workflow/policies/MODELS.md#routing-source).
+Supervisor settings use the `Coordination` entry in the
+[Codex heuristics](../agentic-workflow/policies/MODELS.md#codex).
+When present, `.agentic-workflow/config/MODELS.md` replaces the package's model choices.
 
 ```sh
 python3 evals/todolist.py run

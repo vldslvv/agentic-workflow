@@ -97,8 +97,8 @@ class PackageCheckTests(unittest.TestCase):
 
     def test_additional_valid_markdown_is_allowed_and_checked(self) -> None:
         (self.package / "extra.md").write_text(
-            "# Extra\n[Routing](policies/MODELS.md#model-routing)\n"
-            "Use [MODELS].\n\n[MODELS]: policies/MODELS.md#routing-source\n"
+            "# Extra\n[Models](policies/MODELS.md#model-selection)\n"
+            "Use [MODELS].\n\n[MODELS]: policies/MODELS.md#codex\n"
             "[EXTERNAL]: https://example.com/guide\n"
             "- [GUIDELINES]: Engineering rules. agentic-workflow/policies/GUIDELINES.md\n"
             "- [EXTERNAL_GUIDE]: External guide. https://example.com/guide\n"

@@ -1,6 +1,7 @@
 """Trial preparation, artifact grading and explicit cleanup."""
 
 import json
+import re
 import shutil
 import stat
 import subprocess
@@ -43,26 +44,27 @@ def safe_path(root: Path, relative: Path) -> Path:
     return path
 
 
-def role_settings(path: Path, role: str) -> RoleSettings:
-    tables: dict[str, dict[str, list[str]]] = {}
+def model_settings(path: Path, work: str) -> RoleSettings:
+    choices: dict[str, tuple[str, str]] = {}
     section = None
     for line in path.read_text().splitlines():
         if line.startswith("## "):
             section = line[3:].strip()
-        if line.startswith("|") and section in ("Profiles", "Role routes"):
-            row = [cell.strip().strip("`") for cell in line.strip("|").split("|")]
-            if len(row) != 3 or not all(row):
-                raise runtime.RunnerError(f"Malformed model configuration row: {line}")
-            table = tables.setdefault(section, {})
-            if row[0] in table:
-                raise runtime.RunnerError(f"Duplicate model configuration row: {row[0]}")
-            table[row[0]] = row[1:]
+        if line.startswith("- ") and section == "Codex":
+            match = re.fullmatch(r"- (.+?): model (\S+), effort (\S+)\.", line)
+            if match is None:
+                raise runtime.RunnerError(f"Malformed model configuration entry: {line}")
+            label, model, reasoning = match.groups()
+            if label in choices:
+                raise runtime.RunnerError(f"Duplicate model configuration entry: {label}")
+            choices[label] = (model, reasoning)
     try:
-        profile = tables["Role routes"][role][0]
-        model, reasoning = tables["Profiles"][profile]
+        model, reasoning = choices[work]
     except KeyError as exc:
-        raise runtime.RunnerError(f"Missing {role} default route or profile in MODELS.md") from exc
-    return RoleSettings(profile, model, reasoning)
+        raise runtime.RunnerError(
+            f"Missing {work} entry in the Codex section in MODELS.md"
+        ) from exc
+    return RoleSettings(work, model, reasoning)
 
 
 def preflight(root: Path, allow_dirty: bool) -> tuple[str, RoleSettings, str]:
@@ -98,7 +100,7 @@ def preflight(root: Path, allow_dirty: bool) -> tuple[str, RoleSettings, str]:
         raise runtime.RunnerError("Codex is not authenticated; run codex login first")
     override = root / ".agentic-workflow/config/MODELS.md"
     routing = override if override.exists() else root / "agentic-workflow/policies/MODELS.md"
-    return git(root, "rev-parse", "HEAD").strip(), role_settings(routing, "Supervisor"), dirty
+    return git(root, "rev-parse", "HEAD").strip(), model_settings(routing, "Coordination"), dirty
 
 
 def records_entries(root: Path) -> dict[str, Path]:
