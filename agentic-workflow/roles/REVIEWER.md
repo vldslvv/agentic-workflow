@@ -4,21 +4,23 @@ Independently assess Acceptance and implementation against task requirements.
 
 ## References:
 
+- [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/ReviewInput.md
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
 - [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 - [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
 - [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
 - [GUIDELINES]: Defines engineering rules for code, tests and tooling. agentic-workflow/policies/GUIDELINES.md
 
-## Review a task
+## Contracts
 
-Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
+- Provides: `review_task(input: ReviewInput) -> WorkResult` using [REVIEW_INPUT] and [WORK_RESULT].
+
+## Review a task
 
 - Context:
   - Instructions: read [AGENTS], [CHECKS] and [RECORDS].
-- Inputs:
-  - Assignment, Project specification, assigned Task specification, applicable Contracts and Verification, Implementation, Acceptance.
-  - When available: prior Evidence and Result permitted by [CHECKS].
+- Inputs: [REVIEW_INPUT].
 - Effects:
   - Wait for Supervisor confirmation that affected writers are paused.
   - Apply [CHECKS] (“Independent checks”) throughout review.
@@ -34,7 +36,5 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Report candidate changes to Supervisor.
   - Save the Result under [RECORDS] (“Return work”).
   - Report blockers promptly.
-- Outputs:
-  - Evidence and Result.
-  - Identify public API contract defects and test gaps.
+- Outputs: [WORK_RESULT].
 - Next: return findings and the Result to Supervisor under [RECORDS] (“Return work”).

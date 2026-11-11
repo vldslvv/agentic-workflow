@@ -8,6 +8,12 @@ Routes workflow actions to role instructions and shared policies.
 
 ## References:
 
+- [COORDINATION_INPUT]: Defines CoordinationInput fields. agentic-workflow/contracts/CoordinationInput.md
+- [DOCUMENT_INPUT]: Defines DocumentInput fields. agentic-workflow/contracts/DocumentInput.md
+- [TASK_INPUT]: Defines TaskInput fields. agentic-workflow/contracts/TaskInput.md
+- [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/ReviewInput.md
+- [VALIDATION_INPUT]: Defines ValidationInput fields. agentic-workflow/contracts/ValidationInput.md
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
 - [SUPERVISOR]: Enter as Supervisor to implement specifications (including one task) or coordinate tasks; to update or repair an existing app against revised specifications, use “Reconcile an existing implementation”. agentic-workflow/roles/SUPERVISOR.md
 - [PLANNER]: Plan or edit documents/workflow. agentic-workflow/roles/PLANNER.md
 - [IMPLEMENTER]: Implement a task. agentic-workflow/roles/IMPLEMENTER.md
@@ -38,5 +44,7 @@ Follow conditional references when applicable.
 Before authoring or editing project documents,
 read and apply [DOCUMENT_STYLE], regardless of role.
 Keep project inputs, code, memory and execution evidence outside this package.
+
+Read the types in a role’s Contracts section when preparing or receiving its handoff.
 
 Find specification templates in [BUNDLE]; use [PLAN_TEMPLATE], [ACCEPTANCE_TEMPLATE] and [RESULT_TEMPLATE] for execution documents.

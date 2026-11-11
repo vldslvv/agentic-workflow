@@ -4,6 +4,7 @@ Report completed work, evidence, findings and remaining limits.
 
 ## References:
 
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 - [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
 - [MODELS]: Provides heuristics for choosing subagent models. agentic-workflow/policies/MODELS.md
@@ -11,9 +12,12 @@ Report completed work, evidence, findings and remaining limits.
 ## Result
 
 Apply [RECORDS] (“Return work”) and omit inapplicable fields.
+Return the concise [WORK_RESULT] after saving this record.
 Keep independent inputs within [CHECKS] (“Independent checks”).
 
 - **Status:** <PASS, FAIL, BLOCKED or NOT_RUN; assigned mode and unfinished work.>
+- **Artifacts:** <Produced document, implementation, memory and other output paths.>
+- **Self-review:** <When performed: scope, findings and resolutions; separate from independent review.>
 - **Scope:** <Source and acceptance paths; candidate location/revision; changed files or checked boundary.>
 - **Checks:** <Requirement coverage, command/method, working directory, outcome and evidence path.>
 - **Findings:** <Source-linked expected/observed behavior, reproduction and resolution; remaining blockers or coverage gaps.>

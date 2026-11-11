@@ -14,14 +14,14 @@ Rebuild from authorized inputs while excluding prior implementation and executio
   - Read before rebuilding without access to the previous implementation.
   - Apply [CHECKS], [RECORDS] and the [separation guidelines](#separation-guidelines).
   - Describe work that uses prior code as a port.
-- Inputs: Assignment and each role’s named inputs from the [GLOSSARY], filtered under the separation guidelines below.
+- Inputs: The input contract declared by each role, filtered under the separation guidelines below.
 - Effects:
   - Define required behaviour and reusable inputs.
   - Preserve expected outcomes, thresholds and fixtures.
   - Adapt commands to the new target without weakening checks.
   - Use a new workspace.
   - Use fresh contexts for every role, including Supervisor.
-  - Give each role an Assignment and only allowed inputs under its role contract.
+  - Filter each input contract through the separation guidelines before dispatch.
   - Limit exports to approved requirements, acceptance, public contracts, examples, reusable inputs and applicable workflow and engineering guidance.
   - Inspect exports for excluded material.
   - Check for excluded material through files, parent instructions, session memory, caches, remotes and the network.

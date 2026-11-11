@@ -4,21 +4,25 @@ Validate the assembled application and publish repair tasks for failures.
 
 ## References:
 
+- [VALIDATION_INPUT]: Defines ValidationInput fields. agentic-workflow/contracts/ValidationInput.md
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
 - [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 - [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
 - [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
 - [BUNDLE]: Defines specification files, task selection and path resolution. agentic-workflow/policies/BUNDLE.md
 
-## Validate the app
+## Contracts
 
-Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
+- Provides: `validate_app(input: ValidationInput) -> WorkResult` using [VALIDATION_INPUT] and [WORK_RESULT].
+
+Repair publication and its recovery remain part of this interface.
+
+## Validate the app
 
 - Context:
   - Instructions: read [AGENTS], [CHECKS], [BUNDLE] and [RECORDS].
-- Inputs:
-  - Assignment, Project specification, selected Task specifications, Task order, applicable Contracts, Verification, Implementation, Results and Evidence.
-  - Plan-review tasks: Acceptance.
+- Inputs: [VALIDATION_INPUT].
 - Effects:
   - Wait for Supervisor confirmation that affected writers are paused.
   - Use source criteria for direct tasks.
@@ -29,15 +33,13 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Report missing capabilities, unresolved requirements and other blockers promptly.
   - For implementation failures, publish one repair per failed pass below.
   - Return work under [RECORDS] (“Return work”).
-- Outputs:
-  - Evidence and Result.
-  - After implementation failure: repair Task specification and updated Task order.
+- Outputs: [WORK_RESULT].
 - Next: return the Result to Supervisor.
 
 ## Publish repair
 
 - Context: apply [BUNDLE] and [RECORDS].
-- Inputs: Assignment, failed validation Result and Evidence, Project specification, selected Task specifications, Task order, applicable Contracts and Verification.
+- Inputs: [VALIDATION_INPUT].
 - Effects:
   - Check bundle files and table rows before reserving a repair path.
   - Reserve the next unused `tasks/repair-NNN.md`.
@@ -52,4 +54,4 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Recover dependencies from validated scope.
   - Block on ambiguity or conflicting files/rows.
   - Use a new number for each later failed pass.
-- Outputs: repair Task specification, updated Task order and Result recording publication or blockers.
+- Outputs: [WORK_RESULT].

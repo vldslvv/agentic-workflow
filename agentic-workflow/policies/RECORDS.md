@@ -4,6 +4,7 @@ Manage execution records, assignments, handoffs and results.
 
 ## References:
 
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
 - [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
 - [TRACING]: Explains native capture, trace inspection and usage reporting. agentic-workflow/guides/TRACING.md
 - [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
@@ -19,9 +20,7 @@ Manage execution records, assignments, handoffs and results.
 Use the [GLOSSARY] for Assignments and Results.
 
 - Context: apply the [record guidelines](#record-guidelines) when saving, handing off or resuming work.
-- Inputs:
-  - New work: Assignment and applicable specifications; Memory only where permitted.
-  - Resumed work: Assignment, prior Results and Execution state when available.
+- Inputs: The role’s input contract, including available continuation records.
 - Effects:
   - For new work, run `python3 agentic-workflow/helpers/records.py allocate NAME` before starting tasks.
   - Look up resumed task IDs only in that implementation's immediate `tasks/` directory.
@@ -58,13 +57,13 @@ provider detection”); allocation and resolution accept no provider override.
 ## Hand off work
 
 - Context: apply [CHECKS] and [MEMORY] when choosing what a recipient may read.
-- Inputs: Assignment, Instructions and the recipient role’s named inputs.
+- Inputs: The input contract declared by the recipient role, plus Instructions.
 - Effects:
   - Have each output owner create its record directories before saving outputs, including direct tasks and validation.
   - Pass the implementation directory path as `IMPLEMENTATION` for `resolve`, rather than its name.
   - Pass absolute paths or paths relative to a stated root.
   - Pass paths rather than document copies.
-  - State the Assignment and pass the recipient’s named inputs, marking conditional inputs explicitly.
+  - Pass one input contract, marking conditional fields explicitly.
   - Link role instructions for procedure and the selected model policy for routing.
   - Include Plan and Memory only when the recipient’s role allows them.
   - Have recipients read Instructions and assigned inputs before planning, editing or checking.
@@ -76,7 +75,7 @@ provider detection”); allocation and resolution accept no provider override.
   - Report owner replacements.
   - Include the assignment line below.
   - Have recipients repeat the assignment line in their own commentary.
-- Outputs: Assignment with allowed input paths and assignment line.
+- Outputs: One input contract with the assignment line.
 
 Keep recipient handles and output paths in Execution state when coordinating tasks.
 
@@ -87,7 +86,7 @@ Apply when a worker finishes, pauses for review or stops with unfinished work.
 - Save one Result using the [RESULT_TEMPLATE].
 - Include applicable Memory and usage paths.
 - Filter Results and Evidence for independent recipients under [CHECKS] (“Independent checks”).
-- Return status, Result path and any decision or blocker in one short message.
+- Return one [WORK_RESULT] in a short message.
 - Link changed files, check evidence and findings from the saved result.
 - Keep detailed command output in evidence files when needed.
 - Report only new facts in follow-up messages.

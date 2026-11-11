@@ -25,7 +25,11 @@ Role instructions and policies retain procedures, permissions and storage rules.
 
 **Task order**: Task dependencies in `task_order.md`.
 
-**Contract**: An interface specification provided or consumed by a task.
+**Application Contract** (or **Contract** in specification bundles): An interface specification provided or consumed by a task.
+
+**Workflow data contract**: A reusable handoff type in `contracts/`, independent of roles.
+
+**WorkResult**: The concise return contract referencing a saved Result.
 
 **Verification**: Shared checks and assembled-application scenarios in `verification.md`.
 

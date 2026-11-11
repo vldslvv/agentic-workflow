@@ -4,6 +4,8 @@ Author project documents and maintain workflow instructions.
 
 ## References:
 
+- [DOCUMENT_INPUT]: Defines DocumentInput fields. agentic-workflow/contracts/DocumentInput.md
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
 - [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 - [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
@@ -16,17 +18,15 @@ Author project documents and maintain workflow instructions.
 - [README]: Explains installation, package ownership and portable commands. agentic-workflow/README.md
 - [WORKFLOW_REVIEW]: Defines requested workflow conformance reviews. agentic-workflow/guides/WORKFLOW_REVIEW.md
 
-## Author documents
+## Contracts
 
-Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
+- Provides: `author_documents(input: DocumentInput) -> WorkResult` using [DOCUMENT_INPUT] and [WORK_RESULT].
+
+## Author documents
 
 - Context:
   - Instructions: read [AGENTS], [CHECKS], [RECORDS] and [MEMORY].
-- Inputs:
-  - Assignment.
-  - When relevant: existing Project specification, Task specifications, Task order, Contracts, Verification, Plan, Acceptance or Instructions.
-  - When applicable: Implementation and prior Result.
-  - Ordinary work: Memory.
+- Inputs: [DOCUMENT_INPUT].
 - Effects:
   - Resolve inputs.
   - Write authorized documents using templates from [BUNDLE], [PLAN_TEMPLATE] or [ACCEPTANCE_TEMPLATE].
@@ -35,10 +35,7 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Check that pass rules are observable.
   - Report unresolved requirements and unavailable checks.
   - Return work under [RECORDS] (“Return work”).
-- Outputs:
-  - Requested Project specification, Task specifications, Task order, Contracts, Verification, Plan, Acceptance or Instructions.
-  - Result.
-  - When useful lessons are saved: Memory.
+- Outputs: [WORK_RESULT].
 - Next: stop before implementation unless separately authorized.
 
 ## Workflow maintenance

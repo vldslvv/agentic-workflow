@@ -12,6 +12,6 @@ Apply during ordinary planning, implementation and memory handoffs.
 - Use ordinary Markdown without requiring metadata.
 - Write short hints that help later workers find relevant notes.
 - Leave out transcripts, progress logs, guesses, secrets and copied configuration.
-- Pass relevant note paths to later workers doing ordinary work.
+- Populate permitted memory fields in handoff contracts with relevant note paths.
 - As Supervisor, pass paths without reading detailed notes.
 - Do not read memory or copies of it as a reviewer, validator or reconstruction worker.

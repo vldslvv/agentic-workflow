@@ -4,6 +4,12 @@ Coordinate task execution, recovery and acceptance.
 
 ## References:
 
+- [COORDINATION_INPUT]: Defines CoordinationInput fields. agentic-workflow/contracts/CoordinationInput.md
+- [DOCUMENT_INPUT]: Defines DocumentInput fields. agentic-workflow/contracts/DocumentInput.md
+- [TASK_INPUT]: Defines TaskInput fields. agentic-workflow/contracts/TaskInput.md
+- [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/ReviewInput.md
+- [VALIDATION_INPUT]: Defines ValidationInput fields. agentic-workflow/contracts/ValidationInput.md
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
 - [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 - [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
@@ -16,18 +22,21 @@ Coordinate task execution, recovery and acceptance.
 - [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
 - [TRACING]: Explains native capture, trace inspection and usage reporting. agentic-workflow/guides/TRACING.md
 
-## Coordinate tasks
+## Contracts
 
-Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
+- Provides: `coordinate_tasks(input: CoordinationInput) -> WorkResult` using [COORDINATION_INPUT] and [WORK_RESULT].
+- Invokes [PLANNER]: `author_documents(input: DocumentInput) -> WorkResult` using [DOCUMENT_INPUT] and [WORK_RESULT].
+- Invokes [IMPLEMENTER]: `implement_task(input: TaskInput) -> WorkResult` using [TASK_INPUT] and [WORK_RESULT].
+- Invokes [REVIEWER]: `review_task(input: ReviewInput) -> WorkResult` using [REVIEW_INPUT] and [WORK_RESULT].
+- Invokes [VALIDATOR]: `validate_app(input: ValidationInput) -> WorkResult` using [VALIDATION_INPUT] and [WORK_RESULT].
+
+## Coordinate tasks
 
 - Context:
   - Instructions: read [AGENTS], [BUNDLE], [CHECKS] and [RECORDS].
-  - Read the input and output contract for each role you assign under [PLANNER], [IMPLEMENTER], [REVIEWER] or [VALIDATOR].
+  - Use the interfaces in [Contracts](#contracts) for each assignment.
   - Read only the Memory index and forward relevant paths under [MEMORY], except during reconstruction.
-- Inputs:
-  - Assignment, Project specification, Task specifications, Task order, Contracts and Verification.
-  - When available: Results, Evidence and Execution state.
-  - Ordinary work: Memory index.
+- Inputs: [COORDINATION_INPUT].
 - Effects:
   - Execute the selected scope autonomously without interactive prompts.
   - Report requirement, authority and capability blockers under [BUNDLE] and [CHECKS] without prompting.
@@ -39,7 +48,7 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - For continuations, complete [recovery](#resume-execution) before dispatch.
   - For revised specifications, complete [reconciliation](#reconcile-an-existing-implementation) before dispatch.
   - Select the [task mode](#task-mode) before dispatching each new task whose prerequisites are accepted.
-  - Prepare the Assignment with [IMPLEMENTER]'s named inputs and role instructions under [RECORDS] (“Hand off work”).
+  - Prepare the Assignment with [TASK_INPUT] and role instructions under [RECORDS] (“Hand off work”).
   - Spawn a fresh Implementer without inherited conversation for every new task, including single-task scopes.
   - Run ready tasks concurrently while reserving capacity for full-task Reviewers and final validation.
   - Break ties by table order.
@@ -57,30 +66,30 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Use [TRACING] (“Report usage”) when finished, blocked or requested, and for trace issues.
   - Save Result and available Evidence under [RECORDS] (“Return work”) when finished, blocked, cancelled or limited.
   - Distinguish selected-scope from whole-app acceptance in Result.
-- Outputs: Assignments, Execution state and Result.
+- Outputs: [WORK_RESULT].
 
 ## Review a task
 
 - Context: apply when a plan-review Implementer returns a Result ready for review.
-- Inputs: Implementer handle, saved Result and Evidence, and the named inputs in [REVIEWER].
+- Inputs: [REVIEW_INPUT], prepared from the Implementer’s saved Result and Evidence.
 - Effects:
   1. Confirm the Implementer's turn has ended and all other affected writers are paused.
   2. Record the review phase in [execution state](#execution-state) and retain the Implementer handle.
-  3. Spawn a fresh Reviewer with the permitted inputs under [RECORDS] and [CHECKS] and confirmation that affected writers are paused.
+  3. Spawn a fresh Reviewer with [REVIEW_INPUT] under [RECORDS] and [CHECKS].
   4. When the Reviewer returns, read the saved Result and record its path in [execution state](#execution-state).
   5. Record the acceptance or correction decision and any blockers under [CHECKS] using both saved Results.
   6. Explicitly release affected writers before further edits.
-- Outputs: Reviewer Result and updated Execution state.
+- Outputs: [WORK_RESULT].
 - Next:
   - Resume the same Implementer session only for actionable review findings.
-  - Use the host's follow-up action with the findings, Result path and explicit release to edit.
+  - Use the host's follow-up action with [TASK_INPUT] correction fields.
   - If the original Implementer is unavailable, apply [Resume execution](#resume-execution) when assigning corrections.
   - Start a fresh review after the corrected candidate is handed off.
 
 ## Reconcile an existing implementation
 
 - Context: apply when asked to update or repair an existing app against revised specifications.
-- Inputs: Assignment, Project specification, Task specifications, Task order, Contracts, Verification and Implementation; Results, Evidence and Execution state when available.
+- Inputs: [COORDINATION_INPUT].
 - Effects:
   1. Resolve current requirements, authorization and task selection under [BUNDLE].
   2. Allocate or resume records under [RECORDS] while retaining the existing application path.
@@ -92,7 +101,7 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   8. Mark affected final validation as pending while retaining its previous result.
   9. Record affected scope and reasons in [execution state](#execution-state).
   10. Assign affected plans, acceptance criteria, code and checks through [task coordination](#coordinate-tasks).
-- Outputs: Assignments, Execution state and Result.
+- Outputs: [WORK_RESULT].
 
 ## Execution state
 
@@ -115,9 +124,7 @@ Apply when coordinating an implementation or recovering its execution.
 ## Resume execution
 
 - Context: apply [RECORDS], [BUNDLE] and [CHECKS].
-- Inputs:
-  - Assignment, Implementation, Project specification, Task specifications, Task order, Contracts and Verification.
-  - When available: Execution state, Results and Evidence.
+- Inputs: [COORDINATION_INPUT].
 - Effects:
   1. Resolve the implementation and selected scope from identified records.
   2. Read saved state and reconstruct the dependency graph from the current `task_order.md`.
@@ -129,9 +136,9 @@ Apply when coordinating an implementation or recovering its execution.
   8. Resolve uncertain persistent or external effects before retrying.
   9. Have Validator reuse the saved result and repair reservation to complete only missing publication parts before dispatch.
   10. Refresh the graph after repair publication changes the dependency table.
-  11. Give replacements specifications, permitted saved artifacts, findings and continuation notes under [RECORDS].
+  11. Give replacements their role’s input contract with permitted continuation fields under [RECORDS].
   12. Save reconciled state before resuming from the recorded phase when prerequisites are accepted and blockers resolved.
-- Outputs: continuation Assignments, reconciled Execution state and Result.
+- Outputs: [WORK_RESULT].
 - Next: continue coordination and outstanding validation under the existing acceptance rules.
 
 ### Recovery rules
@@ -146,13 +153,13 @@ Apply throughout recovery.
 ## Validate the assembled app
 
 - Context: apply [CHECKS] and [VALIDATOR].
-- Inputs: Assignment, Project specification, selected Task specifications, Task order, Contracts, Verification, Implementation, Results and Evidence; Acceptance for plan-review tasks.
+- Inputs: [VALIDATION_INPUT].
 - Effects:
   - Confirm affected writers paused.
-  - Spawn a fresh Validator with an Assignment and its named inputs under [RECORDS] and [CHECKS].
+  - Spawn a fresh Validator with [VALIDATION_INPUT] under [RECORDS] and [CHECKS].
   - Read the saved Validator Result and inspect detailed evidence when it is incomplete, conflicts with other records or leaves an acceptance question open.
   - Explicitly release affected writers after validation and before further edits.
-- Outputs: Assignments, Execution state and Result referencing the Validator Result.
+- Outputs: [WORK_RESULT].
 - Next:
   - Repeat affected implementation, checks and required review before accepting corrections.
   - After accepting corrections, repeat fresh validation.

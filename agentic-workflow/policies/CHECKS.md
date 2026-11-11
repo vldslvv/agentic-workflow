@@ -4,6 +4,8 @@ Read when preparing checks, reviewing work or deciding whether it passes.
 
 ## References:
 
+- [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/ReviewInput.md
+- [VALIDATION_INPUT]: Defines ValidationInput fields. agentic-workflow/contracts/ValidationInput.md
 - [RESULT_TEMPLATE]: Records completion status, evidence, findings and limits. agentic-workflow/templates/result.md
 
 ## Prepare acceptance
@@ -64,7 +66,7 @@ Apply to independent review and validation.
 
 - Start with a fresh context and no inherited conversation.
 - Choose checks from original requirements and guidelines before reading acceptance or code.
-- Limit inputs to Instructions, Assignment, Project specification, Task specifications, Task order, applicable Contracts, Verification, Acceptance, Implementation, Evidence and Results.
+- Use [REVIEW_INPUT] for task review or [VALIDATION_INPUT] for app validation, plus Instructions.
 - Pass only factual portions of Results and Evidence, including justified guideline exceptions and prior findings.
 - Allow focused mock justifications as review inputs.
 - Assess mock justifications independently.
