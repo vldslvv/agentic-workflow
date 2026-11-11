@@ -22,24 +22,17 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
 - Effects:
   - Wait for Supervisor confirmation that affected writers are paused.
   - Use source criteria for direct tasks.
-  - Apply [CHECKS]' fresh-context, permitted-input and inspection-order rules.
+  - Apply [CHECKS] (“Independent checks”) throughout validation.
   - Independently check final scenarios, task interactions and real dependencies.
-  - Run required manual checks.
-  - Reproduce gaps where feasible.
-  - Keep the candidate unchanged.
-  - Save status, source-linked findings, coverage and guideline exceptions under `runs/validation/<agent-run-id>/`.
+  - Run required manual checks under [CHECKS] (“Prepare checks”).
   - Distinguish plan/acceptance defects from implementation failures.
-  - Identify missing capabilities and unresolved requirements.
+  - Report missing capabilities, unresolved requirements and other blockers promptly.
   - For implementation failures, publish one repair per failed pass below.
-  - Report blockers promptly.
   - Return work under [RECORDS] (“Return work”).
 - Outputs:
   - Evidence and Result.
   - After implementation failure: repair Task specification and updated Task order.
-- Next:
-  - Return result to Supervisor.
-  - Supervisor releases writers.
-  - Supervisor routes the validation result.
+- Next: return the Result to Supervisor.
 
 ## Publish repair
 

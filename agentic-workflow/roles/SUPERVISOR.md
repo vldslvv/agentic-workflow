@@ -30,60 +30,34 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Ordinary work: Memory index.
 - Effects:
   - Execute the selected scope autonomously without interactive prompts.
-  - Resolve routine decisions within the authorized scope using requirements and available evidence.
-  - Report unresolved requirements, missing authority and unavailable capabilities as blockers without prompting.
-  - Read the instructions and inputs needed to resolve scope, dependencies, task mode and ownership before dispatch.
-  - Open additional files when an assignment, acceptance or recovery decision requires them.
+  - Report requirement, authority and capability blockers under [BUNDLE] and [CHECKS] without prompting.
   - Stop on [BUNDLE]'s `NO_PROJECT`, `NO_WORK` or blocked inputs.
   - Use new paths for initial work.
   - Extend selected code for incremental work.
-  - Allocate or resume records before dispatch.
-  - Emit the [RECORDS] assignment line for `supervisor` / `orchestration` in commentary after allocation or resume.
-  - Assign task IDs before dispatch.
+  - Allocate or resume records under [RECORDS] before dispatch.
   - Maintain [execution state](#execution-state) throughout coordination.
-  - Record mode, interfaces, file owners, worker handles and output paths.
-  - Include shared configuration ownership.
   - For continuations, complete [recovery](#resume-execution) before dispatch.
   - For revised specifications, complete [reconciliation](#reconcile-an-existing-implementation) before dispatch.
-  - Assign ready tasks under [Dispatch new tasks](#dispatch-new-tasks).
-  - Run ready tasks concurrently within capacity.
-  - Reserve room for full-task Reviewers and final validation.
+  - Select the [task mode](#task-mode) before dispatching each new task whose prerequisites are accepted.
+  - Prepare the Assignment with [IMPLEMENTER]'s named inputs and role instructions under [RECORDS] (“Hand off work”).
+  - Spawn a fresh Implementer without inherited conversation for every new task, including single-task scopes.
+  - Run ready tasks concurrently while reserving capacity for full-task Reviewers and final validation.
   - Break ties by table order.
   - Blocked tasks do not hold unrelated work.
   - Resolve overlapping edits and interface changes before writing.
-  - Return affected plans/checks/reviews to owners.
-  - Confirm affected writers paused before independent checks.
-  - Explicitly release affected writers before further edits.
-  - Unrelated work may continue.
+  - Return affected plans, checks and reviews to their owners under [RECORDS].
   - Route plan-review handoffs through [Review a task](#review-a-task).
   - Read each worker's saved Result and any required independent review before accepting the task.
-  - Check scope, requirement coverage, outcomes and unresolved findings under [CHECKS].
   - Inspect detailed evidence when those records are incomplete, conflict or leave an acceptance question open.
-  - Accept tasks under [CHECKS] with the mode's required evidence.
-  - Pass unlocks dependents.
+  - Accept tasks under [CHECKS] before unlocking their dependents.
   - Return defects to the same Implementer for correction and rechecks.
-  - Require fresh review in plan-review mode.
-  - Reassess affected downstream evidence.
-  - Continue with ready tasks.
-  - Save blockers before stopping.
+  - Reassess affected downstream evidence under [CHECKS].
   - Stop when all remaining tasks are blocked.
-  - After all selected tasks pass, validate the assembled app below.
-  - Validate in either task mode.
-  - Run `python3 agentic-workflow/helpers/usage_report.py .agentic-workflow/records/NNN_name` when finished, blocked or requested.
-  - Use [TRACING] for trace issues.
-  - Save Result and available Evidence when finished, blocked, cancelled or limited.
+  - After all selected tasks pass in either mode, [validate the assembled app](#validate-the-assembled-app).
+  - Use [TRACING] (“Report usage”) when finished, blocked or requested, and for trace issues.
+  - Save Result and available Evidence under [RECORDS] (“Return work”) when finished, blocked, cancelled or limited.
   - Distinguish selected-scope from whole-app acceptance in Result.
 - Outputs: Assignments, Execution state and Result.
-
-## Dispatch new tasks
-
-- Context: apply to every new `direct` or `plan-review` task, including when the scope contains one task.
-- Inputs: a task whose prerequisites are accepted, its task ID and the named inputs in [IMPLEMENTER].
-- Effects:
-  1. Select the [task mode](#task-mode).
-  2. Pass the relevant input and role instruction paths in the Assignment under [RECORDS] (“Hand off work”).
-  3. Spawn a fresh Implementer subagent for the task without inherited conversation.
-- Outputs: Implementer Assignment and worker handle in [execution state](#execution-state).
 
 ## Review a task
 
@@ -94,14 +68,14 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   2. Record the review phase in [execution state](#execution-state) and retain the Implementer handle.
   3. Spawn a fresh Reviewer with the permitted inputs under [RECORDS] and [CHECKS] and confirmation that affected writers are paused.
   4. When the Reviewer returns, read the saved Result and record its path in [execution state](#execution-state).
+  5. Record the acceptance or correction decision and any blockers under [CHECKS] using both saved Results.
+  6. Explicitly release affected writers before further edits.
 - Outputs: Reviewer Result and updated Execution state.
 - Next:
-  - On a pass, use both saved Results for task acceptance under [CHECKS].
   - Resume the same Implementer session only for actionable review findings.
   - Use the host's follow-up action with the findings, Result path and explicit release to edit.
-  - If the original Implementer is unavailable, apply the [recovery guidelines](#recovery-guidelines) when assigning corrections.
+  - If the original Implementer is unavailable, apply [Resume execution](#resume-execution) when assigning corrections.
   - Start a fresh review after the corrected candidate is handed off.
-  - Resolve review blockers before acceptance.
 
 ## Reconcile an existing implementation
 
@@ -119,7 +93,6 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   9. Record affected scope and reasons in [execution state](#execution-state).
   10. Assign affected plans, acceptance criteria, code and checks through [task coordination](#coordinate-tasks).
 - Outputs: Assignments, Execution state and Result.
-- Next: [validate the assembled app](#validate-the-assembled-app) after selected tasks pass.
 
 ## Execution state
 
@@ -129,6 +102,7 @@ Apply when coordinating an implementation or recovering its execution.
 - Keep the Supervisor as its sole writer.
 - Record the specification bundle location and selected task scope.
 - Record each task's status, mode, workspace, last execution phase and available worker handles.
+- Record interfaces and file ownership, including shared configuration.
 - Use `pending`, `active`, `interrupted`, `failed`, `blocked` or `accepted` for task status.
 - Record the latest check outcome, result/evidence paths and a short continuation note for each task.
 - Track final validation status, checked scope, result path and unfinished repair publication separately in the same file.
@@ -147,33 +121,25 @@ Apply when coordinating an implementation or recovering its execution.
 - Effects:
   1. Resolve the implementation and selected scope from identified records.
   2. Read saved state and reconstruct the dependency graph from the current `task_order.md`.
-  3. Recover missing or incomplete state from that implementation's sources and results.
-  4. Reconcile task statuses with actual files, saved results and available workers.
-  5. Resolve uncertain worker ownership before allowing a replacement writer.
-  6. Preserve accepted tasks with current evidence and mark work interrupted when its worker stopped before completing the expected phase.
-  7. Inspect failed or interrupted tasks' files and existing effects before choosing the phase to continue.
-  8. Reassess checks and affected dependents when relevant inputs changed or evidence is missing or outdated.
-  9. Have Validator complete missing repair publication parts using the saved result and reservation before dispatch.
+  3. Recover missing or incomplete state from saved sources and results, including results saved before checkpoint updates.
+  4. Reconcile task statuses with files, results and available workers, marking stopped, incomplete work as interrupted.
+  5. Reassess affected tasks, dependents and final validation under [CHECKS], preserving acceptance where evidence remains current.
+  6. Resolve uncertain worker ownership before allowing a replacement writer.
+  7. Inspect failed or interrupted work before choosing its continuation phase.
+  8. Resolve uncertain persistent or external effects before retrying.
+  9. Have Validator reuse the saved result and repair reservation to complete only missing publication parts before dispatch.
   10. Refresh the graph after repair publication changes the dependency table.
-  11. Save the reconciled state and resume unfinished work from its recorded phase when prerequisites are accepted and blockers resolved.
+  11. Give replacements specifications, permitted saved artifacts, findings and continuation notes under [RECORDS].
+  12. Save reconciled state before resuming from the recorded phase when prerequisites are accepted and blockers resolved.
 - Outputs: continuation Assignments, reconciled Execution state and Result.
 - Next: continue coordination and outstanding validation under the existing acceptance rules.
 
-## Recovery guidelines
+### Recovery rules
 
-Apply when reconciling state or continuing interrupted work.
+Apply throughout recovery.
 
-- Recover from saved files even when the original conversation is unavailable.
 - Reuse available owners, task IDs, workspaces, approved documents and implementation records.
-- Give replacement workers the specification, permitted saved artifacts, findings and continuation note under [RECORDS]' handoff rules.
-- Preserve [CHECKS]' fresh-context and permitted-input requirements for review and validation.
-- Reconcile completed results saved before a checkpoint update before repeating work.
-- Preserve current validation evidence when its checked scope and candidate remain valid.
-- Recheck affected evidence under [CHECKS] before restoring acceptance or unlocking dependents.
 - Treat dependent tasks waiting for prerequisites as blocked rather than failed.
-- Leave unrelated accepted tasks unchanged when recovering failures elsewhere in the graph.
-- Resolve uncertainty about persistent or external effects before retrying an interrupted operation.
-- Reuse existing repair reservations and complete only missing publication parts for the same failed validation.
 - Make repeated resume against unchanged files and evidence preserve acceptance without duplicate dispatch, repairs or unnecessary checks.
 - Report unresolved scope, conflicting evidence or missing workspaces as blockers for affected work.
 
@@ -185,8 +151,7 @@ Apply when reconciling state or continuing interrupted work.
   - Confirm affected writers paused.
   - Spawn a fresh Validator with an Assignment and its named inputs under [RECORDS] and [CHECKS].
   - Read the saved Validator Result and inspect detailed evidence when it is incomplete, conflicts with other records or leaves an acceptance question open.
-  - Release writers after validation.
-  - Route the result below.
+  - Explicitly release affected writers after validation and before further edits.
 - Outputs: Assignments, Execution state and Result referencing the Validator Result.
 - Next:
   - Repeat affected implementation, checks and required review before accepting corrections.
@@ -204,23 +169,18 @@ Apply when reconciling state or continuing interrupted work.
 
 Apply while workers are active.
 
-- Save worker results before closing their threads.
-- Close completed worker threads through the host's close action when no further corrections are needed.
 - Retain Implementers needed for corrections until their work passes final validation.
+- Close completed workers through the host's close action after saving results and resolving correction needs.
 - Record closed worker handles in execution state.
 - Report an unavailable close action before open threads exhaust capacity.
 - Wait for workers only through the host's native worker wait when the next decision depends on them.
 - Resume waiting after a timeout unless a deadline, blocker or ready task calls for action.
-- Let the host surface routine progress.
-- Contact workers when their input is needed for a specific decision or blocker.
-- Inspect worker status or unfinished files only to resolve actionable uncertainty.
+- Use host progress reports unless a specific decision or blocker requires contacting workers or inspecting unfinished work.
 
 ## Task mode
 
 Apply when choosing the assigned Implementer's procedure under [IMPLEMENTER].
 
-- Honor user/source requirements.
-- Block dispatch on unresolved conflicts.
 - Use the task's `Workflow: plan-review` or `Workflow: direct` field when present.
 - When the field is omitted, choose the mode below independently of model choice.
 

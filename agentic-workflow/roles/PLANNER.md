@@ -30,17 +30,14 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
 - Effects:
   - Resolve inputs.
   - Write authorized documents using templates from [BUNDLE], [PLAN_TEMPLATE] or [ACCEPTANCE_TEMPLATE].
-  - Include component contracts in acceptance under [CHECKS].
-  - Include expected test scenarios in acceptance under [CHECKS].
+  - Apply [CHECKS] (“Prepare acceptance”) when authoring or correcting Acceptance.
   - Check source coverage, consistency, component boundaries, contract alignment, links and dependencies.
   - Check that pass rules are observable.
   - Report unresolved requirements and unavailable checks.
-  - Preserve approved history during corrections.
-  - Save useful Memory under its policy.
   - Return work under [RECORDS] (“Return work”).
 - Outputs:
   - Requested Project specification, Task specifications, Task order, Contracts, Verification, Plan, Acceptance or Instructions.
-  - Result reporting document validity and generation readiness separately.
+  - Result.
   - When useful lessons are saved: Memory.
 - Next: stop before implementation unless separately authorized.
 
@@ -52,8 +49,7 @@ Apply when changing workflow instructions or tooling.
 - Exclude transient execution artifacts.
 - Indexes do not expand role permissions.
 - Check preserved behavior and complete role reading paths.
-- Run `python3 agentic-workflow/helpers/check_package.py` and relevant tests.
-- Add `--integration-root .` for root/skill changes.
-- See [README] (“Requirements and portable commands”).
+- Run package checks and relevant tests from [README] (“Requirements and portable commands”).
+- Include the integration check for root/skill changes.
 - Use [WORKFLOW_REVIEW] for requested document conformance reviews.
 - Report documentation checks separately from live app experiments.

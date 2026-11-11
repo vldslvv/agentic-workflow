@@ -28,13 +28,10 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Read Instructions and assigned inputs before planning or editing.
   - Agree on scope and file ownership with Supervisor before concurrent edits.
   - Follow the assigned mode below.
-  - Check requirements and regressions.
+  - Check requirements and regressions under [CHECKS].
   - Inspect the diff.
-  - Record check evidence.
-  - Include mock justifications under [CHECKS].
-  - Fix defects.
-  - Rerun affected checks.
-  - Preserve approved originals when fixing source omissions.
+  - Record evidence and mock justifications under [CHECKS] and [RECORDS].
+  - Fix defects and rerun affected checks.
   - Plan-review: follow [Hand off for review](#hand-off-for-review).
   - Report blockers promptly.
   - Return work under [RECORDS] (“Return work”).
@@ -46,26 +43,6 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Direct mode: return the Result to Supervisor for acceptance.
   - Repeat affected task steps when Supervisor assigns corrections.
 
-## Plan-review mode
-
-Apply when assigned `plan-review` mode.
-
-- Write `plan.md` using [PLAN_TEMPLATE] before code.
-- Write `acceptance.md` using [ACCEPTANCE_TEMPLATE] before code.
-- Link acceptance to sources.
-- Include public API contracts under [CHECKS].
-- Include expected test scenarios under [CHECKS].
-- Implement the task.
-
-## Direct mode
-
-Apply when assigned `direct` mode.
-
-- Implement against source criteria.
-- Run checks against source criteria.
-- Skip plan, separate acceptance and task review.
-- Keep the assigned mode.
-
 ## Hand off for review
 
 - Context: apply in plan-review mode after implementation or review corrections.
@@ -73,8 +50,24 @@ Apply when assigned `direct` mode.
 - Effects:
   - When resuming after review, confirm explicit release from Supervisor before editing.
   - Fix assigned findings and rerun affected checks before handing off again.
-  - Save the candidate boundary, check evidence and mock justifications in or alongside the Result under [RECORDS] (“Return work”).
+  - Save the Result under [RECORDS] (“Return work”).
   - Record readiness for review in the Result and mark independent review `NOT_RUN`.
   - Return the Result path and indicate readiness for review in the final reply.
 - Outputs: Implementation, Acceptance, Evidence and Result for Supervisor.
 - Next: End the turn at the handoff.
+
+## Plan-review mode
+
+Apply when assigned `plan-review` mode.
+
+- Before code, write `plan.md` using [PLAN_TEMPLATE].
+- Before code, write `acceptance.md` using [ACCEPTANCE_TEMPLATE] and [CHECKS] (“Prepare acceptance”).
+- Implement the task.
+
+## Direct mode
+
+Apply when assigned `direct` mode.
+
+- Implement and check source criteria under [CHECKS] (“Prepare checks”).
+- Skip plan, separate acceptance and task review.
+- Keep the assigned mode.
