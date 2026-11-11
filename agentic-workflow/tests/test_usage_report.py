@@ -298,11 +298,13 @@ class TraceTests(unittest.TestCase):
         lane = next(e for e in trace if e["ph"] == "M")["args"]["name"]
         self.assertIn("Ada · implementer / build · model-a / high", lane)
         self.assertIn("Ada · reviewer / repair · model-b / low", lane)
-        agent_slices = [e for e in trace if e.get("cat") == "agent" and e["ph"] == "X"]
-        self.assertEqual(len(agent_slices), 1)
-        self.assertEqual(agent_slices[0]["args"]["turn_ids"], ["turn-1", "turn-2"])
-        self.assertTrue(any("model-a / high" in e["name"] for e in agent_slices))
-        self.assertTrue(any("model-b / low" in e["name"] for e in agent_slices))
+        agent_slices = {
+            e["args"]["turn_id"]: e["name"]
+            for e in trace
+            if e.get("cat") == "agent" and e["ph"] == "X"
+        }
+        self.assertIn("Implement editor · model-a / high", agent_slices["turn-1"])
+        self.assertIn("Check correction · model-b / low", agent_slices["turn-2"])
         dashboard = render(report, "https://ui.perfetto.dev")
         agent_table = dashboard.split('id="assignments"', 1)[1].split("</table>", 1)[0]
         self.assertIn("Observed model / effort", agent_table)

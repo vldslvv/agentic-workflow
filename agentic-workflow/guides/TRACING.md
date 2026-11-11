@@ -120,11 +120,10 @@ another implementation or an unrelated port occupant is rejected.
   4. Inspect **Recorded content** for messages and tool activity.
   5. Use **Open timeline in Perfetto** when timing details are needed.
 - Outputs: execution observations and identified evidence gaps.
-- Perfetto shows one bar per native agent/session from its earliest selected start to its latest selected completion, including waits between turns.
-- Agent bars show elapsed observed spans, not continuous model activity or proof of process liveness.
-- Span details include contributing turn IDs and individual turn evidence; events and usage totals retain separate turns and measurements.
-- Keep an agent bar unfinished when any selected turn lacks an observed end.
-- Unfinished agent bars indicate an observed start without an observed end, including interrupted captures, and do not establish process liveness or a measured duration.
+- Perfetto shows each recorded agent turn as its own bar, with gaps between turns.
+- Each bar shows elapsed turn time and can include time spent waiting within the turn.
+- Bar details include the turn ID, assignment and recorded evidence.
+- A turn with an observed start and a missing end appears unfinished.
 - Parallel Perfetto tracks preserve overlapping operations without asserting call nesting between tracks.
 - Perfetto lists sessions by earliest recorded time, keeps each session's parallel tracks together, and places untimed sessions last.
 - Model variant labels describe the host's selected variant separately from observed reasoning effort.

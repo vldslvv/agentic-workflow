@@ -327,66 +327,6 @@ def timeline_lanes(
     return assigned, extra
 
 
-def agent_spans(events: list[Event]) -> list[Event]:
-    """Project selected turns onto elapsed session spans without changing accounting."""
-    grouped: dict[str, list[Event]] = {}
-    result = []
-    for e in events:
-        if e["kind"] == "agent":
-            grouped.setdefault(e["agent_id"], []).append(e)
-        else:
-            result.append(e)
-    for turns in grouped.values():
-        turns.sort(key=lambda e: (e.get("start") is None, e.get("start") or 0, e["event_id"]))
-        starts = [start for e in turns if (start := e.get("start")) is not None]
-        ends = [end for e in turns if (end := e.get("end")) is not None]
-        span = cast(Event, dict(turns[0]))
-        span.update(
-            {
-                "start": min(starts) if starts else None,
-                "end": max(ends) if len(ends) == len(turns) else None,
-                "turn_ids": [tid for e in turns if (tid := e.get("turn_id")) is not None],
-                "selected_turns": turns,
-                "instructions": [i for e in turns for i in e.get("instructions", [])],
-            }
-        )
-        if len(turns) > 1:
-            # Assignments and outcomes belong to individual turns, not the span.
-            span["name"] = "; ".join(
-                (
-                    a.get("purpose")
-                    or " / ".join(v for v in (a.get("role"), a.get("task_id")) if v)
-                    or a["agent_id"]
-                )
-                + " · "
-                + format_settings(a["observed_settings"])
-                for a in assignments([e for e in events if e["agent_id"] == span["agent_id"]])
-            )
-            span = cast(
-                Event,
-                {
-                    k: v
-                    for k, v in span.items()
-                    if k
-                    not in (
-                        "turn_id",
-                        "task_id",
-                        "role",
-                        "purpose",
-                        "outcome",
-                        "assignment_id",
-                        "assignment_source",
-                        "assignment_evidence",
-                        "model",
-                        "reasoning_effort",
-                        "variant",
-                    )
-                },
-            )
-        result.append(span)
-    return result
-
-
 def timeline(events: list[Event]) -> Timeline:
     refreshed = time.time()
     first_seen: dict[str, float] = {}
@@ -410,7 +350,6 @@ def timeline(events: list[Event]) -> Timeline:
         labels[assignment["agent_id"]].add(
             f"{label} · {format_settings(assignment['observed_settings'])}"
         )
-    events = agent_spans(events)
     event_lanes, extra = timeline_lanes(events, lanes)
     tracks = sorted(
         [(agent, tid, 1) for agent, tid in lanes.items()] + extra,
@@ -484,11 +423,6 @@ def timeline(events: list[Event]) -> Timeline:
                 )
             },
         )
-        if e["kind"] == "agent":
-            base["args"]["turn_ids"] = e["turn_ids"]
-            base["args"]["span_meaning"] = (
-                "Elapsed observed span, including waits between selected turns"
-            )
         base["args"].update(
             {f"tokens.{k}": v for k, v in (e.get("usage") or {}).items() if v is not None}
         )
@@ -513,7 +447,6 @@ def timeline(events: list[Event]) -> Timeline:
             "instructions",
             "native_record",
             "provenance",
-            "selected_turns",
         ):
             if key in e:
                 base["args"][key] = json.dumps(e.get(key), ensure_ascii=False, indent=2)

@@ -12,7 +12,6 @@ Implement assigned tasks, verify their behavior and manage corrections.
 - [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
 - [PLAN_TEMPLATE]: Structures task implementation plans. agentic-workflow/templates/plan.md
 - [ACCEPTANCE_TEMPLATE]: Maps requirements to observable checks and pass rules. agentic-workflow/templates/acceptance.md
-- [REVIEWER]: Independently reviews task requirements and implementation. agentic-workflow/roles/REVIEWER.md
 
 ## Execute a task
 
@@ -36,7 +35,7 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Fix defects.
   - Rerun affected checks.
   - Preserve approved originals when fixing source omissions.
-  - Plan-review: complete review below.
+  - Plan-review: follow [Hand off for review](#hand-off-for-review).
   - Report blockers promptly.
   - Return work under [RECORDS] (“Return work”).
 - Outputs:
@@ -44,9 +43,8 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Plan-review mode: Plan and Acceptance.
   - When useful lessons are saved: Memory.
 - Next:
-  - Return result to Supervisor for acceptance.
-  - Keep this context for corrections.
-  - Repeat affected task steps.
+  - Direct mode: return the Result to Supervisor for acceptance.
+  - Repeat affected task steps when Supervisor assigns corrections.
 
 ## Plan-review mode
 
@@ -68,21 +66,15 @@ Apply when assigned `direct` mode.
 - Skip plan, separate acceptance and task review.
 - Keep the assigned mode.
 
-## Review a plan-review task
+## Hand off for review
 
-- Context: Instructions include [CHECKS] and the input/output contract in [REVIEWER].
-- Inputs: Assignment, Project specification, assigned Task specification, applicable Contracts and Verification, Implementation, Acceptance, Evidence and prior Result when available.
+- Context: apply in plan-review mode after implementation or review corrections.
+- Inputs: Implementation, Acceptance and Evidence, plus Reviewer findings when assigned corrections.
 - Effects:
-  - Agree on review boundary with Supervisor.
-  - Wait for confirmation that affected writers are paused.
-  - Spawn a fresh Reviewer with an Assignment and its named inputs under [RECORDS] and [CHECKS].
-  - Pass mock justifications with check evidence.
-  - Report review completion to Supervisor.
-  - Wait for explicit release before writing.
-  - Fix actionable findings.
-  - Rerun affected checks.
-  - Repeat with fresh Reviewer.
-  - Keep task ownership through corrections.
-- Outputs: Implementation, Evidence and Result, including the Reviewer Result reference.
-- Next:
-  - After review passes, return task result to Supervisor.
+  - When resuming after review, confirm explicit release from Supervisor before editing.
+  - Fix assigned findings and rerun affected checks before handing off again.
+  - Save the candidate boundary, check evidence and mock justifications in or alongside the Result under [RECORDS] (“Return work”).
+  - Record readiness for review in the Result and mark independent review `NOT_RUN`.
+  - Return the Result path and indicate readiness for review in the final reply.
+- Outputs: Implementation, Acceptance, Evidence and Result for Supervisor.
+- Next: End the turn at the handoff.

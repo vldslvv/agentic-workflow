@@ -236,7 +236,7 @@ class ContinuationCaptureTests(unittest.TestCase):
         path.write_text(json.dumps(dict(info=dict(id=sid), messages=messages)))
         return path
 
-    def test_background_chain_recovers_five_agents_and_one_span_per_session(self) -> None:
+    def test_background_chain_recovers_agents_and_preserves_the_review_gap(self) -> None:
         tag = 'AGENTIC_WORKFLOW {"implementation":"001_demo","task":"orchestration","role":"supervisor"}'
         first = [
             prompt("root", 1000, tag),
@@ -319,10 +319,15 @@ class ContinuationCaptureTests(unittest.TestCase):
             for e in json.loads(bundle.files["timeline.json"])["traceEvents"]
             if e.get("cat") == "agent" and e["ph"] in ("X", "B")
         ]
-        self.assertEqual(len(bars), 5)
-        bar = next(e for e in bars if e["args"]["agent_id"] == "opencode:root")
-        self.assertEqual((bar["ts"], bar["dur"]), (1000000, 5200000))
-        self.assertEqual(len(bar["args"]["turn_ids"]), 6)
+        business = [e for e in bars if e["args"]["agent_id"] == "opencode:business"]
+        review = next(e for e in bars if e["args"]["agent_id"] == "opencode:review")
+        self.assertEqual(
+            [(e["ts"], e["dur"]) for e in business],
+            [(1_105_000, 795_000), (3_105_000, 795_000)],
+        )
+        self.assertEqual(business[0]["tid"], business[1]["tid"])
+        self.assertLessEqual(business[0]["ts"] + business[0]["dur"], review["ts"])
+        self.assertLessEqual(review["ts"] + review["dur"], business[1]["ts"])
         self.assertEqual(refresh(self.root, "opencode").usage, bundle.usage)
         self.assertFalse((self.root / "native/root/unrelated.json").exists())
         self.assertFalse((self.root / "native/root/late.json").exists())
@@ -390,7 +395,10 @@ class ContinuationCaptureTests(unittest.TestCase):
             for e in json.loads(bundle.files["timeline.json"])["traceEvents"]
             if e.get("cat") == "agent" and e["ph"] in ("B", "X")
         ]
-        self.assertEqual([(e["ph"], e["ts"]) for e in bars], [("B", 100000)])
+        self.assertEqual(
+            [(e["ph"], e["ts"], e.get("dur")) for e in bars],
+            [("X", 100_000, 100_000), ("B", 300_000, None)],
+        )
         selected = self.root / "native/root/shell_done.json"
         before = selected.read_bytes()
         self.host("root", first + [completion])

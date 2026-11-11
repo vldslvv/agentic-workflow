@@ -53,8 +53,9 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Resolve overlapping edits and interface changes before writing.
   - Return affected plans/checks/reviews to owners.
   - Confirm affected writers paused before independent checks.
-  - Explicitly release them afterward.
+  - Explicitly release affected writers before further edits.
   - Unrelated work may continue.
+  - Route plan-review handoffs through [Review a task](#review-a-task).
   - Read each worker's saved Result and any required independent review before accepting the task.
   - Check scope, requirement coverage, outcomes and unresolved findings under [CHECKS].
   - Inspect detailed evidence when those records are incomplete, conflict or leave an acceptance question open.
@@ -83,6 +84,24 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   2. Pass the relevant input and role instruction paths in the Assignment under [RECORDS] (“Hand off work”).
   3. Spawn a fresh Implementer subagent for the task without inherited conversation.
 - Outputs: Implementer Assignment and worker handle in [execution state](#execution-state).
+
+## Review a task
+
+- Context: apply when a plan-review Implementer returns a Result ready for review.
+- Inputs: Implementer handle, saved Result and Evidence, and the named inputs in [REVIEWER].
+- Effects:
+  1. Confirm the Implementer's turn has ended and all other affected writers are paused.
+  2. Record the review phase in [execution state](#execution-state) and retain the Implementer handle.
+  3. Spawn a fresh Reviewer with the permitted inputs under [RECORDS] and [CHECKS] and confirmation that affected writers are paused.
+  4. When the Reviewer returns, read the saved Result and record its path in [execution state](#execution-state).
+- Outputs: Reviewer Result and updated Execution state.
+- Next:
+  - On a pass, use both saved Results for task acceptance under [CHECKS].
+  - Resume the same Implementer session only for actionable review findings.
+  - Use the host's follow-up action with the findings, Result path and explicit release to edit.
+  - If the original Implementer is unavailable, apply the [recovery guidelines](#recovery-guidelines) when assigning corrections.
+  - Start a fresh review after the corrected candidate is handed off.
+  - Resolve review blockers before acceptance.
 
 ## Reconcile an existing implementation
 
@@ -131,12 +150,12 @@ Apply when coordinating an implementation or recovering its execution.
   3. Recover missing or incomplete state from that implementation's sources and results.
   4. Reconcile task statuses with actual files, saved results and available workers.
   5. Resolve uncertain worker ownership before allowing a replacement writer.
-  6. Preserve accepted tasks with current evidence and mark work interrupted when its worker stopped before completion.
+  6. Preserve accepted tasks with current evidence and mark work interrupted when its worker stopped before completing the expected phase.
   7. Inspect failed or interrupted tasks' files and existing effects before choosing the phase to continue.
   8. Reassess checks and affected dependents when relevant inputs changed or evidence is missing or outdated.
   9. Have Validator complete missing repair publication parts using the saved result and reservation before dispatch.
   10. Refresh the graph after repair publication changes the dependency table.
-  11. Save the reconciled state and resume unfinished work whose prerequisites are accepted and blockers resolved.
+  11. Save the reconciled state and resume unfinished work from its recorded phase when prerequisites are accepted and blockers resolved.
 - Outputs: continuation Assignments, reconciled Execution state and Result.
 - Next: continue coordination and outstanding validation under the existing acceptance rules.
 

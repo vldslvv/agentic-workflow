@@ -109,8 +109,6 @@ class EventDetails(Settings, total=False):
     parent_event_id: str | None
     outputs: list[Event]
     instructions: list[Event]
-    turn_ids: list[str]
-    selected_turns: list[Event]
     call_event_id: str | None
     tool_name: str | None
     turn_event_id: str | None

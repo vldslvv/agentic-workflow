@@ -37,7 +37,7 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Run relevant checks.
   - Reproduce findings where feasible.
   - Keep requirements and code unchanged.
-  - Report candidate changes to Implementer and Supervisor.
+  - Report candidate changes to Supervisor.
   - Apply [CHECKS]' recheck rules.
   - Save and return the result under [RECORDS] (“Return work”).
   - Report blockers promptly.
@@ -46,5 +46,4 @@ Use the [GLOSSARY] and [RECORDS] (“Hand off work”).
   - Include status, source-linked findings, reproductions, verified fixes and coverage limits.
   - Identify public API contract defects and test gaps.
 - Next:
-  - Return findings and result to Implementer.
-  - Supervisor releases paused writers.
+  - Return findings and the Result to Supervisor.
