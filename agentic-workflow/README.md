@@ -143,6 +143,8 @@ conditional, function-local and literal dynamic imports. Imports must resolve to
 the standard library or copied package modules; computed import targets fail.
 Every Markdown policy must avoid generic role terminology, role names and local
 links into `roles/`, including in reference catalogs and code examples.
+Policies must also avoid references to other policies through catalogs, links,
+document markers, filenames or uppercase policy identifiers; self-references are allowed.
 Run it with the interpreter that will execute the helpers. `--integration-root` adds the
 marked root block and installed workflow wrappers, ignoring other host
 instructions and skills. Tests need no source Makefile; optional browser and

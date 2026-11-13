@@ -135,25 +135,39 @@ def local_targets(text: str, source: Path, root: Path) -> list[str]:
 
 
 def check_policy_dependencies(documents: dict[Path, str]) -> list[str]:
-    """Policies stay reusable across all execution responsibilities."""
+    """Policies stay independent of roles and other policies, even in examples."""
     role_directory = PACKAGE / "roles"
+    policy_directory = PACKAGE / "policies"
+    policies = {source for source in documents if source.is_relative_to(policy_directory)}
     names = {"role", *ROLES} | {
         source.stem for source in documents if source.is_relative_to(role_directory)
     }
     mentions = re.compile(r"\b(?:" + "|".join(re.escape(n) for n in sorted(names)) + r")s?\b", re.I)
     errors: list[str] = []
     for source, text in documents.items():
-        if not source.is_relative_to(PACKAGE / "policies"):
+        if source not in policies:
             continue
+        others = policies - {source}
+        filenames = "|".join(re.escape(p.name) for p in sorted(others))
+        identifiers = "|".join(re.escape(p.stem.upper()) for p in sorted(others))
+        references = (
+            re.compile(r"\b(?:(?i:" + filenames + r")|" + identifiers + r")\b") if others else None
+        )
         # Scan the raw content so code, examples and catalogs share the boundary.
         for number, line in enumerate(text.splitlines(), 1):
             location = f"{source.relative_to(PACKAGE)}:{number}"
             for mention in mentions.finditer(line):
                 errors.append(f"{location}: prohibited policy reference: {mention[0]}")
+            if references:
+                for reference in references.finditer(line):
+                    errors.append(f"{location}: prohibited policy reference: {reference[0]}")
             for target in local_targets(line, source, PACKAGE.parent):
                 path = unquote(target).partition("#")[0]
                 destination = (source.parent / path if path else source).resolve()
-                if destination.is_relative_to(role_directory.resolve()):
+                if destination.is_relative_to(role_directory.resolve()) or (
+                    destination.is_relative_to(policy_directory.resolve())
+                    and destination != source.resolve()
+                ):
                     errors.append(f"{location}: prohibited policy reference: {target}")
     return errors
 

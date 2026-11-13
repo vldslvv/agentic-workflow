@@ -40,11 +40,13 @@ Routes workflow actions to role instructions and shared policies.
 Roles attach applicable policies through their References and Context instructions.
 Keep reusable procedures and constraints in policies without naming or describing roles,
 using generic role terminology, linking to role files or giving role-specific examples.
+Keep each policy self-contained without references to other policies.
 Keep responsibility assignments and routing decisions in role instructions.
 
 Every role reads [GUIDELINES] and applies its context documents.
 When choosing subagents and their models, use `.agentic-workflow/config/MODELS.md`
 if present, otherwise [MODELS].
+Forward the selected model policy with applicable Instructions when dispatching workers.
 Follow conditional references when applicable.
 Before authoring or editing project documents,
 read and apply [DOCUMENT_STYLE], regardless of role.

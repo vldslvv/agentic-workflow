@@ -6,6 +6,14 @@ from package_fixture import PackageCheckCase
 
 
 class PackageCheckTests(PackageCheckCase):
+    def test_policies_reject_other_policy_references(self) -> None:
+        (self.package / "policies/new.md").write_text("# Policy\n\nUse CHECKS.\n")
+        report = self.result(self.cli(), 1)
+        self.assertIn(
+            "policies/new.md:3: prohibited policy reference: CHECKS",
+            report["errors"],
+        )
+
     def test_policies_reject_role_mentions_and_dependencies(self) -> None:
         (self.package / "roles/AUDITOR.md").write_text("# Auditor\n")
         cases = (
