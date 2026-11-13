@@ -12,6 +12,7 @@ Capture, inspect and report workflow execution traces and usage.
 - [OPENCODE_MESSAGES]: Defines exported session messages. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/schema/src/session-message.ts
 - [OPENCODE_TOKENS]: Defines native token accounting. https://github.com/anomalyco/opencode/blob/v2.2.6/packages/schema/src/token-usage.ts
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
+- [CHECKS]: Restricts independent inputs and defines evidence rules. agentic-workflow/policies/CHECKS.md
 
 ## Automatic tracing provider detection
 
@@ -166,7 +167,7 @@ another implementation or an unrelated port occupant is rejected.
   1. Run `python3 agentic-workflow/helpers/usage_report.py IMPLEMENTATION`.
   2. Read usage totals and coverage diagnostics.
   3. Report measured usage with missing or ambiguous evidence identified.
-  4. Link permitted reports in the role's result under [RECORDS]' disclosure rules.
+  4. Link permitted reports in the role's result under [CHECKS] (“Independent checks”).
 - Outputs:
   - Usage reports: `reports/usage.json` and `reports/usage.md`.
   - Content and timing exports: `reports/events.json` and `reports/timeline.json`.

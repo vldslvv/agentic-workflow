@@ -1,48 +1,31 @@
 # Checks and acceptance
 
-Read when preparing checks, reviewing work or deciding whether it passes.
+Prepare requirement-based checks and assess whether work passes.
 
 ## References:
 
-- [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/ReviewInput.md
-- [VALIDATION_INPUT]: Defines ValidationInput fields. agentic-workflow/contracts/ValidationInput.md
 - [RESULT_TEMPLATE]: Records completion status, evidence, findings and limits. agentic-workflow/templates/result.md
 
 ## Prepare acceptance
 
-Apply before coding in plan-review mode and when authoring or updating requested acceptance documents.
+Apply before coding in plan-review mode and when authoring or correcting Acceptance.
 
-- Derive acceptance criteria from original requirements, excluding advisory implementation suggestions.
+- Derive observable criteria from original requirements, excluding advisory implementation suggestions.
 - Cover normal use, boundaries, failures, interactions and specified state or lifecycle guarantees.
-- State component contracts in acceptance or link their authoritative definitions.
-- Include inputs, outputs, errors and observable side effects in each contract.
-- Link contracts to source requirements.
-- Map task acceptance outcomes and contract guarantees to concrete check scenarios.
-- Link shared scenarios and add only missing task-specific checks.
-- State setup, action and expected outcome for each scenario.
-- Choose unit or integration tests for each scenario.
-- Use both test layers where they cover distinct risks.
-- Keep internal design choices in the plan unless the requirements specify them.
-- Correct incomplete acceptance criteria against the original requirements.
-- Preserve approved history during acceptance corrections.
-- Rerun checks affected by acceptance corrections.
-- Repeat required independent review after acceptance corrections.
+- Define or link source-backed contracts covering inputs, outputs, errors and observable side effects.
+- Map acceptance outcomes and contract guarantees to concrete scenarios, reusing shared checks.
+- Keep internal design choices in the Plan unless required by the specifications.
+- Preserve approved history when correcting Acceptance, then rerun affected checks and required independent review.
 
 ## Prepare checks
 
 Apply before coding and when updating checks in either mode.
 
-- Use source criteria directly for direct tasks without writing separate acceptance.
-- Treat a missing requirement as a defect, even if all listed checks pass.
-- Choose checks that fit the change and test observable behaviour.
-- Include relevant regression tests.
-- Run required manual checks.
-- Run required checks against real dependencies.
-- Cover test gaps through public interfaces.
-- Record why mocks fit, what they replace and what remains untested in check evidence.
-- Assess internal tests and mocks by the failures they can detect.
-- Consider isolation, cost and realism.
-- Require meaningful assertions about the code under test.
+- Use source criteria directly for direct tasks.
+- Check observable behaviour and relevant regressions through public interfaces.
+- Choose unit or integration checks by detectable failures, using both for distinct risks and asserting meaningful outcomes.
+- Run required manual checks and checks against real dependencies.
+- Record mock justifications, replacements and remaining gaps in evidence, assessing isolation, cost, realism and detectable failures.
 - Reject production hooks added only for tests.
 
 ## Assess results
@@ -50,43 +33,31 @@ Apply before coding and when updating checks in either mode.
 Apply when reporting checks or accepting work.
 
 - Use `PASS` only with passing required checks, adequate requirement coverage and no actionable findings.
-- Check coverage separately from test success.
-- Use `FAIL` when the work breaks a requirement or an applicable rule.
-- Use `BLOCKED` for unavailable required tools or capabilities, or unresolved requirements.
+- Use `FAIL` for violated requirements or applicable rules, even when listed checks pass.
+- Use `BLOCKED` for unresolved requirements or unavailable required capabilities.
 - Mark skipped checks `NOT_RUN`, or `BLOCKED` when their absence prevents acceptance.
 - Block acceptance with `INDEPENDENT_REVIEW_NOT_RUN` when a required fresh review has not run.
-- Report substitute checks and coverage gaps without lowering the requirements.
-- Save evidence using the [RESULT_TEMPLATE].
-- For manual judgments, name the rule and the item inspected.
-- Report cleanup errors separately from the failure being checked.
+- Record evidence, substitute checks and coverage gaps in [RESULT_TEMPLATE] without lowering requirements.
+- Name the rule and inspected item for manual judgments, reporting cleanup errors separately.
 
 ## Independent checks
 
 Apply to independent review and validation.
 
-- Start with a fresh context and no inherited conversation.
-- Choose checks from original requirements and guidelines before reading acceptance or code.
-- Use [REVIEW_INPUT] for task review or [VALIDATION_INPUT] for app validation, plus Instructions.
-- Pass only factual portions of Results and Evidence, including justified guideline exceptions and prior findings.
-- Allow focused mock justifications as review inputs.
-- Assess mock justifications independently.
-- Exclude plans, implementation suggestions, conversations, project memory, design explanations and claims of correctness.
-- Exclude copies of these from other files too.
-- Keep the work being checked unchanged, including relevant dependencies, configuration and check inputs.
-- Record its location and revision when available.
-- Use existing version information.
-- Do not require a new commit or lock.
-- Report candidate changes during checking.
-- Rerun affected independent checks in a fresh context.
-- Run relevant checks yourself.
-- Reproduce reported problems where feasible.
-- Follow the stated setup, cleanup, pass criteria, sampling rules and thresholds.
+- Start in a fresh context without inherited conversation.
+- Choose checks from original requirements and guidelines before reading Acceptance or code.
+- Admit only the role's input contract and Instructions, filtering Results and Evidence to facts, prior findings and focused guideline or mock justifications.
+- Exclude plans, implementation suggestions, conversations, memory, design explanations and correctness claims, including copies in other files.
+- Exclude native logs, `events.json`, `timeline.json` and dashboard evidence; allow usage measurements and metadata in JSON or Markdown.
+- Assess supplied justifications independently and run relevant checks yourself, reproducing reported problems where feasible.
+- Follow specified setup, cleanup, pass criteria, sampling rules and thresholds.
+- Keep the candidate, dependencies, configuration and check inputs unchanged, recording location and existing revision when available.
+- Report candidate changes and rerun affected independent checks in a fresh context without requiring a new commit or lock.
 
 ## Keep results current
 
-Apply while running checks and when stopping work.
+Apply when evidence may be outdated or work stops.
 
-- Batch reads and commands that do not depend on each other.
+- Reassess affected results after changes to requirements, guidelines, dependencies or implementation.
 - Repeat successful checks only for relevant changes, failures, new concerns or required independent checks.
-- Reassess affected results when requirements, guidelines, dependencies or implementation change.
 - Save unfinished work and blockers when cancelled or stopped by a limit.

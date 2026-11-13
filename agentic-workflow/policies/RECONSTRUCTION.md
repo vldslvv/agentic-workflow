@@ -4,54 +4,25 @@ Rebuild from authorized inputs while excluding prior implementation and executio
 
 ## References:
 
-- [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
-- [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
-- [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
+- [CHECKS]: Defines independent checks and evidence requirements. agentic-workflow/policies/CHECKS.md
+- [RECORDS]: Defines execution records and handoffs. agentic-workflow/policies/RECORDS.md
 
 ## Rebuild from allowed inputs
 
-- Context:
-  - Read before rebuilding without access to the previous implementation.
-  - Apply [CHECKS], [RECORDS] and the [separation guidelines](#separation-guidelines).
-  - Describe work that uses prior code as a port.
-- Inputs: The input contract declared by each role, filtered under the separation guidelines below.
-- Effects:
-  - Define required behaviour and reusable inputs.
-  - Preserve expected outcomes, thresholds and fixtures.
-  - Adapt commands to the new target without weakening checks.
-  - Use a new workspace.
-  - Use fresh contexts for every role, including Supervisor.
-  - Filter each input contract through the separation guidelines before dispatch.
-  - Limit exports to approved requirements, acceptance, public contracts, examples, reusable inputs and applicable workflow and engineering guidance.
-  - Inspect exports for excluded material.
-  - Check for excluded material through files, parent instructions, session memory, caches, remotes and the network.
-  - Apply access controls for the agreed boundary when enforced isolation is required.
-  - Include excluded inputs and reviewer results within the required isolation boundary.
-  - Test required access controls.
-  - Block required isolation when access controls are unavailable.
-  - Replace any worker that read excluded material.
-  - Check real dependencies that will be reused.
-- Outputs:
-  - Implementation, Evidence and Result recording target changes, reused inputs, access controls and limits under [RECORDS].
-  - State what separation was achieved.
+Apply before any role starts reconstruction and throughout its execution.
 
-## Separation guidelines
-
-Apply to every role and export when rebuilding without prior code.
-
-- Exclude prior code, build products and repository history.
-- Exclude old plans, conversations and caches containing prior code.
-- Exclude all project memory and copies of it.
-- Reject paths or symlinks that escape the allowed directory.
-- Keep credentials out of exports and logs.
-- Preserve the source workspace and historical evidence.
-- Allow new reconstruction plans and code only where the role permits them.
-- Follow [CHECKS] for independent workers.
+- Use a new workspace and fresh contexts for every role, including Supervisor.
+- Filter each role's input contract to approved requirements, acceptance, public contracts, examples, reusable inputs and applicable guidance.
+- Exclude prior code, build products, repository history, old plans, conversations, caches containing prior code and project memory, including copies.
+- Inspect exports and possible access through files, symlinks, parent instructions, session memory, caches, remotes and network.
+- Keep exports within the allowed directory, excluding credentials from exports and logs.
+- Preserve required outcomes, thresholds and fixtures when adapting commands to the new target.
+- Check real dependencies that will be reused.
+- Preserve the source workspace and historical evidence, resuming only this reconstruction and labeling resumed work.
+- Allow new plans and code only where the role permits, applying [CHECKS] to independent workers.
 - Use separation by instructions unless enforced isolation is required.
-- Do not claim enforced isolation from instructions and a new directory alone.
-- Withdraw reconstruction claims if prior code reaches the workspace or a worker's context.
-- Report requirement conformance separately from reconstruction claims, when appropriate.
-- Resume only work from this reconstruction.
-- Label resumed work.
-- Limit conclusions to what was checked.
-- Do not claim universal equivalence or guaranteed reconstruction success from finite checks.
+- For required isolation, apply and test access controls over excluded inputs and reviewer results, blocking when controls are unavailable.
+- Replace workers exposed to excluded material and withdraw reconstruction claims if prior code reaches the workspace or a worker's context.
+- Describe work using prior code as a port.
+- Record reused inputs, target changes, achieved separation, controls and limits under [RECORDS].
+- Report requirement conformance separately from reconstruction claims, without claiming enforced isolation from instructions or guaranteed equivalence from finite checks.

@@ -1,142 +1,68 @@
 # Execution records
 
-Manage execution records, assignments, handoffs and results.
+Allocate execution records, dispatch role contracts and save results for continuation.
 
 ## References:
 
-- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
-- [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
-- [TRACING]: Explains native capture, trace inspection and usage reporting. agentic-workflow/guides/TRACING.md
-- [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
-- [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
-- [SUPERVISOR]: Coordinates implementation, recovery and acceptance. agentic-workflow/roles/SUPERVISOR.md
-- [RESULT_TEMPLATE]: Records completion status, evidence, findings and limits. agentic-workflow/templates/result.md
-- [IMPLEMENTER]: Implements assigned tasks and manages corrections. agentic-workflow/roles/IMPLEMENTER.md
-- [PLAN_TEMPLATE]: Structures task implementation plans. agentic-workflow/templates/plan.md
-- [ACCEPTANCE_TEMPLATE]: Maps requirements to observable checks and pass rules. agentic-workflow/templates/acceptance.md
+- [WORK_RESULT]: Defines the worker's return message. agentic-workflow/contracts/WorkResult.md
+- [TRACING]: Defines native capture, provider detection and usage reporting. agentic-workflow/guides/TRACING.md
+- [CHECKS]: Restricts independent inputs and defines evidence rules. agentic-workflow/policies/CHECKS.md
+- [RESULT_TEMPLATE]: Structures saved Results and evidence references. agentic-workflow/templates/result.md
 
 ## Allocate or resume
 
-Use the [GLOSSARY] for Assignments and Results.
+Apply before starting tasks or continuing identified work.
 
-- Context: apply the [record guidelines](#record-guidelines) when saving, handing off or resuming work.
-- Inputs: The role’s input contract, including available continuation records.
-- Effects:
-  - For new work, run `python3 agentic-workflow/helpers/records.py allocate NAME` before starting tasks.
-  - Look up resumed task IDs only in that implementation's immediate `tasks/` directory.
-  - Resolve the implementation, task and resume scope from authorized inputs and identified records.
-  - Report missing or ambiguous scope as a blocker without prompting.
-  - For resumed work, run `python3 agentic-workflow/helpers/records.py resolve IMPLEMENTATION TASK`.
-  - Use complete records, findings and current files for that work.
-  - Recheck outdated or missing evidence.
-- Outputs: implementation root and task ID.
-- Next: reuse the root for resumed work and repairs.
+- Run `python3 agentic-workflow/helpers/records.py allocate NAME` for new work.
+- Run `python3 agentic-workflow/helpers/records.py resolve IMPLEMENTATION TASK` for resumed work, passing the implementation path.
+- Resolve scope from authorized inputs and identified records, searching task IDs only in that implementation's immediate `tasks/` directory.
+- Report missing or ambiguous scope as a blocker without prompting.
+- Reuse the implementation root for continuations and repairs, rechecking missing or outdated evidence under [CHECKS].
+- Apply [TRACING] for capture, provider detection, usage reports and assignment recovery.
 
-`allocate` reserves `.agentic-workflow/records/<NNN>_<name>/` under a local directory lock.
-It attempts to capture session metadata and the current native turn.
-`resolve` finds the task and attempts the same capture.
-Codex supplies its thread identity directly; OpenCode 2.2.6 supplies
-native shell identity as described in [TRACING] (“Enable OpenCode capture”).
-Capture failures appear on stderr without blocking allocation or resolution.
-Conflicting native identities fail before writes under [TRACING] (“Automatic tracing
-provider detection”); allocation and resolution accept no provider override.
-
-## Recover originals
-
-- Context: use when approved original documents are missing.
-- Inputs: known task sources or conversations, and the missing document paths.
-- Effects:
-  - Recover originals from known sources.
-  - Do not recreate originals from summaries.
-  - Report unavailable originals as blockers with a list of checked locations, without prompting.
-  - Give independent workers recovered sources or acceptance criteria without recovery conversations.
-  - In Plan mode, present full drafts without saving.
-  - Once editing is available, save approved text before implementation or handoff.
-- Outputs: recovered approved originals or a report of what is still missing.
-
-## Hand off work
-
-- Context: apply [CHECKS] and [MEMORY] when choosing what a recipient may read.
-- Inputs: The input contract declared by the recipient role, plus Instructions.
-- Effects:
-  - Have each output owner create its record directories before saving outputs, including direct tasks and validation.
-  - Pass the implementation directory path as `IMPLEMENTATION` for `resolve`, rather than its name.
-  - Pass absolute paths or paths relative to a stated root.
-  - Pass paths rather than document copies.
-  - Pass one input contract, marking conditional fields explicitly.
-  - Link role instructions for procedure and the selected model policy for routing.
-  - Include Plan and Memory only when the recipient’s role allows them.
-  - Have recipients read Instructions and assigned inputs before planning, editing or checking.
-  - Search only for inputs still missing.
-  - Keep worker handles and output paths for return handoffs.
-  - Send implementation corrections through Supervisor under [SUPERVISOR].
-  - Send document corrections to their author.
-  - Give an unavailable owner's replacement only allowed saved inputs.
-  - Report owner replacements.
-  - Include the assignment line below.
-  - Have recipients repeat the assignment line in their own commentary.
-- Outputs: One input contract with the assignment line.
-
-Keep recipient handles and output paths in Execution state when coordinating tasks.
-
-## Return work
-
-Apply when a worker finishes, pauses for review or stops with unfinished work.
-
-- Save one Result using the [RESULT_TEMPLATE].
-- Include applicable Memory and usage paths.
-- Filter Results and Evidence for independent recipients under [CHECKS] (“Independent checks”).
-- Return one [WORK_RESULT] in a short message.
-- Link changed files, check evidence and findings from the saved result.
-- Keep detailed command output in evidence files when needed.
-- Report only new facts in follow-up messages.
-- Preserve required evidence and unresolved findings when shortening results.
-
-## Record guidelines
-
-Apply to task documents, handoffs and results.
-
-- Read files at their exact paths, even when someone else supplied the paths.
-- Start new work from current authorized inputs without searching earlier tasks or conversations.
-- Stop searching once the sources that govern the work are known.
-- Store records in the locations below.
-- Use source filenames without extensions as task IDs.
-- Reserve `orchestration` for Supervisor activity and `validation` for final validation.
-- Follow the assigned task mode in [IMPLEMENTER] to decide which documents are required.
-- Use `plan.md` and `acceptance.md` for required task documents.
-- Follow [PLAN_TEMPLATE], [ACCEPTANCE_TEMPLATE] and [RESULT_TEMPLATE].
-- Preserve approved originals and their history in place.
-- Follow [Return work](#return-work) for saved results and completion messages.
-- Link extra evidence and usage reports.
-- Keep failure and repair history.
-- Avoid routine manifests, checksum lists, duplicate summaries and repeated hash scans.
-- Keep useful hashes for identity, deduplication or regression checks.
-- Keep native logs local.
-- Give independent workers usage measurements and metadata in JSON or Markdown.
-- Exclude `events.json`, `timeline.json` and dashboard evidence from independent inputs because they contain conversations by default.
-- Report missing telemetry as a reporting limit.
-- Do not block app acceptance for missing telemetry.
-- Leave unknown values unavailable.
-- Apply [TRACING] for capture throughout execution, usage reports and assignment recovery.
-
-| Record | Location under the implementation root |
+| Record | Location under the allocated implementation root |
 |---|---|
-| Task IDs and documents | `tasks/<task-id>/` |
+| Task documents | `tasks/<task-id>/` |
 | Results and evidence | `runs/<task-id>/<agent-run-id>/` |
 | Native turns | `native/<session-id>/<turn-id>.jsonl` (Codex) or `.json` (OpenCode) |
 | Reports | `reports/` |
 
+## Recover originals
+
+Apply when approved original documents are missing.
+
+- Recover approved originals from known sources rather than summaries, reporting unavailable originals and checked locations as blockers without prompting.
+- Present full unsaved drafts in Plan mode and save approved text before implementation or handoff once editing is available.
+- Give independent workers permitted recovered documents without recovery conversations under [CHECKS].
+
+## Hand off work
+
+Apply when dispatching or replacing a worker.
+
+- Send the recipient's declared input contract with role instructions, the selected model policy and the assignment line below.
+- Use artifact paths relative to a stated root or absolute paths, reading each exact path before work.
+- Start from current authorized inputs and search only for missing governing sources.
+- Filter independent handoffs under [CHECKS] (“Independent checks”).
+- Keep worker handles and output paths for continuation, giving replacements only permitted saved inputs and reporting replacements.
+- Route implementation corrections through Supervisor and document corrections to their author.
+
+## Return work
+
+Apply when finishing, pausing for review or stopping with unfinished work.
+
+- Create output directories and save one Result using [RESULT_TEMPLATE] before returning [WORK_RESULT].
+- Link required evidence and unresolved findings, retaining failure and repair history when shortening records.
+- Keep detailed command output in linked evidence files when needed and report only new facts in follow-ups.
+- Keep native logs local and report unavailable telemetry as a limit without blocking application acceptance.
+
 ## Assignment format
 
-Apply to the assignment line sent during handoff.
+Apply when tagging work for tracing and handoffs.
 
-- Fill in the implementation name, source task ID and recipient role.
-- Put the assignment marker at the start of its own line.
-- Use the optional `purpose` field to describe the assignment.
-- Keep the assignment for follow-ups unless explicitly retagged.
-- Keep replacement workers' native identities separate.
-- Use `supervisor` / `orchestration` for Supervisor turns and `validator` / `validation` for final validation.
-- Emit your own assignment line in commentary after allocation or resume.
+- Emit the assignment marker at the start of its own commentary line after allocation or resume, and have recipients repeat their assigned line.
+- Fill in the implementation name, source task ID and recipient role, adding optional `purpose` when useful.
+- Reserve `supervisor` / `orchestration` and `validator` / `validation` for coordination and final validation.
+- Keep the assignment for follow-ups unless explicitly retagged, retaining separate native identities for replacement workers.
 
 ```text
 AGENTIC_WORKFLOW {"implementation":"001_todolist","task":"01_business_logic","role":"implementer"}

@@ -1,6 +1,6 @@
 # Specification bundle
 
-Apply when finding or writing specifications or selecting tasks.
+Resolve specification sources, task boundaries, dependencies and authorization.
 
 ## References:
 
@@ -9,73 +9,48 @@ Apply when finding or writing specifications or selecting tasks.
 - [TASK_TEMPLATE]: Structures component behavior, constraints and acceptance. agentic-workflow/templates/tasks/task.md
 - [CONTRACT_TEMPLATE]: Structures shared interaction contracts. agentic-workflow/templates/contracts/contract.md
 - [VERIFICATION_TEMPLATE]: Structures shared checks and assembled-app scenarios. agentic-workflow/templates/verification.md
-- [VALIDATOR]: Validates the assembled app and publishes repair tasks. agentic-workflow/roles/VALIDATOR.md
-- [SUPERVISOR]: Coordinates implementation, recovery and acceptance. agentic-workflow/roles/SUPERVISOR.md
+- [VALIDATOR]: Publishes cross-component validation repairs. agentic-workflow/roles/VALIDATOR.md
 
 ## Resolve a bundle
 
-- Use the selected bundle.
-- Without a selected bundle, look for these files outside the package.
-- Report a blocker when more than one bundle fits and the authorized scope does not identify one.
-- Put authorized new specifications in `specs/`.
-- Keep existing specifications in their current locations.
-- Return `NO_PROJECT` when no project has been requested.
-- Block generation when required inputs are missing.
-- Do not generate apps from compatibility assessment requests.
-- Follow the bundle and linked requirements over conflicting plans or memory.
-- Preserve explicit requirements, the full approved text and its history.
-- Make ordinary implementation choices when implementation is requested.
-- Create needed records for requested implementation.
-- Report unresolved significant requirement conflicts as blockers without prompting.
-- Change required behaviour only with existing user authorization.
-- Report missing authorization as a blocker without prompting.
-- Require implementation permission beyond document approval.
-- Use ordinary Markdown without requiring frontmatter.
+Apply when finding or writing specifications.
 
-A bundle contains the project files listed below.
+- Use the selected bundle or find an unambiguous bundle outside the package.
+- Return `NO_PROJECT` without a requested project and block missing or ambiguous required inputs.
+- Put new specifications in `specs/`, preserving existing specifications, approved text and history in place.
+- Follow specifications and linked requirements over conflicting plans or memory.
+- Report unresolved requirement conflicts and missing authorization as blockers without prompting.
+- Require implementation authorization beyond document approval or compatibility assessment.
+- Change required behaviour only with user authorization.
+- Use ordinary Markdown without requiring frontmatter.
 
 | File | Purpose | Template |
 |---|---|---|
 | `project.md` | Intent, constraints, target and output paths | [PROJECT_TEMPLATE] |
 | `task_order.md` | Task filenames and dependencies | [TASK_ORDER_TEMPLATE] |
-| `tasks/*.md` | Component responsibilities, behavior and acceptance outcomes | [TASK_TEMPLATE] |
+| `tasks/*.md` | Component behavior and acceptance outcomes | [TASK_TEMPLATE] |
 | `contracts/*.md` (optional) | Shared interaction contracts | [CONTRACT_TEMPLATE] |
 | `verification.md` | Shared checks and assembled-app scenarios | [VERIFICATION_TEMPLATE] |
 
 ## Task specifications
 
-Apply when authoring tasks and interaction contracts.
+Apply when authoring tasks and application contracts.
 
-- Define each ordinary task as a cohesive component or bounded component change.
-- Follow [VALIDATOR] (“Publish repair”) for cross-component validation repairs.
-- Make tasks implementable and checkable against agreed contracts and declared prerequisites.
-- Keep responsibility, boundaries, behavior and acceptance, omitting other inapplicable fields.
-- Keep shared requirements in one authoritative contract or interface definition.
-- Link shared contracts from every task that provides or consumes them.
+- Define ordinary tasks as cohesive components or bounded component changes, using [VALIDATOR] (“Publish repair”) for validation repairs.
+- Make tasks implementable and checkable against declared prerequisites and contracts.
+- Keep shared requirements authoritative in one contract linked by every providing or consuming task.
 - Reconcile contract changes across affected tasks before implementation.
-- Put required choices in Constraints and advisory choices in Implementation suggestions.
+- Put mandatory choices in Constraints and advice in Implementation suggestions.
 
 ## Select tasks and resolve paths
 
-Apply before scheduling selected tasks under [SUPERVISOR].
+Apply before scheduling tasks or resolving their sources and outputs.
 
-- Declare dependencies only in the `Task | Depends on` table in `task_order.md`.
-- List each task once.
-- Use `None` or comma-separated task filenames for dependencies.
-- Do not infer dependencies from runtime interactions, shared contracts, names or row order.
+- Declare dependencies only in `task_order.md`'s `Task | Depends on` table, listing each task once with `None` or comma-separated task filenames for dependencies.
 - Use unique filenames without extensions as task IDs.
-- Resolve bare task filenames under `tasks/`.
-- Resolve task paths or links from the bundle root.
-- Resolve requirement links from the containing document.
-- Reject missing files, unlisted dependencies, unknown references and dependency cycles, including self-dependencies.
-- Select listed tasks together with their prerequisites and required source documents.
-- Block selections that exclude unfinished prerequisites.
-- Require valid evidence for accepted prerequisites.
-- Return `NO_WORK` for an empty selection.
-- Resolve repository-relative output paths from the repository root.
-- Stop execution when ambiguity could affect the work.
-- Resolve broad scenarios' pass criteria from requirements before execution.
-- Report unresolved pass criteria as blockers without changing requirements or prompting.
-- Allow checks to develop during implementation.
-- Do not require a fixed check inventory or approval receipt.
-- Report document validity separately from app conformance.
+- Resolve bare task filenames under `tasks/`, task paths from the bundle root, requirement links from their containing document and repository-relative outputs from the repository root.
+- Reject missing files, unknown references, unlisted dependencies and dependency cycles.
+- Select tasks with their prerequisites and required sources, requiring valid acceptance evidence for completed prerequisites.
+- Block selections that exclude unfinished prerequisites and return `NO_WORK` for an empty selection.
+- Resolve ambiguous scope and scenario pass criteria before execution, reporting unresolved cases as blockers without changing requirements or prompting.
+- Report document validity separately from application conformance.
