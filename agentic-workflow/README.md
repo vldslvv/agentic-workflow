@@ -141,6 +141,8 @@ refreshed; report filenames stay the same.
 The checker validates the package, local links and every Python import, including
 conditional, function-local and literal dynamic imports. Imports must resolve to
 the standard library or copied package modules; computed import targets fail.
+Every Markdown policy must avoid generic role terminology, role names and local
+links into `roles/`, including in reference catalogs and code examples.
 Run it with the interpreter that will execute the helpers. `--integration-root` adds the
 marked root block and installed workflow wrappers, ignoring other host
 instructions and skills. Tests need no source Makefile; optional browser and

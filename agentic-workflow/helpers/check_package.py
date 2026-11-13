@@ -1,4 +1,4 @@
-"""Validate the copied package, document references and local Markdown links.
+"""Validate the copied package, policy independence and document references/links.
 
 No arguments checks only the package containing this helper. --integration-root
 PATH also checks PATH/AGENTS.md's marked workflow block and installed optional
@@ -112,7 +112,12 @@ def check_references(text: str, source: Path) -> list[str]:
 
 def local_targets(text: str, source: Path, root: Path) -> list[str]:
     text = without_fences(text)
-    targets = re.findall(r"\[[^\]]*\]\(([^)]+)\)", text)
+    targets = [
+        angled or bare
+        for angled, bare in re.findall(
+            r"\[[^\]]*\]\(\s*(?:<([^>\n]+)>|([^\s)]+))(?:[ \t]+[^)\n]*)?\)", text
+        )
+    ]
     # Reference links share a destination declared once as [NAME]: path.
     targets.extend(
         angled or bare
@@ -127,6 +132,30 @@ def local_targets(text: str, source: Path, root: Path) -> list[str]:
         if not re.match(r"[\w+.-]+:", target)
     )
     return [target for target in targets if not re.match(r"[\w+.-]+:", target)]
+
+
+def check_policy_dependencies(documents: dict[Path, str]) -> list[str]:
+    """Policies stay reusable across all execution responsibilities."""
+    role_directory = PACKAGE / "roles"
+    names = {"role", *ROLES} | {
+        source.stem for source in documents if source.is_relative_to(role_directory)
+    }
+    mentions = re.compile(r"\b(?:" + "|".join(re.escape(n) for n in sorted(names)) + r")s?\b", re.I)
+    errors: list[str] = []
+    for source, text in documents.items():
+        if not source.is_relative_to(PACKAGE / "policies"):
+            continue
+        # Scan the raw content so code, examples and catalogs share the boundary.
+        for number, line in enumerate(text.splitlines(), 1):
+            location = f"{source.relative_to(PACKAGE)}:{number}"
+            for mention in mentions.finditer(line):
+                errors.append(f"{location}: prohibited policy reference: {mention[0]}")
+            for target in local_targets(line, source, PACKAGE.parent):
+                path = unquote(target).partition("#")[0]
+                destination = (source.parent / path if path else source).resolve()
+                if destination.is_relative_to(role_directory.resolve()):
+                    errors.append(f"{location}: prohibited policy reference: {target}")
+    return errors
 
 
 def check_links(documents: dict[Path, str], boundary: Path, root: Path) -> tuple[list[str], int]:
@@ -359,8 +388,11 @@ def check(files: dict[str, bytes]) -> tuple[list[str], int]:
     )
     errors = [f"Missing package file: {p}" for p in sorted(expected - files.keys())]
     documents = {
-        PACKAGE / name: data.decode() for name, data in files.items() if name.endswith(".md")
+        PACKAGE / name: data.decode()
+        for name, data in files.items()
+        if Path(name).suffix.lower() == ".md"
     }
+    errors.extend(check_policy_dependencies(documents))
     for source, text in documents.items():
         errors.extend(check_references(text, source))
     link_errors, links = check_links(documents, PACKAGE, PACKAGE.parent)

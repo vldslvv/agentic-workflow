@@ -46,7 +46,7 @@ Apply to independent review and validation.
 
 - Start in a fresh context without inherited conversation.
 - Choose checks from original requirements and guidelines before reading Acceptance or code.
-- Admit only the role's input contract and Instructions, filtering Results and Evidence to facts, prior findings and focused guideline or mock justifications.
+- Admit only the declared input contract and Instructions, filtering Results and Evidence to facts, prior findings and focused guideline or mock justifications.
 - Exclude plans, implementation suggestions, conversations, memory, design explanations and correctness claims, including copies in other files.
 - Exclude native logs, `events.json`, `timeline.json` and dashboard evidence; allow usage measurements and metadata in JSON or Markdown.
 - Assess supplied justifications independently and run relevant checks yourself, reproducing reported problems where feasible.

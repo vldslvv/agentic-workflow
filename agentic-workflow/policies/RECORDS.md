@@ -1,6 +1,6 @@
 # Execution records
 
-Allocate execution records, dispatch role contracts and save results for continuation.
+Allocate execution records, hand off declared input contracts and save results for continuation.
 
 ## References:
 
@@ -39,12 +39,11 @@ Apply when approved original documents are missing.
 
 Apply when dispatching or replacing a worker.
 
-- Send the recipient's declared input contract with role instructions, the selected model policy and the assignment line below.
+- Send the declared input contract with applicable Instructions, the selected model policy and an assignment marker under [TRACING] (“Assignment format”).
 - Use artifact paths relative to a stated root or absolute paths, reading each exact path before work.
 - Start from current authorized inputs and search only for missing governing sources.
 - Filter independent handoffs under [CHECKS] (“Independent checks”).
 - Keep worker handles and output paths for continuation, giving replacements only permitted saved inputs and reporting replacements.
-- Route implementation corrections through Supervisor and document corrections to their author.
 
 ## Return work
 
@@ -55,15 +54,8 @@ Apply when finishing, pausing for review or stopping with unfinished work.
 - Keep detailed command output in linked evidence files when needed and report only new facts in follow-ups.
 - Keep native logs local and report unavailable telemetry as a limit without blocking application acceptance.
 
-## Assignment format
+## Tag work
 
 Apply when tagging work for tracing and handoffs.
 
-- Emit the assignment marker at the start of its own commentary line after allocation or resume, and have recipients repeat their assigned line.
-- Fill in the implementation name, source task ID and recipient role, adding optional `purpose` when useful.
-- Reserve `supervisor` / `orchestration` and `validator` / `validation` for coordination and final validation.
-- Keep the assignment for follow-ups unless explicitly retagged, retaining separate native identities for replacement workers.
-
-```text
-AGENTIC_WORKFLOW {"implementation":"001_todolist","task":"01_business_logic","role":"implementer"}
-```
+- Use [TRACING] (“Assignment format”) after allocation or resume and for handoffs and follow-ups.

@@ -9,7 +9,6 @@ Resolve specification sources, task boundaries, dependencies and authorization.
 - [TASK_TEMPLATE]: Structures component behavior, constraints and acceptance. agentic-workflow/templates/tasks/task.md
 - [CONTRACT_TEMPLATE]: Structures shared interaction contracts. agentic-workflow/templates/contracts/contract.md
 - [VERIFICATION_TEMPLATE]: Structures shared checks and assembled-app scenarios. agentic-workflow/templates/verification.md
-- [VALIDATOR]: Publishes cross-component validation repairs. agentic-workflow/roles/VALIDATOR.md
 
 ## Resolve a bundle
 
@@ -36,7 +35,7 @@ Apply when finding or writing specifications.
 
 Apply when authoring tasks and application contracts.
 
-- Define ordinary tasks as cohesive components or bounded component changes, using [VALIDATOR] (“Publish repair”) for validation repairs.
+- Define ordinary tasks as cohesive components or bounded component changes.
 - Make tasks implementable and checkable against declared prerequisites and contracts.
 - Keep shared requirements authoritative in one contract linked by every providing or consuming task.
 - Reconcile contract changes across affected tasks before implementation.

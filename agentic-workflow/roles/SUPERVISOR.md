@@ -44,6 +44,7 @@ Coordinate task execution, recovery and acceptance.
   - Use new paths for initial work.
   - Extend selected code for incremental work.
   - Allocate or resume records under [RECORDS] before dispatch.
+  - Tag coordination with role `supervisor` and task `orchestration`, reserving that binding for coordination under [TRACING] (“Assignment format”).
   - Maintain [execution state](#execution-state) throughout coordination.
   - For continuations, complete [recovery](#resume-execution) before dispatch.
   - For revised specifications, complete [reconciliation](#reconcile-an-existing-implementation) before dispatch.
@@ -54,7 +55,8 @@ Coordinate task execution, recovery and acceptance.
   - Break ties by table order.
   - Blocked tasks do not hold unrelated work.
   - Resolve overlapping edits and interface changes before writing.
-  - Return affected plans, checks and reviews to their owners under [RECORDS].
+  - Route implementation corrections through Supervisor and document corrections to their author.
+  - Return affected plans, checks and reviews to their owners.
   - Route plan-review handoffs through [Review a task](#review-a-task).
   - Read each worker's saved Result and any required independent review before accepting the task.
   - Inspect detailed evidence when those records are incomplete, conflict or leave an acceptance question open.
@@ -156,6 +158,7 @@ Apply throughout recovery.
 - Inputs: [VALIDATION_INPUT].
 - Effects:
   - Confirm affected writers paused.
+  - Assign role `validator` and task `validation`, reserving that binding for final validation under [TRACING] (“Assignment format”).
   - Spawn a fresh Validator with [VALIDATION_INPUT] under [RECORDS] and [CHECKS].
   - Read the saved Validator Result and inspect detailed evidence when it is incomplete, conflicts with other records or leaves an acceptance question open.
   - Explicitly release affected writers after validation and before further edits.

@@ -6,6 +6,97 @@ from package_fixture import PackageCheckCase
 
 
 class PackageCheckTests(PackageCheckCase):
+    def test_policies_reject_role_mentions_and_dependencies(self) -> None:
+        (self.package / "roles/AUDITOR.md").write_text("# Auditor\n")
+        cases = (
+            ("policies/CHECKS.md", "Use the Supervisor.", 3, "Supervisor"),
+            ("policies/new/nested.md", "Ask PLANNERS.", 3, "PLANNERS"),
+            ("policies/new/nested.md", "Ask Implementers.", 3, "Implementers"),
+            ("policies/new/nested.md", "Ask reviewers.", 3, "reviewers"),
+            ("policies/new/nested.md", "Ask VALIDATORS.", 3, "VALIDATORS"),
+            ("policies/new/nested.md", "Each RoLe has inputs.", 3, "RoLe"),
+            ("policies/new/nested.md", "Apply to all ROLES.", 3, "ROLES"),
+            ("policies/new/nested.md", "Use `role` in the marker.", 3, "role"),
+            ("policies/new/nested.md", '```json\n{"role":"implementer"}\n```', 4, "role"),
+            ("policies/new/nested.md", "~~~text\nSend to a Validator.\n~~~", 4, "Validator"),
+            ("policies/new/nested.md", "Ask auditors.", 3, "auditors"),
+            ("policies/new/extra.MD", "Ask an Auditor.", 3, "Auditor"),
+            (
+                "policies/new/nested.md",
+                "## References:\n\n- [GUIDE]: Applicable instructions. "
+                "agentic-workflow/roles/AUDITOR.md",
+                5,
+                "AUDITOR",
+            ),
+            (
+                "policies/new/nested.md",
+                "## References:\n\n- [GUIDE]: Applicable instructions. "
+                "agentic-workflow/r%6fles/P%4cANNER.md",
+                5,
+                "r%6fles/P%4cANNER.md",
+            ),
+            (
+                "policies/new/nested.md",
+                "[Guide](../../r%6fles/P%4cANNER.md)",
+                3,
+                "../../r%6fles/P%4cANNER.md",
+            ),
+            (
+                "policies/new/nested.md",
+                '```md\n[guide]: <../../r%6fles/P%4cANNER.md> "Guide"\n```',
+                4,
+                "../../r%6fles/P%4cANNER.md",
+            ),
+            (
+                "policies/new/nested.md",
+                "```md\n[Guide](<../../r%6fles/P%4cANNER.md>)\n```",
+                4,
+                "../../r%6fles/P%4cANNER.md",
+            ),
+        )
+        for relative, content, line, reference in cases:
+            with self.subTest(path=relative, content=content):
+                path = self.package / relative
+                original = path.read_bytes() if path.exists() else None
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(f"# Policy\n\n{content}\n")
+                try:
+                    report = self.result(self.cli(), 1)
+                    self.assertTrue(
+                        any(
+                            error.startswith(f"{relative}:{line}: prohibited policy reference:")
+                            and reference in error
+                            for error in report["errors"]
+                        ),
+                        report["errors"],
+                    )
+                finally:
+                    if original is None:
+                        path.unlink()
+                    else:
+                        path.write_bytes(original)
+
+    def test_policy_boundary_allows_activities_and_references_elsewhere(self) -> None:
+        (self.package / "roles/AUDITOR.md").write_text("# Auditor\n")
+        cases = (
+            ("policies/new.md", "Review and validation prepare checks for orchestration."),
+            ("policies/new.md", "Use controllers and roleplay for implementation previews."),
+            (
+                "guides/new.md",
+                "Roles: Supervisor, Planner, Implementer, Reviewer, Validator, Auditor.",
+            ),
+            ("guides/new.md", "[Instructions](../roles/AUDITOR.md)"),
+            ("roles/AUDITOR.md", '```json\n{"role":"implementer"}\n```'),
+        )
+        for relative, content in cases:
+            with self.subTest(path=relative, content=content):
+                path = self.package / relative
+                path.write_text(f"# Guidance\n\n{content}\n")
+                try:
+                    self.assertEqual(self.result(self.cli(), 0)["errors"], [])
+                finally:
+                    path.unlink()
+
     def test_imports_stay_inside_standard_library_and_copy_boundary(self) -> None:
         (self.root / "repository_only.py").write_text("# Not in the copied package.\n")
         cases = (

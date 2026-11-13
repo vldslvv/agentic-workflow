@@ -12,8 +12,8 @@ Apply only when editing the workflow contract.
 - Keep the flow self-contained, with document references only to this policy and the glossary.
 - Update it whenever the overall flow changes.
 - Express changes as brief statements of core responsibilities and outcomes.
-- Keep execution details in role instructions and policies.
+- Keep execution details in supporting instructions and shared policies.
 - Keep validation techniques, worker context, scheduling mechanics, records and state management outside the contract.
-- Derive complete execution duties in role documents from it.
+- Derive complete execution duties in supporting instructions from it.
 - Keep those documents free of references back to the contract.
 - Keep derived instructions consistent with the workflow contract.

@@ -14,6 +14,19 @@ Capture, inspect and report workflow execution traces and usage.
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 - [CHECKS]: Restricts independent inputs and defines evidence rules. agentic-workflow/policies/CHECKS.md
 
+## Assignment format
+
+Apply when tagging work for tracing and handoffs.
+
+- Emit the assignment marker at the start of its own commentary line after allocation or resume, and have recipients repeat their assigned line.
+- Fill `implementation` with the implementation name, `task` with the source task ID and `role` with the recipient role.
+- Add optional `purpose` when useful.
+- Keep the assignment for follow-ups unless explicitly retagged, retaining separate native identities for replacement workers.
+
+```text
+AGENTIC_WORKFLOW {"implementation":"001_todolist","task":"01_business_logic","role":"implementer"}
+```
+
 ## Automatic tracing provider detection
 
 Apply when capturing, viewing or reporting native evidence.
