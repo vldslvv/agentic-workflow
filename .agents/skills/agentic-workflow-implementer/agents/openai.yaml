@@ -1,0 +1,6 @@
+interface:
+  display_name: "Agentic Workflow Implementer"
+  short_description: "Author documents and implement authorized work"
+  default_prompt: "Use $agentic-workflow-implementer for the project scope and inputs I provide."
+policy:
+  allow_implicit_invocation: false

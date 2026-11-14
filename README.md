@@ -34,9 +34,8 @@ Each role has a focused responsibility within the [workflow](agentic-workflow/WO
 
 | Role | Responsibility | Output |
 |---|---|---|
-| [Planner](agentic-workflow/roles/PLANNER.md) | Author requested documents and check their consistency | Documents, validity assessment and generation readiness |
 | [Supervisor](agentic-workflow/roles/SUPERVISOR.md) | Resolve specifications, coordinate tasks and accept results | Execution state, accepted work or blockers |
-| [Implementer](agentic-workflow/roles/IMPLEMENTER.md) | Implement an assigned task and check its behavior | Candidate implementation, evidence and task result |
+| [Implementer](agentic-workflow/roles/IMPLEMENTER.md) | Author documents, maintain workflow instructions, plan and implement assigned work | Documents, candidate implementation, checks and saved result |
 | [Reviewer](agentic-workflow/roles/REVIEWER.md) | Independently assess a task against requirements and acceptance | Findings and review result |
 | [Validator](agentic-workflow/roles/VALIDATOR.md) | Check assembled-app scenarios and interactions | Final validation result and repair specifications when needed |
 

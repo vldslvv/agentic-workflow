@@ -7,9 +7,7 @@ Role instructions and policies retain procedures, permissions and storage rules.
 
 **Supervisor**: Coordinator of task execution, recovery and acceptance.
 
-**Planner**: Author of project documents and maintainer of workflow instructions.
-
-**Implementer**: Owner of an assigned task's Implementation, checks and corrections.
+**Implementer**: Author of project documents, maintainer of workflow instructions and owner of assigned planning, Acceptance, Implementation, checks and corrections.
 
 **Reviewer**: Independent assessor of Acceptance and Implementation against task requirements.
 
@@ -28,6 +26,8 @@ Role instructions and policies retain procedures, permissions and storage rules.
 **Application Contract** (or **Contract** in specification bundles): An interface specification provided or consumed by a task.
 
 **Workflow data contract**: A reusable handoff type in `contracts/`, independent of roles.
+
+**WorkInput**: Assignment description, source paths and authorized workspace for document authoring, implementation, resumption or corrections.
 
 **WorkResult**: The concise return contract referencing a saved Result.
 

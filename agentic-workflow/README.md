@@ -43,7 +43,7 @@ Apply shared engineering and workflow instructions to project work.
 - For specification implementation, read
   [AGENTS] and act as Supervisor.
 - For document authoring or workflow maintenance, read those entry points
-  and act as Planner.
+  and act as Implementer.
 - Before authoring or editing project documents,
   read [DOCUMENT_STYLE], regardless of role.
 - Ordinary planning and implementation follows
@@ -58,7 +58,7 @@ and invoke the wrappers explicitly:
 
 | Directory | Invocation |
 |---|---|
-| `.agents/skills/agentic-workflow-planner/` | `$agentic-workflow-planner` |
+| `.agents/skills/agentic-workflow-implementer/` | `$agentic-workflow-implementer` |
 | `.agents/skills/agentic-workflow-supervisor/` | `$agentic-workflow-supervisor` |
 | `.agents/skills/agentic-workflow-acceptance/` | `$agentic-workflow-acceptance` |
 

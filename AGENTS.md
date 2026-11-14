@@ -6,7 +6,7 @@
 - For specification implementation, read
   [Workflow entry points](agentic-workflow/AGENTS.md) and act as Supervisor.
 - For document authoring or workflow maintenance, read those entry points
-  and act as Planner.
+  and act as Implementer.
 - Before authoring or editing project documents,
   read [Document style](agentic-workflow/policies/DOCUMENT_STYLE.md), regardless of role.
 - Ordinary planning and implementation follows

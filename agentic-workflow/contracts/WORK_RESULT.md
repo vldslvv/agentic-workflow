@@ -8,7 +8,7 @@ Return a concise account of work with a reference to its saved record.
 |---|---|---|
 | summary | Required | Brief description of work completed. |
 | status | Required | PASS, FAIL, BLOCKED or NOT_RUN for the reported work. |
-| result | Required | Saved Result path containing detailed findings, produced artifact paths, evidence and limits. |
+| result | Required | Saved Result path identifying produced documents, implementation changes, check evidence, unresolved findings, review readiness and limits. |
 | decision | When applicable | Acceptance/correction decision, blocker or readiness for independent review. |
 | self_review | When performed | Brief self-review report and reference to details in the Result. |
 

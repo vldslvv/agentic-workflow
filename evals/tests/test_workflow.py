@@ -55,7 +55,7 @@ class WorkflowReviewTests(DocumentReviewFixture):
                     (inputs / "agentic-workflow/WORKFLOW.md").read_bytes(), contract.read_bytes()
                 )
                 self.assertTrue(
-                    (inputs / ".agents/skills/agentic-workflow-planner/SKILL.md").is_file()
+                    (inputs / ".agents/skills/agentic-workflow-implementer/SKILL.md").is_file()
                 )
                 for relative in (".agentic-workflow/memory", ".agentic-workflow/records", "apps"):
                     self.assertFalse((inputs / relative).exists())

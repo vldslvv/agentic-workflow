@@ -100,14 +100,14 @@ class InstallationTests(unittest.TestCase):
 
     def test_optional_skills_can_be_installed_individually(self) -> None:
         self.assertEqual(self.check()["errors"], [])
-        for role in ("planner", "supervisor", "acceptance"):
+        for role in ("implementer", "supervisor", "acceptance"):
             with self.subTest(role=role):
                 directory = self.install(role)
                 self.assertEqual(self.check()["errors"], [])
                 shutil.rmtree(directory)
 
     def test_invalid_installed_skill_and_policy_are_reported(self) -> None:
-        for role in ("planner", "supervisor", "acceptance"):
+        for role in ("implementer", "supervisor", "acceptance"):
             directory = self.install(role)
             for relative, message in (
                 ("SKILL.md", "Invalid skill entry point"),

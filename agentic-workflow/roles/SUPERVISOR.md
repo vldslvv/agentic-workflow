@@ -5,8 +5,7 @@ Coordinate task execution, recovery and acceptance.
 ## References:
 
 - [COORDINATION_INPUT]: Defines CoordinationInput fields. agentic-workflow/contracts/COORDINATION_INPUT.md
-- [DOCUMENT_INPUT]: Defines DocumentInput fields. agentic-workflow/contracts/DOCUMENT_INPUT.md
-- [TASK_INPUT]: Defines TaskInput fields. agentic-workflow/contracts/TASK_INPUT.md
+- [WORK_INPUT]: Defines WorkInput fields. agentic-workflow/contracts/WORK_INPUT.md
 - [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/REVIEW_INPUT.md
 - [VALIDATION_INPUT]: Defines ValidationInput fields. agentic-workflow/contracts/VALIDATION_INPUT.md
 - [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WORK_RESULT.md
@@ -15,8 +14,7 @@ Coordinate task execution, recovery and acceptance.
 - [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
 - [BUNDLE]: Defines specification files, task selection and path resolution. agentic-workflow/policies/BUNDLE.md
 - [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
-- [PLANNER]: Authors project documents and maintains workflow instructions. agentic-workflow/roles/PLANNER.md
-- [IMPLEMENTER]: Implements assigned tasks and manages corrections. agentic-workflow/roles/IMPLEMENTER.md
+- [IMPLEMENTER]: Authors documents, implements assigned work and manages corrections. agentic-workflow/roles/IMPLEMENTER.md
 - [REVIEWER]: Independently reviews task requirements and implementation. agentic-workflow/roles/REVIEWER.md
 - [VALIDATOR]: Validates the assembled app and publishes repair tasks. agentic-workflow/roles/VALIDATOR.md
 - [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
@@ -25,8 +23,7 @@ Coordinate task execution, recovery and acceptance.
 ## Contracts
 
 - Provides: `coordinate_tasks(input: CoordinationInput) -> WorkResult` using [COORDINATION_INPUT] and [WORK_RESULT].
-- Invokes [PLANNER]: `author_documents(input: DocumentInput) -> WorkResult` using [DOCUMENT_INPUT] and [WORK_RESULT].
-- Invokes [IMPLEMENTER]: `implement_task(input: TaskInput) -> WorkResult` using [TASK_INPUT] and [WORK_RESULT].
+- Invokes [IMPLEMENTER]: `execute_work(input: WorkInput) -> WorkResult` using [WORK_INPUT] and [WORK_RESULT].
 - Invokes [REVIEWER]: `review_task(input: ReviewInput) -> WorkResult` using [REVIEW_INPUT] and [WORK_RESULT].
 - Invokes [VALIDATOR]: `validate_app(input: ValidationInput) -> WorkResult` using [VALIDATION_INPUT] and [WORK_RESULT].
 
@@ -49,14 +46,16 @@ Coordinate task execution, recovery and acceptance.
   - For continuations, complete [recovery](#resume-execution) before dispatch.
   - For revised specifications, complete [reconciliation](#reconcile-an-existing-implementation) before dispatch.
   - Select the [task mode](#task-mode) before dispatching each new task whose prerequisites are accepted.
-  - Prepare the Assignment with [TASK_INPUT] and role instructions under [RECORDS] (“Hand off work”).
+  - Prepare each assignment with [WORK_INPUT] and role instructions under [RECORDS] (“Hand off work”).
+  - Specify fresh execution, resumption or corrections explicitly in description, including authorized scope, mode, constraints, ownership, output paths and record location.
+  - Supply governing requirements and relevant existing artifact paths in sources, including permitted memory paths under [MEMORY].
+  - Set workspace to the authorized project working directory.
   - Spawn a fresh Implementer without inherited conversation for every new task, including single-task scopes.
   - Run ready tasks concurrently while reserving capacity for full-task Reviewers and final validation.
   - Break ties by table order.
   - Blocked tasks do not hold unrelated work.
   - Resolve overlapping edits and interface changes before writing.
-  - Route implementation corrections through Supervisor and document corrections to their author.
-  - Return affected plans, checks and reviews to their owners.
+  - Route task Plan, Acceptance, implementation and check corrections to the same Implementer through Supervisor.
   - Route plan-review handoffs through [Review a task](#review-a-task).
   - Read each worker's saved Result and any required independent review before accepting the task.
   - Inspect detailed evidence when those records are incomplete, conflict or leave an acceptance question open.
@@ -73,18 +72,20 @@ Coordinate task execution, recovery and acceptance.
 ## Review a task
 
 - Context: apply when a plan-review Implementer returns a Result ready for review.
-- Inputs: [REVIEW_INPUT], prepared from the Implementer’s saved Result and Evidence.
+- Inputs: [REVIEW_INPUT], prepared from original requirements, the saved candidate, Acceptance and permitted factual evidence.
 - Effects:
   1. Confirm the Implementer's turn has ended and all other affected writers are paused.
   2. Record the review phase in [execution state](#execution-state) and retain the Implementer handle.
-  3. Spawn a fresh Reviewer with [REVIEW_INPUT] under [RECORDS] and [CHECKS].
-  4. When the Reviewer returns, read the saved Result and record its path in [execution state](#execution-state).
-  5. Record the acceptance or correction decision and any blockers under [CHECKS] using both saved Results.
-  6. Explicitly release affected writers before further edits.
+  3. Build [REVIEW_INPUT] with original requirement paths, the saved candidate location and available revision, Acceptance path, permitted factual evidence and writer-pause confirmation.
+  4. Exclude the broad WorkInput description, Plan, memory and authoring explanations under [CHECKS] (“Independent checks”) and [RECORDS] (“Independent inputs”).
+  5. Spawn a fresh Reviewer with [REVIEW_INPUT] under [RECORDS] and [CHECKS].
+  6. When the Reviewer returns, read the saved Result and record its path in [execution state](#execution-state).
+  7. Record the acceptance or correction decision and any blockers under [CHECKS] using both saved Results.
+  8. Explicitly release affected writers before further edits.
 - Outputs: [WORK_RESULT].
 - Next:
   - Resume the same Implementer session only for actionable review findings.
-  - Use the host's follow-up action with [TASK_INPUT] correction fields.
+  - Use the host's follow-up action with [WORK_INPUT], stating findings and explicit release in description and supplying existing documents and finding Result paths in sources.
   - If the original Implementer is unavailable, apply [Resume execution](#resume-execution) when assigning corrections.
   - Start a fresh review after the corrected candidate is handed off.
 
@@ -138,7 +139,7 @@ Apply when coordinating an implementation or recovering its execution.
   8. Resolve uncertain persistent or external effects before retrying.
   9. Have Validator reuse the saved result and repair reservation to complete only missing publication parts before dispatch.
   10. Refresh the graph after repair publication changes the dependency table.
-  11. Give replacements their role’s input contract with permitted continuation fields under [RECORDS].
+  11. Give replacements their declared input contract under [RECORDS], describing the continuation phase and unfinished work in WorkInput description with existing artifact paths in sources for replacement Implementers.
   12. Save reconciled state before resuming from the recorded phase when prerequisites are accepted and blockers resolved.
 - Outputs: [WORK_RESULT].
 - Next: continue coordination and outstanding validation under the existing acceptance rules.

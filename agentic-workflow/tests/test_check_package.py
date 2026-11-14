@@ -18,7 +18,6 @@ class PackageCheckTests(PackageCheckCase):
         (self.package / "roles/AUDITOR.md").write_text("# Auditor\n")
         cases = (
             ("policies/CHECKS.md", "Use the Supervisor.", 3, "Supervisor"),
-            ("policies/new/nested.md", "Ask PLANNERS.", 3, "PLANNERS"),
             ("policies/new/nested.md", "Ask Implementers.", 3, "Implementers"),
             ("policies/new/nested.md", "Ask reviewers.", 3, "reviewers"),
             ("policies/new/nested.md", "Ask VALIDATORS.", 3, "VALIDATORS"),
@@ -39,27 +38,27 @@ class PackageCheckTests(PackageCheckCase):
             (
                 "policies/new/nested.md",
                 "## References:\n\n- [GUIDE]: Applicable instructions. "
-                "agentic-workflow/r%6fles/P%4cANNER.md",
+                "agentic-workflow/r%6fles/%49MPLEMENTER.md",
                 5,
-                "r%6fles/P%4cANNER.md",
+                "r%6fles/%49MPLEMENTER.md",
             ),
             (
                 "policies/new/nested.md",
-                "[Guide](../../r%6fles/P%4cANNER.md)",
+                "[Guide](../../r%6fles/%49MPLEMENTER.md)",
                 3,
-                "../../r%6fles/P%4cANNER.md",
+                "../../r%6fles/%49MPLEMENTER.md",
             ),
             (
                 "policies/new/nested.md",
-                '```md\n[guide]: <../../r%6fles/P%4cANNER.md> "Guide"\n```',
+                '```md\n[guide]: <../../r%6fles/%49MPLEMENTER.md> "Guide"\n```',
                 4,
-                "../../r%6fles/P%4cANNER.md",
+                "../../r%6fles/%49MPLEMENTER.md",
             ),
             (
                 "policies/new/nested.md",
-                "```md\n[Guide](<../../r%6fles/P%4cANNER.md>)\n```",
+                "```md\n[Guide](<../../r%6fles/%49MPLEMENTER.md>)\n```",
                 4,
-                "../../r%6fles/P%4cANNER.md",
+                "../../r%6fles/%49MPLEMENTER.md",
             ),
         )
         for relative, content, line, reference in cases:
@@ -91,7 +90,7 @@ class PackageCheckTests(PackageCheckCase):
             ("policies/new.md", "Use controllers and roleplay for implementation previews."),
             (
                 "guides/new.md",
-                "Roles: Supervisor, Planner, Implementer, Reviewer, Validator, Auditor.",
+                "Roles: Supervisor, Implementer, Reviewer, Validator, Auditor.",
             ),
             ("guides/new.md", "[Instructions](../roles/AUDITOR.md)"),
             ("roles/AUDITOR.md", '```json\n{"role":"implementer"}\n```'),
@@ -209,8 +208,13 @@ class PackageCheckTests(PackageCheckCase):
                     report = self.result(self.cli(), 1)
                     self.assertTrue(any(target in error for error in report["errors"]))
 
-    def test_missing_required_role_and_template_fail(self) -> None:
-        for relative in ("roles/REVIEWER.md", "templates/VERIFICATION.md", "helpers/records.py"):
+    def test_missing_required_package_files_fail(self) -> None:
+        for relative in (
+            "roles/REVIEWER.md",
+            "contracts/WORK_INPUT.md",
+            "templates/VERIFICATION.md",
+            "helpers/records.py",
+        ):
             with self.subTest(path=relative):
                 path = self.package / relative
                 original = path.read_bytes()

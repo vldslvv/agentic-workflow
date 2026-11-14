@@ -24,8 +24,8 @@ from pathlib import Path
 from urllib.parse import unquote
 
 PACKAGE = Path(__file__).resolve().parents[1]
-ROLES = ("SUPERVISOR", "PLANNER", "IMPLEMENTER", "REVIEWER", "VALIDATOR")
-SKILLS = ("planner", "supervisor", "acceptance")
+ROLES = ("SUPERVISOR", "IMPLEMENTER", "REVIEWER", "VALIDATOR")
+SKILLS = ("implementer", "supervisor", "acceptance")
 
 
 def anchors(text: str) -> set[str]:
@@ -338,6 +338,16 @@ def check(files: dict[str, bytes]) -> tuple[list[str], int]:
     expected = {"README.md", "AGENTS.md", "WORKFLOW.md"}
     expected.update(f"roles/{role}.md" for role in ROLES)
     expected.update(
+        f"contracts/{name}.md"
+        for name in (
+            "COORDINATION_INPUT",
+            "WORK_INPUT",
+            "REVIEW_INPUT",
+            "VALIDATION_INPUT",
+            "WORK_RESULT",
+        )
+    )
+    expected.update(
         f"policies/{name}.md"
         for name in (
             "BUNDLE",
@@ -456,7 +466,7 @@ def check_integration(root: Path) -> tuple[list[str], int]:
         required = (f"name: {name}", "description:", "disable-model-invocation: true")
         targets = local_targets(content, source, root)
         references = (
-            ["AGENTS.md", "roles/PLANNER.md", "roles/SUPERVISOR.md"]
+            ["AGENTS.md", "roles/IMPLEMENTER.md", "roles/SUPERVISOR.md"]
             if skill == "acceptance"
             else ["AGENTS.md", f"roles/{skill.upper()}.md"]
         )

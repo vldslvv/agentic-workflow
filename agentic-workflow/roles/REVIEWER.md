@@ -22,9 +22,12 @@ Independently assess Acceptance and implementation against task requirements.
   - Instructions: read [AGENTS], [CHECKS] and [RECORDS].
 - Inputs: [REVIEW_INPUT].
 - Effects:
-  - Wait for Supervisor confirmation that affected writers are paused.
-  - Apply [CHECKS] (“Independent checks”) throughout review.
-  - Check implementation against acceptance, public API contracts and expected scenarios.
+  - Start in a fresh context with only [REVIEW_INPUT] and applicable Instructions under [CHECKS] (“Independent checks”) and [RECORDS] (“Independent inputs”).
+  - Confirm writers_paused records Supervisor confirmation that all affected writers are paused.
+  - Read original requirements and choose checks before inspecting Acceptance or implementation.
+  - Inspect the supplied candidate and Acceptance paths and assess permitted factual evidence and prior findings.
+  - Keep the candidate, dependencies, configuration and check inputs stable under [CHECKS] (“Independent checks”).
+  - Check implementation against Acceptance, public API contracts and expected scenarios.
   - Check code and acceptance against every applicable requirement.
   - Find omissions, weakened expectations and unjustified constraints.
   - Check interactions, unintended changes and prior findings.

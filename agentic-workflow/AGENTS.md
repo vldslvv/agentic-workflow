@@ -9,14 +9,12 @@ Routes workflow actions to role instructions and shared policies.
 ## References:
 
 - [COORDINATION_INPUT]: Defines CoordinationInput fields. agentic-workflow/contracts/COORDINATION_INPUT.md
-- [DOCUMENT_INPUT]: Defines DocumentInput fields. agentic-workflow/contracts/DOCUMENT_INPUT.md
-- [TASK_INPUT]: Defines TaskInput fields. agentic-workflow/contracts/TASK_INPUT.md
+- [WORK_INPUT]: Defines WorkInput fields. agentic-workflow/contracts/WORK_INPUT.md
 - [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/REVIEW_INPUT.md
 - [VALIDATION_INPUT]: Defines ValidationInput fields. agentic-workflow/contracts/VALIDATION_INPUT.md
 - [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WORK_RESULT.md
 - [SUPERVISOR]: Enter as Supervisor to implement specifications (including one task) or coordinate tasks; to update or repair an existing app against revised specifications, use “Reconcile an existing implementation”. agentic-workflow/roles/SUPERVISOR.md
-- [PLANNER]: Plan or edit documents/workflow. agentic-workflow/roles/PLANNER.md
-- [IMPLEMENTER]: Implement a task. agentic-workflow/roles/IMPLEMENTER.md
+- [IMPLEMENTER]: Author documents, maintain workflow instructions, plan or implement assigned work. agentic-workflow/roles/IMPLEMENTER.md
 - [REVIEWER]: Review a task. agentic-workflow/roles/REVIEWER.md
 - [VALIDATOR]: Validate the app. agentic-workflow/roles/VALIDATOR.md
 - [GLOSSARY]: Interpret roles, inputs and outputs. agentic-workflow/GLOSSARY.md

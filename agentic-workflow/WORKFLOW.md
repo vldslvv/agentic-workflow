@@ -32,10 +32,10 @@ All three follow the same execution flow.
 Each Implementer follows its assigned mode:
 
 - Direct: implement, check against requirements and iterate without a separate Plan, Acceptance or Reviewer.
-- Plan-review: create Plan and Acceptance, implement, hand off to Supervisor for review and end the Implementer's turn.
+- Plan-review: create Plan and Acceptance before implementation, implement, check, record review readiness and hand off to Supervisor for review, ending the Implementer's turn.
 - Supervisor starts a fresh Reviewer to check Acceptance and Implementation against requirements.
 - Supervisor resumes the same Implementer session only when review finds work to fix.
-- Implementer fixes findings and hands off for fresh review.
+- Supervisor releases the Implementer to fix findings and hand off for fresh review.
 
 Supervisor accepts completed tasks before unlocking their dependents.
 Task corrections return to the same Implementer.
