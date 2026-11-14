@@ -80,11 +80,11 @@ specs/example/
 
 | File and template | Contents |
 |---|---|
-| [`project.md`](agentic-workflow/templates/project.md) | Intent, users, shared constraints, environment, output path, persistence and unresolved decisions |
-| [`task_order.md`](agentic-workflow/templates/task_order.md) | A `Task \| Depends on` table linking task files and declaring prerequisites |
-| [`tasks/*.md`](agentic-workflow/templates/tasks/task.md) | Component responsibility, boundary, sources, provided and consumed contracts, behavior, constraints and acceptance scenarios |
-| [`contracts/*.md`](agentic-workflow/templates/contracts/contract.md) | Participants, interfaces, semantics, guarantees and interaction examples |
-| [`verification.md`](agentic-workflow/templates/verification.md) | Shared and assembled-app scenarios with sources, setup, actions, pass rules, cleanup and evidence |
+| [`project.md`](agentic-workflow/templates/PROJECT.md) | Intent, users, shared constraints, environment, output path, persistence and unresolved decisions |
+| [`task_order.md`](agentic-workflow/templates/TASK_ORDER.md) | A `Task \| Depends on` table linking task files and declaring prerequisites |
+| [`tasks/*.md`](agentic-workflow/templates/tasks/TASK.md) | Component responsibility, boundary, sources, provided and consumed contracts, behavior, constraints and acceptance scenarios |
+| [`contracts/*.md`](agentic-workflow/templates/contracts/CONTRACT.md) | Participants, interfaces, semantics, guarantees and interaction examples |
+| [`verification.md`](agentic-workflow/templates/VERIFICATION.md) | Shared and assembled-app scenarios with sources, setup, actions, pass rules, cleanup and evidence |
 
 The task template describes behavior through inputs, effects, outputs, state,
 failures and invariants. Its acceptance table pairs each scenario with an
@@ -92,10 +92,10 @@ observable pass condition. Optional sections hold implementation suggestions and
 workflow requirements.
 
 Execution documents use separate templates:
-[`plan.md`](agentic-workflow/templates/plan.md) records the approach and checks,
-[`acceptance.md`](agentic-workflow/templates/acceptance.md) maps source requirements
+[`plan.md`](agentic-workflow/templates/PLAN.md) records the approach and checks,
+[`acceptance.md`](agentic-workflow/templates/ACCEPTANCE.md) maps source requirements
 and contracts to check scenarios, and
-[`result.md`](agentic-workflow/templates/result.md) records outcomes, evidence,
+[`result.md`](agentic-workflow/templates/RESULT.md) records outcomes, evidence,
 findings and limits. Their storage locations follow
 [Records](agentic-workflow/policies/RECORDS.md).
 

@@ -4,8 +4,8 @@ Independently assess Acceptance and implementation against task requirements.
 
 ## References:
 
-- [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/ReviewInput.md
-- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
+- [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/REVIEW_INPUT.md
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WORK_RESULT.md
 - [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 - [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md

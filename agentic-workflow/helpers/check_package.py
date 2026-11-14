@@ -354,13 +354,13 @@ def check(files: dict[str, bytes]) -> tuple[list[str], int]:
     expected.update(
         f"templates/{name}.md"
         for name in (
-            "project",
-            "task_order",
-            "tasks/task",
-            "verification",
-            "plan",
-            "acceptance",
-            "result",
+            "PROJECT",
+            "TASK_ORDER",
+            "tasks/TASK",
+            "VERIFICATION",
+            "PLAN",
+            "ACCEPTANCE",
+            "RESULT",
         )
     )
     expected.update(

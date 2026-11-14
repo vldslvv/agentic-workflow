@@ -102,7 +102,7 @@ class SpecificationReviewTests(DocumentReviewFixture):
             "specs/alpha/project.md",
             "sources/requirements.md",
             "sources/interface.py",
-            "agentic-workflow/templates/tasks/task.md",
+            "agentic-workflow/templates/tasks/TASK.md",
             "agentic-workflow/policies/BUNDLE.md",
         ):
             self.assertEqual((directory / "inputs" / relative).read_bytes(), before[relative])
@@ -157,7 +157,7 @@ class SpecificationReviewTests(DocumentReviewFixture):
             with self.subTest(name=name):
                 project.write_text(link)
                 if name == "missing template":
-                    (self.root / "agentic-workflow/templates/verification.md").unlink()
+                    (self.root / "agentic-workflow/templates/VERIFICATION.md").unlink()
                 before = set(self.reports())
                 process = self.invoke(self.response("PASS"), arguments=["--bundle", "specs/alpha"])
                 self.assertEqual(process.returncode, 1, process.stdout + process.stderr)

@@ -11,11 +11,11 @@ from . import runtime
 from .models import Check, Inputs
 
 REFERENCES = (
-    "agentic-workflow/templates/project.md",
-    "agentic-workflow/templates/task_order.md",
-    "agentic-workflow/templates/tasks/task.md",
-    "agentic-workflow/templates/contracts/contract.md",
-    "agentic-workflow/templates/verification.md",
+    "agentic-workflow/templates/PROJECT.md",
+    "agentic-workflow/templates/TASK_ORDER.md",
+    "agentic-workflow/templates/tasks/TASK.md",
+    "agentic-workflow/templates/contracts/CONTRACT.md",
+    "agentic-workflow/templates/VERIFICATION.md",
     "agentic-workflow/policies/BUNDLE.md",
     "agentic-workflow/policies/DOCUMENT_STYLE.md",
     "agentic-workflow/policies/CHECKS.md",

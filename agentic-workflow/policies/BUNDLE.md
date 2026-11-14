@@ -4,11 +4,11 @@ Resolve specification sources, task boundaries, dependencies and authorization.
 
 ## References:
 
-- [PROJECT_TEMPLATE]: Structures project intent, constraints and output paths. agentic-workflow/templates/project.md
-- [TASK_ORDER_TEMPLATE]: Lists task filenames and dependencies. agentic-workflow/templates/task_order.md
-- [TASK_TEMPLATE]: Structures component behavior, constraints and acceptance. agentic-workflow/templates/tasks/task.md
-- [CONTRACT_TEMPLATE]: Structures shared interaction contracts. agentic-workflow/templates/contracts/contract.md
-- [VERIFICATION_TEMPLATE]: Structures shared checks and assembled-app scenarios. agentic-workflow/templates/verification.md
+- [PROJECT_TEMPLATE]: Structures project intent, constraints and output paths. agentic-workflow/templates/PROJECT.md
+- [TASK_ORDER_TEMPLATE]: Lists task filenames and dependencies. agentic-workflow/templates/TASK_ORDER.md
+- [TASK_TEMPLATE]: Structures component behavior, constraints and acceptance. agentic-workflow/templates/tasks/TASK.md
+- [CONTRACT_TEMPLATE]: Structures shared interaction contracts. agentic-workflow/templates/contracts/CONTRACT.md
+- [VERIFICATION_TEMPLATE]: Structures shared checks and assembled-app scenarios. agentic-workflow/templates/VERIFICATION.md
 
 ## Resolve a bundle
 

@@ -4,9 +4,9 @@ Allocate execution records, hand off declared input contracts and save results f
 
 ## References:
 
-- [WORK_RESULT]: Defines the worker's return message. agentic-workflow/contracts/WorkResult.md
+- [WORK_RESULT]: Defines the worker's return message. agentic-workflow/contracts/WORK_RESULT.md
 - [TRACING]: Defines native capture, provider detection and usage reporting. agentic-workflow/guides/TRACING.md
-- [RESULT_TEMPLATE]: Structures saved Results and evidence references. agentic-workflow/templates/result.md
+- [RESULT_TEMPLATE]: Structures saved Results and evidence references. agentic-workflow/templates/RESULT.md
 
 ## Allocate or resume
 

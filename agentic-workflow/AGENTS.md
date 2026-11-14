@@ -8,12 +8,12 @@ Routes workflow actions to role instructions and shared policies.
 
 ## References:
 
-- [COORDINATION_INPUT]: Defines CoordinationInput fields. agentic-workflow/contracts/CoordinationInput.md
-- [DOCUMENT_INPUT]: Defines DocumentInput fields. agentic-workflow/contracts/DocumentInput.md
-- [TASK_INPUT]: Defines TaskInput fields. agentic-workflow/contracts/TaskInput.md
-- [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/ReviewInput.md
-- [VALIDATION_INPUT]: Defines ValidationInput fields. agentic-workflow/contracts/ValidationInput.md
-- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
+- [COORDINATION_INPUT]: Defines CoordinationInput fields. agentic-workflow/contracts/COORDINATION_INPUT.md
+- [DOCUMENT_INPUT]: Defines DocumentInput fields. agentic-workflow/contracts/DOCUMENT_INPUT.md
+- [TASK_INPUT]: Defines TaskInput fields. agentic-workflow/contracts/TASK_INPUT.md
+- [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/REVIEW_INPUT.md
+- [VALIDATION_INPUT]: Defines ValidationInput fields. agentic-workflow/contracts/VALIDATION_INPUT.md
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WORK_RESULT.md
 - [SUPERVISOR]: Enter as Supervisor to implement specifications (including one task) or coordinate tasks; to update or repair an existing app against revised specifications, use “Reconcile an existing implementation”. agentic-workflow/roles/SUPERVISOR.md
 - [PLANNER]: Plan or edit documents/workflow. agentic-workflow/roles/PLANNER.md
 - [IMPLEMENTER]: Implement a task. agentic-workflow/roles/IMPLEMENTER.md
@@ -31,9 +31,9 @@ Routes workflow actions to role instructions and shared policies.
 - [GUIDELINES]: Plan, change or review code, tests or tooling. agentic-workflow/policies/GUIDELINES.md
 - [MODELS]: Choose subagents and their models. agentic-workflow/policies/MODELS.md
 - [DOCUMENT_STYLE]: Author or edit project documents. agentic-workflow/policies/DOCUMENT_STYLE.md
-- [PLAN_TEMPLATE]: Write a task implementation Plan. agentic-workflow/templates/plan.md
-- [ACCEPTANCE_TEMPLATE]: Write Acceptance criteria and checks. agentic-workflow/templates/acceptance.md
-- [RESULT_TEMPLATE]: Record a Result with status, evidence, findings and limits. agentic-workflow/templates/result.md
+- [PLAN_TEMPLATE]: Write a task implementation Plan. agentic-workflow/templates/PLAN.md
+- [ACCEPTANCE_TEMPLATE]: Write Acceptance criteria and checks. agentic-workflow/templates/ACCEPTANCE.md
+- [RESULT_TEMPLATE]: Record a Result with status, evidence, findings and limits. agentic-workflow/templates/RESULT.md
 
 ## Shared instructions
 

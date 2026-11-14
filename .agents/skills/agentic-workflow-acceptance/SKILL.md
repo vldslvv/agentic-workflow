@@ -15,7 +15,7 @@ disable-model-invocation: true
   - Apply [source authority](../../../agentic-workflow/policies/BUNDLE.md) to approvals and implementation authorization.
   - Present complete plan/acceptance drafts when approval is needed.
   - Preserve explicitly approved text.
-  - Use the [plan](../../../agentic-workflow/templates/plan.md) and [acceptance](../../../agentic-workflow/templates/acceptance.md) templates.
+  - Use the [plan](../../../agentic-workflow/templates/PLAN.md) and [acceptance](../../../agentic-workflow/templates/ACCEPTANCE.md) templates.
   - Save and recover originals under [Records](../../../agentic-workflow/policies/RECORDS.md), including its Plan-mode rules.
 - Outputs: complete plan/acceptance drafts or saved approved documents, as authorized.
 - Next: route authorized app execution to [Supervisor](../../../agentic-workflow/roles/SUPERVISOR.md).

@@ -4,12 +4,12 @@ Coordinate task execution, recovery and acceptance.
 
 ## References:
 
-- [COORDINATION_INPUT]: Defines CoordinationInput fields. agentic-workflow/contracts/CoordinationInput.md
-- [DOCUMENT_INPUT]: Defines DocumentInput fields. agentic-workflow/contracts/DocumentInput.md
-- [TASK_INPUT]: Defines TaskInput fields. agentic-workflow/contracts/TaskInput.md
-- [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/ReviewInput.md
-- [VALIDATION_INPUT]: Defines ValidationInput fields. agentic-workflow/contracts/ValidationInput.md
-- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
+- [COORDINATION_INPUT]: Defines CoordinationInput fields. agentic-workflow/contracts/COORDINATION_INPUT.md
+- [DOCUMENT_INPUT]: Defines DocumentInput fields. agentic-workflow/contracts/DOCUMENT_INPUT.md
+- [TASK_INPUT]: Defines TaskInput fields. agentic-workflow/contracts/TASK_INPUT.md
+- [REVIEW_INPUT]: Defines ReviewInput fields. agentic-workflow/contracts/REVIEW_INPUT.md
+- [VALIDATION_INPUT]: Defines ValidationInput fields. agentic-workflow/contracts/VALIDATION_INPUT.md
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WORK_RESULT.md
 - [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 - [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md

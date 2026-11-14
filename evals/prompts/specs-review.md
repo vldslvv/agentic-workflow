@@ -7,7 +7,7 @@ Assess document validity separately from application conformance.
 ## Inputs
 
 - Review only these selected bundles: {scope}.
-- Use the five templates under `agentic-workflow/templates/`: `project.md`, `task_order.md`, `tasks/task.md`, `contracts/contract.md` and `verification.md`.
+- Use the five templates under `agentic-workflow/templates/`: `PROJECT.md`, `TASK_ORDER.md`, `tasks/TASK.md`, `contracts/CONTRACT.md` and `VERIFICATION.md`.
 - Interpret the templates through `BUNDLE.md`, `DOCUMENT_STYLE.md`, `CHECKS.md` and `GUIDELINES.md` under `agentic-workflow/policies/` and their applicable linked policies.
 - Consult `snapshot-references.json` for unavailable or excluded sources.
 

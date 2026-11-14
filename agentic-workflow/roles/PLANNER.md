@@ -4,8 +4,8 @@ Author project documents and maintain workflow instructions.
 
 ## References:
 
-- [DOCUMENT_INPUT]: Defines DocumentInput fields. agentic-workflow/contracts/DocumentInput.md
-- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
+- [DOCUMENT_INPUT]: Defines DocumentInput fields. agentic-workflow/contracts/DOCUMENT_INPUT.md
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WORK_RESULT.md
 - [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 - [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
@@ -13,8 +13,8 @@ Author project documents and maintain workflow instructions.
 - [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
 - [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
 - [BUNDLE]: Defines specification files, task selection and path resolution. agentic-workflow/policies/BUNDLE.md
-- [PLAN_TEMPLATE]: Structures task implementation plans. agentic-workflow/templates/plan.md
-- [ACCEPTANCE_TEMPLATE]: Maps requirements to observable checks and pass rules. agentic-workflow/templates/acceptance.md
+- [PLAN_TEMPLATE]: Structures task implementation plans. agentic-workflow/templates/PLAN.md
+- [ACCEPTANCE_TEMPLATE]: Maps requirements to observable checks and pass rules. agentic-workflow/templates/ACCEPTANCE.md
 - [README]: Explains installation, package ownership and portable commands. agentic-workflow/README.md
 - [WORKFLOW_REVIEW]: Defines requested workflow conformance reviews. agentic-workflow/guides/WORKFLOW_REVIEW.md
 

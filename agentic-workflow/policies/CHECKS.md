@@ -4,7 +4,7 @@ Prepare requirement-based checks and assess whether work passes.
 
 ## References:
 
-- [RESULT_TEMPLATE]: Records completion status, evidence, findings and limits. agentic-workflow/templates/result.md
+- [RESULT_TEMPLATE]: Records completion status, evidence, findings and limits. agentic-workflow/templates/RESULT.md
 
 ## Prepare acceptance
 

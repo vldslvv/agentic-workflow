@@ -4,16 +4,16 @@ Implement assigned tasks, verify their behavior and manage corrections.
 
 ## References:
 
-- [TASK_INPUT]: Defines TaskInput fields. agentic-workflow/contracts/TaskInput.md
-- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
+- [TASK_INPUT]: Defines TaskInput fields. agentic-workflow/contracts/TASK_INPUT.md
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WORK_RESULT.md
 - [GLOSSARY]: Defines shared roles, inputs and outputs. agentic-workflow/GLOSSARY.md
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 - [AGENTS]: Routes actions to role instructions and shared policies. agentic-workflow/AGENTS.md
 - [BUNDLE]: Defines specification files, task selection and path resolution. agentic-workflow/policies/BUNDLE.md
 - [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
 - [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
-- [PLAN_TEMPLATE]: Structures task implementation plans. agentic-workflow/templates/plan.md
-- [ACCEPTANCE_TEMPLATE]: Maps requirements to observable checks and pass rules. agentic-workflow/templates/acceptance.md
+- [PLAN_TEMPLATE]: Structures task implementation plans. agentic-workflow/templates/PLAN.md
+- [ACCEPTANCE_TEMPLATE]: Maps requirements to observable checks and pass rules. agentic-workflow/templates/ACCEPTANCE.md
 
 ## Contracts
 

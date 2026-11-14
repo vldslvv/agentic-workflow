@@ -11,7 +11,7 @@ implementation.
 - [TRACING]: Explains native capture, trace inspection and usage reporting. agentic-workflow/guides/TRACING.md
 - [MEMORY]: Defines how to read and maintain project lessons. agentic-workflow/policies/MEMORY.md
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
-- [PROJECT_TEMPLATE]: Structures project intent, constraints and output paths. agentic-workflow/templates/project.md
+- [PROJECT_TEMPLATE]: Structures project intent, constraints and output paths. agentic-workflow/templates/PROJECT.md
 - [SUPERVISOR]: Coordinates implementation, recovery and acceptance. agentic-workflow/roles/SUPERVISOR.md
 - [GUIDELINES]: Defines engineering rules for code, tests and tooling. agentic-workflow/policies/GUIDELINES.md
 
@@ -93,6 +93,7 @@ To customize model choices, copy [MODELS] to the path above and edit its heurist
 
 Retain the package layout: root `AGENTS.md`, `GLOSSARY.md`, `WORKFLOW.md`, `WORKFLOW_STYLE.md` and `README.md`, plus
 `roles/`, `contracts/`, `policies/`, `guides/`, `templates/`, `helpers/` and `tests/`.
+Use uppercase Markdown basenames with underscores between words and a lowercase `.md` extension inside `agentic-workflow/`.
 Workflow data contracts describe handoff fields; application interface contracts remain in specification bundles.
 Source-repository evals, example specs, generated apps, research, Makefile and
 integration tests stay outside the copy boundary.

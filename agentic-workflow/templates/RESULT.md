@@ -4,7 +4,7 @@ Report completed work, evidence, findings and remaining limits.
 
 ## References:
 
-- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WorkResult.md
+- [WORK_RESULT]: Defines WorkResult fields. agentic-workflow/contracts/WORK_RESULT.md
 - [RECORDS]: Defines execution records, assignments and handoffs. agentic-workflow/policies/RECORDS.md
 - [CHECKS]: Defines acceptance criteria, independent checks and evidence rules. agentic-workflow/policies/CHECKS.md
 - [MODELS]: Provides heuristics for choosing subagent models. agentic-workflow/policies/MODELS.md
