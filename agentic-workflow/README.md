@@ -91,7 +91,7 @@ Keep customizations outside the package:
 
 To customize model choices, copy [MODELS] to the path above and edit its heuristics.
 
-Retain the package layout: root `AGENTS.md`, `GLOSSARY.md`, `WORKFLOW.md` and `README.md`, plus
+Retain the package layout: root `AGENTS.md`, `GLOSSARY.md`, `WORKFLOW.md`, `WORKFLOW_STYLE.md` and `README.md`, plus
 `roles/`, `contracts/`, `policies/`, `guides/`, `templates/`, `helpers/` and `tests/`.
 Workflow data contracts describe handoff fields; application interface contracts remain in specification bundles.
 Source-repository evals, example specs, generated apps, research, Makefile and

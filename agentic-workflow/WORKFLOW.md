@@ -4,7 +4,7 @@ Define how tasks move through implementation, review and final validation.
 
 ## References:
 
-- [WORKFLOW_STYLE]: Defines how to maintain the workflow contract. agentic-workflow/policies/WORKFLOW_STYLE.md
+- [WORKFLOW_STYLE]: Defines how to maintain the workflow contract. agentic-workflow/WORKFLOW_STYLE.md
 - [GLOSSARY]: Defines shared workflow inputs and outputs. agentic-workflow/GLOSSARY.md
 
 ## Context
